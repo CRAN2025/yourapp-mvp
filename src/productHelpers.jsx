@@ -1,171 +1,275 @@
 // utils/productHelpers.js
-// Helper functions for enhanced product schema
+// Helper functions for enhanced product schema (backward-compatible)
 
-import { normalizeToE164, isValidPhoneE164, formatPhoneForDisplay, generateWhatsAppURL } from './Phone';
+import {
+  normalizeToE164,
+  isValidPhoneE164,
+  formatPhoneForDisplay,
+  generateWhatsAppURL,
+} from './Phone';
 
-export const createEnhancedProduct = (basicProduct) => {
+// Single placeholder used anywhere we must show *something*
+const PLACEHOLDER =
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80';
+
+/* -------------------------------------------
+   URL utils
+-------------------------------------------- */
+const extractUrl = (val) => {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') {
+    // Common shapes from upload/preview libs
+    return val.url || val.src || val.preview || val.path || '';
+  }
+  return '';
+};
+
+const isUrlLike = (u) =>
+  typeof u === 'string' && /^(https?:|blob:|data:)/i.test(u.trim());
+
+/* -------------------------------------------
+   Primary image (handles arrays/objects/legacy)
+   Returns a valid URL or the placeholder.
+-------------------------------------------- */
+export const getProductImageUrl = (product = {}) => {
+  const candidatesRaw = [
+    product.images?.primary,
+    product.image,
+    product.imageUrl,
+    product.coverImage,
+    product.thumbnailUrl,
+    ...(Array.isArray(product.images) ? product.images : []),
+    ...(Array.isArray(product.images?.gallery) ? product.images.gallery : []),
+  ];
+
+  const candidates = candidatesRaw.map(extractUrl).filter(isUrlLike);
+  return candidates[0] || PLACEHOLDER;
+};
+
+/* -------------------------------------------
+   Gallery: normalize to a unique array of URLs
+   (primary first), accepting all shapes
+-------------------------------------------- */
+export const getProductImages = (product = {}) => {
+  const primary = extractUrl(product.images?.primary);
+  const arrays = [
+    Array.isArray(product.images) ? product.images : [],
+    Array.isArray(product.images?.gallery) ? product.images.gallery : [],
+  ];
+
+  const flat = arrays.flat().map(extractUrl).filter(isUrlLike);
+  const all = [primary, ...flat, extractUrl(product.imageUrl), extractUrl(product.coverImage), extractUrl(product.thumbnailUrl)]
+    .filter(isUrlLike);
+
+  // de-dup while keeping order
+  const uniq = [...new Set(all)];
+  return uniq.length ? uniq : [PLACEHOLDER];
+};
+
+/* -------------------------------------------
+   Descriptions can be strings or {short,full}
+-------------------------------------------- */
+export const getProductDescription = (product = {}, type = 'full') => {
+  if (typeof product.description === 'string') {
+    const full = product.description;
+    const short = full.length > 100 ? `${full.substring(0, 100)}...` : full;
+    return type === 'short' ? short : full;
+  }
+  const full = product.description?.full || '';
+  const short =
+    product.description?.short ||
+    (full.length > 100 ? `${full.substring(0, 100)}...` : full);
+  return type === 'short' ? short : full;
+};
+
+/* -------------------------------------------
+   Low stock helper (UI uses threshold <= 5)
+-------------------------------------------- */
+export const isLowStock = (product = {}, threshold = 5) => {
+  const q = Number(product.quantity ?? 0);
+  return q > 0 && q <= threshold;
+};
+
+/* -------------------------------------------
+   Create/normalize a product object
+-------------------------------------------- */
+export const createEnhancedProduct = (basicProduct = {}) => {
   return {
-    // Basic Info (existing)
+    // Basic Info
     name: basicProduct.name || '',
-    price: basicProduct.price || 0,
-    quantity: basicProduct.quantity || 0,
+    price: Number(basicProduct.price || 0),
+    quantity: Number(basicProduct.quantity || 0),
     category: basicProduct.category || '',
     subcategory: basicProduct.subcategory || '',
-    
+
     // Enhanced Description
-    description: {
-      short: typeof basicProduct.description === 'string' 
-        ? basicProduct.description.substring(0, 100) + (basicProduct.description.length > 100 ? '...' : '')
-        : basicProduct.description?.short || '',
-      full: typeof basicProduct.description === 'string' 
-        ? basicProduct.description 
-        : basicProduct.description?.full || ''
-    },
-    
-    // Multiple Images Support
+    description:
+      typeof basicProduct.description === 'string'
+        ? {
+            short:
+              basicProduct.description.length > 100
+                ? `${basicProduct.description.substring(0, 100)}...`
+                : basicProduct.description,
+            full: basicProduct.description,
+          }
+        : {
+            short: basicProduct.description?.short || '',
+            full: basicProduct.description?.full || '',
+          },
+
+    // Multiple Images Support (preserve original shape if provided)
     images: {
-      primary: basicProduct.images?.primary || basicProduct.imageUrl || '',
-      gallery: basicProduct.images?.gallery || []
+      primary:
+        extractUrl(basicProduct.images?.primary) ||
+        extractUrl(basicProduct.image) ||
+        extractUrl(basicProduct.imageUrl) ||
+        '',
+      gallery: Array.isArray(basicProduct.images?.gallery)
+        ? basicProduct.images.gallery.map(extractUrl).filter(Boolean)
+        : Array.isArray(basicProduct.images)
+        ? basicProduct.images.map(extractUrl).filter(Boolean)
+        : [],
     },
-    
+
     // Product Specifications
-    specifications: basicProduct.specifications || {
-      dimensions: '',
-      weight: '',
-      materials: '',
-      care: '',
-      condition: 'New',
-      origin: ''
-    },
-    
+    specifications:
+      basicProduct.specifications || {
+        dimensions: '',
+        weight: '',
+        materials: '',
+        care: '',
+        condition: 'New',
+        origin: '',
+      },
+
     // Key Features
     features: basicProduct.features || [],
-    
+
     // SEO & Discovery
     tags: basicProduct.tags || [],
     seo: basicProduct.seo || {
       title: basicProduct.name || '',
-      metaDescription: ''
+      metaDescription: '',
     },
-    
+
     // Inventory & Tracking
     sku: basicProduct.sku || generateSKU(basicProduct.name),
     status: basicProduct.status || 'active',
-    
+
     // Timestamps
     createdAt: basicProduct.createdAt || Date.now(),
     updatedAt: Date.now(),
-    
-    // Analytics Tracking
+
+    // Analytics
     analytics: basicProduct.analytics || {
       views: 0,
       contacts: 0,
-      lastViewed: null
-    }
-  }
-}
+      lastViewed: null,
+    },
+  };
+};
 
-// Helper to get primary image URL (backward compatible)
-export const getProductImageUrl = (product) => {
-  return product.images?.primary || product.imageUrl || 'https://via.placeholder.com/300x200'
-}
+/* -------------------------------------------
+   Format for UI
+-------------------------------------------- */
+export const formatProductForDisplay = (product = {}) => {
+  const price = Number(product.price ?? 0);
+  const quantity = Number(product.quantity ?? 0);
 
-// Helper to get all product images for gallery
-export const getProductImages = (product) => {
-  const primary = product.images?.primary || product.imageUrl
-  const gallery = product.images?.gallery || []
-  return primary ? [primary, ...gallery] : gallery.length > 0 ? gallery : ['https://via.placeholder.com/300x200']
-}
+  const images = getProductImages(product);
+  const primary = images[0] || PLACEHOLDER;
 
-// Helper to get product description (backward compatible)
-export const getProductDescription = (product, type = 'full') => {
-  if (typeof product.description === 'string') {
-    return type === 'short' 
-      ? product.description.substring(0, 100) + (product.description.length > 100 ? '...' : '')
-      : product.description
-  }
-  return product.description?.[type] || ''
-}
-
-// Helper to check if product has low stock
-export const isLowStock = (product, threshold = 10) => {
-  return product.quantity <= threshold
-}
-
-// Helper to format product for display
-export const formatProductForDisplay = (product) => {
   return {
     ...product,
-    imageUrl: getProductImageUrl(product), // For backward compatibility
+    price,
+    quantity,
+    imageUrl: primary, // legacy field used by UI
+    images,
     description: getProductDescription(product, 'full'),
     shortDescription: getProductDescription(product, 'short'),
-    images: getProductImages(product),
-    isLowStock: isLowStock(product),
-    hasSpecs: Object.keys(product.specifications || {}).some(key => product.specifications[key]),
-    hasFeatures: (product.features || []).length > 0
-  }
-}
+    isLowStock: isLowStock({ quantity }),
+    hasSpecs: Object.keys(product.specifications || {}).some(
+      (k) => (product.specifications || {})[k]
+    ),
+    hasFeatures: (product.features || []).length > 0,
+  };
+};
 
-// Generate SKU if not provided
+/* -------------------------------------------
+   SKU helper
+-------------------------------------------- */
 const generateSKU = (productName) => {
-  const prefix = productName ? productName.substring(0, 3).toUpperCase() : 'PRD'
-  const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
-  return `${prefix}${randomNum}`
-}
+  const prefix = productName ? productName.substring(0, 3).toUpperCase() : 'PRD';
+  const randomNum = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, '0');
+  return `${prefix}${randomNum}`;
+};
 
-// Helper to update product analytics
-export const updateProductAnalytics = (product, action) => {
-  const analytics = product.analytics || { views: 0, contacts: 0, lastViewed: null }
-  
-  switch(action) {
+/* -------------------------------------------
+   Analytics helper
+-------------------------------------------- */
+export const updateProductAnalytics = (product = {}, action) => {
+  const analytics = product.analytics || {
+    views: 0,
+    contacts: 0,
+    lastViewed: null,
+  };
+
+  switch (action) {
     case 'view':
-      analytics.views = (analytics.views || 0) + 1
-      analytics.lastViewed = Date.now()
-      break
+      analytics.views = (analytics.views || 0) + 1;
+      analytics.lastViewed = Date.now();
+      break;
     case 'contact':
-      analytics.contacts = (analytics.contacts || 0) + 1
-      break
+      analytics.contacts = (analytics.contacts || 0) + 1;
+      break;
+    default:
+      break;
   }
-  
+
   return {
     ...product,
     analytics,
-    updatedAt: Date.now()
-  }
-}
+    updatedAt: Date.now(),
+  };
+};
 
-// Helper to validate product data
-export const validateProductData = (product) => {
-  const errors = []
-  
+/* -------------------------------------------
+   Validation helper
+   (accepts https, blob, data URLs and object/array shapes)
+-------------------------------------------- */
+export const validateProductData = (product = {}) => {
+  const errors = [];
+
   if (!product.name || product.name.trim() === '') {
-    errors.push('Product name is required')
+    errors.push('Product name is required');
   }
-  
-  if (!product.price || product.price <= 0) {
-    errors.push('Valid price is required')
+  if (!product.price || Number(product.price) <= 0) {
+    errors.push('Valid price is required');
   }
-  
-  if (!product.quantity || product.quantity < 0) {
-    errors.push('Valid quantity is required')
+  if (product.quantity == null || Number(product.quantity) < 0) {
+    errors.push('Valid quantity is required');
   }
-  
   if (!product.category || product.category.trim() === '') {
-    errors.push('Category is required')
+    errors.push('Category is required');
   }
-  
-  const primaryImage = getProductImageUrl(product)
-  if (!primaryImage || primaryImage === 'https://via.placeholder.com/300x200') {
-    errors.push('Product image is required')
+
+  const images = getProductImages(product).filter(isUrlLike);
+  if (images.length === 0) {
+    errors.push('Product image is required');
   }
-  
+
   return {
     isValid: errors.length === 0,
-    errors
-  }
-}
+    errors,
+  };
+};
 
-// Export default object with all helpers (excluding phone utilities since they're imported)
+/* -------------------------------------------
+   Default export + convenience re-exports
+-------------------------------------------- */
 export default {
   createEnhancedProduct,
   getProductImageUrl,
@@ -175,9 +279,9 @@ export default {
   formatProductForDisplay,
   updateProductAnalytics,
   validateProductData,
-  // Re-export phone utilities for convenience
+  // phone utilities
   normalizeToE164,
   isValidPhoneE164,
   formatPhoneForDisplay,
-  generateWhatsAppURL
-}
+  generateWhatsAppURL,
+};

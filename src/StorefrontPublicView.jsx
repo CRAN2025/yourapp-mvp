@@ -1,10 +1,12 @@
+// src/StorefrontPublicView.jsx
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { MessageCircle, ArrowLeft, Eye } from 'lucide-react';
+import { MessageCircle, ArrowLeft } from 'lucide-react';
 import { ref, get } from 'firebase/database';
 import { db } from './firebase';
+import ProductCard from './ProductCard';
 import {
-  standardizeSellerData,
+  // standardizeSellerData, // ❌ not needed anymore
   getProductImageUrl,
   formatProductForDisplay,
   formatPrice,
@@ -12,17 +14,16 @@ import {
   createWhatsAppMessage,
   generateWhatsAppUrl,
   isMobileDevice,
-  // Optional UI chips (category/location/etc.)
-  buildStoreDetailChips,
 } from './sharedUtils';
+
+// Marketing / signup URL (placeholder)
+const SHOPLINK_SIGNUP_URL = '/';
 
 const StorefrontPublicView = () => {
   const { sellerId } = useParams();
 
   const [sellerData, setSellerData] = useState(null);
   const [favorites, setFavorites] = useState(new Set());
-  const [hoveredProduct, setHoveredProduct] = useState(null);
-
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
 
@@ -41,18 +42,18 @@ const StorefrontPublicView = () => {
     product: null,
   });
 
-  // Image quality helpers
+  // Header detail popovers
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+
+  // Image helpers (used in modal)
   const [lowResImages, setLowResImages] = useState({});
   const PLACEHOLDER =
     'data:image/svg+xml;utf8,' +
     encodeURIComponent(
       `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
-         <defs>
-           <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-             <stop offset="0" stop-color="#eef2ff"/>
-             <stop offset="1" stop-color="#e0f2fe"/>
-           </linearGradient>
-         </defs>
+         <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+           <stop offset="0" stop-color="#eef2ff"/><stop offset="1" stop-color="#e0f2fe"/></linearGradient></defs>
          <rect width="100%" height="100%" fill="url(#g)"/>
          <g fill="#64748b" font-family="Arial, Helvetica, sans-serif">
            <text x="50%" y="46%" font-size="28" text-anchor="middle">No Image</text>
@@ -72,15 +73,12 @@ const StorefrontPublicView = () => {
     e.currentTarget.src = PLACEHOLDER;
   };
 
-  // Optional: mobile-only FAB show after scroll
+  // Optional: floating chat FAB
   const [showChatFab, setShowChatFab] = useState(false);
   useEffect(() => {
     const onScroll = () => {
-      if (window.innerWidth > 768) {
-        setShowChatFab(true); // keep visible on desktop
-      } else {
-        setShowChatFab(window.scrollY > 300);
-      }
+      if (window.innerWidth > 768) setShowChatFab(true);
+      else setShowChatFab(window.scrollY > 300);
     };
     onScroll();
     window.addEventListener('scroll', onScroll);
@@ -91,20 +89,34 @@ const StorefrontPublicView = () => {
     };
   }, []);
 
-  // Load seller + products
+  // Load seller profile (public) + products (public)
   useEffect(() => {
     const loadStorefront = async () => {
       if (!sellerId) return;
       try {
-        const sellerRef = ref(db, `users/${sellerId}`);
-        const sellerSnap = await get(sellerRef);
-        if (!sellerSnap.exists()) {
+        // ✅ Read ONLY the public profile subpath
+        const profileRef = ref(db, `users/${sellerId}/profile`);
+        const profileSnap = await get(profileRef);
+        if (!profileSnap.exists()) {
           setError('Store not found');
+          setLoading(false);
           return;
         }
-        const normalized = standardizeSellerData(sellerSnap.val());
-        setSellerData(normalized);
 
+        const p = profileSnap.val() || {};
+        const normalizedProfile = {
+          storeName: p.storeName || 'Store',
+          location: [p.city, p.country].filter(Boolean).join(', ') || 'Online Store',
+          currency: p.currency || 'GHS',
+          storeDescription: p.storeDescription || p.description || '',
+          paymentMethods: p.paymentMethods || p.payments || p.paymentOptions || [],
+          deliveryOptions: p.deliveryOptions || p.shippingOptions || p.deliveryMethods || [],
+          whatsappNumber: p.whatsappNumber || '',
+          bannerUrl: p.bannerUrl || p.coverImageUrl || '',
+        };
+        setSellerData(normalizedProfile);
+
+        // ✅ Read ONLY the public products subpath
         const productsRef = ref(db, `users/${sellerId}/products`);
         const prodSnap = await get(productsRef);
         if (prodSnap.exists()) {
@@ -115,7 +127,7 @@ const StorefrontPublicView = () => {
           }));
 
           const activeProducts = productsArray
-            .filter((p) => p.status === 'active' && p.quantity > 0)
+            .filter((pp) => pp.status === 'active' && pp.quantity > 0)
             .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
           const uniqueProducts = activeProducts.filter(
@@ -123,6 +135,7 @@ const StorefrontPublicView = () => {
           );
 
           setProducts(uniqueProducts);
+          setFilteredProducts(uniqueProducts);
         }
       } catch (err) {
         console.error('Error loading storefront:', err);
@@ -137,8 +150,8 @@ const StorefrontPublicView = () => {
   // Filters/sort
   useEffect(() => {
     let filtered = [...products];
-    if (searchTerm) {
-      const s = searchTerm.toLowerCase();
+    const s = searchTerm.trim().toLowerCase();
+    if (s) {
       filtered = filtered.filter(
         (p) =>
           p.name?.toLowerCase().includes(s) ||
@@ -149,7 +162,6 @@ const StorefrontPublicView = () => {
     if (selectedCategory !== 'All') {
       filtered = filtered.filter((p) => p.category === selectedCategory);
     }
-
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -161,9 +173,7 @@ const StorefrontPublicView = () => {
         filtered.sort((a, b) => a.name.localeCompare(b.name));
         break;
       case 'popular':
-        filtered.sort(
-          (a, b) => (b.analytics?.views || 0) - (a.analytics?.views || 0)
-        );
+        filtered.sort((a, b) => (b.analytics?.views || 0) - (a.analytics?.views || 0));
         break;
       case 'newest':
       default:
@@ -178,18 +188,38 @@ const StorefrontPublicView = () => {
     try {
       const saved = localStorage.getItem('favorites');
       if (saved) setFavorites(new Set(JSON.parse(saved)));
-    } catch {
-      /* ignore */
-    }
+    } catch {}
   }, []);
 
-  const categories = ['All', ...new Set(products.map((p) => p.category).filter(Boolean))];
+  const paymentMethods = useMemo(() => {
+    const raw =
+      sellerData?.paymentMethods ||
+      sellerData?.payments ||
+      sellerData?.paymentOptions ||
+      [];
+    if (Array.isArray(raw)) return raw.filter(Boolean);
+    if (raw && typeof raw === 'object') {
+      return Object.entries(raw)
+        .filter(([, v]) => !!v)
+        .map(([k]) => k);
+    }
+    return [];
+  }, [sellerData]);
 
-  // Optional chips using sharedUtils helper (safe no-op if fields missing)
-  const chips = useMemo(
-    () => buildStoreDetailChips ? buildStoreDetailChips(sellerData || {}) : [],
-    [sellerData]
-  );
+  const deliveryOptions = useMemo(() => {
+    const raw =
+      sellerData?.deliveryOptions ||
+      sellerData?.shippingOptions ||
+      sellerData?.deliveryMethods ||
+      [];
+    if (Array.isArray(raw)) return raw.filter(Boolean);
+    if (raw && typeof raw === 'object') {
+      return Object.entries(raw)
+        .filter(([, v]) => !!v)
+        .map(([k]) => k);
+    }
+    return [];
+  }, [sellerData]);
 
   // Actions
   const handleContactSeller = async (product) => {
@@ -210,11 +240,14 @@ const StorefrontPublicView = () => {
     const storeUrl = `${window.location.origin}/store/${sellerId}`;
     const msg = createWhatsAppMessage.storeShare(sellerData, storeUrl);
     const url = generateWhatsAppUrl(sellerData.whatsappNumber, msg);
-    if (isMobileDevice()) {
-      window.location.href = url;
-    } else {
-      window.open(url, '_blank');
-    }
+    if (isMobileDevice()) window.location.href = url;
+    else window.open(url, '_blank');
+  };
+
+  const handleMarketingClick = () => {
+    try {
+      window.gtag?.('event', 'marketing_cta_click', { sellerId });
+    } catch {}
   };
 
   const handleToggleFavorite = (productId, e) => {
@@ -224,15 +257,11 @@ const StorefrontPublicView = () => {
     setFavorites(s);
     try {
       localStorage.setItem('favorites', JSON.stringify([...s]));
-    } catch {
-      /* ignore */
-    }
+    } catch {}
     const btn = e.target?.closest?.('button');
     if (btn) {
       btn.style.animation = 'heartBeat 0.6s ease-in-out';
-      setTimeout(() => {
-        btn.style.animation = '';
-      }, 600);
+      setTimeout(() => (btn.style.animation = ''), 600);
     }
   };
 
@@ -242,6 +271,19 @@ const StorefrontPublicView = () => {
     setShowProductModal(true);
   };
 
+  // Close modals on ESC
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setShowPaymentModal(false);
+        setShowDeliveryModal(false);
+        setShowProductModal(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   // Loading / error UIs
   if (loading) {
     return (
@@ -250,15 +292,14 @@ const StorefrontPublicView = () => {
           minHeight: '100vh',
           display: 'grid',
           placeItems: 'center',
-          background:
-            'linear-gradient(180deg, #eef2ff 0%, #e0f2fe 50%, #e6fffb 100%)',
+          background: 'linear-gradient(180deg,#eef2ff 0%,#e0f2fe 50%,#e6fffb 100%)',
         }}
       >
         <div
           style={{
             background: 'rgba(255,255,255,0.9)',
-            padding: '40px',
-            borderRadius: '16px',
+            padding: 40,
+            borderRadius: 16,
             textAlign: 'center',
           }}
         >
@@ -286,70 +327,104 @@ const StorefrontPublicView = () => {
           minHeight: '100vh',
           display: 'grid',
           placeItems: 'center',
-          background:
-            'linear-gradient(180deg, #eef2ff 0%, #e0f2fe 50%, #e6fffb 100%)',
+          background: 'linear-gradient(180deg,#eef2ff 0%,#e0f2fe 50%,#e6fffb 100%)',
         }}
       >
         <div
           style={{
             background: 'rgba(255,255,255,0.9)',
-            padding: '40px',
-            borderRadius: '16px',
+            padding: 40,
+            borderRadius: 16,
             textAlign: 'center',
           }}
         >
-          <h2 style={{ color: '#dc2626', marginBottom: '16px' }}>Store Not Found</h2>
-          <p className="typ-body" style={{ marginBottom: '24px' }}>
-            {error}
-          </p>
+          <h2 style={{ color: '#dc2626', marginBottom: 16 }}>Store Not Found</h2>
+          <p className="typ-body" style={{ marginBottom: 24 }}>{error}</p>
           <button
             onClick={() => window.history.back()}
             style={{
               padding: '12px 24px',
               background: '#5a6bff',
-              color: 'white',
+              color: '#fff',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: 8,
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
             }}
           >
-            <ArrowLeft size={16} />
-            Go Back
+            <ArrowLeft size={16} /> Go Back
           </button>
         </div>
       </div>
     );
   }
 
+  // Friendly label helpers for chip modals
+  const labelForPayment = (k) => {
+    const key = String(k || '').toLowerCase();
+    if (/momo|mobile/.test(key)) return 'Mobile Money';
+    if (/card/.test(key)) return 'Card';
+    if (/bank/.test(key)) return 'Bank Transfer';
+    if (/cash/.test(key)) return 'Cash';
+    if (/pos/.test(key)) return 'POS';
+    if (/paypal/.test(key)) return 'PayPal';
+    return k;
+  };
+  const iconForPayment = (k) => {
+    const key = String(k || '').toLowerCase();
+    if (/momo|mobile/.test(key)) return '📱';
+    if (/card/.test(key)) return '💳';
+    if (/bank/.test(key)) return '🏦';
+    if (/cash/.test(key)) return '💵';
+    if (/pos/.test(key)) return '🧾';
+    if (/paypal/.test(key)) return '🅿️';
+    return '💳';
+  };
+  const labelForDelivery = (k) => {
+    const key = String(k || '').toLowerCase();
+    if (/pickup|pick-up|self/.test(key)) return 'Pickup';
+    if (/local/.test(key)) return 'Local Delivery';
+    if (/courier|rider/.test(key)) return 'Courier';
+    if (/nation/.test(key)) return 'Nationwide';
+    if (/inter/.test(key)) return 'International';
+    return k;
+  };
+  const iconForDelivery = (k) => {
+    const key = String(k || '').toLowerCase();
+    if (/pickup|pick-up|self/.test(key)) return '🧍';
+    if (/local/.test(key)) return '🚲';
+    if (/courier|rider/.test(key)) return '🚚';
+    if (/nation/.test(key)) return '🛣️';
+    if (/inter/.test(key)) return '✈️';
+    return '🚚';
+  };
+
   return (
     <>
       <div
         style={{
           minHeight: '100vh',
-          background:
-            'linear-gradient(180deg, #eef2ff 0%, #e0f2fe 50%, #e6fffb 100%)',
-          padding: '20px',
+          background: 'linear-gradient(180deg,#eef2ff 0%,#e0f2fe 50%,#e6fffb 100%)',
+          padding: 20,
         }}
       >
-        {/* quick keyframes used by the loader & favorite pulse */}
         <style>{`
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           @keyframes heartBeat { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-          @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-          @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+          @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1); } }
+          @keyframes pulse { 0% { opacity: 1; } 50% { opacity: .7; } 100% { opacity: 1; } }
         `}</style>
 
-        <div style={{ maxWidth: '980px', margin: '0 auto' }}>
+        <div style={{ maxWidth: 980, margin: '0 auto' }}>
           {/* ===== Header / Banner ===== */}
           <div
             style={{
               background: 'rgba(255,255,255,0.95)',
-              borderRadius: '20px',
+              borderRadius: 20,
               padding: '0 0 24px',
-              marginBottom: '24px',
+              marginBottom: 24,
               boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
             }}
           >
@@ -360,15 +435,14 @@ const StorefrontPublicView = () => {
                 borderTopRightRadius: 20,
                 background: sellerData?.bannerUrl
                   ? `url(${sellerData.bannerUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg, #c7d2fe 0%, #bae6fd 60%, #ccfbf1 100%)',
+                  : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
               }}
             />
-
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '16px',
+                gap: 16,
                 padding: '0 24px',
                 marginTop: -30,
               }}
@@ -378,7 +452,7 @@ const StorefrontPublicView = () => {
                   width: 72,
                   height: 72,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #5a6bff, #67d1ff)',
+                  background: 'linear-gradient(135deg,#5a6bff,#67d1ff)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -399,73 +473,105 @@ const StorefrontPublicView = () => {
               </div>
             </div>
 
-            {/* OPTIONAL: chips (category/location/payment/delivery counts) */}
-            {!!chips.length && (
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '8px',
-                  flexWrap: 'wrap',
-                  padding: '12px 24px 0',
-                }}
-              >
-                {chips.map((c, i) => (
-                  <span
-                    key={`${c.label}-${i}`}
-                    className="typ-meta"
-                    style={{
-                      background: '#f3f4f6',
-                      color: '#4b5563',
-                      padding: '6px 12px',
-                      borderRadius: 999,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {c.label}
-                  </span>
-                ))}
-              </div>
-            )}
-
+            {/* chips */}
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
-                gap: '24px',
+                gap: 12,
+                flexWrap: 'wrap',
+                padding: '12px 24px 0',
+              }}
+            >
+              {paymentMethods.length > 0 && (
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#eef2ff',
+                    color: '#374151',
+                    padding: '10px 14px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    border: '1px solid #e5e7eb',
+                    cursor: 'pointer',
+                  }}
+                  title="View payment methods"
+                >
+                  💳 {paymentMethods.length} Payment Methods
+                </button>
+              )}
+              {deliveryOptions.length > 0 && (
+                <button
+                  onClick={() => setShowDeliveryModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#ecfeff',
+                    color: '#374151',
+                    padding: '10px 14px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    border: '1px solid #e5e7eb',
+                    cursor: 'pointer',
+                  }}
+                  title="View delivery options"
+                >
+                  🚚 {deliveryOptions.length} Delivery Options
+                </button>
+              )}
+              {sellerData?.currency && (
+                <div
+                  className="typ-meta"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#f3f4f6',
+                    color: '#4b5563',
+                    padding: '10px 14px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    border: '1px solid #e5e7eb',
+                  }}
+                >
+                  🌐 {sellerData.currency} Currency
+                </div>
+              )}
+            </div>
+
+            {/* Store description */}
+            {(sellerData?.storeDescription) && (
+              <p
+                className="typ-body"
+                style={{
+                  margin: '8px 24px 0',
+                  color: '#374151',
+                  lineHeight: 1.5,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {sellerData.storeDescription}
+              </p>
+            )}
+
+            {/* Action pills */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                justifyContent: 'center',
                 flexWrap: 'wrap',
                 padding: '12px 24px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontWeight: 700, color: '#111827' }}>⭐ 4.9</span>
-                <span className="typ-meta">({products.length} reviews)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontWeight: 700, color: '#111827' }}>
-                  {products.length}
-                </span>
-                <span className="typ-meta">products</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontWeight: 700, color: '#111827' }}>🚚 Fast</span>
-                <span className="typ-meta">shipping</span>
-              </div>
-            </div>
-
-            <p className="typ-body" style={{ margin: '0 24px 16px', textAlign: 'center' }}>
-              {sellerData?.storeDescription || 'Welcome to our store!'}
-            </p>
-
-            <div
-              style={{
-                display: 'flex',
-                gap: '12px',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-                padding: '0 24px',
-              }}
-            >
-              <div
+              <button
+                onClick={handleFloatingChatClick}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -476,11 +582,38 @@ const StorefrontPublicView = () => {
                   borderRadius: 999,
                   fontSize: 14,
                   fontWeight: 600,
+                  border: '1px solid rgba(37,211,102,0.25)',
+                  cursor: 'pointer',
                 }}
               >
                 <MessageCircle size={16} /> Chat with seller on WhatsApp
-              </div>
+              </button>
+
+              <a
+                href={`${SHOPLINK_SIGNUP_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleMarketingClick}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'rgba(59,130,246,0.12)',
+                  color: '#3b82f6',
+                  padding: '8px 16px',
+                  borderRadius: 999,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  border: '1px solid rgba(59,130,246,0.25)',
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                ✨ Create your free ShopLink store
+              </a>
+
               <div
+                className="typ-meta"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -491,6 +624,7 @@ const StorefrontPublicView = () => {
                   borderRadius: 999,
                   fontSize: 14,
                   fontWeight: 600,
+                  border: '1px solid rgba(59,130,246,0.25)',
                 }}
               >
                 ⚡ Usually responds within 2 hours
@@ -502,13 +636,13 @@ const StorefrontPublicView = () => {
           <div
             style={{
               background: 'rgba(255,255,255,0.95)',
-              borderRadius: '16px',
-              padding: '24px',
-              marginBottom: '24px',
+              borderRadius: 16,
+              padding: 24,
+              marginBottom: 24,
               boxShadow: '0 8px 22px rgba(0,0,0,0.05)',
             }}
           >
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: 20 }}>
               <input
                 type="text"
                 placeholder="Search products..."
@@ -518,10 +652,10 @@ const StorefrontPublicView = () => {
                   width: '100%',
                   padding: '12px 16px',
                   border: '2px solid #e5e7eb',
-                  borderRadius: '12px',
+                  borderRadius: 12,
                   fontSize: 16,
                   outline: 'none',
-                  transition: 'border-color 0.2s',
+                  transition: 'border-color .2s',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = '#5a6bff')}
                 onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
@@ -534,33 +668,35 @@ const StorefrontPublicView = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 flexWrap: 'wrap',
-                gap: '16px',
+                gap: 16,
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span className="typ-meta" style={{ fontWeight: 600 }}>
                   Categories:
                 </span>
-                {['All', ...new Set(products.map((p) => p.category).filter(Boolean))].map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className="typ-meta"
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: 20,
-                      border: 'none',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      background: selectedCategory === category ? '#5a6bff' : '#f3f4f6',
-                      color: selectedCategory === category ? 'white' : '#6b7280',
-                    }}
-                  >
-                    {category}{' '}
-                    {category !== 'All' &&
-                      `(${products.filter((p) => p.category === category).length})`}
-                  </button>
-                ))}
+                {['All', ...new Set(products.map((p) => p.category).filter(Boolean))].map(
+                  (category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className="typ-meta"
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 20,
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all .2s',
+                        background: selectedCategory === category ? '#5a6bff' : '#f3f4f6',
+                        color: selectedCategory === category ? '#fff' : '#6b7280',
+                      }}
+                    >
+                      {category}{' '}
+                      {category !== 'All' &&
+                        `(${products.filter((p) => p.category === category).length})`}
+                    </button>
+                  )
+                )}
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -601,304 +737,28 @@ const StorefrontPublicView = () => {
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: '24px',
+                gap: 24,
               }}
             >
-              {filteredProducts.map((product) => {
-                const hasAnalytics =
-                  (product.analytics?.views || 0) > 0 ||
-                  (product.analytics?.contacts || 0) > 0;
-                const isLow = !!lowResImages[product.productId];
-
-                return (
-                  <div
-                    key={product.productId}
-                    className="product-card"
-                    onClick={() => handleProductView(product)}
-                    onMouseEnter={() => setHoveredProduct(product.productId)}
-                    onMouseLeave={() => setHoveredProduct(null)}
-                    style={{
-                      position: 'relative',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: 'relative',
-                        overflow: 'hidden',
-                        width: '100%',
-                        aspectRatio: '4 / 3',
-                        background: '#f8fafc',
-                        borderBottom: '1px solid #f1f5f9',
-                      }}
-                    >
-                      <img
-                        src={getProductImageUrl(product)}
-                        alt={product.name}
-                        className="product-image"
-                        onLoad={(e) => handleImageLoad(product.productId, e)}
-                        onError={handleImageError}
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                        }}
-                      />
-
-                      <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          background:
-                            'linear-gradient(to bottom, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.3) 100%)',
-                          opacity: hoveredProduct === product.productId ? 1 : 0,
-                          visibility:
-                            hoveredProduct === product.productId ? 'visible' : 'hidden',
-                          transition: 'all .3s ease',
-                        }}
-                      />
-
-                      {isLow && (
-                        <div
-                          className="typ-meta"
-                          style={{
-                            position: 'absolute',
-                            top: 12,
-                            left: 12,
-                            background: 'rgba(255,255,255,0.95)',
-                            color: '#dc2626',
-                            padding: '4px 10px',
-                            borderRadius: 999,
-                            fontWeight: 700,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                          }}
-                        >
-                          Low-res image
-                        </div>
-                      )}
-
-                      <button
-                        onClick={(e) => handleToggleFavorite(product.productId, e)}
-                        className={`favorite-btn ${favorites.has(product.productId) ? 'favorited' : ''}`}
-                        style={{
-                          position: 'absolute',
-                          top: 12,
-                          right: 12,
-                          width: 40,
-                          height: 40,
-                          borderRadius: '50%',
-                          border: 'none',
-                          background: 'rgba(255,255,255,0.95)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          fontSize: 18,
-                          zIndex: 10,
-                          boxShadow: '0 6px 14px rgba(0,0,0,0.1)',
-                        }}
-                        aria-label={
-                          favorites.has(product.productId)
-                            ? 'Remove from favorites'
-                            : 'Add to favorites'
-                        }
-                        title={
-                          favorites.has(product.productId)
-                            ? 'Remove from favorites'
-                            : 'Add to favorites'
-                        }
-                      >
-                        {favorites.has(product.productId) ? '❤️' : '🤍'}
-                      </button>
-
-                      {product.featured && (
-                        <div
-                          className="typ-meta"
-                          style={{
-                            position: 'absolute',
-                            top: isLow ? 46 : 12,
-                            left: 12,
-                            background:
-                              'linear-gradient(135deg, #f59e0b, #d97706)',
-                            color: 'white',
-                            padding: '6px 12px',
-                            borderRadius: 20,
-                            fontWeight: 700,
-                            boxShadow: '0 4px 12px rgba(245,158,11,0.3)',
-                            backdropFilter: 'blur(10px)',
-                          }}
-                        >
-                          ⭐ Featured
-                        </div>
-                      )}
-
-                      {product.isLowStock && (
-                        <div
-                          className="typ-meta"
-                          style={{
-                            position: 'absolute',
-                            top: product.featured ? (isLow ? 86 : 52) : (isLow ? 46 : 12),
-                            left: 12,
-                            background:
-                              'linear-gradient(135deg, #ef4444, #dc2626)',
-                            color: 'white',
-                            padding: '6px 12px',
-                            borderRadius: 20,
-                            fontWeight: 700,
-                            boxShadow: '0 4px 12px rgba(239,68,68,0.3)',
-                            animation: 'pulse 2s infinite',
-                          }}
-                        >
-                          🔥 Only {product.quantity} left!
-                        </div>
-                      )}
-
-                      <div
-                        className="typ-meta"
-                        style={{
-                          position: 'absolute',
-                          bottom: 12,
-                          right: 12,
-                          background: 'rgba(0,0,0,0.65)',
-                          color: 'white',
-                          padding: '6px 10px',
-                          borderRadius: 20,
-                          fontWeight: 600,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          backdropFilter: 'blur(10px)',
-                        }}
-                      >
-                        <Eye size={14} /> {product.analytics?.views || 0}
-                      </div>
-
-                      {hoveredProduct === product.productId && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            bottom: 12,
-                            left: 12,
-                            display: 'flex',
-                            gap: 8,
-                            animation: 'slideUp .3s ease-out',
-                          }}
-                        >
-                          <div
-                            className="typ-meta"
-                            style={{
-                              background: 'rgba(255,255,255,0.95)',
-                              color: '#1f2937',
-                              padding: '6px 10px',
-                              borderRadius: 20,
-                              fontWeight: 600,
-                              backdropFilter: 'blur(10px)',
-                            }}
-                          >
-                            📦 {product.category || 'General'}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div style={{ padding: 22, display: 'flex', flexDirection: 'column', flex: 1 }}>
-                      <div style={{ marginBottom: 10 }}>
-                        <h3 className="typ-title" style={{ margin: '0 0 8px' }}>
-                          {product.name}
-                        </h3>
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            marginBottom: 10,
-                          }}
-                        >
-                          <span className="badge-price">
-                            {formatPrice(product.price, sellerData?.currency)}
-                          </span>
-                          <div className="chip">📦 {product.quantity} left</div>
-                        </div>
-                      </div>
-
-                      {product.description && (
-                        <p
-                          className="typ-body"
-                          style={{
-                            margin: '0 0 16px',
-                            height: 42,
-                            overflow: 'hidden',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                          }}
-                        >
-                          {product.description}
-                        </p>
-                      )}
-
-                      <div style={{ marginBottom: 18, minHeight: hasAnalytics ? undefined : 40 }}>
-                        {hasAnalytics && (
-                          <div
-                            className="typ-meta"
-                            style={{
-                              display: 'flex',
-                              gap: 16,
-                              color: '#6b7280',
-                              padding: '8px 12px',
-                              background: 'rgba(107,114,128,0.1)',
-                              borderRadius: 12,
-                            }}
-                          >
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <Eye size={14} /> {product.analytics?.views || 0} views
-                            </span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <MessageCircle size={14} />{' '}
-                              {product.analytics?.contacts || 0} contacts
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div style={{ flex: 1 }} />
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleContactSeller(product);
-                        }}
-                        className="btn-primary-whatsapp"
-                        style={{ width: '100%' }}
-                      >
-                        <MessageCircle size={18} />
-                        Contact Seller
-                        <span
-                          className="typ-meta"
-                          style={{
-                            background: 'rgba(255,255,255,0.22)',
-                            padding: '2px 8px',
-                            borderRadius: 12,
-                            marginLeft: 4,
-                          }}
-                        >
-                          WhatsApp
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.productId}
+                  product={product}
+                  sellerCurrency={sellerData?.currency}
+                  onContact={handleContactSeller}
+                  onView={handleProductView}
+                  onToggleFavorite={handleToggleFavorite}
+                  isFavorited={favorites.has(product.productId)}
+                  isLoading={false}
+                />
+              ))}
             </div>
           ) : (
             <div
               style={{
                 background: 'rgba(255,255,255,0.95)',
-                borderRadius: '16px',
-                padding: '60px',
+                borderRadius: 16,
+                padding: 60,
                 textAlign: 'center',
               }}
             >
@@ -920,7 +780,7 @@ const StorefrontPublicView = () => {
                     marginTop: 16,
                     padding: '8px 16px',
                     background: '#5a6bff',
-                    color: 'white',
+                    color: '#fff',
                     border: 'none',
                     borderRadius: 8,
                     cursor: 'pointer',
@@ -932,9 +792,19 @@ const StorefrontPublicView = () => {
             </div>
           )}
 
-          <div style={{ textAlign: 'center', marginTop: 40, padding: '20px', opacity: 0.6 }}>
+          {/* Footer */}
+          <div style={{ textAlign: 'center', marginTop: 40, padding: 20, opacity: 0.6 }}>
             <p className="typ-meta" style={{ margin: 0 }}>
-              Powered by 🛍️ ShopLink
+              Powered by 🛍️ ShopLink —{' '}
+              <a
+                href={`${SHOPLINK_SIGNUP_URL}?utm_source=storefront&utm_medium=footer&utm_campaign=public_cta&seller=${sellerId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleMarketingClick}
+                style={{ color: '#5a6bff', fontWeight: 700, textDecoration: 'none' }}
+              >
+                create your store
+              </a>
             </p>
           </div>
         </div>
@@ -978,14 +848,14 @@ const StorefrontPublicView = () => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 1000,
-            padding: '20px',
+            padding: 20,
           }}
         >
           <div
             style={{
               background: 'white',
-              borderRadius: '20px',
-              maxWidth: '400px',
+              borderRadius: 20,
+              maxWidth: 400,
               width: '100%',
               padding: '32px 24px',
               textAlign: 'center',
@@ -1005,12 +875,9 @@ const StorefrontPublicView = () => {
             >
               <MessageCircle size={32} style={{ color: '#25D366' }} />
             </div>
-            <h2 className="typ-title" style={{ margin: '0 0 12px' }}>
-              Welcome Back!
-            </h2>
+            <h2 className="typ-title" style={{ margin: '0 0 12px' }}>Welcome Back!</h2>
             <p className="typ-body" style={{ margin: '0 0 32px' }}>
-              Your WhatsApp message about {contactNotification.product?.name} has been
-              sent. Continue browsing for more great products!
+              Your WhatsApp message has been sent. Continue browsing for more great products!
             </p>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <button
@@ -1018,9 +885,9 @@ const StorefrontPublicView = () => {
                 style={{
                   padding: '12px 32px',
                   background: '#5a6bff',
-                  color: 'white',
+                  color: '#fff',
                   border: 'none',
-                  borderRadius: '12px',
+                  borderRadius: 12,
                   fontSize: 16,
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -1028,6 +895,172 @@ const StorefrontPublicView = () => {
               >
                 Continue Browsing
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Methods modal */}
+      {showPaymentModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="payment-modal-title"
+          onClick={(e) => e.currentTarget === e.target && setShowPaymentModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1600,
+            padding: 20,
+          }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: 16,
+              width: '100%',
+              maxWidth: 480,
+              boxShadow: '0 20px 60px rgba(0,0,0,.25)',
+            }}
+          >
+            <div
+              style={{
+                padding: 20,
+                borderBottom: '1px solid #e5e7eb',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <h3 id="payment-modal-title" className="typ-title" style={{ margin: 0 }}>
+                Accepted Payment Methods
+              </h3>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                aria-label="Close"
+                style={{
+                  background: '#f3f4f6',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: 36,
+                  height: 36,
+                  cursor: 'pointer',
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ padding: 20 }}>
+              {paymentMethods.map((m) => (
+                <div
+                  key={m}
+                  className="typ-body"
+                  style={{
+                    padding: '10px 12px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 12,
+                    marginBottom: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>{iconForPayment(m)}</span>
+                  <span style={{ fontWeight: 700 }}>{labelForPayment(m)}</span>
+                </div>
+              ))}
+              {paymentMethods.length === 0 && (
+                <p className="typ-meta" style={{ margin: 0 }}>
+                  The seller hasn’t listed payment methods. Please ask on WhatsApp.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delivery Options modal */}
+      {showDeliveryModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delivery-modal-title"
+          onClick={(e) => e.currentTarget === e.target && setShowDeliveryModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1600,
+            padding: 20,
+          }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: 16,
+              width: '100%',
+              maxWidth: 480,
+              boxShadow: '0 20px 60px rgba(0,0,0,.25)',
+            }}
+          >
+            <div
+              style={{
+                padding: 20,
+                borderBottom: '1px solid #e5e7eb',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <h3 id="delivery-modal-title" className="typ-title" style={{ margin: 0 }}>
+                Delivery Options
+              </h3>
+              <button
+                onClick={() => setShowDeliveryModal(false)}
+                aria-label="Close"
+                style={{
+                  background: '#f3f4f6',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: 36,
+                  height: 36,
+                  cursor: 'pointer',
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ padding: 20 }}>
+              {deliveryOptions.map((d) => (
+                <div
+                  key={d}
+                  className="typ-body"
+                  style={{
+                    padding: '10px 12px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 12,
+                    marginBottom: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>{iconForDelivery(d)}</span>
+                  <span style={{ fontWeight: 700 }}>{labelForDelivery(d)}</span>
+                </div>
+              ))}
+              {deliveryOptions.length === 0 && (
+                <p className="typ-meta" style={{ margin: 0 }}>
+                  The seller hasn’t listed delivery options. Please ask on WhatsApp.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -1044,14 +1077,14 @@ const StorefrontPublicView = () => {
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 2000,
-            padding: '20px',
+            padding: 20,
           }}
         >
           <div
             style={{
               background: 'white',
-              borderRadius: '20px',
-              maxWidth: '600px',
+              borderRadius: 20,
+              maxWidth: 600,
               width: '100%',
               maxHeight: '90vh',
               overflow: 'auto',
@@ -1059,12 +1092,12 @@ const StorefrontPublicView = () => {
           >
             <div
               style={{
-                padding: '24px',
+                padding: 24,
                 borderBottom: '1px solid #e5e7eb',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
-                gap: '16px',
+                gap: 16,
               }}
             >
               <div style={{ flex: 1 }}>
@@ -1106,11 +1139,11 @@ const StorefrontPublicView = () => {
               </button>
             </div>
 
-            <div style={{ padding: '24px' }}>
+            <div style={{ padding: 24 }}>
               <div
                 style={{
                   position: 'relative',
-                  marginBottom: '24px',
+                  marginBottom: 24,
                   width: '100%',
                   aspectRatio: '4 / 3',
                   background: '#f8fafc',
@@ -1124,31 +1157,8 @@ const StorefrontPublicView = () => {
                   alt={selectedProduct.name}
                   onLoad={(e) => handleImageLoad(selectedProduct.productId, e)}
                   onError={handleImageError}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                {selectedProduct.featured && (
-                  <div
-                    className="typ-meta"
-                    style={{
-                      position: 'absolute',
-                      top: 16,
-                      left: 16,
-                      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                      color: 'white',
-                      padding: '8px 16px',
-                      borderRadius: 20,
-                      fontWeight: 700,
-                    }}
-                  >
-                    ⭐ Featured Product
-                  </div>
-                )}
                 {lowResImages[selectedProduct.productId] && (
                   <div
                     className="typ-meta"
@@ -1173,9 +1183,9 @@ const StorefrontPublicView = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  marginBottom: '24px',
-                  padding: '20px',
-                  background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
+                  marginBottom: 24,
+                  padding: 20,
+                  background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
                   borderRadius: 16,
                   border: '1px solid #e0f2fe',
                 }}
@@ -1192,11 +1202,8 @@ const StorefrontPublicView = () => {
                       fontSize: 20,
                       fontWeight: 700,
                       color:
-                        selectedProduct.quantity > 10
-                          ? '#059669'
-                          : selectedProduct.quantity > 0
-                          ? '#f59e0b'
-                          : '#ef4444',
+                        selectedProduct.quantity > 10 ? '#059669' :
+                        selectedProduct.quantity > 0  ? '#f59e0b' : '#ef4444',
                       marginBottom: 4,
                     }}
                   >
@@ -1210,17 +1217,11 @@ const StorefrontPublicView = () => {
                       fontWeight: 600,
                       display: 'inline-block',
                       background:
-                        selectedProduct.quantity > 10
-                          ? '#dcfce7'
-                          : selectedProduct.quantity > 0
-                          ? '#fef3c7'
-                          : '#fee2e2',
+                        selectedProduct.quantity > 10 ? '#dcfce7' :
+                        selectedProduct.quantity > 0  ? '#fef3c7' : '#fee2e2',
                       color:
-                        selectedProduct.quantity > 10
-                          ? '#059669'
-                          : selectedProduct.quantity > 0
-                          ? '#f59e0b'
-                          : '#ef4444',
+                        selectedProduct.quantity > 10 ? '#059669' :
+                        selectedProduct.quantity > 0  ? '#f59e0b' : '#ef4444',
                     }}
                   >
                     {selectedProduct.quantity > 10
@@ -1233,78 +1234,11 @@ const StorefrontPublicView = () => {
               </div>
 
               {selectedProduct.description && (
-                <div style={{ marginBottom: '24px' }}>
-                  <h3 className="typ-title" style={{ margin: '0 0 12px' }}>
-                    📝 Description
-                  </h3>
-                  <p className="typ-body" style={{ margin: 0 }}>
-                    {selectedProduct.description}
-                  </p>
+                <div style={{ marginBottom: 24 }}>
+                  <h3 className="typ-title" style={{ margin: '0 0 12px' }}>📝 Description</h3>
+                  <p className="typ-body" style={{ margin: 0 }}>{selectedProduct.description}</p>
                 </div>
               )}
-
-              {(selectedProduct.analytics?.views > 0 ||
-                selectedProduct.analytics?.contacts > 0) && (
-                <div style={{ marginBottom: '24px' }}>
-                  <h3 className="typ-title" style={{ margin: '0 0 12px' }}>
-                    📊 Product Stats
-                  </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                    <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, textAlign: 'center' }}>
-                      <div style={{ fontSize: 24, fontWeight: 700, color: '#3b82f6' }}>
-                        {selectedProduct.analytics?.views || 0}
-                      </div>
-                      <div className="typ-meta">👁️ Views</div>
-                    </div>
-                    <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, textAlign: 'center' }}>
-                      <div style={{ fontSize: 24, fontWeight: 700, color: '#10b981' }}>
-                        {selectedProduct.analytics?.contacts || 0}
-                      </div>
-                      <div className="typ-meta">💬 Contacts</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div style={{ display: 'grid', gap: 12 }}>
-                <button
-                  onClick={() => {
-                    handleContactSeller(selectedProduct);
-                    setShowProductModal(false);
-                  }}
-                  className="btn-primary-whatsapp"
-                  style={{ width: '100%', padding: 16 }}
-                >
-                  <MessageCircle size={20} />
-                  Contact Seller on WhatsApp
-                </button>
-
-                <button
-                  onClick={() =>
-                    handleToggleFavorite(selectedProduct.productId, { stopPropagation: () => {} })
-                  }
-                  className="typ-meta"
-                  style={{
-                    width: '100%',
-                    padding: 12,
-                    background: favorites.has(selectedProduct.productId) ? '#fee2e2' : '#f3f4f6',
-                    color: favorites.has(selectedProduct.productId) ? '#dc2626' : '#6b7280',
-                    border: '1px solid',
-                    borderColor: favorites.has(selectedProduct.productId) ? '#fecaca' : '#e5e7eb',
-                    borderRadius: 12,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                  }}
-                >
-                  {favorites.has(selectedProduct.productId)
-                    ? '❤️ Remove from Favorites'
-                    : '🤍 Add to Favorites'}
-                </button>
-              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { MessageCircle, X, Plus, Minus, Phone, Smartphone, MapPin, CreditCard, Truck, Info } from 'lucide-react';
+import {
+  MessageCircle, X, Plus, Minus, Phone, Smartphone,
+  Info, CreditCard, Truck, MapPin, Store as StoreIcon
+} from 'lucide-react';
 import {
   standardizeSellerData,
   getProductImageUrl,
@@ -10,7 +13,13 @@ import {
   trackInteraction
 } from './sharedUtils';
 
-const ProductSelectionModal = ({ product, sellerData: rawSellerData, isOpen, onClose, onOrderSubmit }) => {
+const ProductSelectionModal = ({
+  product,
+  sellerData: rawSellerData,
+  isOpen,
+  onClose,
+  onOrderSubmit
+}) => {
   const [quantity, setQuantity] = useState(1);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
@@ -21,643 +30,226 @@ const ProductSelectionModal = ({ product, sellerData: rawSellerData, isOpen, onC
   });
 
   if (!isOpen || !product) return null;
-
-  // Standardize seller data structure
   const sellerData = standardizeSellerData(rawSellerData);
 
-  const totalPrice = product.price * quantity;
+  const totalPrice = Number(product.price || 0) * Number(quantity || 0);
   const orderId = `ORD${Date.now().toString().slice(-6)}`;
-
-  // Use shared validation utility
   const { isValid: isFormValid, errors } = validateOrderForm(customerInfo);
 
-  const handleQuantityChange = (newQuantity) => {
-    if (newQuantity >= 1 && newQuantity <= product.quantity) {
-      setQuantity(newQuantity);
-    }
+  const handleQty = (q) => {
+    const max = Number(product.quantity || 0);
+    if (q >= 1 && q <= max) setQuantity(q);
   };
 
-  const handleContactMethodSelect = async (method) => {
-    const orderDetails = {
-      product,
-      quantity,
-      customerInfo,
-      totalPrice,
-      orderId,
-      contactMethod: method
-    };
+  const handleContact = async (method) => {
+    const orderDetails = { product, quantity, customerInfo, totalPrice, orderId, contactMethod: method };
 
-    // Track order attempt using shared utility
-    if (sellerData.uid) {
+    if (sellerData.uid && product.productId) {
       await trackInteraction(sellerData.uid, product.productId, 'order_attempt', {
-        quantity,
-        totalPrice,
-        contactMethod: method
+        quantity, totalPrice, contactMethod: method
       });
     }
 
-    // Create standardized order message
-    const message = createWhatsAppMessage.orderPlacement(orderDetails, sellerData);
+    const msg = createWhatsAppMessage.orderPlacement(orderDetails, sellerData);
 
     if (method === 'whatsapp') {
-      // Generate WhatsApp URL using shared utility
-      const whatsappUrl = generateWhatsAppUrl(sellerData.whatsappNumber, message);
-      window.open(whatsappUrl, '_blank');
+      window.open(generateWhatsAppUrl(sellerData.whatsappNumber, msg), '_blank');
       onOrderSubmit?.(orderDetails);
     } else if (method === 'call') {
-      // For calls, show confirmation with order details
-      if (window.confirm(`Call ${sellerData.storeName}?\n\nYour order details:\n${product.name} x ${quantity}\nTotal: ${formatPrice(totalPrice, sellerData.currency)}\n\nOrder ID: #${orderId} for reference`)) {
+      if (window.confirm(
+        `Call ${sellerData.storeName}?\n\n${product.name} × ${quantity}\nTotal: ${formatPrice(totalPrice, sellerData.currency)}\nOrder ID: #${orderId}`
+      )) {
         window.open(`tel:${sellerData.whatsappNumber}`, '_self');
       }
     } else if (method === 'sms') {
-      window.open(`sms:${sellerData.whatsappNumber}?body=${encodeURIComponent(message)}`, '_self');
+      window.open(`sms:${sellerData.whatsappNumber}?body=${encodeURIComponent(msg)}`, '_self');
     }
     onClose();
   };
 
-  // Enhanced payment methods with regional options
-  const paymentMethods = [
-    'Mobile Money (MTN/Vodafone)',
-    'Bank Transfer',
-    'Cash on Delivery',
-    'Cash on Pickup',
-    'Credit/Debit Card',
-    'Other (discuss with seller)'
-  ];
-
   const styles = {
-    overlay: {
-      position: 'fixed',
-      inset: 0,
-      background: 'rgba(0,0,0,0.6)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '20px'
-    },
-    modal: {
-      background: 'white',
-      borderRadius: '20px',
-      maxWidth: '500px',
-      width: '100%',
-      maxHeight: '90vh',
-      overflow: 'auto'
-    },
-    header: {
-      position: 'relative',
-      padding: '20px 20px 0'
-    },
-    closeButton: {
-      position: 'absolute',
-      top: '20px',
-      right: '20px',
-      background: 'rgba(0,0,0,0.1)',
-      border: 'none',
-      borderRadius: '50%',
-      width: '32px',
-      height: '32px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer'
-    },
-    productImage: {
-      width: '100%',
-      height: '200px',
-      objectFit: 'cover',
-      borderRadius: '12px'
-    },
-    content: {
-      padding: '20px'
-    },
-    productName: {
-      fontSize: '24px',
-      fontWeight: '700',
-      margin: '16px 0 8px',
-      color: '#1f2937'
-    },
-    productPrice: {
-      fontSize: '20px',
-      fontWeight: '600',
-      color: '#059669',
-      marginBottom: '24px'
-    },
-    section: {
-      marginBottom: '24px'
-    },
-    label: {
-      display: 'block',
-      fontSize: '16px',
-      fontWeight: '600',
-      marginBottom: '8px',
-      color: '#374151'
-    },
-    quantitySelector: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      marginBottom: '16px'
-    },
-    quantityButton: {
-      width: '40px',
-      height: '40px',
-      border: '2px solid #e5e7eb',
-      borderRadius: '8px',
-      background: 'white',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      transition: 'all 0.2s'
-    },
-    quantityButtonDisabled: {
-      opacity: 0.5,
-      cursor: 'not-allowed'
-    },
-    quantityDisplay: {
-      fontSize: '20px',
-      fontWeight: '600',
-      minWidth: '60px',
-      textAlign: 'center',
-      padding: '8px 16px',
-      border: '2px solid #e5e7eb',
-      borderRadius: '8px'
-    },
-    stockInfo: {
-      fontSize: '14px',
-      color: '#6b7280',
-      marginBottom: '16px'
-    },
-    input: {
-      width: '100%',
-      padding: '12px 16px',
-      border: '2px solid #e5e7eb',
-      borderRadius: '12px',
-      fontSize: '14px',
-      outline: 'none',
-      fontFamily: 'inherit',
-      marginBottom: '12px'
-    },
-    inputError: {
-      borderColor: '#dc2626'
-    },
-    select: {
-      width: '100%',
-      padding: '12px 16px',
-      border: '2px solid #e5e7eb',
-      borderRadius: '12px',
-      fontSize: '14px',
-      outline: 'none',
-      fontFamily: 'inherit',
-      marginBottom: '12px',
-      background: 'white'
-    },
-    textarea: {
-      width: '100%',
-      padding: '12px 16px',
-      border: '2px solid #e5e7eb',
-      borderRadius: '12px',
-      fontSize: '14px',
-      outline: 'none',
-      resize: 'vertical',
-      minHeight: '80px',
-      fontFamily: 'inherit'
-    },
-    totalSection: {
-      background: 'rgba(90,107,255,0.05)',
-      padding: '16px',
-      borderRadius: '12px',
-      marginBottom: '24px'
-    },
-    totalLabel: {
-      fontSize: '16px',
-      color: '#6b7280',
-      marginBottom: '4px'
-    },
-    totalPrice: {
-      fontSize: '28px',
-      fontWeight: '800',
-      color: '#059669'
-    },
-    orderIdSection: {
-      background: 'rgba(0,0,0,0.05)',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      marginBottom: '24px',
-      textAlign: 'center'
-    },
-    orderId: {
-      fontSize: '14px',
-      fontWeight: '600',
-      color: '#6b7280'
-    },
-    infoSection: {
-      background: 'rgba(59,130,246,0.05)',
-      border: '1px solid rgba(59,130,246,0.2)',
-      padding: '16px',
-      borderRadius: '12px',
-      marginBottom: '24px'
-    },
-    infoTitle: {
-      fontSize: '14px',
-      fontWeight: '600',
-      color: '#2563eb',
-      marginBottom: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px'
-    },
-    infoText: {
-      fontSize: '13px',
-      color: '#374151',
-      lineHeight: 1.4
-    },
-    contactMethodsSection: {
-      marginBottom: '16px'
-    },
-    contactMethodsGrid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr 1fr',
-      gap: '8px'
-    },
-    contactButton: {
-      padding: '12px 8px',
-      border: '2px solid #e5e7eb',
-      borderRadius: '12px',
-      background: 'white',
-      cursor: 'pointer',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '6px',
-      fontSize: '12px',
-      fontWeight: '600',
-      transition: 'all 0.2s',
-      textAlign: 'center'
-    },
-    contactButtonActive: {
-      borderColor: '#059669',
-      background: 'rgba(5,150,105,0.1)',
-      color: '#059669'
-    },
-    contactButtonDisabled: {
-      opacity: 0.5,
-      cursor: 'not-allowed'
-    },
-    requiredNote: {
-      fontSize: '12px',
-      color: '#dc2626',
-      marginBottom: '16px',
-      textAlign: 'center',
-      background: 'rgba(220,38,38,0.1)',
-      padding: '8px 12px',
-      borderRadius: '8px'
-    },
-    validationText: {
-      fontSize: '11px',
-      color: '#6b7280',
-      marginTop: '4px'
-    },
-    errorText: {
-      fontSize: '11px',
-      color: '#dc2626',
-      marginTop: '4px'
-    },
-    featuredBadge: {
-      position: 'absolute',
-      top: '8px',
-      left: '8px',
-      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-      color: 'white',
-      padding: '4px 8px',
-      borderRadius: '12px',
-      fontSize: '10px',
-      fontWeight: '600',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '4px'
-    },
-    lowStockBadge: {
-      position: 'absolute',
-      top: '8px',
-      right: '8px',
-      background: 'rgba(245, 158, 11, 0.9)',
-      color: 'white',
-      padding: '4px 8px',
-      borderRadius: '12px',
-      fontSize: '10px',
-      fontWeight: '600'
-    }
+    overlay: { position:'fixed', inset:0, background:'rgba(0,0,0,.6)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000, padding:20 },
+    modal: { background:'#fff', borderRadius:20, maxWidth:520, width:'100%', maxHeight:'90vh', overflow:'auto' },
+    header: { position:'relative', padding:'20px 20px 0' },
+    close: { position:'absolute', top:20, right:20, background:'rgba(0,0,0,.1)', border:'none', borderRadius:16, width:32, height:32, display:'grid', placeItems:'center', cursor:'pointer' },
+    hero: { width:'100%', height:220, objectFit:'cover', borderRadius:12 },
+    content: { padding:20 },
+    title: { fontSize:22, fontWeight:800, margin:'16px 0 6px', color:'#1f2937' },
+    price: { fontSize:20, fontWeight:700, color:'#059669', marginBottom:12 },
+    desc: { fontSize:14, color:'#6b7280', lineHeight:1.5, marginBottom:16 },
+    badge: { display:'inline-flex', alignItems:'center', gap:6, fontSize:11, fontWeight:600, padding:'4px 8px', borderRadius:999, background:'rgba(0,0,0,.05)', marginRight:6 },
+    section: { margin:'16px 0' },
+    label: { fontSize:14, fontWeight:700, color:'#374151', marginBottom:8, display:'block' },
+    qtyRow: { display:'flex', alignItems:'center', gap:12, marginBottom:8 },
+    qtyBtn: { width:40, height:40, border:'2px solid #e5e7eb', borderRadius:8, background:'#fff', display:'grid', placeItems:'center', cursor:'pointer' },
+    qtyDisplay: { fontSize:18, fontWeight:700, minWidth:60, textAlign:'center', padding:'8px 16px', border:'2px solid #e5e7eb', borderRadius:8 },
+    small: { fontSize:12, color:'#6b7280' },
+    input: { width:'100%', padding:'12px 14px', border:'2px solid #e5e7eb', borderRadius:12, fontSize:14, marginBottom:10 },
+    select: { width:'100%', padding:'12px 14px', border:'2px solid #e5e7eb', borderRadius:12, fontSize:14, background:'#fff', marginBottom:10 },
+    textarea: { width:'100%', padding:'12px 14px', border:'2px solid #e5e7eb', borderRadius:12, fontSize:14, minHeight:80 },
+    totalBox: { background:'rgba(90,107,255,.06)', padding:16, borderRadius:12, marginTop:8 },
+    total: { fontSize:26, fontWeight:800, color:'#059669' },
+    contactGrid: { display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginTop:8 },
+    contactBtn: { padding:'12px 8px', border:'2px solid #e5e7eb', borderRadius:12, background:'#fff', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:6, fontSize:12, fontWeight:700 },
+    disabled: { opacity:.5, cursor:'not-allowed' },
+    note: { fontSize:12, color:'#dc2626', background:'rgba(220,38,38,.08)', padding:'8px 10px', borderRadius:8, marginTop:8, textAlign:'center' },
+    infoCard: { background:'rgba(59,130,246,.05)', border:'1px solid rgba(59,130,246,.2)', borderRadius:12, padding:14 },
+    infoTitle: { fontSize:13, fontWeight:800, color:'#2563eb', display:'flex', alignItems:'center', gap:6, marginBottom:8 },
+    row: { display:'grid', gap:6, fontSize:13, color:'#374151' },
+    chips: { display:'flex', flexWrap:'wrap', gap:6, marginTop:6 },
+    sumCard: { background:'rgba(0,0,0,.02)', padding:14, borderRadius:12, marginTop:12 }
   };
+
+  const payments = sellerData.paymentMethods || [];
+  const deliveries = sellerData.deliveryOptions || [];
 
   return (
     <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={e => e.stopPropagation()}>
+      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div style={styles.header}>
-          <button style={styles.closeButton} onClick={onClose}>
-            <X size={16} />
-          </button>
-          <div style={{ position: 'relative' }}>
-            <img 
-              src={getProductImageUrl(product)} 
-              alt={product.name}
-              style={styles.productImage}
-            />
-            
-            {/* Product badges */}
-            {product.featured && (
-              <div style={styles.featuredBadge}>
-                ⭐ Featured
-              </div>
-            )}
-            
-            {product.isLowStock && (
-              <div style={styles.lowStockBadge}>
-                Low Stock
-              </div>
-            )}
-          </div>
+          <button style={styles.close} onClick={onClose}><X size={16} /></button>
+          <img src={getProductImageUrl(product)} alt={product.name} style={styles.hero} />
         </div>
-        
+
         <div style={styles.content}>
-          <h2 style={styles.productName}>{product.name}</h2>
-          <div style={styles.productPrice}>{formatPrice(product.price, sellerData.currency)} each</div>
-          
-          {/* Product description */}
-          {product.description && (
-            <div style={{ marginBottom: '24px' }}>
-              <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.5, margin: 0 }}>
-                {product.description}
-              </p>
-            </div>
-          )}
-          
-          {/* Order ID */}
-          <div style={styles.orderIdSection}>
-            <div style={styles.orderId}>Order Reference: #{orderId}</div>
+          <h2 style={styles.title}>{product.name}</h2>
+          <div style={styles.price}>{formatPrice(product.price, sellerData.currency)} each</div>
+
+          {product.description && <p style={styles.desc}>{product.description}</p>}
+
+          {/* contextual badges */}
+          <div style={{ marginBottom:12 }}>
+            {product.isLowStock && <span style={{ ...styles.badge, background:'rgba(245,158,11,.15)', color:'#b45309' }}>Low Stock</span>}
+            <span style={styles.badge}>In stock: {product.quantity}</span>
+            {product.category && <span style={styles.badge}>{product.category}</span>}
           </div>
 
-          {/* Store Information */}
-          <div style={styles.infoSection}>
-            <div style={styles.infoTitle}>
-              <Info size={16} />
-              Store Information
-            </div>
-            <div style={styles.infoText}>
-              <strong>Store:</strong> {sellerData?.storeName || 'Our Store'}<br/>
-              <strong>Location:</strong> {sellerData?.location || 'Available on request'}<br/>
-              <strong>Payment Methods:</strong> Mobile Money, Bank Transfer, Cash on Delivery<br/>
-              <strong>Delivery:</strong> Available (terms to be discussed)<br/>
-              <strong>Contact:</strong> {sellerData?.whatsappNumber || 'Available below'}
+          {/* Order ref */}
+          <div style={{ ...styles.badge, background:'rgba(0,0,0,.06)' }}>Order Ref: #{orderId}</div>
+
+          {/* Store info (read-only) */}
+          <div style={{ ...styles.section, ...styles.infoCard }}>
+            <div style={styles.infoTitle}><Info size={16} /> Store Information</div>
+            <div style={styles.row}>
+              <div><StoreIcon size={14} /> <strong>Store:</strong> {sellerData.storeName}</div>
+              <div><MapPin size={14} /> <strong>Location:</strong> {sellerData.location || 'Available on request'}</div>
+              <div style={styles.chips}>
+                <span style={{ ...styles.badge, background:'rgba(16,185,129,.12)', color:'#065f46' }}>
+                  <CreditCard size={12}/> Payments: {payments.length ? payments.join(', ') : 'See chat'}
+                </span>
+                <span style={{ ...styles.badge, background:'rgba(59,130,246,.12)', color:'#1e40af' }}>
+                  <Truck size={12}/> Delivery: {deliveries.length ? deliveries.join(', ') : 'To be discussed'}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Quantity Selection */}
+          {/* Quantity */}
           <div style={styles.section}>
             <label style={styles.label}>Quantity</label>
-            <div style={styles.quantitySelector}>
-              <button 
-                style={{
-                  ...styles.quantityButton,
-                  ...(quantity <= 1 ? styles.quantityButtonDisabled : {})
-                }}
-                onClick={() => handleQuantityChange(quantity - 1)}
-                disabled={quantity <= 1}
-              >
-                <Minus size={16} />
-              </button>
-              
-              <div style={styles.quantityDisplay}>{quantity}</div>
-              
-              <button 
-                style={{
-                  ...styles.quantityButton,
-                  ...(quantity >= product.quantity ? styles.quantityButtonDisabled : {})
-                }}
-                onClick={() => handleQuantityChange(quantity + 1)}
-                disabled={quantity >= product.quantity}
-              >
-                <Plus size={16} />
-              </button>
+            <div style={styles.qtyRow}>
+              <button style={styles.qtyBtn} onClick={() => handleQty(quantity - 1)} disabled={quantity <= 1}><Minus size={16} /></button>
+              <div style={styles.qtyDisplay}>{quantity}</div>
+              <button style={styles.qtyBtn} onClick={() => handleQty(quantity + 1)} disabled={quantity >= product.quantity}><Plus size={16} /></button>
             </div>
-            <div style={styles.stockInfo}>
-              {product.quantity} available in stock
-              {product.isLowStock && (
-                <span style={{ color: '#f59e0b', fontWeight: '600', marginLeft: '8px' }}>
-                  ⚠️ Low stock!
-                </span>
-              )}
-            </div>
+            <div style={styles.small}>{product.quantity} available</div>
           </div>
 
-          {/* Customer Information */}
+          {/* Customer info */}
           <div style={styles.section}>
             <label style={styles.label}>Customer Information</label>
             <input
-              style={{
-                ...styles.input,
-                ...(errors.name ? styles.inputError : {})
-              }}
+              style={{ ...styles.input, ...(errors.name ? { borderColor:'#dc2626' } : {}) }}
               placeholder="Your full name *"
               value={customerInfo.name}
-              onChange={(e) => setCustomerInfo(prev => ({...prev, name: e.target.value}))}
-            />
-            {errors.name ? (
-              <div style={styles.errorText}>{errors.name}</div>
-            ) : (
-              <div style={styles.validationText}>Required - helps us process your order</div>
-            )}
-            
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, name: e.target.value }))} />
+            {errors.name ? <div style={styles.small} className="error">{errors.name}</div> : <div style={styles.small}>Required</div>}
+
             <input
-              style={{
-                ...styles.input,
-                ...(errors.phone ? styles.inputError : {})
-              }}
+              style={{ ...styles.input, ...(errors.phone ? { borderColor:'#dc2626' } : {}) }}
               placeholder="Your phone number *"
               value={customerInfo.phone}
-              onChange={(e) => setCustomerInfo(prev => ({...prev, phone: e.target.value}))}
-            />
-            {errors.phone ? (
-              <div style={styles.errorText}>{errors.phone}</div>
-            ) : (
-              <div style={styles.validationText}>Required - for order confirmation and delivery coordination</div>
-            )}
-            
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, phone: e.target.value }))} />
+            {errors.phone ? <div style={styles.small} className="error">{errors.phone}</div> : <div style={styles.small}>Used for confirmation & delivery</div>}
+
             <input
               style={styles.input}
               placeholder="Delivery address (optional)"
               value={customerInfo.deliveryAddress}
-              onChange={(e) => setCustomerInfo(prev => ({...prev, deliveryAddress: e.target.value}))}
-            />
-            <div style={styles.validationText}>Optional - can be discussed with seller if not provided</div>
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, deliveryAddress: e.target.value }))} />
 
             <select
               style={styles.select}
               value={customerInfo.preferredPayment}
-              onChange={(e) => setCustomerInfo(prev => ({...prev, preferredPayment: e.target.value}))}
-            >
-              <option value="">Select preferred payment method (optional)</option>
-              {paymentMethods.map(method => (
-                <option key={method} value={method}>{method}</option>
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, preferredPayment: e.target.value }))}>
+              <option value="">Select preferred payment (optional)</option>
+              {[...payments, 'Other (discuss with seller)'].map((m) => (
+                <option key={m} value={m}>{m}</option>
               ))}
             </select>
-            
+
             <textarea
               style={styles.textarea}
-              placeholder="Special instructions - size, color, delivery preferences, etc. (optional)"
+              placeholder="Special instructions — size, color, delivery preferences, etc. (optional)"
               value={customerInfo.notes}
-              onChange={(e) => setCustomerInfo(prev => ({...prev, notes: e.target.value}))}
-            />
+              onChange={(e) => setCustomerInfo((p) => ({ ...p, notes: e.target.value }))} />
           </div>
 
-          {/* Total Price */}
-          <div style={styles.totalSection}>
-            <div style={styles.totalLabel}>Total Amount</div>
-            <div style={styles.totalPrice}>{formatPrice(totalPrice, sellerData.currency)}</div>
+          {/* Total */}
+          <div style={styles.totalBox}>
+            <div style={styles.small}>Total Amount</div>
+            <div style={styles.total}>{formatPrice(totalPrice, sellerData.currency)}</div>
             {quantity > 1 && (
-              <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-                {formatPrice(product.price, sellerData.currency)} × {quantity}
-              </div>
+              <div style={styles.small}>{formatPrice(product.price, sellerData.currency)} × {quantity}</div>
             )}
           </div>
 
           {!isFormValid && (
-            <div style={styles.requiredNote}>
-              Please provide your name and phone number to proceed with the order
-            </div>
+            <div style={styles.note}>Please provide your name and phone number to proceed</div>
           )}
 
-          {/* Contact Method Selection */}
-          <div style={styles.contactMethodsSection}>
+          {/* Contact methods */}
+          <div style={styles.section}>
             <label style={styles.label}>Contact the seller to place your order:</label>
-            <div style={styles.contactMethodsGrid}>
+            <div style={styles.contactGrid}>
               <button
-                style={{
-                  ...styles.contactButton,
-                  ...(isFormValid ? {} : styles.contactButtonDisabled),
-                  ...(isFormValid ? { borderColor: '#25D366', background: 'rgba(37,211,102,0.1)' } : {})
-                }}
-                onClick={() => handleContactMethodSelect('whatsapp')}
+                style={{ ...styles.contactBtn, ...(isFormValid ? { borderColor:'#25D366', background:'rgba(37,211,102,.1)', color:'#1a7f43' } : styles.disabled) }}
                 disabled={!isFormValid}
-              >
-                <MessageCircle size={24} style={{ color: isFormValid ? '#25D366' : 'inherit' }} />
-                <span style={{ color: isFormValid ? '#25D366' : 'inherit' }}>WhatsApp</span>
-                <span style={{ fontSize: '10px', opacity: 0.7 }}>Recommended</span>
+                onClick={() => handleContact('whatsapp')}>
+                <MessageCircle size={24} /> WhatsApp
+                <span style={styles.small}>Recommended</span>
               </button>
-              
               <button
-                style={{
-                  ...styles.contactButton,
-                  ...(isFormValid ? {} : styles.contactButtonDisabled)
-                }}
-                onClick={() => handleContactMethodSelect('call')}
+                style={{ ...styles.contactBtn, ...(isFormValid ? {} : styles.disabled) }}
                 disabled={!isFormValid}
-              >
-                <Phone size={24} />
-                <span>Call Now</span>
-                <span style={{ fontSize: '10px', opacity: 0.7 }}>Direct</span>
+                onClick={() => handleContact('call')}>
+                <Phone size={24} /> Call Now
+                <span style={styles.small}>Direct</span>
               </button>
-              
               <button
-                style={{
-                  ...styles.contactButton,
-                  ...(isFormValid ? {} : styles.contactButtonDisabled)
-                }}
-                onClick={() => handleContactMethodSelect('sms')}
+                style={{ ...styles.contactBtn, ...(isFormValid ? {} : styles.disabled) }}
                 disabled={!isFormValid}
-              >
-                <Smartphone size={24} />
-                <span>Text/SMS</span>
-                <span style={{ fontSize: '10px', opacity: 0.7 }}>Message</span>
+                onClick={() => handleContact('sms')}>
+                <Smartphone size={24} /> Text/SMS
+                <span style={styles.small}>Message</span>
               </button>
             </div>
-            
-            {/* Contact method info */}
-            <div style={{ 
-              background: 'rgba(59,130,246,0.05)', 
-              padding: '12px', 
-              borderRadius: '8px', 
-              marginTop: '12px',
-              fontSize: '12px',
-              color: '#6b7280'
-            }}>
-              💡 <strong>WhatsApp is recommended</strong> - fastest response time and easiest for sharing photos/details
-            </div>
+            <div style={{ ...styles.small, marginTop:8 }}>💡 <strong>WhatsApp</strong> is fastest and great for sharing photos/details</div>
           </div>
 
-          {/* Enhanced order summary */}
-          <div style={{
-            background: 'rgba(0,0,0,0.02)',
-            padding: '16px',
-            borderRadius: '12px',
-            marginTop: '16px'
-          }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
-              📋 Order Summary
-            </h4>
-            <div style={{ display: 'grid', gap: '8px', fontSize: '13px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Product:</span>
-                <span style={{ fontWeight: '600' }}>{product.name}</span>
+          {/* Order summary */}
+          <div style={styles.sumCard}>
+            <h4 style={{ margin:'0 0 8px', fontSize:14, fontWeight:800, color:'#374151' }}>📋 Order Summary</h4>
+            <div style={{ display:'grid', gap:6, fontSize:13 }}>
+              <div style={{ display:'flex', justifyContent:'space-between' }}><span>Product:</span><span style={{ fontWeight:600 }}>{product.name}</span></div>
+              <div style={{ display:'flex', justifyContent:'space-between' }}><span>Quantity:</span><span style={{ fontWeight:600 }}>{quantity}</span></div>
+              <div style={{ display:'flex', justifyContent:'space-between' }}><span>Unit Price:</span><span style={{ fontWeight:600 }}>{formatPrice(product.price, sellerData.currency)}</span></div>
+              <div style={{ display:'flex', justifyContent:'space-between', paddingTop:6, borderTop:'1px solid rgba(0,0,0,.08)' }}>
+                <span style={{ fontWeight:700 }}>Total:</span><span style={{ fontWeight:800, color:'#059669' }}>{formatPrice(totalPrice, sellerData.currency)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Quantity:</span>
-                <span style={{ fontWeight: '600' }}>{quantity}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Unit Price:</span>
-                <span style={{ fontWeight: '600' }}>{formatPrice(product.price, sellerData.currency)}</span>
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                paddingTop: '8px', 
-                borderTop: '1px solid rgba(0,0,0,0.1)',
-                fontSize: '14px',
-                fontWeight: '700'
-              }}>
-                <span>Total:</span>
-                <span style={{ color: '#059669' }}>{formatPrice(totalPrice, sellerData.currency)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Order ID:</span>
-                <span style={{ fontWeight: '600', fontFamily: 'monospace' }}>#{orderId}</span>
-              </div>
-              {customerInfo.name && (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Customer:</span>
-                  <span style={{ fontWeight: '600' }}>{customerInfo.name}</span>
-                </div>
-              )}
-              {customerInfo.preferredPayment && (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Payment:</span>
-                  <span style={{ fontWeight: '600' }}>{customerInfo.preferredPayment}</span>
-                </div>
-              )}
+              <div style={{ display:'flex', justifyContent:'space-between' }}><span>Order ID:</span><span style={{ fontWeight:600, fontFamily:'monospace' }}>#{orderId}</span></div>
             </div>
           </div>
-
-          {/* Analytics info for seller (if viewing own product) */}
-          {product.analytics && (product.analytics.views > 0 || product.analytics.contacts > 0) && (
-            <div style={{
-              background: 'rgba(99,102,241,0.05)',
-              padding: '12px',
-              borderRadius: '8px',
-              marginTop: '16px',
-              display: 'flex',
-              gap: '16px',
-              fontSize: '12px',
-              color: '#6b7280'
-            }}>
-              <span>👁️ {product.analytics.views || 0} views</span>
-              <span>💬 {product.analytics.contacts || 0} contacts</span>
-              {product.analytics.orders > 0 && (
-                <span>🛒 {product.analytics.orders} orders</span>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

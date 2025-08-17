@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { normalizeToE164, validatePhoneNumber, getPhoneHint, formatPhoneForDisplay } from './Phone';
+import { normalizeToE164, validatePhoneNumber, getPhoneHint, formatPhoneForDisplay } from './sharedUtils';
+
 const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = null, onComplete = null }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
@@ -63,7 +64,6 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
       }
     }
     if (step === 2) {
-      // Enhanced phone validation using utility functions
       const phoneValidation = validatePhoneNumber(formData.whatsappNumber, formData.country);
       if (!phoneValidation.isValid) {
         newErrors.whatsappNumber = phoneValidation.error;
@@ -95,7 +95,6 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
   const handleCountryChange = (code) => {
     const c = countries.find(x => x.code === code);
     setFormData(prev => ({ ...prev, country: c.name, currency: c.currency }));
-    // Clear phone error when country changes since validation logic changes
     if (errors.whatsappNumber) {
       setErrors(prev => ({ ...prev, whatsappNumber: null }));
     }
@@ -104,14 +103,10 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
   const nextStep = () => validateStep(currentStep) && setCurrentStep(s => s + 1);
   const prevStep = () => setCurrentStep(s => s - 1);
 
-  // Enhanced completion with phone normalization
   const handleComplete = async () => {
     if (!validateStep(3)) return;
-    
     setLoading(true);
-    
     try {
-      // Normalize the phone number before saving
       const phoneValidation = validatePhoneNumber(formData.whatsappNumber, formData.country);
       if (!phoneValidation.isValid) {
         setErrors({ whatsappNumber: phoneValidation.error });
@@ -119,19 +114,17 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
         return;
       }
 
-      // Create finalized form data with normalized phone
       const finalFormData = {
         ...formData,
-        whatsappNumber: phoneValidation.normalized // Store in E.164 format
+        whatsappNumber: phoneValidation.normalized
       };
 
       console.log('📞 Phone normalized:', formData.whatsappNumber, '→', phoneValidation.normalized);
-      
+
       if (onComplete) {
         const success = await onComplete(finalFormData);
         if (success) {
           setShowSuccess(true);
-          // Navigate after a short delay like in original code
           setTimeout(() => {
             setShowSuccess(false);
             navigate('/catalog');
@@ -140,7 +133,6 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
           throw new Error('Failed to complete onboarding');
         }
       } else {
-        // Fallback: if no onComplete prop, just navigate (like original)
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
@@ -149,7 +141,6 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
       }
     } catch (err) {
       console.error('Onboarding completion error:', err);
-      // Show error message to user
       setErrors({ general: 'Failed to complete setup. Please try again.' });
     } finally {
       setLoading(false);
@@ -166,7 +157,8 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
         .seller-onboarding { position: relative; min-height: 100vh; width: 100vw; display: grid; place-items: center; overflow: hidden; }
         .bgGradient { position: absolute; inset: 0; background: radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,0.18), transparent 50%), linear-gradient(135deg, #6a5cff 0%, #7aa0ff 40%, #67d1ff 100%); opacity: .8; }
         .onb-toolbar { position: absolute; top: 18px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; z-index: 2; }
-        .brandLeft { display: flex; align-items: center; gap: 10px; }
+        .brandLeft { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; cursor: pointer; }
+        .brandLeft:hover { background: rgba(255,255,255,0.4); }
         .brandMark { font-size: 20px; }
         .brandWord { font-weight: 800; font-size: 18px; letter-spacing: -0.2px; }
         .toolbarRight { display: flex; align-items: center; gap: 10px; }
@@ -210,11 +202,29 @@ const SellerOnboardingView = ({ user = null, userProfile = null, onSignOut = nul
 
       <div className="bgGradient" />
       <header className="onb-toolbar">
-        <div className="brandLeft"><span className="brandMark">🛍️</span><span className="brandWord">ShopLink</span></div>
+        {/* BRAND → CTA: go to marketing landing #signup */}
+        <div
+          className="brandLeft"
+          title="Go to ShopLink — Create your free store"
+          onClick={() => navigate('/#signup')}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => (e.key === 'Enter' ? navigate('/#signup') : null)}
+        >
+          <span className="brandMark">🛍️</span>
+          <span className="brandWord">ShopLink</span>
+        </div>
+
         <div className="toolbarRight">
           <span className="userChip">{user?.email || 'user@example.com'}</span>
-          <button onClick={handleSignOut} style={{ background:'none', border:'none', cursor:'pointer', padding:'6px 12px', borderRadius:'8px', fontSize:'12px', opacity:.7 }}
-            onMouseEnter={(e)=>e.target.style.opacity='1'} onMouseLeave={(e)=>e.target.style.opacity='.7'}>Sign out</button>
+          <button
+            onClick={handleSignOut}
+            style={{ background:'none', border:'none', cursor:'pointer', padding:'6px 12px', borderRadius:'8px', fontSize:'12px', opacity:.7 }}
+            onMouseEnter={(e)=>e.target.style.opacity='1'}
+            onMouseLeave={(e)=>e.target.style.opacity='.7'}
+          >
+            Sign out
+          </button>
         </div>
       </header>
 

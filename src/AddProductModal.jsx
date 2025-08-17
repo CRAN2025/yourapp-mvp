@@ -1,9 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { X, Upload, Camera, Link, Check, AlertCircle, Loader, Plus } from 'lucide-react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { ref as dbRef, push, set } from 'firebase/database';
 import { storage, db } from './firebase';
-import { createEnhancedProduct, validateProductData } from './productHelpers';
+import { 
+  createEnhancedProduct, 
+  validateProductData,
+  getProductImageUrl,
+  formatPrice
+} from './sharedUtils';
 
 const AddProductModal = ({
   isOpen,
@@ -11,7 +16,7 @@ const AddProductModal = ({
   user,
   userProfile,
   onProductAdded,
-  editProduct = null // For edit mode
+  editProduct = null
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -38,21 +43,19 @@ const AddProductModal = ({
 
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [uploadMethod, setUploadMethod] = useState('file'); // 'file', 'camera', 'url'
+  const [uploadMethod, setUploadMethod] = useState('file');
   const [loading, setLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Track submission state
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [step, setStep] = useState(1); // 1: basic info, 2: image & details, 3: review
+  const [step, setStep] = useState(1);
   const [isDirty, setIsDirty] = useState(false);
   const [newFeature, setNewFeature] = useState('');
   const [newTag, setNewTag] = useState('');
 
   const fileInputRef = useRef(null);
   const initialFormState = useRef({});
-
   const isEditMode = !!editProduct;
 
-  // Categories from your existing code
   const categories = [
     '👗 Fashion & Clothing', '📱 Electronics', '🍔 Food & Beverages', '💄 Beauty & Cosmetics',
     '🏠 Home & Garden', '📚 Books & Education', '🎮 Sports & Gaming', '👶 Baby & Kids',
@@ -62,37 +65,14 @@ const AddProductModal = ({
 
   const conditions = ['New', 'Like New', 'Good', 'Fair', 'Used'];
 
-  // FIXED: Proper unsaved changes logic - only warn for edit mode with actual changes
-  const shouldWarnUnsavedChanges = isEditMode && isDirty && !isSubmitting && !loading;
+  // Validate required props
+  const isValidSetup = useMemo(() => {
+    return user?.uid && userProfile && typeof onClose === 'function';
+  }, [user?.uid, userProfile, onClose]);
 
-  // Prevent browser beforeunload warning - ONLY for edit mode with unsaved changes
+  // Initialize form data for edit mode
   useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (shouldWarnUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
-        return 'You have unsaved changes. Are you sure you want to leave?';
-      }
-    };
-
-    if (isOpen && shouldWarnUnsavedChanges) {
-      window.addEventListener('beforeunload', handleBeforeUnload);
-    }
-
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isOpen, shouldWarnUnsavedChanges]);
-
-  // Close on ESC (respects the same guards)
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e) => { if (e.key === 'Escape') handleClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen]);
-
-  // Initialize form with edit data and track initial state
-  useEffect(() => {
-    if (isEditMode && editProduct) {
+    if (isEditMode && editProduct && isValidSetup) {
       const editData = {
         name: editProduct.name || '',
         price: editProduct.price?.toString() || '',
@@ -102,80 +82,105 @@ const AddProductModal = ({
         description: typeof editProduct.description === 'string'
           ? editProduct.description
           : editProduct.description?.full || '',
-        specifications: editProduct.specifications || {
+        specifications: {
           dimensions: '',
           weight: '',
           materials: '',
           care: '',
           condition: 'New',
-          origin: ''
+          origin: '',
+          ...editProduct.specifications
         },
-        features: editProduct.features || [],
-        tags: editProduct.tags || [],
+        features: Array.isArray(editProduct.features) ? editProduct.features : [],
+        tags: Array.isArray(editProduct.tags) ? editProduct.tags : [],
         images: {
-          primary: editProduct.images?.primary || editProduct.imageUrl || '',
-          gallery: editProduct.images?.gallery || []
+          primary: editProduct.images?.primary || '',
+          gallery: Array.isArray(editProduct.images?.gallery) ? editProduct.images.gallery : []
         }
       };
 
       setFormData(editData);
       initialFormState.current = JSON.parse(JSON.stringify(editData));
 
-      // Set image previews
+      // Set image previews - only from images.primary and gallery
       const allImages = [
-        editProduct.images?.primary || editProduct.imageUrl,
-        ...(editProduct.images?.gallery || [])
+        editProduct.images?.primary,
+        ...(Array.isArray(editProduct.images?.gallery) ? editProduct.images.gallery : [])
       ].filter(Boolean);
 
       setImagePreviews(allImages);
-      setIsDirty(false); // initial load in edit mode shouldn't count as dirty
+      setIsDirty(false);
     }
-  }, [isEditMode, editProduct]);
+  }, [isEditMode, editProduct, isValidSetup]);
 
-  // FIXED: Track changes properly - compare with initial state for edit mode
+  // Track changes for unsaved warning (edit mode only)
   useEffect(() => {
-    if (!isEditMode) {
-      // For add mode, any form interaction counts as dirty for draft saving
-      // but this won't trigger unsaved changes warnings
-      return;
-    }
+    if (!isEditMode || !isValidSetup) return;
 
-    // For edit mode, check if current form differs from initial loaded state
     const currentFormString = JSON.stringify(formData);
     const initialFormString = JSON.stringify(initialFormState.current);
     const hasActualChanges = currentFormString !== initialFormString;
     
     setIsDirty(hasActualChanges);
-  }, [formData, isEditMode]);
-  // Auto-save draft to localStorage (add mode only, debounce, per-user key)
-  useEffect(() => {
-    if (!isEditMode && isOpen && !isSubmitting && formData.name) {
-      const t = setTimeout(() => {
-        localStorage.setItem(`productDraft_${user?.uid || 'anon'}`, JSON.stringify(formData));
-      }, 300);
-      return () => clearTimeout(t);
-    }
-  }, [formData, isEditMode, isOpen, isSubmitting, user?.uid]);
+  }, [formData, isEditMode, isValidSetup]);
 
-  // Load draft on mount (only for add mode)
+  // Auto-save draft (add mode only)
   useEffect(() => {
-    if (!isEditMode && isOpen) {
-      const draft = localStorage.getItem(`productDraft_${user?.uid || 'anon'}`);
-      if (draft) {
+    if (!isEditMode && isOpen && !isSubmitting && formData.name && isValidSetup) {
+      const timeoutId = setTimeout(() => {
         try {
+          localStorage.setItem(`productDraft_${user.uid}`, JSON.stringify(formData));
+        } catch (error) {
+          console.warn('Failed to save draft:', error);
+        }
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [formData, isEditMode, isOpen, isSubmitting, user?.uid, isValidSetup]);
+
+  // Load draft on mount (add mode only)
+  useEffect(() => {
+    if (!isEditMode && isOpen && isValidSetup) {
+      try {
+        const draft = localStorage.getItem(`productDraft_${user.uid}`);
+        if (draft) {
           const parsedDraft = JSON.parse(draft);
           setFormData(parsedDraft);
-        } catch (e) {
-          console.error('Failed to load draft:', e);
-          localStorage.removeItem(`productDraft_${user?.uid || 'anon'}`);
         }
+      } catch (error) {
+        console.warn('Failed to load draft:', error);
+        localStorage.removeItem(`productDraft_${user.uid}`);
       }
     }
-  }, [isOpen, isEditMode, user?.uid]);
+  }, [isOpen, isEditMode, user?.uid, isValidSetup]);
 
-  const handleInputChange = (field, value) => {
+  // Prevent browser navigation warning (edit mode with changes only)
+  useEffect(() => {
+    if (!isEditMode || !isDirty || isSubmitting) return;
+
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+      return 'You have unsaved changes. Are you sure you want to leave?';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isEditMode, isDirty, isSubmitting]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => { 
+      if (e.key === 'Escape') handleClose(); 
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen]);
+
+  // Safe input change handler
+  const handleInputChange = useCallback((field, value) => {
     if (field.includes('.')) {
-      // Handle nested fields like specifications.condition
       const [parent, child] = field.split('.');
       setFormData(prev => ({
         ...prev,
@@ -188,7 +193,7 @@ const AddProductModal = ({
       setFormData(prev => ({ ...prev, [field]: value }));
     }
 
-    // Clear error when user starts typing
+    // Clear errors
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: null }));
     }
@@ -200,67 +205,105 @@ const AddProductModal = ({
     if (field === 'quantity' && value && isNaN(Number(value))) {
       setErrors(prev => ({ ...prev, quantity: 'Quantity must be a number' }));
     }
-  };
+  }, [errors]);
 
-  const formatPrice = (value) => {
+  // Memoized price formatting
+  const formatPriceDisplay = useCallback((value) => {
     if (!value) return '';
     const currency = userProfile?.currency || 'GHS';
     const numValue = Number(value);
     if (isNaN(numValue)) return value;
+    return formatPrice(numValue, currency);
+  }, [userProfile?.currency]);
 
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0
-    }).format(numValue);
-  };
+  // SIMPLIFIED: Process images directly - no complex validation
+  const processImages = useCallback(async () => {
+    if (!imagePreviews || imagePreviews.length === 0) {
+      return [];
+    }
 
-  const handleImageUpload = async (file) => {
+    const processedUrls = [];
+
+    for (let i = 0; i < imagePreviews.length; i++) {
+      const preview = imagePreviews[i];
+      const file = imageFiles[i];
+
+      // If it's a file (blob/data URL), upload to Firebase
+      if (file && file instanceof File) {
+        try {
+          const imageRef = ref(storage, `stores/${user.uid}/${Date.now()}_${i}_${file.name}`);
+          const snapshot = await uploadBytes(imageRef, file);
+          const url = await getDownloadURL(snapshot.ref);
+          processedUrls.push(url);
+          console.log(`✅ Uploaded file ${i + 1}: ${url}`);
+        } catch (error) {
+          console.error(`❌ Failed to upload file ${i + 1}:`, error);
+          throw new Error(`Failed to upload image: ${file.name}`);
+        }
+      }
+      // If it's already a URL (user pasted a link), use it directly
+      else if (typeof preview === 'string' && (preview.startsWith('http') || preview.startsWith('data:'))) {
+        processedUrls.push(preview);
+        console.log(`✅ Using URL ${i + 1}: ${preview}`);
+      }
+    }
+
+    return processedUrls;
+  }, [imagePreviews, imageFiles, user?.uid]);
+
+  // Image upload handler - simplified
+  const handleImageUpload = useCallback(async (file) => {
     if (!file) return;
 
-    // Validate file size (5MB max)
+    // Basic validation
     if (file.size > 5 * 1024 * 1024) {
       setErrors(prev => ({ ...prev, image: 'Image must be less than 5MB' }));
       return;
     }
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       setErrors(prev => ({ ...prev, image: 'Please select an image file' }));
       return;
     }
 
-    // Check max images (5 total)
     if (imagePreviews.length >= 5) {
       setErrors(prev => ({ ...prev, image: 'Maximum 5 images allowed' }));
       return;
     }
 
-    setImageFiles(prev => [...prev, file]);
+    try {
+      setImageFiles(prev => [...prev, file]);
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreviews(prev => [...prev, e.target.result]);
-      setErrors(prev => ({ ...prev, image: null }));
-    };
-    reader.readAsDataURL(file);
-  };
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreviews(prev => [...prev, e.target.result]);
+        setErrors(prev => ({ ...prev, image: null }));
+      };
+      reader.onerror = () => {
+        setErrors(prev => ({ ...prev, image: 'Failed to read image file' }));
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Image upload error:', error);
+      setErrors(prev => ({ ...prev, image: 'Failed to process image' }));
+    }
+  }, [imagePreviews.length]);
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = useCallback((e) => {
     const files = Array.from(e.target.files || []);
     files.forEach(file => handleImageUpload(file));
-  };
+  }, [handleImageUpload]);
 
-  const handleUrlInput = (url) => {
-    // basic sanity checks
+  const handleUrlInput = useCallback((url) => {
     try {
       const u = new URL(url);
       const protocolOK = /^https?:$/.test(u.protocol);
-      const looksLikeImage = /\.(jpe?g|png|webp|gif)(\?|$)/i.test(u.pathname);
-      if (!protocolOK || !looksLikeImage) throw new Error('bad');
+      
+      if (!protocolOK) {
+        throw new Error('Invalid URL protocol');
+      }
     } catch {
-      setErrors(prev => ({ ...prev, image: 'Enter a valid image URL (jpg, png, webp, gif)' }));
+      setErrors(prev => ({ ...prev, image: 'Enter a valid image URL' }));
       return;
     }
 
@@ -271,14 +314,14 @@ const AddProductModal = ({
 
     setImagePreviews(prev => [...prev, url]);
     setErrors(prev => ({ ...prev, image: null }));
-  };
+  }, [imagePreviews.length]);
 
-  const removeImage = (index) => {
+  const removeImage = useCallback((index) => {
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
     setImageFiles(prev => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
-  const addFeature = () => {
+  const addFeature = useCallback(() => {
     if (newFeature.trim()) {
       setFormData(prev => ({
         ...prev,
@@ -286,16 +329,16 @@ const AddProductModal = ({
       }));
       setNewFeature('');
     }
-  };
+  }, [newFeature]);
 
-  const removeFeature = (index) => {
+  const removeFeature = useCallback((index) => {
     setFormData(prev => ({
       ...prev,
       features: prev.features.filter((_, i) => i !== index)
     }));
-  };
+  }, []);
 
-  const addTag = () => {
+  const addTag = useCallback(() => {
     if (newTag.trim()) {
       setFormData(prev => ({
         ...prev,
@@ -303,16 +346,17 @@ const AddProductModal = ({
       }));
       setNewTag('');
     }
-  };
+  }, [newTag]);
 
-  const removeTag = (index) => {
+  const removeTag = useCallback((index) => {
     setFormData(prev => ({
       ...prev,
       tags: prev.tags.filter((_, i) => i !== index)
     }));
-  };
+  }, []);
 
-  const validateForm = () => {
+  // Enhanced validation
+  const validateForm = useCallback(() => {
     const productToValidate = {
       name: formData.name,
       price: Number(formData.price),
@@ -341,35 +385,20 @@ const AddProductModal = ({
 
     setErrors({});
     return true;
-  };
+  }, [formData, imagePreviews]);
 
-  const uploadImagesToFirebase = async () => {
-    const uploadedUrls = [];
-
-    // Upload new image files
-    for (let i = 0; i < imageFiles.length; i++) {
-      const file = imageFiles[i];
-      try {
-        const imageRef = ref(storage, `products/${user.uid}/${Date.now()}_${i}_${file.name}`);
-        const snapshot = await uploadBytes(imageRef, file);
-        const url = await getDownloadURL(snapshot.ref);
-        uploadedUrls.push(url);
-      } catch (error) {
-        console.error('Image upload error:', error);
-        throw new Error('Failed to upload images. Please check your internet connection and try again.');
-      }
+  // SIMPLIFIED: Enhanced submit handler with direct image processing
+  const handleSubmit = useCallback(async () => {
+    if (!isValidSetup) {
+      setErrors({ general: 'Invalid setup. Please refresh and try again.' });
+      return;
     }
 
-    // Combine uploaded URLs with existing HTTP URLs (ignore data URLs)
-    const existingUrls = imagePreviews.filter(url => typeof url === 'string' && url.startsWith('http'));
-    return [...uploadedUrls, ...existingUrls];
-  };
-  const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    // Coerce & validate again at the gate
     const priceNum = Number(formData.price);
     const qtyNum = Number(formData.quantity);
+    
     if (!Number.isFinite(priceNum) || priceNum <= 0) {
       setErrors(p => ({ ...p, price: 'Price must be greater than 0' }));
       return;
@@ -378,24 +407,23 @@ const AddProductModal = ({
       setErrors(p => ({ ...p, quantity: 'Quantity must be 0 or more' }));
       return;
     }
-    if (!imagePreviews[0]) {
+
+    // Check for images - must have at least one
+    if (!imagePreviews || imagePreviews.length === 0) {
       setErrors(p => ({ ...p, image: 'At least one image is required' }));
       return;
     }
 
     setLoading(true);
     setIsSubmitting(true);
-    
-    // FIXED: Clear isDirty immediately when submitting to prevent warnings
-    setIsDirty(false);
+    setIsDirty(false); // Clear dirty state immediately
 
     try {
-      // Upload images if needed
-      const allImageUrls = await uploadImagesToFirebase();
-
+      // Process all images (upload files, keep URLs as-is)
+      const allImageUrls = await processImages();
       const status = qtyNum > 0 ? 'active' : 'out-of-stock';
 
-      // Create enhanced product using your helper
+      // Create product with SIMPLIFIED structure - only images.primary matters
       const enhancedProductData = createEnhancedProduct({
         name: formData.name.trim(),
         price: priceNum,
@@ -407,40 +435,37 @@ const AddProductModal = ({
         features: formData.features,
         tags: formData.tags,
         images: {
-          primary: allImageUrls[0] || '',
+          primary: allImageUrls[0] || '', // ONLY save primary - this is what getProductImageUrl() checks
           gallery: allImageUrls.slice(1) || []
         },
-        imageUrl: allImageUrls[0] || '', // legacy compatibility
         status,
         source: 'manual',
         lastUpdated: Date.now(),
         ...(isEditMode ? {} : { createdAt: Date.now() })
       });
 
+      console.log('Saving product with images:', enhancedProductData.images);
+
       if (isEditMode) {
-        // Update existing product
         const productRef = dbRef(db, `users/${user.uid}/products/${editProduct.productId}`);
         await set(productRef, { ...enhancedProductData, productId: editProduct.productId });
       } else {
-        // Create new product and persist productId
         const productsRef = dbRef(db, `users/${user.uid}/products`);
         const newRef = push(productsRef);
         const productId = newRef.key;
         await set(newRef, { ...enhancedProductData, productId });
 
-        // Clear draft (successful save)
-        localStorage.removeItem(`productDraft_${user?.uid || 'anon'}`);
+        // Clear draft on successful save
+        localStorage.removeItem(`productDraft_${user.uid}`);
       }
 
-      // Parent callback
       if (onProductAdded) onProductAdded(enhancedProductData);
-
-      // Close modal and reset
       handleClose();
+
     } catch (error) {
       console.error('Error saving product:', error);
-
-      // FIXED: Only restore dirty state for edit mode if there was an error
+      
+      // Restore dirty state only for edit mode on error
       if (isEditMode) {
         const currentFormString = JSON.stringify(formData);
         const initialFormString = JSON.stringify(initialFormState.current);
@@ -459,24 +484,26 @@ const AddProductModal = ({
       setLoading(false);
       setIsSubmitting(false);
     }
-  };
+  }, [
+    isValidSetup, validateForm, formData, imagePreviews, processImages,
+    isEditMode, editProduct, user, onProductAdded
+  ]);
 
-  const handleClose = () => {
-    // Don't allow close while saving/submitting
+  // Enhanced close handler
+  const handleClose = useCallback(() => {
     if (loading || isSubmitting) return;
 
-    // FIXED: Only show confirmation for edit mode with actual unsaved changes
-    if (shouldWarnUnsavedChanges) {
+    // Only show confirmation for edit mode with actual unsaved changes
+    if (isEditMode && isDirty && !isSubmitting) {
       const confirmClose = window.confirm('You have unsaved changes. Close anyway?');
       if (!confirmClose) return;
     }
 
-    // Reset all state
     resetForm();
     onClose();
-  };
+  }, [loading, isSubmitting, isEditMode, isDirty, onClose]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setFormData({
       name: '',
       price: '',
@@ -506,11 +533,10 @@ const AddProductModal = ({
     setNewFeature('');
     setNewTag('');
     initialFormState.current = {};
-  };
+  }, []);
 
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     if (step === 1) {
-      // Validate basic info before proceeding
       const basicErrors = {};
       if (!formData.name.trim()) basicErrors.name = 'Product name is required';
       if (!formData.price || Number(formData.price) <= 0) basicErrors.price = 'Price must be greater than 0';
@@ -521,18 +547,25 @@ const AddProductModal = ({
       }
     }
     setStep(step + 1);
-  };
+  }, [step, formData.name, formData.price]);
 
-  const prevStep = () => setStep(step - 1);
+  const prevStep = useCallback(() => setStep(step - 1), [step]);
 
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       resetForm();
     }
-  }, [isOpen]);
+  }, [isOpen, resetForm]);
+
+  // Early return for invalid setup
+  if (!isValidSetup) {
+    console.warn('AddProductModal: Invalid setup - missing required props');
+    return null;
+  }
 
   if (!isOpen) return null;
+
   return (
     <>
       {/* Backdrop */}
@@ -720,7 +753,7 @@ const AddProductModal = ({
             </button>
           </div>
 
-          {/* Progress Steps (only for add mode) */}
+          {/* Progress Steps (add mode only) */}
           {!isEditMode && (
             <div style={{ padding: '16px 32px 0' }}>
               <div className="step-indicator">
@@ -774,7 +807,7 @@ const AddProductModal = ({
               </div>
             )}
 
-            {/* Step 1: Basic Info OR Edit Mode Full Form */}
+            {/* Step 1: Basic Info OR Edit Mode All Content */}
             {(step === 1 || isEditMode) && (
               <div style={{ display: 'grid', gap: '20px' }}>
                 {/* Product Name */}
@@ -820,7 +853,7 @@ const AddProductModal = ({
                     />
                     {formData.price && !errors.price && (
                       <div style={{ fontSize: '12px', color: '#059669', marginTop: '4px' }}>
-                        {formatPrice(formData.price)}
+                        {formatPriceDisplay(formData.price)}
                       </div>
                     )}
                     {errors.price && (
@@ -855,431 +888,67 @@ const AddProductModal = ({
                   </div>
                 </div>
 
-                {/* Category and Subcategory (if edit mode) */}
-                {isEditMode && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label htmlFor="productCategory" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                        Category
-                      </label>
-                      <select
-                        id="productCategory"
-                        className="modal-input"
-                        value={formData.category}
-                        onChange={(e) => handleInputChange('category', e.target.value)}
-                        disabled={loading || isSubmitting}
-                      >
-                        <option value="">Select category</option>
-                        {categories.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label htmlFor="productCondition" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                        Condition
-                      </label>
-                      <select
-                        id="productCondition"
-                        className="modal-input"
-                        value={formData.specifications.condition}
-                        onChange={(e) => handleInputChange('specifications.condition', e.target.value)}
-                        disabled={loading || isSubmitting}
-                      >
-                        {conditions.map(condition => (
-                          <option key={condition} value={condition}>{condition}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-                {/* Description (if edit mode) */}
-                {isEditMode && (
+                {/* Category and Condition */}
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
                   <div>
-                    <label htmlFor="productDescription" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                      Description
+                    <label htmlFor="productCategory" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                      Category {!isEditMode && '*'}
                     </label>
-                    <textarea
-                      id="productDescription"
+                    <select
+                      id="productCategory"
                       className="modal-input"
-                      placeholder="Describe your product..."
-                      rows={3}
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      value={formData.category}
+                      onChange={(e) => handleInputChange('category', e.target.value)}
                       disabled={loading || isSubmitting}
-                    />
+                    >
+                      <option value="">Select category</option>
+                      {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                    </select>
                   </div>
-                )}
 
-                {/* Images (if edit mode) */}
-                {isEditMode && (
                   <div>
-                    <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                      Product Images * (Max 5)
+                    <label htmlFor="productCondition" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                      Condition
                     </label>
-
-                    {/* Image Previews */}
-                    {imagePreviews.length > 0 && (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-                        {imagePreviews.map((imageUrl, index) => (
-                          <div key={index} style={{ position: 'relative' }}>
-                            <img
-                              src={imageUrl}
-                              alt={`Preview ${index + 1}`}
-                              style={{
-                                width: '100%',
-                                height: '100px',
-                                objectFit: 'cover',
-                                borderRadius: '8px',
-                                border: index === 0 ? '2px solid #5a6bff' : '1px solid rgba(0, 0, 0, 0.1)',
-                                opacity: (loading || isSubmitting) ? 0.6 : 1
-                              }}
-                            />
-                            {index === 0 && (
-                              <div style={{
-                                position: 'absolute',
-                                top: '4px',
-                                left: '4px',
-                                background: '#5a6bff',
-                                color: 'white',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                fontSize: '10px',
-                                fontWeight: '600'
-                              }}>
-                                PRIMARY
-                              </div>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              disabled={loading || isSubmitting}
-                              style={{
-                                position: 'absolute',
-                                top: '4px',
-                                right: '4px',
-                                background: 'rgba(239, 68, 68, 0.9)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '50%',
-                                width: '20px',
-                                height: '20px',
-                                cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer',
-                                fontSize: '12px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                opacity: (loading || isSubmitting) ? 0.5 : 1
-                              }}
-                              aria-label="Remove image"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Upload Methods */}
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                      <button
-                        type="button"
-                        className={uploadMethod === 'file' ? 'btn-primary' : 'btn-secondary'}
-                        onClick={() => setUploadMethod('file')}
-                        disabled={loading || isSubmitting}
-                        style={{ fontSize: '12px', padding: '6px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                      >
-                        <Upload size={14} /> Upload
-                      </button>
-                      <button
-                        type="button"
-                        className={uploadMethod === 'camera' ? 'btn-primary' : 'btn-secondary'}
-                        onClick={() => setUploadMethod('camera')}
-                        disabled={loading || isSubmitting}
-                        style={{ fontSize: '12px', padding: '6px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                      >
-                        <Camera size={14} /> Camera
-                      </button>
-                      <button
-                        type="button"
-                        className={uploadMethod === 'url' ? 'btn-primary' : 'btn-secondary'}
-                        onClick={() => setUploadMethod('url')}
-                        disabled={loading || isSubmitting}
-                        style={{ fontSize: '12px', padding: '6px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                      >
-                        <Link size={14} /> URL
-                      </button>
-                    </div>
-
-                    {/* Upload Interface */}
-                    {uploadMethod === 'file' && imagePreviews.length < 5 && (
-                      <div
-                        className="image-upload-area"
-                        onClick={() => !loading && !isSubmitting && fileInputRef.current?.click()}
-                        style={{
-                          opacity: (loading || isSubmitting) ? 0.5 : 1,
-                          cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer'
-                        }}
-                      >
-                        <Upload size={32} style={{ opacity: 0.5, marginBottom: '8px' }} />
-                        <p style={{ margin: 0, fontSize: '14px', opacity: 0.7 }}>
-                          {(loading || isSubmitting) ? 'Processing...' : 'Click to upload or drag & drop'}
-                        </p>
-                        <p style={{ margin: '4px 0 0', fontSize: '12px', opacity: 0.5 }}>
-                          Max 5MB • JPG, PNG, WebP
-                        </p>
-                      </div>
-                    )}
-
-                    {uploadMethod === 'camera' && imagePreviews.length < 5 && (
-                      <div>
-                        <button
-                          type="button"
-                          className="btn-primary"
-                          onClick={() => {
-                            if (loading || isSubmitting) return;
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*';
-                            input.capture = 'environment';
-                            input.onchange = (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file);
-                            };
-                            input.click();
-                          }}
-                          disabled={loading || isSubmitting}
-                          style={{ width: '100%', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                        >
-                          <Camera size={16} />
-                          {(loading || isSubmitting) ? 'Processing...' : 'Take Photo'}
-                        </button>
-                      </div>
-                    )}
-
-                    {uploadMethod === 'url' && imagePreviews.length < 5 && (
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <input
-                          type="url"
-                          className="modal-input"
-                          placeholder="https://example.com/image.jpg"
-                          disabled={loading || isSubmitting}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && e.currentTarget.value && !loading && !isSubmitting) {
-                              handleUrlInput(e.currentTarget.value);
-                              e.currentTarget.value = '';
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          disabled={loading || isSubmitting}
-                          onClick={(e) => {
-                            if (loading || isSubmitting) return;
-                            const input = e.currentTarget.parentElement.querySelector('input[type="url"]');
-                            if (input && input.value) {
-                              handleUrlInput(input.value);
-                              input.value = '';
-                            }
-                          }}
-                          style={{ opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                        >
-                          Add
-                        </button>
-                      </div>
-                    )}
-
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      style={{ display: 'none' }}
-                      onChange={handleFileSelect}
+                    <select
+                      id="productCondition"
+                      className="modal-input"
+                      value={formData.specifications.condition}
+                      onChange={(e) => handleInputChange('specifications.condition', e.target.value)}
                       disabled={loading || isSubmitting}
-                    />
-
-                    {errors.image && (
-                      <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <AlertCircle size={12} />
-                        {errors.image}
-                      </div>
-                    )}
+                    >
+                      {conditions.map((condition) => (
+                        <option key={condition} value={condition}>{condition}</option>
+                      ))}
+                    </select>
                   </div>
-                )}
+                </div>
 
-                {/* Features and Tags (if edit mode) */}
-                {isEditMode && (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    {/* Features */}
-                    <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                        Key Features
-                      </label>
-                      <div style={{ marginBottom: '8px' }}>
-                        {formData.features.map((feature, index) => (
-                          <div key={index} className="feature-item">
-                            <span style={{ fontSize: '14px' }}>{feature}</span>
-                            <button
-                              type="button"
-                              onClick={() => removeFeature(index)}
-                              disabled={loading || isSubmitting}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                color: '#dc2626',
-                                cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer',
-                                fontSize: '12px',
-                                opacity: (loading || isSubmitting) ? 0.5 : 1
-                              }}
-                              aria-label={`Remove feature ${index + 1}`}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <input
-                          type="text"
-                          className="modal-input"
-                          placeholder="Add a feature..."
-                          value={newFeature}
-                          onChange={(e) => setNewFeature(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && !loading && !isSubmitting && addFeature()}
-                          disabled={loading || isSubmitting}
-                          style={{ fontSize: '12px', padding: '8px 12px' }}
-                        />
-                        <button
-                          type="button"
-                          onClick={addFeature}
-                          disabled={loading || isSubmitting}
-                          className="btn-secondary"
-                          style={{ fontSize: '12px', padding: '8px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                          aria-label="Add feature"
-                        >
-                          <Plus size={12} />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Tags */}
-                    <div>
-                      <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                        Tags
-                      </label>
-                      <div style={{ marginBottom: '8px', minHeight: '40px' }}>
-                        {formData.tags.map((tag, index) => (
-                          <span key={index} className="tag-chip">
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => removeTag(index)}
-                              disabled={loading || isSubmitting}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'inherit',
-                                cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer',
-                                fontSize: '10px',
-                                opacity: (loading || isSubmitting) ? 0.5 : 1
-                              }}
-                              aria-label={`Remove tag ${tag}`}
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <input
-                          type="text"
-                          className="modal-input"
-                          placeholder="Add a tag..."
-                          value={newTag}
-                          onChange={(e) => setNewTag(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && !loading && !isSubmitting && addTag()}
-                          disabled={loading || isSubmitting}
-                          style={{ fontSize: '12px', padding: '8px 12px' }}
-                        />
-                        <button
-                          type="button"
-                          onClick={addTag}
-                          disabled={loading || isSubmitting}
-                          className="btn-secondary"
-                          style={{ fontSize: '12px', padding: '8px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                          aria-label="Add tag"
-                        >
-                          <Plus size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Specifications (if edit mode) */}
-                {isEditMode && (
-                  <div>
-                    <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                      Product Specifications (Optional)
-                    </label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                      <input
-                        type="text"
-                        className="modal-input"
-                        placeholder="Dimensions"
-                        value={formData.specifications.dimensions}
-                        onChange={(e) => handleInputChange('specifications.dimensions', e.target.value)}
-                        disabled={loading || isSubmitting}
-                        style={{ fontSize: '12px', padding: '8px 12px' }}
-                      />
-                      <input
-                        type="text"
-                        className="modal-input"
-                        placeholder="Weight"
-                        value={formData.specifications.weight}
-                        onChange={(e) => handleInputChange('specifications.weight', e.target.value)}
-                        disabled={loading || isSubmitting}
-                        style={{ fontSize: '12px', padding: '8px 12px' }}
-                      />
-                      <input
-                        type="text"
-                        className="modal-input"
-                        placeholder="Materials"
-                        value={formData.specifications.materials}
-                        onChange={(e) => handleInputChange('specifications.materials', e.target.value)}
-                        disabled={loading || isSubmitting}
-                        style={{ fontSize: '12px', padding: '8px 12px' }}
-                      />
-                      <input
-                        type="text"
-                        className="modal-input"
-                        placeholder="Origin/Brand"
-                        value={formData.specifications.origin}
-                        onChange={(e) => handleInputChange('specifications.origin', e.target.value)}
-                        disabled={loading || isSubmitting}
-                        style={{ fontSize: '12px', padding: '8px 12px' }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Step 2: Images & Details (Add mode only) */}
-            {step === 2 && !isEditMode && (
-              <div style={{ display: 'grid', gap: '20px' }}>
+                {/* Description */}
                 <div>
-                  <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 700 }}>
-                    📸 Add Product Images
-                  </h3>
+                  <label htmlFor="productDescription" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                    Description
+                  </label>
+                  <textarea
+                    id="productDescription"
+                    className="modal-input"
+                    placeholder="Describe your product..."
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    disabled={loading || isSubmitting}
+                  />
+                </div>
+
+                {/* Images Section */}
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                    Product Images * (Max 5)
+                  </label>
 
                   {/* Image Previews */}
                   {imagePreviews.length > 0 && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px', marginBottom: '12px' }}>
                       {imagePreviews.map((imageUrl, index) => (
                         <div key={index} style={{ position: 'relative' }}>
                           <img
@@ -1287,23 +956,22 @@ const AddProductModal = ({
                             alt={`Preview ${index + 1}`}
                             style={{
                               width: '100%',
-                              height: '120px',
+                              height: '100px',
                               objectFit: 'cover',
-                              borderRadius: '12px',
-                              border: index === 0 ? '3px solid #5a6bff' : '1px solid rgba(0, 0, 0, 0.1)',
-                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                              borderRadius: '8px',
+                              border: index === 0 ? '2px solid #5a6bff' : '1px solid rgba(0, 0, 0, 0.1)',
                               opacity: (loading || isSubmitting) ? 0.6 : 1
                             }}
                           />
                           {index === 0 && (
                             <div style={{
                               position: 'absolute',
-                              top: '8px',
-                              left: '8px',
+                              top: '4px',
+                              left: '4px',
                               background: '#5a6bff',
                               color: 'white',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
                               fontSize: '10px',
                               fontWeight: '600'
                             }}>
@@ -1316,22 +984,22 @@ const AddProductModal = ({
                             disabled={loading || isSubmitting}
                             style={{
                               position: 'absolute',
-                              top: '8px',
-                              right: '8px',
+                              top: '4px',
+                              right: '4px',
                               background: 'rgba(239, 68, 68, 0.9)',
                               color: 'white',
                               border: 'none',
                               borderRadius: '50%',
-                              width: '24px',
-                              height: '24px',
+                              width: '20px',
+                              height: '20px',
                               cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer',
-                              fontSize: '14px',
+                              fontSize: '12px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               opacity: (loading || isSubmitting) ? 0.5 : 1
                             }}
-                            aria-label={`Remove image ${index + 1}`}
+                            aria-label="Remove image"
                           >
                             ×
                           </button>
@@ -1341,33 +1009,33 @@ const AddProductModal = ({
                   )}
 
                   {/* Upload Methods */}
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
                     <button
                       type="button"
                       className={uploadMethod === 'file' ? 'btn-primary' : 'btn-secondary'}
                       onClick={() => setUploadMethod('file')}
                       disabled={loading || isSubmitting}
-                      style={{ fontSize: '12px', padding: '8px 16px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
+                      style={{ fontSize: '12px', padding: '6px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
                     >
-                      <Upload size={14} /> Upload Files
+                      <Upload size={14} /> Upload
                     </button>
                     <button
                       type="button"
                       className={uploadMethod === 'camera' ? 'btn-primary' : 'btn-secondary'}
                       onClick={() => setUploadMethod('camera')}
                       disabled={loading || isSubmitting}
-                      style={{ fontSize: '12px', padding: '8px 16px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
+                      style={{ fontSize: '12px', padding: '6px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
                     >
-                      <Camera size={14} /> Take Photos
+                      <Camera size={14} /> Camera
                     </button>
                     <button
                       type="button"
                       className={uploadMethod === 'url' ? 'btn-primary' : 'btn-secondary'}
                       onClick={() => setUploadMethod('url')}
                       disabled={loading || isSubmitting}
-                      style={{ fontSize: '12px', padding: '8px 16px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
+                      style={{ fontSize: '12px', padding: '6px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
                     >
-                      <Link size={14} /> Image URLs
+                      <Link size={14} /> URL
                     </button>
                   </div>
 
@@ -1376,42 +1044,23 @@ const AddProductModal = ({
                     <div
                       className="image-upload-area"
                       onClick={() => !loading && !isSubmitting && fileInputRef.current?.click()}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        if (!loading && !isSubmitting) e.currentTarget.classList.add('dragover');
-                      }}
-                      onDragLeave={(e) => e.currentTarget.classList.remove('dragover')}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        e.currentTarget.classList.remove('dragover');
-                        if (!loading && !isSubmitting) {
-                          const files = Array.from(e.dataTransfer.files);
-                          files.forEach(file => handleImageUpload(file));
-                        }
-                      }}
                       style={{
                         opacity: (loading || isSubmitting) ? 0.5 : 1,
                         cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer'
                       }}
                     >
-                      <Upload size={48} style={{ opacity: 0.5, marginBottom: '12px' }} />
-                      <p style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
+                      <Upload size={32} style={{ opacity: 0.5, marginBottom: '8px' }} />
+                      <p style={{ margin: 0, fontSize: '14px', opacity: 0.7 }}>
                         {(loading || isSubmitting) ? 'Processing...' : 'Click to upload or drag & drop'}
                       </p>
-                      <p style={{ margin: '8px 0 0', fontSize: '14px', opacity: 0.6 }}>
-                        Max 5MB each • JPG, PNG, WebP • {5 - imagePreviews.length} remaining
+                      <p style={{ margin: '4px 0 0', fontSize: '12px', opacity: 0.5 }}>
+                        Max 5MB • JPG, PNG, WebP
                       </p>
                     </div>
                   )}
 
                   {uploadMethod === 'camera' && imagePreviews.length < 5 && (
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ marginBottom: '16px' }}>
-                        <Camera size={48} style={{ opacity: 0.5 }} />
-                        <p style={{ margin: '8px 0 0', fontSize: '14px', opacity: 0.7 }}>
-                          Take photos of your product from different angles
-                        </p>
-                      </div>
+                    <div>
                       <button
                         type="button"
                         className="btn-primary"
@@ -1428,7 +1077,7 @@ const AddProductModal = ({
                           input.click();
                         }}
                         disabled={loading || isSubmitting}
-                        style={{ width: '200px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
+                        style={{ width: '100%', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
                       >
                         <Camera size={16} />
                         {(loading || isSubmitting) ? 'Processing...' : 'Take Photo'}
@@ -1437,40 +1086,35 @@ const AddProductModal = ({
                   )}
 
                   {uploadMethod === 'url' && imagePreviews.length < 5 && (
-                    <div>
-                      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                        <input
-                          type="url"
-                          className="modal-input"
-                          placeholder="https://example.com/image.jpg"
-                          disabled={loading || isSubmitting}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && e.currentTarget.value && !loading && !isSubmitting) {
-                              handleUrlInput(e.currentTarget.value);
-                              e.currentTarget.value = '';
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          className="btn-secondary"
-                          disabled={loading || isSubmitting}
-                          onClick={(e) => {
-                            if (loading || isSubmitting) return;
-                            const input = e.currentTarget.parentElement.querySelector('input');
-                            if (input && input.value) {
-                              handleUrlInput(input.value);
-                              input.value = '';
-                            }
-                          }}
-                          style={{ opacity: (loading || isSubmitting) ? 0.5 : 1 }}
-                        >
-                          Add
-                        </button>
-                      </div>
-                      <p style={{ margin: 0, fontSize: '12px', opacity: 0.6 }}>
-                        Enter image URLs one at a time
-                      </p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="url"
+                        className="modal-input"
+                        placeholder="https://example.com/image.jpg"
+                        disabled={loading || isSubmitting}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.currentTarget.value && !loading && !isSubmitting) {
+                            handleUrlInput(e.currentTarget.value);
+                            e.currentTarget.value = '';
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        disabled={loading || isSubmitting}
+                        onClick={(e) => {
+                          if (loading || isSubmitting) return;
+                          const input = e.currentTarget.parentElement.querySelector('input[type="url"]');
+                          if (input && input.value) {
+                            handleUrlInput(input.value);
+                            input.value = '';
+                          }
+                        }}
+                        style={{ opacity: (loading || isSubmitting) ? 0.5 : 1 }}
+                      >
+                        Add
+                      </button>
                     </div>
                   )}
 
@@ -1485,118 +1129,245 @@ const AddProductModal = ({
                   />
 
                   {errors.image && (
-                    <div style={{ color: '#dc2626', fontSize: '14px', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                      <AlertCircle size={16} />
+                    <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertCircle size={12} />
                       {errors.image}
                     </div>
                   )}
                 </div>
 
-                {/* Additional Details */}
-                <div style={{ display: 'grid', gap: '16px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label htmlFor="categorySelect" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                        Category
-                      </label>
-                      <select
-                        id="categorySelect"
-                        className="modal-input"
-                        value={formData.category}
-                        onChange={(e) => handleInputChange('category', e.target.value)}
-                        disabled={loading || isSubmitting}
-                      >
-                        <option value="">Select category (optional)</option>
-                        {categories.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
-                      </select>
+                {/* Features and Tags */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  {/* Features */}
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                      Key Features
+                    </label>
+                    <div style={{ marginBottom: '8px' }}>
+                      {formData.features.map((feature, index) => (
+                        <div key={index} className="feature-item">
+                          <span style={{ fontSize: '14px' }}>{feature}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeFeature(index)}
+                            disabled={loading || isSubmitting}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#dc2626',
+                              cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer',
+                              fontSize: '12px',
+                              opacity: (loading || isSubmitting) ? 0.5 : 1
+                            }}
+                            aria-label={`Remove feature ${index + 1}`}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
                     </div>
-
-                    <div>
-                      <label htmlFor="conditionSelect" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                        Condition
-                      </label>
-                      <select
-                        id="conditionSelect"
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
                         className="modal-input"
-                        value={formData.specifications.condition}
-                        onChange={(e) => handleInputChange('specifications.condition', e.target.value)}
+                        placeholder="Add a feature..."
+                        value={newFeature}
+                        onChange={(e) => setNewFeature(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && !loading && !isSubmitting && addFeature()}
                         disabled={loading || isSubmitting}
+                        style={{ fontSize: '12px', padding: '8px 12px' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={addFeature}
+                        disabled={loading || isSubmitting}
+                        className="btn-secondary"
+                        style={{ fontSize: '12px', padding: '8px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
+                        aria-label="Add feature"
                       >
-                        {conditions.map(condition => (
-                          <option key={condition} value={condition}>{condition}</option>
-                        ))}
-                      </select>
+                        <Plus size={12} />
+                      </button>
                     </div>
                   </div>
 
+                  {/* Tags */}
                   <div>
-                    <label htmlFor="descArea" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
-                      Description
+                    <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                      Tags
                     </label>
-                    <textarea
-                      id="descArea"
+                    <div style={{ marginBottom: '8px', minHeight: '40px' }}>
+                      {formData.tags.map((tag, index) => (
+                        <span key={index} className="tag-chip">
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(index)}
+                            disabled={loading || isSubmitting}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'inherit',
+                              cursor: (loading || isSubmitting) ? 'not-allowed' : 'pointer',
+                              fontSize: '10px',
+                              opacity: (loading || isSubmitting) ? 0.5 : 1
+                            }}
+                            aria-label={`Remove tag ${tag}`}
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        className="modal-input"
+                        placeholder="Add a tag..."
+                        value={newTag}
+                        onChange={(e) => setNewTag(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && !loading && !isSubmitting && addTag()}
+                        disabled={loading || isSubmitting}
+                        style={{ fontSize: '12px', padding: '8px 12px' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={addTag}
+                        disabled={loading || isSubmitting}
+                        className="btn-secondary"
+                        style={{ fontSize: '12px', padding: '8px 12px', opacity: (loading || isSubmitting) ? 0.5 : 1 }}
+                        aria-label="Add tag"
+                      >
+                        <Plus size={12} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Specifications */}
+                <div>
+                  <label style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                    Product Specifications (Optional)
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <input
+                      type="text"
                       className="modal-input"
-                      placeholder="Describe your product, materials, size, etc..."
-                      rows={4}
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      placeholder="Dimensions"
+                      value={formData.specifications.dimensions}
+                      onChange={(e) => handleInputChange('specifications.dimensions', e.target.value)}
                       disabled={loading || isSubmitting}
+                      style={{ fontSize: '12px', padding: '8px 12px' }}
                     />
-                    <p style={{ margin: '4px 0 0', fontSize: '12px', opacity: 0.6 }}>
-                      {formData.description?.length || 0}/500 characters
-                    </p>
+                    <input
+                      type="text"
+                      className="modal-input"
+                      placeholder="Weight"
+                      value={formData.specifications.weight}
+                      onChange={(e) => handleInputChange('specifications.weight', e.target.value)}
+                      disabled={loading || isSubmitting}
+                      style={{ fontSize: '12px', padding: '8px 12px' }}
+                    />
+                    <input
+                      type="text"
+                      className="modal-input"
+                      placeholder="Materials"
+                      value={formData.specifications.materials}
+                      onChange={(e) => handleInputChange('specifications.materials', e.target.value)}
+                      disabled={loading || isSubmitting}
+                      style={{ fontSize: '12px', padding: '8px 12px' }}
+                    />
+                    <input
+                      type="text"
+                      className="modal-input"
+                      placeholder="Origin/Brand"
+                      value={formData.specifications.origin}
+                      onChange={(e) => handleInputChange('specifications.origin', e.target.value)}
+                      disabled={loading || isSubmitting}
+                      style={{ fontSize: '12px', padding: '8px 12px' }}
+                    />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Step 3: Review (Add mode only) */}
-            {step === 3 && !isEditMode && (
-              <div>
-                <h3 style={{ margin: '0 0 20px', fontSize: '18px', fontWeight: 700 }}>
-                  🔍 Review Your Product
-                </h3>
+            {/* Step 2: Images & Details (add mode only) */}
+            {!isEditMode && step === 2 && (
+              <div style={{ display: 'grid', gap: '20px' }}>
+                <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 700 }}>Images & Additional Details</h3>
+                
+                {/* Category */}
+                <div>
+                  <label htmlFor="productCategory" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                    Category *
+                  </label>
+                  <select
+                    id="productCategory"
+                    className="modal-input"
+                    value={formData.category}
+                    onChange={(e) => handleInputChange('category', e.target.value)}
+                    disabled={loading || isSubmitting}
+                  >
+                    <option value="">Select category</option>
+                    {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                </div>
 
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.8)',
+                {/* Description */}
+                <div>
+                  <label htmlFor="productDescription" style={{ display: 'block', fontWeight: 600, marginBottom: '6px', fontSize: '14px' }}>
+                    Description
+                  </label>
+                  <textarea
+                    id="productDescription"
+                    className="modal-input"
+                    placeholder="Describe your product..."
+                    rows={4}
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    disabled={loading || isSubmitting}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Review (add mode only) */}
+            {!isEditMode && step === 3 && (
+              <div style={{ display: 'grid', gap: '20px' }}>
+                <h3 style={{ margin: '0 0 16px', fontSize: '18px', fontWeight: 700 }}>Review Your Product</h3>
+                
+                {/* Product Preview */}
+                <div style={{ 
+                  background: 'rgba(90,107,255,0.05)', 
+                  padding: '20px', 
                   borderRadius: '16px',
-                  padding: '20px',
-                  border: '1px solid rgba(0, 0, 0, 0.1)'
+                  border: '1px solid rgba(90,107,255,0.1)'
                 }}>
-                  <div style={{ display: 'flex', gap: '20px' }}>
-                    {/* Product Images */}
-                    <div style={{ flexShrink: 0 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '20px', alignItems: 'start' }}>
+                    {/* Product Image Preview */}
+                    <div>
                       {imagePreviews[0] ? (
-                        <div>
-                          <img
-                            src={imagePreviews[0]}
-                            alt={formData.name}
-                            style={{
-                              width: '120px',
-                              height: '120px',
-                              objectFit: 'cover',
-                              borderRadius: '12px',
-                              border: '1px solid rgba(0, 0, 0, 0.1)'
-                            }}
-                          />
-                          {imagePreviews.length > 1 && (
-                            <p style={{ margin: '4px 0 0', fontSize: '10px', textAlign: 'center', opacity: 0.7 }}>
-                              +{imagePreviews.length - 1} more
-                            </p>
-                          )}
-                        </div>
+                        <img
+                          src={imagePreviews[0]}
+                          alt="Product preview"
+                          style={{
+                            width: '100%',
+                            height: '150px',
+                            objectFit: 'cover',
+                            borderRadius: '12px',
+                            border: '1px solid rgba(0,0,0,0.1)'
+                          }}
+                        />
                       ) : (
                         <div style={{
-                          width: '120px',
-                          height: '120px',
-                          background: '#f3f4f6',
+                          width: '100%',
+                          height: '150px',
+                          background: '#f8fafc',
+                          border: '2px dashed #e2e8f0',
                           borderRadius: '12px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#9ca3af'
+                          color: '#64748b'
                         }}>
                           No Image
                         </div>
@@ -1604,67 +1375,80 @@ const AddProductModal = ({
                     </div>
 
                     {/* Product Details */}
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 700 }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 700 }}>
                         {formData.name || 'Product Name'}
                       </h4>
-
-                      <div style={{ display: 'flex', gap: '20px', marginBottom: '12px' }}>
-                        <div>
-                          <span style={{ fontSize: '12px', opacity: 0.7, display: 'block' }}>Price</span>
-                          <span style={{ fontSize: '20px', fontWeight: 700, color: '#059669' }}>
-                            {formatPrice(formData.price)}
-                          </span>
-                        </div>
-                        <div>
-                          <span style={{ fontSize: '12px', opacity: 0.7, display: 'block' }}>Stock</span>
-                          <span style={{ fontSize: '16px', fontWeight: 600 }}>
-                            {formData.quantity} units
-                          </span>
-                        </div>
-                        <div>
-                          <span style={{ fontSize: '12px', opacity: 0.7, display: 'block' }}>Condition</span>
-                          <span style={{ fontSize: '14px', fontWeight: 600 }}>
-                            {formData.specifications.condition}
-                          </span>
-                        </div>
-                      </div>
-
-                      {formData.category && (
-                        <div style={{ marginBottom: '8px' }}>
-                          <span style={{ fontSize: '12px', opacity: 0.7 }}>Category: </span>
-                          <span style={{ fontSize: '14px' }}>{formData.category}</span>
-                        </div>
-                      )}
-
+                      <p style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 600, color: '#059669' }}>
+                        {formatPriceDisplay(formData.price) || 'Price'}
+                      </p>
+                      <p style={{ margin: '0 0 8px', fontSize: '14px', opacity: 0.7 }}>
+                        Quantity: {formData.quantity || 0} • Category: {formData.category || 'None'}
+                      </p>
                       {formData.description && (
-                        <div>
-                          <span style={{ fontSize: '12px', opacity: 0.7, display: 'block', marginBottom: '4px' }}>Description</span>
-                          <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5, opacity: 0.8 }}>
-                            {formData.description.length > 100
-                              ? formData.description.substring(0, 100) + '...'
-                              : formData.description}
-                          </p>
-                        </div>
+                        <p style={{ margin: '8px 0 0', fontSize: '14px', lineHeight: 1.5 }}>
+                          {formData.description}
+                        </p>
                       )}
                     </div>
                   </div>
+
+                  {/* Additional Details */}
+                  {(formData.features.length > 0 || formData.tags.length > 0) && (
+                    <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+                      {formData.features.length > 0 && (
+                        <div style={{ marginBottom: '12px' }}>
+                          <strong style={{ fontSize: '14px' }}>Features:</strong>
+                          <div style={{ marginTop: '4px' }}>
+                            {formData.features.map((feature, index) => (
+                              <span key={index} style={{ 
+                                display: 'inline-block',
+                                background: 'rgba(34,197,94,0.1)',
+                                color: '#059669',
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                margin: '2px 4px 2px 0'
+                              }}>
+                                {feature}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {formData.tags.length > 0 && (
+                        <div>
+                          <strong style={{ fontSize: '14px' }}>Tags:</strong>
+                          <div style={{ marginTop: '4px' }}>
+                            {formData.tags.map((tag, index) => (
+                              <span key={index} className="tag-chip">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                <div style={{
-                  background: 'rgba(34, 197, 94, 0.08)',
-                  border: '1px solid rgba(34, 197, 94, 0.15)',
-                  borderRadius: '8px',
-                  padding: '12px 16px',
-                  marginTop: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
+                {/* Validation Summary */}
+                <div style={{ 
+                  background: 'rgba(34,197,94,0.05)', 
+                  padding: '16px', 
+                  borderRadius: '12px',
+                  border: '1px solid rgba(34,197,94,0.2)'
                 }}>
-                  <Check size={16} style={{ color: '#059669' }} />
-                  <span style={{ fontSize: '14px', color: '#059669' }}>
-                    Product ready to be added to your catalog
-                  </span>
+                  <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 600, color: '#059669' }}>
+                    ✅ Ready to Publish
+                  </h4>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', color: '#374151' }}>
+                    <li>Product name and pricing set</li>
+                    <li>Images uploaded ({imagePreviews.length} image{imagePreviews.length !== 1 ? 's' : ''})</li>
+                    <li>Category selected</li>
+                    <li>Stock quantity defined</li>
+                  </ul>
                 </div>
               </div>
             )}

@@ -1,10 +1,10 @@
+// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, get, set, update } from 'firebase/database';
 import { auth, db } from './firebase';
 import './App.css';
-
 
 import AuthComponent from './AuthComponent';
 import SellerOnboardingView from './SellerOnboardingView';
@@ -15,6 +15,11 @@ import AnalyticsView from './AnalyticsView';
 import StorefrontPublicView from './StorefrontPublicView';
 import SettingsView from './SettingsView';
 
+// Admin
+import AdminDashboard from './AdminDashboard';
+
+// Public marketing/landing
+import MarketLanding from './MarketLanding';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -25,55 +30,57 @@ export default function App() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
-      
-      if (u) {
-        try {
-          // Check if user has completed onboarding using Realtime Database
-          const userRef = ref(db, `users/${u.uid}`);
-          const snapshot = await get(userRef);
-          
-          if (snapshot.exists()) {
-            setUserProfile(snapshot.val());
-          } else {
-            // Create initial user document
-            const initialProfile = {
-              email: u.email,
-              createdAt: Date.now(),
-              onboardingCompleted: false
-            };
-            await set(userRef, initialProfile);
-            setUserProfile(initialProfile);
-          }
-        } catch (err) {
-          console.error('Error fetching user profile:', err);
-          setError('Failed to load user profile');
-        }
-      } else {
+
+      if (!u) {
         setUserProfile(null);
+        setLoading(false);
+        return;
       }
-      
-      setLoading(false);
+
+      try {
+        const profileRef = ref(db, `users/${u.uid}/profile`);
+        const snap = await get(profileRef);
+
+        if (snap.exists()) {
+          setUserProfile(snap.val());
+        } else {
+          const seeded = {
+            email: u.email || '',
+            storeName: (u.email && u.email.split('@')[0]) || 'My Store',
+            currency: 'GHS',
+            onboardingCompleted: false,
+            createdAt: Date.now(),
+            role: 'seller', // default role
+          };
+          await set(profileRef, seeded);
+          setUserProfile(seeded);
+        }
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching user profile:', err);
+        setError('Failed to load user profile');
+      } finally {
+        setLoading(false);
+      }
     });
-    
+
     return unsub;
   }, []);
 
-  // Complete onboarding function
   const completeOnboarding = async (onboardingData) => {
     if (!user) return false;
-    
+
     try {
-      const userRef = ref(db, `users/${user.uid}`);
+      const profileRef = ref(db, `users/${user.uid}/profile`);
       const updatedProfile = {
-        ...userProfile,
-        ...onboardingData,
+        ...(userProfile || {}),
+        ...(onboardingData || {}),
         onboardingCompleted: true,
-        onboardingCompletedAt: Date.now()
+        onboardingCompletedAt: Date.now(),
       };
-      
-      await update(userRef, updatedProfile);
+
+      await update(profileRef, updatedProfile);
       setUserProfile(updatedProfile);
-      
       return true;
     } catch (err) {
       console.error('Error completing onboarding:', err);
@@ -93,7 +100,6 @@ export default function App() {
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="screen">
@@ -106,7 +112,6 @@ export default function App() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="screen">
@@ -114,7 +119,7 @@ export default function App() {
         <div className="glassCard center" style={{ textAlign: 'center' }}>
           <h2 style={{ color: '#dc2626', marginBottom: '8px' }}>⚠️ Error</h2>
           <p style={{ marginBottom: '16px' }}>{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="btnPrimary"
             style={{ width: 'auto', padding: '0 24px' }}
@@ -128,56 +133,69 @@ export default function App() {
 
   return (
     <Routes>
-      {/* PUBLIC ROUTES - No authentication required */}
-      <Route 
-        path="/store/:sellerId" 
-        element={<StorefrontPublicView />} 
+      {/* PUBLIC ROUTES */}
+      <Route path="/" element={<MarketLanding />} />
+      {/* Redirect authenticated users away from the login page */}
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/catalog" replace /> : <AuthComponent />}
       />
+      <Route path="/store/:sellerId" element={<StorefrontPublicView />} />
 
       {/* AUTHENTICATED ROUTES */}
       {user ? (
         userProfile ? (
           userProfile.onboardingCompleted ? (
-            // Main dashboard routes for completed users
             <>
-              <Route 
-                path="/catalog" 
-                element={<ProductCatalogueView user={user} userProfile={userProfile} />} 
-              />
-              
-              <Route 
-                path="/storefront" 
-                element={<StorefrontView user={user} userProfile={userProfile} />} 
-              />
-              
-              <Route 
-                path="/orders" 
-                element={<OrdersView user={user} userProfile={userProfile} />} 
-              />
-              
-              <Route 
-                path="/analytics" 
-                element={<AnalyticsView user={user} userProfile={userProfile} />} 
-              />
-              
-              <Route 
-                path="/settings" 
-                element={<SettingsView user={user} userProfile={userProfile} onSignOut={handleSignOut} />} 
+              {/* Admin (guarded) */}
+              <Route
+                path="/admin"
+                element={
+                  userProfile?.role === 'admin' ? (
+                    <AdminDashboard />
+                  ) : (
+                    <Navigate to="/catalog" replace />
+                  )
+                }
               />
 
-              {/* Default redirect to catalog */}
-              <Route 
-                path="*" 
-                element={<Navigate to="/catalog" replace />} 
+              <Route
+                path="/catalog"
+                element={<ProductCatalogueView user={user} userProfile={userProfile} />}
               />
+              <Route
+                path="/storefront"
+                element={<StorefrontView user={user} userProfile={userProfile} />}
+              />
+              <Route
+                path="/orders"
+                element={<OrdersView user={user} userProfile={userProfile} />}
+              />
+              <Route
+                path="/analytics"
+                element={<AnalyticsView user={user} userProfile={userProfile} />}
+              />
+              <Route
+                path="/settings"
+                element={
+                  <SettingsView
+                    user={user}
+                    userProfile={userProfile}
+                    onSignOut={handleSignOut}
+                  />
+                }
+              />
+
+              {/* Unknown authed route → catalog */}
+              <Route path="*" element={<Navigate to="/catalog" replace />} />
             </>
           ) : (
-            // User hasn't completed onboarding
-            <Route 
+            // Force onboarding flow if not completed
+            <Route
               path="*"
               element={
-                <SellerOnboardingView 
-                  user={user} 
+                <SellerOnboardingView
+                  user={user}
                   userProfile={userProfile}
                   onSignOut={handleSignOut}
                   onComplete={completeOnboarding}
@@ -186,8 +204,8 @@ export default function App() {
             />
           )
         ) : (
-          // User authenticated but no profile loaded yet
-          <Route 
+          // Brief "loading profile..." screen while userProfile fetches
+          <Route
             path="*"
             element={
               <div className="screen">
@@ -201,11 +219,8 @@ export default function App() {
           />
         )
       ) : (
-        // Not authenticated - Show auth component for all routes except public storefront
-        <Route 
-          path="*"
-          element={<AuthComponent />}
-        />
+        // Unknown public route → landing
+        <Route path="*" element={<Navigate to="/" replace />} />
       )}
     </Routes>
   );
