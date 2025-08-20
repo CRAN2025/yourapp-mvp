@@ -4,7 +4,7 @@ import {
   ShoppingBag, ExternalLink, AlertCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ref, get, update } from 'firebase/database'; // ⬅️ added get
+import { ref, get, update } from 'firebase/database'; // get used in maintenance + safe merge
 import { db } from './firebase';
 import {
   validatePhoneNumber,
@@ -73,6 +73,7 @@ const SettingsView = ({ user, userProfile, onProfileUpdate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user?.uid) return;
     setSaving(true);
 
     try {
@@ -88,19 +89,41 @@ const SettingsView = ({ user, userProfile, onProfileUpdate }) => {
         finalWhatsappNumber = validation.normalized; // Store in E.164 format
       }
 
-      const updatedProfile = {
+      const profilePath = `users/${user.uid}/profile`;
+      const profileRef = ref(db, profilePath);
+
+      // ✅ Read current profile so we don't clobber other keys (paymentMethods, deliveryOptions, etc.)
+      const snap = await get(profileRef);
+      const current = snap.exists() ? (snap.val() || {}) : {};
+
+      // Merge only fields we edit here
+      const mergedProfile = {
+        ...current,
         ...formData,
         whatsappNumber: finalWhatsappNumber,
         updatedAt: Date.now()
       };
 
-      // NOTE: Keeping the same path you already use so we don't break anything.
-      const userRef = ref(db, `users/${user.uid}`);
-      await update(userRef, updatedProfile);
+      // ✅ Write per-field under /profile (non-destructive)
+      const multi = {};
+      Object.entries(mergedProfile).forEach(([k, v]) => {
+        multi[`${profilePath}/${k}`] = v;
+      });
+
+      // (Optional) mirrors if any legacy code still reads from users/{uid}
+      multi[`users/${user.uid}/storeName`] = mergedProfile.storeName;
+      multi[`users/${user.uid}/storeDescription`] = mergedProfile.storeDescription;
+      multi[`users/${user.uid}/whatsappNumber`] = mergedProfile.whatsappNumber;
+      multi[`users/${user.uid}/location`] = mergedProfile.location;
+      multi[`users/${user.uid}/businessCategory`] = mergedProfile.businessCategory;
+      multi[`users/${user.uid}/currency`] = mergedProfile.currency;
+      multi[`users/${user.uid}/updatedAt`] = mergedProfile.updatedAt;
+
+      await update(ref(db), multi); // root-level multi-location update
 
       // Update local state in parent if provided
       if (typeof onProfileUpdate === 'function') {
-        onProfileUpdate(updatedProfile);
+        onProfileUpdate(mergedProfile);
       }
 
       setSaveSuccess(true);

@@ -14,6 +14,8 @@ import OrdersView from './OrdersView';
 import AnalyticsView from './AnalyticsView';
 import StorefrontPublicView from './StorefrontPublicView';
 import SettingsView from './SettingsView';
+import UpgradeView from './UpgradeView';
+import AdminLite from './AdminLite';
 
 // Admin
 import AdminDashboard from './AdminDashboard';
@@ -50,7 +52,7 @@ export default function App() {
             currency: 'GHS',
             onboardingCompleted: false,
             createdAt: Date.now(),
-            role: 'seller', // default role
+            role: 'seller',
           };
           await set(profileRef, seeded);
           setUserProfile(seeded);
@@ -134,13 +136,28 @@ export default function App() {
   return (
     <Routes>
       {/* PUBLIC ROUTES */}
-      <Route path="/" element={<MarketLanding />} />
-      {/* Redirect authenticated users away from the login page */}
+      <Route
+        path="/"
+        element={user ? <Navigate to="/catalog" replace /> : <MarketLanding />}
+      />
       <Route
         path="/login"
         element={user ? <Navigate to="/catalog" replace /> : <AuthComponent />}
       />
       <Route path="/store/:sellerId" element={<StorefrontPublicView />} />
+
+      {/* Utility pages */}
+      <Route path="/upgrade" element={<UpgradeView />} />
+      <Route
+        path="/admin-lite"
+        element={
+          userProfile?.role === 'admin' ? (
+            <AdminLite />
+          ) : (
+            <Navigate to="/catalog" replace />
+          )
+        }
+      />
 
       {/* AUTHENTICATED ROUTES */}
       {user ? (
