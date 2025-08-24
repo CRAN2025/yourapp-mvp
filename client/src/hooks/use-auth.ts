@@ -94,6 +94,12 @@ export function useAuth() {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       console.log('Attempting sign up with email:', email);
+      console.log('Auth object:', auth);
+      console.log('Firebase config check:', {
+        hasAuth: !!auth,
+        authCurrentUser: auth.currentUser,
+        authApp: auth.app?.name
+      });
       const result = await createUserWithEmailAndPassword(auth, email, password);
       console.log('Sign up successful:', result.user.uid);
       
