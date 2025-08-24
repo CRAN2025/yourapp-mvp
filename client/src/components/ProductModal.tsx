@@ -73,7 +73,7 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
 
       if (product) {
         // Update existing product
-        const productRef = ref(database, `products/${user.uid}/${product.id}`);
+        const productRef = ref(database, `users/${user.uid}/products/${product.id}`);
         await update(productRef, {
           ...productData,
           updatedAt: serverTimestamp(),
@@ -85,7 +85,7 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
         });
       } else {
         // Create new product
-        const productsRef = ref(database, `products/${user.uid}`);
+        const productsRef = ref(database, `users/${user.uid}/products`);
         await push(productsRef, {
           ...productData,
           sellerId: user.uid,

@@ -36,7 +36,7 @@ export default function Admin() {
         setLoading(true);
 
         // Load all sellers
-        const sellersRef = ref(database, 'sellers');
+        const sellersRef = ref(database, 'users');
         const sellersUnsubscribe = onValue(sellersRef, async (snapshot) => {
           if (snapshot.exists()) {
             const sellersData = snapshot.val();
@@ -47,7 +47,7 @@ export default function Admin() {
               const seller = { id: uid, ...(sellerData as Omit<Seller, 'id'>) };
 
               // Get product count
-              const productsRef = ref(database, `products/${uid}`);
+              const productsRef = ref(database, `users/${uid}/products`);
               const productsSnapshot = await new Promise((resolve) => {
                 onValue(productsRef, resolve, { onlyOnce: true });
               });
