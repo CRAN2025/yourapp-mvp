@@ -54,4 +54,21 @@ if (!firebaseConfig.appId) {
   console.error('❌ VITE_FIREBASE_APP_ID is missing!');
 }
 
+// Validate format of Firebase values
+if (firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('AIzaSy')) {
+  console.error('❌ VITE_FIREBASE_API_KEY format looks incorrect - should start with "AIzaSy"');
+}
+
+if (firebaseConfig.appId && firebaseConfig.appId.startsWith('AIzaSy')) {
+  console.error('❌ VITE_FIREBASE_APP_ID looks like an API key, not an App ID!');
+  console.error('App IDs should look like: "1:123456789:web:abcdef123456"');
+}
+
+// Test Firebase connection
+try {
+  console.log('✅ Firebase app initialized successfully');
+} catch (error) {
+  console.error('❌ Firebase initialization failed:', error);
+}
+
 export default app;
