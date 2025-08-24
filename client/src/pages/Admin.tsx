@@ -120,7 +120,7 @@ export default function Admin() {
   // Toggle admin status
   const toggleAdminStatus = async (sellerId: string, currentStatus: boolean) => {
     try {
-      const sellerRef = ref(database, `sellers/${sellerId}`);
+      const sellerRef = ref(database, `users/${sellerId}`);
       await update(sellerRef, {
         isAdmin: !currentStatus,
         updatedAt: Date.now(),

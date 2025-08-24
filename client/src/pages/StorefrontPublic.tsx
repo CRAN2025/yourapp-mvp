@@ -39,7 +39,7 @@ export default function StorefrontPublic() {
         setLoading(true);
 
         // Load seller data
-        const sellerRef = ref(database, `sellers/${sellerId}`);
+        const sellerRef = ref(database, `users/${sellerId}`);
         const sellerSnapshot = await get(sellerRef);
         
         if (!sellerSnapshot.exists()) {

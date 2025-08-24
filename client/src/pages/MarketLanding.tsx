@@ -48,12 +48,6 @@ export default function MarketLanding() {
     navigate('/auth');
   };
 
-  // Temporary: Add Firebase test function for debugging
-  const testFirebase = async () => {
-    const { testFirebaseConnection } = await import('@/utils/firebase-test');
-    const result = await testFirebaseConnection();
-    alert(result.success ? result.message : `Error: ${result.error}\nSolution: ${result.solution}`);
-  };
 
   // Testimonials data
   const testimonials = [
@@ -455,13 +449,6 @@ export default function MarketLanding() {
                 disabled={isLoading}
               >
                 Sign in
-              </button>
-              <button 
-                onClick={testFirebase} 
-                className="btn" 
-                style={{ padding: '12px 20px', fontSize: 14, borderRadius: 16, background: '#ff6b6b', color: 'white', border: 'none' }}
-              >
-                🧪 Test Firebase
               </button>
             </div>
           </div>
