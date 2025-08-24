@@ -1,0 +1,457 @@
+# Phase 1 Go‑Live Dev Handoff — ShopLink
+
+*A definitive, developer‑grade spec + test checklist to deliver a mobile‑first, error‑free MVP ready for production.*
+
+> Scope: **Phase 1 (MVP)** only. Billing (Stripe) is Phase 1.5 and is excluded here except for placeholder routes/links.
+
+---
+
+## 0) Success Criteria (must ALL pass)
+
+* ✅ **No console errors/warnings** in Chrome, Safari, Firefox (desktop) and Chrome/Safari (mobile).
+* ✅ **Build succeeds** (`npm run build`) with 0 Type/ESLint errors and 0 asset 404s at runtime.
+* ✅ **Routing is correct**; protected routes block unauthenticated access; deep links work.
+* ✅ **Public storefront** opens WhatsApp correctly: Mobile → WhatsApp app; Desktop → WhatsApp Web **in a new tab**.
+* ✅ **All forms validate** and show friendly, inline errors; no broken or silent submits.
+* ✅ **Security rules** prevent cross‑tenant reads/writes; only public data is publicly readable.
+* ✅ **Performance**: Public storefront Largest Contentful Paint ≤ **1.8s** on mid‑tier mobile (throttled); JS < **250KB** gz for public page.
+* ✅ **Accessibility**: keyboard navigable, focus rings visible, labels on inputs, contrast ≥ 4.5:1.
+
+---
+
+## 1) Environment & Project Setup
+
+* **Stacks**: React + Vite, Firebase Auth, Realtime Database, Storage, lucide‑react icons.
+* **Node**: v18+; **npm**: v9+.
+* **.env** (example):
+
+  * `VITE_FIREBASE_API_KEY` / `VITE_FIREBASE_AUTH_DOMAIN` / `VITE_FIREBASE_DATABASE_URL` / `VITE_FIREBASE_PROJECT_ID` / `VITE_FIREBASE_STORAGE_BUCKET` / `VITE_FIREBASE_MESSAGING_SENDER_ID` / `VITE_FIREBASE_APP_ID`
+  * `VITE_APP_BASE_URL` (e.g., `https://shoplynk.app`)
+* **Firebase Console**
+
+  * Enable **Email/Password** and **Phone** auth (set allowed domains; configure reCAPTCHA for Phone).
+  * Realtime Database in **Production mode** (we provide rules below).
+  * Storage bucket; set rules below.
+* **Scripts** (`package.json`):
+
+  * `dev`: `vite --port 5187` (no `--strictPort` in dev)
+  * `build`: `vite build`
+  * `preview`: `vite preview`
+  * `lint`: `eslint src --ext .js,.jsx`
+  * `test:e2e`: Playwright/Cypress (pick one; scenarios defined below)
+
+---
+
+## 2) Routing Map (App.jsx)
+
+* `/` → **MarketLanding** (public)
+  CTAs: *Create your free store* → `/onboarding` (if authed) else `/auth` with redirect param; *Pricing* (static section on page); *Already have a store? Sign in* → `/auth`.
+* `/auth` → **AuthComponent** (public). If already authed, redirect to `/products`.
+* `/onboarding` → **SellerOnboardingView** (protected). If profile completed, redirect to `/products`.
+* `/products` → **ProductCatalogueView** (protected).
+* `/storefront` → **StorefrontView** (protected owner preview).
+* `/store/:sellerId` → **StorefrontPublicView** (public).
+* `/orders` → **OrdersView** (protected).
+* `/analytics` → **AnalyticsView** (protected).
+* `/settings` → **SettingsView** (protected; tabs: Profile, Branding, **Billing (placeholder)**).
+* `/upgrade` → **UpgradeView** (public/soft; shows plans but button disabled or mocked).
+* `/admin` → **AdminLite** (protected; role check `isAdmin` flag on `/sellers/{uid}`; otherwise 403 page).
+* `*` → 404 page with links to `/` or user dashboard depending on auth.
+
+**Auth Gate**
+
+* Listen with `onAuthStateChanged`. While loading, render a lightweight splash (no layout shift). Block protected routes until state known.
+* `keepMeSignedIn` persists via Firebase default persistence; ensure no custom race conditions.
+
+---
+
+## 3) UI Design System (mobile‑first)
+
+**Typography** (system stack)
+
+* Headline: 24/28/32 px depending on viewport; Weight 700.
+* Body: 16 px; Line‑height 1.5.
+* Caption/Meta: 12–14 px.
+
+**Spacing scale**: 4, 8, 12, 16, 24, 32, 48.
+
+**Corners & Shadows**
+
+* Radius: 16px on cards, 12px on inputs/buttons.
+* Shadow: soft medium (e.g., `0 8px 24px rgba(0,0,0,.08)`).
+
+**Buttons**
+
+* Primary: solid, large hit target (min 44px height), full‑width on mobile; icon+label spacing 8px.
+* Secondary: outline/ghost, same size rules.
+* Disabled: 60% opacity + not‑allowed cursor.
+
+**Inputs**
+
+* Floating label or clear label above; error text beneath (12–13px) in red.
+* Touch target ≥ 44px; clear affordance.
+
+**Motion**
+
+* Subtle fade/slide (150–250ms). Avoid parallax & heavy transitions on mobile.
+
+**Icons**
+
+* lucide‑react; sizes: 18–24px in inputs, 20–28px on buttons.
+
+**Palette**
+
+* Primary: #1F7A8C, Accent: #F4A261, Success: #2A9D8F, Warning: #E9C46A, Danger: #E76F51.
+* Text: #0B0B0B on light; surfaces white/glass.
+
+---
+
+## 4) Screen‑by‑Screen Specs & Acceptance Tests
+
+### A) MarketLanding (`/`)
+
+**UI**
+
+* Header with logo (left), CTAs (right): *Pricing* and *Create your free store* **same height**; remove separate top‑right *Sign in* (kept in hero section as text link: *Already have a store? Sign in* → `/auth`).
+* Hero: headline, subcopy, **Create your free store** primary button; *Already have a store? Sign in* link below.
+* Pricing section on same page (anchor `#pricing`).
+
+**Acceptance**
+
+* All CTAs route correctly with no full page reloads.
+* On mobile, buttons are full‑width; spacing consistent; no layout shift.
+* Lighthouse (mobile throttled): LCP ≤ 2.0s; no render‑blocking images.
+
+---
+
+### B) AuthComponent (`/auth`)
+
+**UI**
+
+* Tabs or toggle: *Email* | *Phone*.
+* Email: fields **Email**, **Password**, actions **Sign in**, **Create account**, **Forgot password?**
+* Phone: field **Phone (E.164)**; *Send code* → code input; verify; handle reCAPTCHA.
+* *Keep me signed in* checkbox.
+
+**Validation**
+
+* Email format; password ≥ 8 chars. Phone normalized to E.164.
+
+**Acceptance**
+
+* Successful login redirects: if `redirect` param present, honor it; else `/products`.
+* Incorrect creds show inline errors; rate limited properly (Firebase errors mapped to friendly text).
+* Phone auth works on mobile Safari & desktop Chrome (reCAPTCHA passes for deployed domain).
+
+---
+
+### C) SellerOnboardingView (`/onboarding`)
+
+**UI**
+
+* Steps: 1) Store Details; 2) WhatsApp Number; 3) Branding; 4) First Product (optional but encouraged).
+* Progress indicator; Save/Next buttons; Skip option (but block if phone invalid).
+
+**Validation**
+
+* WhatsApp number required, valid E.164.
+* Images optional; compress client‑side to < 1MB each if possible.
+
+**Data**
+
+* Writes to `/sellers/{uid}`. If first time, set `createdAt`.
+
+**Acceptance**
+
+* Completing onboarding redirects to `/products`.
+* Refresh safe: partial progress saved; no duplicate writes.
+
+---
+
+### D) ProductCatalogueView (`/products`)
+
+**UI**
+
+* Product list with add/edit/delete.
+* **Add/Edit modal**: name, price, quantity, category, subcategory, description, images\[] (upload to Storage), Save/Cancel.
+* **Favorites toggle** per product (local only). **Fix existing bug**: undefined `favorites`.
+
+**Validation**
+
+* Name (req, 3–120 chars); price (req, numeric ≥ 0); quantity (integer ≥ 0).
+
+**Data**
+
+* RTDB: `/products/{uid}/{productId}`; Storage path `/products/{uid}/{productId}/{filename}`.
+
+**Acceptance**
+
+* Create product shows instantly in list.
+* Edit preserves images unless explicitly changed.
+* Delete removes DB entry and Storage files (best‑effort).
+* No console errors after multiple add/edit/delete cycles.
+
+---
+
+### E) StorefrontView (`/storefront` — owner preview)
+
+**UI**
+
+* Mirrors public card layout; shows banner indicating **owner preview**.
+* Links to **View public store** → `/store/{uidOrSlug}` in new tab.
+
+**Acceptance**
+
+* Cards render identically to public store; empty state message when no products.
+
+---
+
+### F) StorefrontPublicView (`/store/:sellerId`)
+
+**UI**
+
+* Header: store logo/name; about/location chips; search input; (optional) favorites filter (local).
+* Product grid: image (object‑fit cover), name, truncated description (2 lines), price. Hover shows **WhatsApp** button on desktop; always visible on mobile below card.
+
+**Behavior**
+
+* **Device detection**: `isMobileDevice()` → Mobile: `https://wa.me/<E164>?text=<encoded>` opens app;
+  Desktop: open **new tab** to WhatsApp Web **and keep store open**.
+* On WA click, log event: `/events/{uid}/...` with `{ type: 'wa_click', productId?, timestamp }`.
+
+**Search/Filter**
+
+* Client‑side fuzzy search on name/description/category.
+
+**Acceptance**
+
+* WA opens correctly on iOS Safari and Android Chrome (real devices), desktop Chrome/Safari/Firefox.
+* Back/forward navigation works; direct deep‑link loads seller and products without flicker.
+* Images lazy‑load; CLS < 0.1.
+
+---
+
+### G) OrdersView (`/orders`) — Lead Log (lightweight)
+
+**UI**
+
+* Table grouped by day: columns *Time*, *Event*, *Product*, *Device*.
+
+**Data**
+
+* Reads from `/events/{uid}` (only `wa_click` for MVP; may include `product_view`).
+
+**Acceptance**
+
+* No PII stored (no phone numbers from buyers). Works with thousands of rows via windowing or pagination.
+
+---
+
+### H) AnalyticsView (`/analytics`)
+
+**UI**
+
+* KPIs: *Store Views*, *Product Views*, *WA Clicks*, *CTR* (Clicks / Product Views).
+* 7‑day trend line (minimal). Empty state guidance.
+
+**Data**
+
+* Aggregation client‑side from events for MVP; optimize later.
+
+**Acceptance**
+
+* Counters update after generating test traffic; CTR formula correct; no division by zero errors.
+
+---
+
+### I) SettingsView (`/settings`)
+
+**Tabs**
+
+* **Profile**: store name, bio, location.
+* **Branding**: logo/cover upload, theme options.
+* **Billing**: text only: “Billing will be available soon.” (Button disabled or routes to `/upgrade` placeholder.)
+
+**Acceptance**
+
+* Edits reflect immediately on `/store/:sellerId` without full reload (listen to RTDB changes).
+
+---
+
+### J) UpgradeView (`/upgrade`)
+
+* Static plan cards; buttons disabled or show toast: “Coming in Phase 1.5”.
+
+---
+
+## 5) Shared Utilities (must exist and be covered)
+
+* `normalizeToE164(phone: string): string | null` — uses library or custom logic; returns `+1...` etc.
+* `generateWhatsAppUrl(e164: string, message: string, isMobile: boolean): string` — routes to app or web.
+* `createWhatsAppMessage({ storeName, productName, productId, url }): string` — concise, localized later.
+* `isMobileDevice(): boolean` — UA sniffing fallback + touch detection.
+* `trackInteraction({ type, sellerId, productId?, meta? })` — write to `/events/{uid}`; debounced for views.
+* `formatPrice(number): string` — locale aware (en‑CA), currency CAD default.
+* `getProductImageUrl(product): string` — robustly picks first valid URL.
+
+---
+
+## 6) Data & Rules
+
+**RTDB Rules (MVP)**
+
+```json
+{
+  "rules": {
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "products": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "$pid": { ".write": "auth != null && auth.uid == $uid" }
+      }
+    },
+    "public": { // optional denorm for public store
+      "$sellerId": { ".read": true, ".write": "auth != null && auth.uid == $sellerId" }
+    },
+    "events": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "$eid": { ".write": "auth != null && auth.uid == $uid" }
+      }
+    }
+  }
+}
+```
+
+**Storage Rules (MVP)**
+
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /products/{uid}/{pid}/{file} {
+      allow read: if true; // public images
+      allow write: if request.auth != null && request.auth.uid == uid &&
+        request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+  }
+}
+```
+
+**Public Data Strategy**
+
+* Option A: Read `/sellers/{uid}` and `/products/{uid}` server‑side and expose via a `public` mirror path for anonymous reads.
+* Option B (simpler): Keep real‑time listeners gated; for public store, copy the minimal public subset to `/public/{sellerId}` on write.
+
+---
+
+## 7) Error Handling & Empty States
+
+* Global error boundary with fallback UI; log to console in dev; silent in prod.
+* Network/intermittent failures: retry with backoff (2x up to 3 attempts) for reads.
+* Empty states per page: clear icon, 1–2 lines of helpful copy, CTA to next action.
+
+---
+
+## 8) Performance & Assets
+
+* Image
+
+  * Use `loading="lazy"`, set width/height to prevent CLS; generate responsive sizes where possible.
+  * Compress on upload (client) to ≤ 1MB at ≤ 1920px longest edge.
+* JS
+
+  * Code‑split large pages; dynamic import heavy admin screens.
+  * Avoid large UI libs; tree‑shake lucide icons.
+* Network
+
+  * `preconnect` to Firebase hosts; cache headers for images.
+
+---
+
+## 9) Accessibility (a11y)
+
+* All form inputs have `<label>` or `aria-label`.
+* Keyboard: Tab order logical; focus ring always visible.
+* Color contrast AA (≥ 4.5:1); prefers‑reduced‑motion respected.
+
+---
+
+## 10) QA Test Plan
+
+**Browsers**
+
+* Desktop: Chrome (latest), Safari (latest on macOS), Firefox (latest)
+* Mobile devices (real): iPhone Safari (iOS 17/18), Android Chrome (v120+)
+
+**Smoke Flow (Unauth)**
+
+1. Visit `/store/:sellerId` (seeded seller). Expect products load, images lazy‑load, no console errors.
+2. Search for a product; results filter live; clearing search restores list.
+3. Tap **WhatsApp** on a product: Mobile → app opens; Desktop → new tab WhatsApp Web.
+
+**Seller Flow**
+
+1. Create account via email. Complete onboarding (valid E.164). Upload logo.
+2. Add product with 2 images; refresh page → product persists.
+3. Edit product (change price + add description); Save → list updates. Delete product; confirm gone.
+4. Open `/storefront` preview; then **View public store**; verify parity.
+5. From public store, click WA on a product; view appears in **Analytics** after refresh.
+
+**Negative Tests**
+
+* Invalid phone → inline error; cannot continue onboarding.
+* Price empty or negative → validation error; Save disabled.
+* Try to access `/products` when logged out → redirected to `/auth`.
+* Authenticated user A cannot read user B’s products via direct path (403 by rules).
+
+**E2E (Playwright/Cypress)**
+
+* Implement the above flows as scripts. Artifacts: screenshots + videos stored under `/qa-artifacts`.
+
+---
+
+## 11) Deliverables from Developer
+
+1. **PR** with all changes, passing CI (build + lint + tests).
+2. **QA evidence**: Lighthouse JSON (public store mobile), Playwright/Cypress report, browser console logs (empty), device test screenshots.
+3. **Env README** with required Firebase settings and enabled providers.
+4. **Known Issues** list (empty ideally); if any, include mitigations & timelines.
+
+---
+
+## 12) Open Implementation Items (must close)
+
+* [ ] Fix `favorites` undefined bug in `ProductCatalogueView`.
+* [ ] MarketLanding: align *Pricing* and *Create your free store* heights; ensure Sign In routes to `/auth`.
+* [ ] Public store: desktop WA opens in **new tab**; mobile deep‑link confirmed on iOS/Android.
+* [ ] Event tracking wired (`product_view`, `wa_click`) and reflected in Analytics.
+* [ ] Security rules deployed and tested (positive/negative cases).
+* [ ] 404 route and error boundary added.
+* [ ] Remove all `console.log`/`debug` in production build.
+
+---
+
+## 13) Seed Data for QA
+
+* Script or JSON import to create:
+
+  * 1 seller with logo/cover, 8–12 products across 3 categories.
+  * Each product has 1–3 images.
+  * Seller WhatsApp set to a test number.
+
+---
+
+## 14) Handoff Notes
+
+* Preserve existing aesthetics: glass/frosted surfaces, soft shadows, gentle motion.
+* Do **not** introduce new dependencies without approval.
+* Keep functions pure/testable; avoid deep component side effects.
+
+*End of spec — this is the exact contract for Phase 1 delivery.*
