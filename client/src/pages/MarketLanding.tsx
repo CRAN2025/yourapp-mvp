@@ -199,7 +199,7 @@ export default function MarketLanding() {
             <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
-            <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8 }}>FAQ</a>
+            <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
             <button 
               onClick={goCreate} 
               className="btn btnNav btnPrimary cta-pulse" 
@@ -476,6 +476,7 @@ export default function MarketLanding() {
                   cursor: 'pointer'
                 }}
                 onClick={() => setShowFAQ(showFAQ === i ? -1 : i)}
+                onKeyDown={(e) => e.key === 'Enter' && setShowFAQ(showFAQ === i ? -1 : i)}
                 role="button"
                 tabIndex={0}
                 aria-expanded={showFAQ === i}
@@ -519,10 +520,10 @@ export default function MarketLanding() {
       {/* Enhanced Footer */}
       <footer className="container" style={{ margin: '0 auto 40px', padding: '20px', textAlign: 'center', opacity: .65, position:'relative', zIndex:2 }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16, flexWrap: 'wrap' }}>
-          <a href="/terms" style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>Terms of Service</a>
-          <a href="/privacy" style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>Privacy Policy</a>
-          <a href="/contact" style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>Contact Support</a>
-          <a href="/blog" style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>Blog</a>
+          <button onClick={() => alert('Terms of Service coming soon!')} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Terms of Service</button>
+          <button onClick={() => alert('Privacy Policy coming soon!')} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</button>
+          <button onClick={() => alert('Contact support: hello@shoplink.com')} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Contact Support</button>
+          <a href="#faq" style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>FAQ</a>
         </div>
         <div style={{ fontSize: 12, opacity: 0.5 }}>
           © {new Date().getFullYear()} ShopLink • Made with ❤️ for entrepreneurs worldwide
