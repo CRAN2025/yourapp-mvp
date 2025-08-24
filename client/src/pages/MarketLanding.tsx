@@ -5,7 +5,7 @@ export default function MarketLanding() {
   const [location, navigate] = useLocation();
   const rootRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showFAQ, setShowFAQ] = useState(false);
+  const [showFAQ, setShowFAQ] = useState(-1);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   // Extract hash and search from current location
@@ -113,6 +113,11 @@ export default function MarketLanding() {
           .container { padding: 0 16px; }
           .glass { padding: 20px !important; }
           .heroGlass { padding: 20px !important; }
+          .hero-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+          .hero-text { order: 1; text-align: center; }
+          .hero-demo { order: 2; max-width: 400px; margin: 0 auto; }
+          .mobile-hidden { display: none !important; }
+          .nav-mobile { flex-direction: column; gap: 12px; }
         }
 
         .glass {
@@ -163,6 +168,14 @@ export default function MarketLanding() {
           }
         }
         
+        .pricing-grid {
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr !important;
+            max-width: 400px;
+            margin: 0 auto;
+          }
+        }
+        
         .loading-spinner {
           width: 20px;
           height: 20px;
@@ -185,16 +198,17 @@ export default function MarketLanding() {
             <div style={{ fontSize: 20 }}>🛍️</div>
             <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
           </div>
-          <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-            <a href="#faq" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8 }}>FAQ</a>
+          <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
+            <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8 }}>FAQ</a>
             <button 
               onClick={goCreate} 
               className="btn btnNav btnPrimary cta-pulse" 
               data-testid="header-create-store"
               disabled={isLoading}
               aria-label="Create your free store"
+              style={{ fontSize: 14, padding: '0 20px' }}
             >
-              {isLoading ? <div className="loading-spinner"></div> : 'Create your free store'}
+              {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
           </nav>
         </div>
@@ -203,9 +217,9 @@ export default function MarketLanding() {
       {/* Hero */}
       <section id="signup" className="container reveal-on-scroll is-visible" style={{ marginTop: 28 }}>
         <div className="glass heroGlass" style={{ padding: 28 }}>
-          <div style={{ display:'grid', gridTemplateColumns: '1.05fr .95fr', gap: 28, alignItems:'center' }}>
+          <div className="hero-grid" style={{ display:'grid', gridTemplateColumns: '1.05fr .95fr', gap: 28, alignItems:'center' }}>
             {/* Left copy */}
-            <div>
+            <div className="hero-text">
               <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 14px', fontWeight: 900, letterSpacing: '-0.02em' }}>
                 Launch a WhatsApp-ready storefront in minutes
               </h1>
@@ -255,7 +269,7 @@ export default function MarketLanding() {
             </div>
 
             {/* Right: live preview mock */}
-            <div className="reveal-on-scroll">
+            <div className="reveal-on-scroll hero-demo">
               <PreviewDevice />
             </div>
           </div>
@@ -353,7 +367,7 @@ export default function MarketLanding() {
           <h3 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, marginBottom: 8, letterSpacing: '-0.01em' }}>Simple, transparent pricing</h3>
           <p style={{ textAlign: 'center', opacity: 0.7, marginBottom: 32 }}>Start free, upgrade when you're ready</p>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
             {[
               { name: 'Free Beta', price: '$0', period: 'forever', features: ['Up to 50 products', 'WhatsApp integration', 'Basic analytics', 'Community support'], highlight: false, badge: 'Current' },
               { name: 'Pro', price: '$19', period: '/month', features: ['Unlimited products', 'Custom branding', 'Advanced analytics', 'Priority support', 'Custom domain'], highlight: true, badge: 'Coming Soon' },
@@ -536,7 +550,7 @@ function FeatureCard({ icon, title, body }: { icon: string; title: string; body:
 
 function PreviewDevice() {
   return (
-    <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)' }}>
+    <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)', maxWidth: '100%', width: '100%' }}>
       <div style={{ height: 18, display:'flex', gap:6, marginBottom: 12 }}>
         <div style={winDot('#ff5f57')} />
         <div style={winDot('#ffbd2e')} />
@@ -546,7 +560,7 @@ function PreviewDevice() {
         <div style={{ fontWeight: 800, letterSpacing:'-0.01em' }}>Demo Store</div>
         <div style={{ fontSize: 12, opacity:.7 }}>whatsapp orders • no code</div>
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, width: '100%' }}>
         {[
           ['Sunset Earrings', 'GHS 120'],
           ['Handwoven Basket', 'GHS 240'],
@@ -557,7 +571,7 @@ function PreviewDevice() {
             <div style={{ height: 92, borderRadius: 12, background: 'linear-gradient(135deg,#e7ecff,#f6f9ff)' }} />
             <div style={{ fontWeight: 700, marginTop: 8, letterSpacing:'-0.01em' }}>{name}</div>
             <div style={{ opacity:.75, fontSize: 13 }}>{price}</div>
-            <button className="btn btnPrimary" style={{ width:'100%', marginTop: 8, borderRadius: 16, fontSize: 12 }}>Contact on WhatsApp</button>
+            <button className="btn btnPrimary" style={{ width:'100%', marginTop: 8, borderRadius: 16, fontSize: 11, padding: '6px 8px' }}>WhatsApp</button>
           </div>
         ))}
       </div>
