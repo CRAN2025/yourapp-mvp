@@ -88,13 +88,6 @@ if (firebaseConfig.appId && firebaseConfig.appId.startsWith('AIzaSy')) {
 try {
   console.log('✅ Firebase app initialized successfully');
   console.log('🔥 Ready to test authentication!');
-  
-  // Test basic Firebase Auth functionality
-  console.log('Auth instance details:', {
-    authType: typeof auth,
-    authApp: auth.app?.name,
-    authSettings: auth.settings
-  });
 } catch (error) {
   console.error('❌ Firebase initialization failed:', error);
 }
