@@ -1,0 +1,3794 @@
+{
+  "analytics": {
+    "seller_uid_example_123": {
+      "lastUpdated": "2025-08-03T16:00:00Z",
+      "recentActivity": [
+        {
+          "amount": 2400,
+          "orderId": "order_id_001",
+          "timestamp": "2025-08-03T14:30:00Z",
+          "type": "order_received"
+        },
+        {
+          "amount": 3500,
+          "paymentId": "payment_id_003",
+          "timestamp": "2025-08-03T10:05:00Z",
+          "type": "payment_confirmed"
+        },
+        {
+          "amount": 3500,
+          "orderId": "order_id_003",
+          "timestamp": "2025-08-03T10:00:00Z",
+          "type": "order_fulfilled"
+        }
+      ],
+      "sellerId": "seller_uid_example_123",
+      "topSellingProducts": [
+        {
+          "name": "Samsung Galaxy A54",
+          "orderCount": 8,
+          "productId": "product_id_001",
+          "revenue": 9600
+        },
+        {
+          "name": "iPhone 15 Pro",
+          "orderCount": 4,
+          "productId": "product_id_002",
+          "revenue": 14000
+        }
+      ],
+      "totalOrders": 12,
+      "totalRevenue": 28500,
+      "unpaidTotal": 2400
+    },
+    "seller_uid_example_456": {
+      "lastUpdated": "2025-08-03T16:00:00Z",
+      "recentActivity": [
+        {
+          "amount": 8500,
+          "paymentId": "payment_id_001",
+          "timestamp": "2025-08-03T13:15:00Z",
+          "type": "payment_confirmed"
+        },
+        {
+          "amount": 8500,
+          "orderId": "order_id_002",
+          "timestamp": "2025-08-03T13:00:00Z",
+          "type": "order_received"
+        }
+      ],
+      "sellerId": "seller_uid_example_456",
+      "topSellingProducts": [
+        {
+          "name": "Traditional Ankara Dress",
+          "orderCount": 8,
+          "productId": "product_id_003",
+          "revenue": 68000
+        }
+      ],
+      "totalOrders": 8,
+      "totalRevenue": 68000,
+      "unpaidTotal": 0
+    },
+    "seller_uid_example_789": {
+      "lastUpdated": "2025-08-03T16:00:00Z",
+      "recentActivity": [
+        {
+          "amount": 2250,
+          "paymentId": "payment_id_004",
+          "timestamp": "2025-08-03T11:20:00Z",
+          "type": "payment_confirmed"
+        },
+        {
+          "amount": 2250,
+          "orderId": "order_id_004",
+          "timestamp": "2025-08-03T11:00:00Z",
+          "type": "order_received"
+        },
+        {
+          "amount": 2400,
+          "orderId": "order_id_005",
+          "timestamp": "2025-08-03T09:30:00Z",
+          "type": "order_fulfilled"
+        }
+      ],
+      "sellerId": "seller_uid_example_789",
+      "topSellingProducts": [
+        {
+          "name": "Shea Butter Moisturizer",
+          "orderCount": 9,
+          "productId": "product_id_004",
+          "revenue": 6750
+        },
+        {
+          "name": "Hair Growth Oil",
+          "orderCount": 6,
+          "productId": "product_id_005",
+          "revenue": 7200
+        }
+      ],
+      "totalOrders": 15,
+      "totalRevenue": 18750,
+      "unpaidTotal": 0
+    }
+  },
+  "orders": {
+    "order_id_001": {
+      "buyerName": "Ama Osei",
+      "buyerPhone": "+233244567890",
+      "createdAt": "2025-08-03T14:30:00Z",
+      "orderId": "order_id_001",
+      "orderNote": "Need urgent delivery for birthday gift",
+      "productId": "product_id_001",
+      "quantity": 2,
+      "sellerId": "seller_uid_example_123",
+      "source": "whatsapp",
+      "status": "new",
+      "stockAdjusted": false,
+      "totalAmount": 2400
+    },
+    "order_id_002": {
+      "buyerName": "Chioma Okeke",
+      "buyerPhone": "+2348091234567",
+      "createdAt": "2025-08-03T13:00:00Z",
+      "orderId": "order_id_002",
+      "orderNote": "Size Large please",
+      "productId": "product_id_003",
+      "quantity": 1,
+      "sellerId": "seller_uid_example_456",
+      "source": "whatsapp",
+      "status": "paid",
+      "stockAdjusted": false,
+      "totalAmount": 8500
+    },
+    "order_id_003": {
+      "buyerName": "Kojo Mensah",
+      "buyerPhone": "+233201234567",
+      "createdAt": "2025-08-02T16:00:00Z",
+      "fulfilledAt": "2025-08-03T10:00:00Z",
+      "orderId": "order_id_003",
+      "orderNote": "",
+      "productId": "product_id_002",
+      "quantity": 1,
+      "sellerId": "seller_uid_example_123",
+      "source": "manual",
+      "status": "fulfilled",
+      "stockAdjusted": true,
+      "totalAmount": 3500
+    },
+    "order_id_004": {
+      "buyerName": "Grace Wanjiku",
+      "buyerPhone": "+254701234567",
+      "createdAt": "2025-08-03T11:00:00Z",
+      "orderId": "order_id_004",
+      "orderNote": "Please deliver to Westlands office",
+      "productId": "product_id_004",
+      "quantity": 3,
+      "sellerId": "seller_uid_example_789",
+      "source": "whatsapp",
+      "status": "paid",
+      "stockAdjusted": false,
+      "totalAmount": 2250
+    },
+    "order_id_005": {
+      "buyerName": "Mary Njeri",
+      "buyerPhone": "+254712345678",
+      "createdAt": "2025-08-02T14:00:00Z",
+      "fulfilledAt": "2025-08-03T09:30:00Z",
+      "orderId": "order_id_005",
+      "orderNote": "Gift wrapping please",
+      "productId": "product_id_005",
+      "quantity": 2,
+      "sellerId": "seller_uid_example_789",
+      "source": "whatsapp",
+      "status": "fulfilled",
+      "stockAdjusted": true,
+      "totalAmount": 2400
+    }
+  },
+  "payments": {
+    "payment_id_001": {
+      "amount": 8500,
+      "attempts": 1,
+      "confirmedAt": "2025-08-03T13:15:00Z",
+      "lastChecked": "2025-08-03T13:15:00Z",
+      "orderId": "order_id_002",
+      "paymentId": "payment_id_001",
+      "provider": "MTN_MOMO",
+      "sellerId": "seller_uid_example_456",
+      "status": "confirmed",
+      "transactionId": "MTN_TXN_789012345"
+    },
+    "payment_id_002": {
+      "amount": 2400,
+      "attempts": 2,
+      "lastChecked": "2025-08-03T15:45:00Z",
+      "orderId": "order_id_001",
+      "paymentId": "payment_id_002",
+      "provider": "VODAFONE_CASH",
+      "sellerId": "seller_uid_example_123",
+      "status": "pending",
+      "transactionId": "VODA_TXN_456789123"
+    },
+    "payment_id_003": {
+      "amount": 3500,
+      "attempts": 1,
+      "confirmedAt": "2025-08-03T10:05:00Z",
+      "lastChecked": "2025-08-03T10:05:00Z",
+      "orderId": "order_id_003",
+      "paymentId": "payment_id_003",
+      "provider": "MPESA",
+      "sellerId": "seller_uid_example_123",
+      "status": "confirmed",
+      "transactionId": "MPESA_TXN_123456789"
+    },
+    "payment_id_004": {
+      "amount": 2250,
+      "attempts": 1,
+      "confirmedAt": "2025-08-03T11:20:00Z",
+      "lastChecked": "2025-08-03T11:20:00Z",
+      "orderId": "order_id_004",
+      "paymentId": "payment_id_004",
+      "provider": "MPESA",
+      "sellerId": "seller_uid_example_789",
+      "status": "confirmed",
+      "transactionId": "MPESA_TXN_987654321"
+    },
+    "payment_id_005": {
+      "amount": 2400,
+      "attempts": 1,
+      "confirmedAt": "2025-08-02T14:30:00Z",
+      "lastChecked": "2025-08-02T14:30:00Z",
+      "orderId": "order_id_005",
+      "paymentId": "payment_id_005",
+      "provider": "MPESA",
+      "sellerId": "seller_uid_example_789",
+      "status": "confirmed",
+      "transactionId": "MPESA_TXN_555666777"
+    },
+    "payment_id_006": {
+      "amount": 1200,
+      "attempts": 3,
+      "failureReason": "Insufficient funds",
+      "lastChecked": "2025-08-03T16:00:00Z",
+      "orderId": "order_id_006",
+      "paymentId": "payment_id_006",
+      "provider": "VODAFONE_CASH",
+      "sellerId": "seller_uid_example_123",
+      "status": "failed",
+      "transactionId": "VODA_TXN_111222333"
+    }
+  },
+  "sellers": {
+    "seller_uid_example_123": {
+      "businessName": "Kwame's Electronics",
+      "createdAt": "{{serverTimestamp}}",
+      "currency": "GHS",
+      "language": "en",
+      "lastActive": "{{serverTimestamp}}",
+      "mobileMoneyNumber": "+233241234567",
+      "phoneNumber": "+233241234567",
+      "preferences": {
+        "autoSync": true,
+        "notificationsEnabled": true,
+        "reorderAlertThreshold": 3
+      },
+      "products": {
+        "product_id_001": {
+          "category": "smartphones",
+          "createdAt": "{{serverTimestamp}}",
+          "imageUrl": "products/product_id_001.jpg",
+          "lastUpdated": "{{serverTimestamp}}",
+          "name": "Samsung Galaxy A54",
+          "price": 1200,
+          "productId": "product_id_001",
+          "quantity": 15,
+          "source": "manual",
+          "status": "active"
+        },
+        "product_id_002": {
+          "category": "smartphones",
+          "createdAt": "{{serverTimestamp}}",
+          "imageUrl": "products/product_id_002.jpg",
+          "lastUpdated": "{{serverTimestamp}}",
+          "name": "iPhone 15 Pro",
+          "price": 3500,
+          "productId": "product_id_002",
+          "quantity": 0,
+          "source": "manual",
+          "status": "out-of-stock"
+        }
+      },
+      "sellerId": "seller_uid_example_123"
+    },
+    "seller_uid_example_456": {
+      "businessName": "Adama Fashion Store",
+      "createdAt": "{{serverTimestamp}}",
+      "currency": "NGN",
+      "language": "en",
+      "lastActive": "{{serverTimestamp}}",
+      "mobileMoneyNumber": "+2347081234567",
+      "phoneNumber": "+2347081234567",
+      "preferences": {
+        "autoSync": false,
+        "notificationsEnabled": true,
+        "reorderAlertThreshold": 5
+      },
+      "products": {
+        "product_id_003": {
+          "category": "clothing",
+          "createdAt": "{{serverTimestamp}}",
+          "imageUrl": "products/product_id_003.jpg",
+          "lastUpdated": "{{serverTimestamp}}",
+          "name": "Traditional Ankara Dress",
+          "price": 8500,
+          "productId": "product_id_003",
+          "quantity": 12,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "sellerId": "seller_uid_example_456"
+    },
+    "seller_uid_example_789": {
+      "businessName": "Fatima's Beauty Supplies",
+      "createdAt": "{{serverTimestamp}}",
+      "currency": "KES",
+      "language": "sw",
+      "lastActive": "{{serverTimestamp}}",
+      "mobileMoneyNumber": "+254722345678",
+      "phoneNumber": "+254722345678",
+      "preferences": {
+        "autoSync": true,
+        "notificationsEnabled": true,
+        "reorderAlertThreshold": 2
+      },
+      "products": {
+        "product_id_004": {
+          "category": "beauty",
+          "createdAt": "{{serverTimestamp}}",
+          "imageUrl": "products/product_id_004.jpg",
+          "lastUpdated": "{{serverTimestamp}}",
+          "name": "Shea Butter Moisturizer",
+          "price": 750,
+          "productId": "product_id_004",
+          "quantity": 25,
+          "source": "manual",
+          "status": "active"
+        },
+        "product_id_005": {
+          "category": "beauty",
+          "createdAt": "{{serverTimestamp}}",
+          "imageUrl": "products/product_id_005.jpg",
+          "lastUpdated": "{{serverTimestamp}}",
+          "name": "Hair Growth Oil",
+          "price": 1200,
+          "productId": "product_id_005",
+          "quantity": 8,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "sellerId": "seller_uid_example_789"
+    }
+  },
+  "storeMembers": {
+    "OPAslZR16zMTmjHi4PMSYyNFhdE2": {
+      "OPAslZR16zMTmjHi4PMSYyNFhdE2": {
+        "addedAt": 1755670328756,
+        "role": "owner"
+      }
+    }
+  },
+  "storeMembersByUser": {
+    "OPAslZR16zMTmjHi4PMSYyNFhdE2": {
+      "OPAslZR16zMTmjHi4PMSYyNFhdE2": true
+    }
+  },
+  "storefronts": {
+    "seller_uid_example_123": {
+      "createdAt": "2025-08-03T10:16:00Z",
+      "isActive": true,
+      "lastShared": "2025-08-03T15:45:00Z",
+      "orderCount": 12,
+      "publicUrl": "https://shoplink.app/store/sf_kwame_electronics_789",
+      "sellerId": "seller_uid_example_123",
+      "storefrontId": "sf_kwame_electronics_789",
+      "viewCount": 47,
+      "whatsappLink": "https://wa.me/233241234567?text=Hi%20I%20want%20to%20order%20from%20Kwame's%20Electronics"
+    },
+    "seller_uid_example_456": {
+      "createdAt": "2025-08-02T10:30:00Z",
+      "isActive": true,
+      "lastShared": "2025-08-03T14:20:00Z",
+      "orderCount": 8,
+      "publicUrl": "https://shoplink.app/store/sf_adama_fashion_456",
+      "sellerId": "seller_uid_example_456",
+      "storefrontId": "sf_adama_fashion_456",
+      "viewCount": 23,
+      "whatsappLink": "https://wa.me/2347081234567?text=Hello%20I%20would%20like%20to%20place%20an%20order%20from%20Adama%20Fashion"
+    },
+    "seller_uid_example_789": {
+      "createdAt": "2025-08-01T09:30:00Z",
+      "isActive": true,
+      "lastShared": "2025-08-03T12:00:00Z",
+      "orderCount": 15,
+      "publicUrl": "https://shoplink.app/store/sf_fatima_beauty_321",
+      "sellerId": "seller_uid_example_789",
+      "storefrontId": "sf_fatima_beauty_321",
+      "viewCount": 31,
+      "whatsappLink": "https://wa.me/254722345678?text=Habari,%20nataka%20kuagiza%20kutoka%20Fatima's%20Beauty%20Supplies"
+    }
+  },
+  "syncQueue": {
+    "_note": "This collection exists only in local cache for offline support",
+    "example_entries": {
+      "action_id_001": {
+        "actionId": "action_id_001",
+        "actionType": "edit",
+        "entityId": "product_id_001",
+        "entityType": "product",
+        "payload": {
+          "lastUpdated": "2025-08-03T16:00:00Z",
+          "quantity": 13
+        },
+        "priority": 2,
+        "synced": false,
+        "timestamp": "2025-08-03T16:00:00Z"
+      },
+      "action_id_002": {
+        "actionId": "action_id_002",
+        "actionType": "create",
+        "entityId": "order_id_006",
+        "entityType": "order",
+        "error": "Network timeout",
+        "payload": {
+          "buyerName": "Akosua Frimpong",
+          "buyerPhone": "+233207654321",
+          "productId": "product_id_001",
+          "quantity": 1,
+          "sellerId": "seller_uid_example_123",
+          "source": "whatsapp",
+          "status": "new",
+          "totalAmount": 1200
+        },
+        "priority": 1,
+        "synced": false,
+        "timestamp": "2025-08-03T16:30:00Z"
+      },
+      "action_id_003": {
+        "actionId": "action_id_003",
+        "actionType": "view_increment",
+        "entityId": "sf_kwame_electronics_789",
+        "entityType": "storefront",
+        "payload": {
+          "lastViewed": "2025-08-03T16:45:00Z",
+          "viewCount": 48
+        },
+        "priority": 3,
+        "synced": false,
+        "timestamp": "2025-08-03T16:45:00Z"
+      }
+    }
+  },
+  "users": {
+    "00OUF3WU4fY217up3JKpu2hrx0M2": {
+      "businessEmail": "kkk@gmail.com",
+      "businessType": "individual",
+      "category": "🏠 Home & Garden",
+      "city": "liil",
+      "country": "Ghana",
+      "createdAt": 1754746935275,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "delivery"
+      ],
+      "email": "kkk@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754747179944,
+      "paymentMethods": [
+        "bank_transfer"
+      ],
+      "storeDescription": "hello beautiful mejilok",
+      "storeName": "hello",
+      "whatsappNumber": "123 890 89765"
+    },
+    "2HJ8oZBFwxb44iIo8ajtt96M2Qe2": {
+      "products": {
+        "-OYEM6Vo1mXSSJ7vh4M2": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755825600525,
+          "description": {
+            "full": "Giraafe or Jiraffe",
+            "short": "Giraafe or Jiraffe"
+          },
+          "featured": false,
+          "features": [
+            "good",
+            "great"
+          ],
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2F2HJ8oZBFwxb44iIo8ajtt96M2Qe2%2F1755825598962_0_pexels-valeriya-1251206.jpg?alt=media&token=f0dd2dd2-130c-4b38-a4b4-945f39b189b6"
+          },
+          "name": "giraffe",
+          "price": 10,
+          "productId": "-OYEM6Vo1mXSSJ7vh4M2",
+          "quantity": 100,
+          "seo": {
+            "metaDescription": "",
+            "title": "giraffe"
+          },
+          "sku": "GIR5348",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "3x0",
+            "materials": "clotton",
+            "origin": "Brand",
+            "weight": "12"
+          },
+          "status": "active",
+          "subcategory": "",
+          "tags": [
+            "wire"
+          ],
+          "updatedAt": 1755825600526
+        }
+      },
+      "profile": {
+        "businessEmail": "testing2@gmail.com",
+        "businessType": "business",
+        "category": "👗 Fashion & Clothing",
+        "city": "Calgary",
+        "country": "Ghana",
+        "createdAt": 1755825378187,
+        "currency": "GHS",
+        "deliveryOptions": [
+          "pickup",
+          "shipping",
+          "delivery",
+          "courier"
+        ],
+        "email": "testing2@gmail.com",
+        "onboardingCompleted": true,
+        "onboardingCompletedAt": 1755825454384,
+        "paymentMethods": [
+          "bank_transfer",
+          "mobile_money",
+          "cash",
+          "card"
+        ],
+        "role": "seller",
+        "storeDescription": "This is a beautiful fashion & clothing store",
+        "storeName": "Testing123",
+        "whatsappNumber": "+16478563451"
+      }
+    },
+    "4pgBOsPyorfWY1H186ifAIcp2qj1": {
+      "businessEmail": "thatsmine@gmail.com",
+      "businessType": "individual",
+      "category": "🎮 Sports & Gaming",
+      "city": "loks",
+      "country": "Ghana",
+      "createdAt": 1754751811970,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "delivery"
+      ],
+      "email": "thatsmine@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754751854009,
+      "paymentMethods": [
+        "mobile_money"
+      ],
+      "profile": {
+        "createdAt": 1755732336723,
+        "currency": "GHS",
+        "email": "thatsmine@gmail.com",
+        "onboardingCompleted": false,
+        "role": "seller",
+        "storeName": "thatsmine"
+      },
+      "storeDescription": "next sunday is good.... good good",
+      "storeName": "an=minaqeretina",
+      "whatsappNumber": "234789678564"
+    },
+    "585CXyrogTOYScn0cbkfsyBvYc62": {
+      "businessEmail": "lklk@gmail.com",
+      "businessType": "individual",
+      "category": "📚 Books & Education",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754764745229,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "delivery"
+      ],
+      "email": "lklk@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754764782752,
+      "paymentMethods": [
+        "bank_transfer",
+        "card"
+      ],
+      "products": {
+        "-OXF7b5uQTcnayMeUxN_": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754764833121,
+          "description": "loloipop",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2F585CXyrogTOYScn0cbkfsyBvYc62%2F1754764826260_IMG_1315.jpeg?alt=media&token=eebdb3bd-f805-4a8b-a7ce-cbeea4e9b1b7",
+          "lastUpdated": 1754764833121,
+          "name": "lolipop20",
+          "price": 20,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "storeDescription": "books are life long friends when",
+      "storeName": "crancran",
+      "whatsappNumber": "234 89 8094567"
+    },
+    "6dkcs0vlrFMlsPsT7vzPaIW6ujD3": {
+      "analytics": {
+        "2025-08-10": {
+          "-OXHYyEfS0uJlV3PlGxj": {
+            "action": "view",
+            "productId": "-OXHJP5t3NC6TkfEydXz",
+            "timestamp": 1754805560474,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXHYyer3uaO6mwR6fD-": {
+            "action": "view",
+            "productId": "-OXHJP5t3NC6TkfEydXz",
+            "timestamp": 1754805562215,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXHYyxZmLjYXnxBSLgi": {
+            "action": "view",
+            "productId": "-OXHJP5t3NC6TkfEydXz",
+            "timestamp": 1754805563405,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXHYzTCX4Ircojh_wMi": {
+            "action": "view",
+            "productId": "-OXHJgnCk4fmkgr4NCmg",
+            "timestamp": 1754805565494,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXHZ-8wqsaq5V64Q6Ls": {
+            "action": "contact",
+            "productId": "-OXHJP5t3NC6TkfEydXz",
+            "timestamp": 1754805568298,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXHa1-c0WmLTymaBusz": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754806100183,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXHa8609Tl900tmGpzS": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754806129260,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXHgaoRXnyaTd-fSrH9": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754807823816,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJDnDiGMnaoxuvoPn-": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754833564761,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJEqM1isL5Jdl-s1Mb": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754833839722,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJG6d_iS-4oMNUCdab": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754834172693,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJG_6oWkKnpm6YKf6v": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754834293408,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJHIMzq9AAnFE9-uy8": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754834482863,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJIBItMeMf0SdWnvO3": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754834716070,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJLz8rhlnycnJBDjRS": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754835710758,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJMXQTlmp2KQ_0tISS": {
+            "action": "contact",
+            "productId": "-OXHJgnCk4fmkgr4NCmg",
+            "timestamp": 1754835855237,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJPGu13gHZmKBQpP__": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754836574000,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJS6k2Xh9RjvAyJoDs": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754837318866,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJSI-_3c00Cwb4_5nD": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754837364942,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJTwVnCUejbHgwZjWE": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754837797085,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJU-iaYGqzyYXiGBFQ": {
+            "action": "contact",
+            "productId": "-OXHJgnCk4fmkgr4NCmg",
+            "timestamp": 1754837814357,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXJUdtjsuOx3rRQDq_C": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754837982999,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJUnLCpRfs6FUH-EiX": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754838021685,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJWFaIyjWtTJUivpBR": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754838403652,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJY5gJwSzlSPPJp5UX": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754838887355,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJZiYuM09EQWGomcmi": {
+            "action": "view",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754839312823,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJZj04OFIUEMEaPI-6": {
+            "action": "view",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754839314684,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJbUZDWMLfN8BMtVV2": {
+            "action": "view",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754840037813,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJgWDd4bJ6fNFkH0Cp": {
+            "action": "view",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754841355354,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJoUZzg7kMWVZWzB13": {
+            "action": "view",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754843445741,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJoZClxVj6XoFOs36m": {
+            "action": "contact",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754843464734,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXJocFbvoIaqxVu2Emy": {
+            "action": "view",
+            "productId": "-OXHK42gKkgCq9-Xy0XX",
+            "timestamp": 1754843481293,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          }
+        }
+      },
+      "businessEmail": "toiletpaper@test.com",
+      "businessType": "individual",
+      "category": "📱 Electronics",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754746935588,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "courier",
+        "delivery",
+        "pickup",
+        "shipping"
+      ],
+      "email": "toiletpaper@test.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754801420027,
+      "paymentMethods": [
+        "bank_transfer",
+        "mobile_money",
+        "cash",
+        "card"
+      ],
+      "products": {
+        "-OXHJP5t3NC6TkfEydXz": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754801480041,
+          "description": "cupcake",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2F6dkcs0vlrFMlsPsT7vzPaIW6ujD3%2F1754801473101_IMG_1317.jpeg?alt=media&token=f055eec8-95ac-4a98-9747-d1c8a031afd2",
+          "lastUpdated": 1754801480041,
+          "name": "cupcake",
+          "price": 10,
+          "quantity": 10,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXHJgnCk4fmkgr4NCmg": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754801556605,
+          "description": "Matcha!",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2F6dkcs0vlrFMlsPsT7vzPaIW6ujD3%2F1754801550770_IMG_0858.jpeg?alt=media&token=37b059be-98f2-46e1-9f31-aa6de09d6513",
+          "lastUpdated": 1754801556605,
+          "name": "matcha",
+          "price": 10,
+          "quantity": 10,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXHK42gKkgCq9-Xy0XX": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754801655964,
+          "description": "Ice Cap!",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2F6dkcs0vlrFMlsPsT7vzPaIW6ujD3%2F1754801650378_IMG_1109.jpeg?alt=media&token=27f1c92d-0600-4d9f-a0fa-ce283e08b1c0",
+          "lastUpdated": 1754801655964,
+          "name": "Ice Cap",
+          "price": 10,
+          "quantity": 10,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "profile": {
+        "createdAt": 1755668493799,
+        "currency": "GHS",
+        "email": "toiletpaper@test.com",
+        "onboardingCompleted": false,
+        "role": "seller",
+        "storeName": "toiletpaper"
+      },
+      "storeDescription": "describe describe describe",
+      "storeName": "hello",
+      "whatsappNumber": "16478563451"
+    },
+    "6qVSvCU8u3cbz3IJT22vt2cxXnF3": {
+      "products": {
+        "-OY4qvy-z1i5ljNI59Kp": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1755666169701,
+          "description": {
+            "full": "gresat not sure what",
+            "short": "gresat not sure what"
+          },
+          "featured": false,
+          "features": [
+            "beautiful",
+            "great"
+          ],
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2F6qVSvCU8u3cbz3IJT22vt2cxXnF3%2F1755666162383_0_lesly-derksen-cjQbpRiGgc0-unsplash.jpg?alt=media&token=43b928c6-fa9d-4ce4-8299-a31c1781e699"
+          },
+          "name": "cre",
+          "price": 1,
+          "productId": "-OY4qvy-z1i5ljNI59Kp",
+          "quantity": 20,
+          "seo": {
+            "metaDescription": "",
+            "title": "cre"
+          },
+          "sku": "CRE3056",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "11X3",
+            "materials": "Cotton",
+            "origin": "kioli",
+            "weight": "12ib"
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755666169702
+        }
+      },
+      "profile": {
+        "businessEmail": "cre@gmail.com",
+        "businessType": "individual",
+        "category": "📱 Electronics",
+        "city": "acc",
+        "country": "Ghana",
+        "createdAt": 1755665987532,
+        "currency": "GHS",
+        "deliveryOptions": [
+          "pickup",
+          "delivery",
+          "courier"
+        ],
+        "email": "cre@gmail.com",
+        "onboardingCompleted": true,
+        "onboardingCompletedAt": 1755666057608,
+        "paymentMethods": [
+          "cash",
+          "card",
+          "mobile_money",
+          "bank_transfer"
+        ],
+        "role": "seller",
+        "storeDescription": "hello ello hello hello",
+        "storeName": "hello",
+        "whatsappNumber": "+1237898098"
+      }
+    },
+    "Ab3IaGZ19uRjttETGbJjq5mojSG3": {
+      "businessEmail": "fffff@gmail.com",
+      "businessType": "individual",
+      "category": "🔧 Tools & Hardware",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754777140312,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "delivery"
+      ],
+      "email": "fffff@gmail.com",
+      "lastUpdated": 1754787116580,
+      "notifications": {
+        "lowStock": true,
+        "marketing": false,
+        "newOrders": true,
+        "payments": true
+      },
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754777181178,
+      "paymentMethods": [
+        "cash",
+        "card"
+      ],
+      "products": {
+        "-OXFsBdXCZbs3hjX9BXK": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754777307652,
+          "description": "hello hello hello",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FAb3IaGZ19uRjttETGbJjq5mojSG3%2F1754777303445_IMG_1314.jpeg?alt=media&token=a3c36367-65cf-4620-bde0-288153e9a494",
+          "lastUpdated": 1754777307652,
+          "name": "folog",
+          "price": 12,
+          "quantity": 12,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "storeDescription": "seionmentjkooooo. lllookk",
+      "storeName": "dddddd",
+      "whatsappNumber": "16478563451"
+    },
+    "Bd51pOC1ZsgzgVByON5fcuSR4Gv2": {
+      "products": {
+        "-OYEQc4wVYO-sfKOLiaF": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755826782551,
+          "description": {
+            "full": "hello test 3 store",
+            "short": "hello test 3 store"
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FBd51pOC1ZsgzgVByON5fcuSR4Gv2%2F1755826780154_0_pexels-alljos-1225136%20(1).jpg?alt=media&token=a0a45138-b1cf-4e49-baf4-90d5c3c90187"
+          },
+          "name": "test3 product",
+          "price": 20,
+          "productId": "-OYEQc4wVYO-sfKOLiaF",
+          "quantity": 200,
+          "seo": {
+            "metaDescription": "",
+            "title": "test3 product"
+          },
+          "sku": "TES1848",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755826782551
+        }
+      },
+      "profile": {
+        "businessEmail": "test3@gmail.com",
+        "businessType": "business",
+        "category": "💄 Beauty & Cosmetics",
+        "city": "Kenya",
+        "country": "Kenya",
+        "createdAt": 1755826652985,
+        "currency": "KES",
+        "deliveryOptions": [
+          "courier",
+          "delivery",
+          "pickup",
+          "shipping"
+        ],
+        "email": "test3@gmail.com",
+        "onboardingCompleted": true,
+        "onboardingCompletedAt": 1755826735451,
+        "paymentMethods": [
+          "bank_transfer",
+          "mobile_money",
+          "cash",
+          "card"
+        ],
+        "role": "seller",
+        "storeDescription": "Test 3 is going to be a demo 3",
+        "storeName": "Test3",
+        "whatsappNumber": "+16478563451"
+      }
+    },
+    "CcEACPBRZbTW0h3d6Mzzzpzv9782": {
+      "businessEmail": "kikiki@gmail.com",
+      "businessType": "individual",
+      "category": "📱 Electronics",
+      "city": "kenya",
+      "country": "Kenya",
+      "createdAt": 1755100337548,
+      "currency": "KES",
+      "deliveryOptions": [
+        "pickup",
+        "shipping",
+        "delivery",
+        "courier"
+      ],
+      "email": "kikiki@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1755100403963,
+      "paymentMethods": [
+        "cash",
+        "card",
+        "mobile_money",
+        "bank_transfer"
+      ],
+      "products": {
+        "-OXZ7xfHAF87UevHEH0C": {
+          "analytics": {
+            "contacts": 0,
+            "views": 0
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1755100469993,
+          "description": {
+            "full": "ice cream any time",
+            "short": "ice cream any time"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FCcEACPBRZbTW0h3d6Mzzzpzv9782%2F1755100467588_0_IMG_1317.jpeg?alt=media&token=b8bd64fd-9a25-4d9b-9148-a898b298a868"
+          },
+          "name": "product 1",
+          "price": 10,
+          "productId": "-OXZ7xfHAF87UevHEH0C",
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "product 1"
+          },
+          "sku": "PRO2453",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755100469993
+        }
+      },
+      "profile": {
+        "createdAt": 1755181549671,
+        "currency": "GHS",
+        "email": "kikiki@gmail.com",
+        "onboardingCompleted": false,
+        "storeName": "kikiki"
+      },
+      "storeDescription": "Electronics and us and u",
+      "storeName": "Hello 2026",
+      "whatsappNumber": "+16478563451"
+    },
+    "EQyIBUGKm0NdiTRehN0oqrWgQHe2": {
+      "createdAt": 1755827908423,
+      "email": "test4@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1755827978756,
+      "products": {
+        "-OYEVLw6kWxC0gdmuuZk": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755828023010,
+          "description": {
+            "full": "thipepkei",
+            "short": "thipepkei"
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FEQyIBUGKm0NdiTRehN0oqrWgQHe2%2F1755828020357_0_pexels-cottonbro-3737800.jpg?alt=media&token=cca8162c-69ba-4f8c-807d-d42f61a535c6"
+          },
+          "name": "test4 product",
+          "price": 120,
+          "productId": "-OYEVLw6kWxC0gdmuuZk",
+          "quantity": 23,
+          "seo": {
+            "metaDescription": "",
+            "title": "test4 product"
+          },
+          "sku": "TES7422",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755828023010
+        }
+      },
+      "profile": {
+        "businessEmail": "test4@gmail.com",
+        "businessType": "individual",
+        "category": "👶 Baby & Kids",
+        "city": "add",
+        "country": "Ghana",
+        "currency": "GHS",
+        "deliveryOptions": [
+          "courier"
+        ],
+        "paymentMethods": [
+          "bank_transfer"
+        ],
+        "storeDescription": "Test 4 is coming to the view",
+        "storeName": "test4",
+        "whatsappNumber": "+16478563451"
+      },
+      "role": "admin",
+      "status": "active",
+      "uid": "EQyIBUGKm0NdiTRehN0oqrWgQHe2",
+      "updatedAt": 1755827979330
+    },
+    "IM8wqzEBkzSxxHEwjny6eRNSZi73": {
+      "products": {
+        "-OYE5R6zL_-TieptL1Zr": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755821228471,
+          "description": {
+            "full": "phone me phone me",
+            "short": "phone me phone me"
+          },
+          "featured": false,
+          "features": [
+            "phone",
+            "charger",
+            "black"
+          ],
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FIM8wqzEBkzSxxHEwjny6eRNSZi73%2F1755821227301_0_pexels-avinash-kumar-299518778-13595075%20(1).jpg?alt=media&token=941dcb19-5257-4b8c-bf28-c20df5f595c4"
+          },
+          "name": "phone",
+          "price": 10,
+          "productId": "-OYE5R6zL_-TieptL1Zr",
+          "quantity": 100,
+          "seo": {
+            "metaDescription": "",
+            "title": "phone"
+          },
+          "sku": "PHO9689",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "1x2",
+            "materials": "cotton",
+            "origin": "Brand",
+            "weight": "120"
+          },
+          "status": "active",
+          "subcategory": "",
+          "tags": [
+            "true",
+            "false"
+          ],
+          "updatedAt": 1755821228471
+        }
+      },
+      "profile": {
+        "businessEmail": "phone@gmail.com",
+        "businessType": "business",
+        "category": "📱 Electronics",
+        "city": "Calgary",
+        "country": "Ghana",
+        "createdAt": 1755821059153,
+        "currency": "GHS",
+        "deliveryOptions": [
+          "courier",
+          "delivery"
+        ],
+        "email": "phone@gmail.com",
+        "onboardingCompleted": true,
+        "onboardingCompletedAt": 1755821121913,
+        "paymentMethods": [
+          "mobile_money",
+          "bank_transfer"
+        ],
+        "role": "seller",
+        "storeDescription": "phone play and game and all",
+        "storeName": "phone",
+        "whatsappNumber": "+16478563451"
+      }
+    },
+    "IgmJkdq13TN5zYdiQwBogg1P8Wt2": {
+      "businessEmail": "koko@gmail.com",
+      "businessType": "individual",
+      "category": "🏠 Home & Garden",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754748456865,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "courier"
+      ],
+      "email": "koko@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754748505809,
+      "paymentMethods": [
+        "bank_transfer",
+        "mobile_money"
+      ],
+      "profile": {
+        "createdAt": 1755402312692,
+        "currency": "GHS",
+        "email": "koko@gmail.com",
+        "onboardingCompleted": false,
+        "role": "seller",
+        "storeName": "koko"
+      },
+      "storeDescription": "koko koko koko koko and dkiko",
+      "storeName": "kokoko",
+      "whatsappNumber": "234 89 789 5678"
+    },
+    "KpSesRQyn5YRA7GgHJ2Q0AjSivm2": {
+      "profile": {
+        "createdAt": 1755607023546,
+        "currency": "GHS",
+        "email": "cranny@gmail.com",
+        "onboardingCompleted": false,
+        "role": "seller",
+        "storeName": "cranny"
+      }
+    },
+    "OPAslZR16zMTmjHi4PMSYyNFhdE2": {
+      "activeStoreId": "OPAslZR16zMTmjHi4PMSYyNFhdE2",
+      "analytics": {
+        "2025-08-15": {
+          "-OXfKGzJabZKiHQIpcdr": {
+            "action": "view",
+            "productId": "athletic-ankle-socks",
+            "timestamp": 1755221139590,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXfKROvlO-YyHAv1PYJ": {
+            "action": "view",
+            "productId": "jade-face-roller",
+            "timestamp": 1755221182253,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXfNMTkjkgIlratSDaR": {
+            "action": "view",
+            "productId": "mini-screwdriver-kit",
+            "timestamp": 1755221948505,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXfWoTXjsAvvXSD7IYa": {
+            "action": "contact",
+            "productId": "wireless-compact-keyboard",
+            "timestamp": 1755224426578,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXfe_HKDy1nF6oxW95t": {
+            "action": "view",
+            "productId": "mini-screwdriver-kit",
+            "timestamp": 1755226723692,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXfeahymKWocTQUoaSR": {
+            "action": "view",
+            "productId": "mini-screwdriver-kit",
+            "timestamp": 1755226729549,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXffKU3BiX84R65QW8m": {
+            "action": "view",
+            "productId": "resistance-bands-set",
+            "timestamp": 1755226921098,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXffKXE9eOwY-QV1ukK": {
+            "action": "view",
+            "productId": "resistance-bands-set",
+            "timestamp": 1755226921291,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXffcz5hitxtnf1ZLfy": {
+            "action": "view",
+            "productId": "yoga-mat-6mm",
+            "timestamp": 1755227000969,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXffg_pFVcWo3o5Kr0v": {
+            "action": "view",
+            "productId": "mini-screwdriver-kit",
+            "timestamp": 1755227015737,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXffvgp_qg_GVgKFPdi": {
+            "action": "view",
+            "productId": "yoga-mat-6mm",
+            "timestamp": 1755227077624,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXfg3oAMk5fd7uyP8nw": {
+            "action": "view",
+            "productId": "mini-screwdriver-kit",
+            "timestamp": 1755227114957,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXgMTuwPo9fI-hsKpXJ": {
+            "action": "view",
+            "productId": "mini-screwdriver-kit",
+            "timestamp": 1755238494064,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXgPPhp8B80YX2BOQVl": {
+            "action": "view",
+            "productId": "compact-led-ring-light",
+            "timestamp": 1755239263266,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXgxNh8jikMbPypRVhh": {
+            "action": "view",
+            "productId": "gel-pen-set-10",
+            "timestamp": 1755248430068,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXgxX6bplX_iAWkVr-q": {
+            "action": "view",
+            "productId": "gel-pen-set-10",
+            "timestamp": 1755248468632,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXh_jVdytY9O9AZfvIi": {
+            "action": "view",
+            "productId": "power-bank-10k",
+            "timestamp": 1755259009323,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          }
+        }
+      },
+      "businessCategory": "Electronics",
+      "currency": "NGN",
+      "email": "test1@gmail.com",
+      "location": "",
+      "onboardingComplete": true,
+      "products": {
+        "alpine-water-bottle": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🏠 Home & Garden",
+          "createdAt": 1755361103607,
+          "description": {
+            "full": "Double-wall stainless steel, leak-proof lid, powder-coated finish.",
+            "short": "Double-wall stainless steel, leak-proof lid, powder-coated finish."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755361091031_0_pexels-cottonbro-3737800.jpg?alt=media&token=604f7bb0-9659-44f8-8704-0ce8648de927"
+          },
+          "name": "Alpine Insulated Water Bottle (600ml)",
+          "price": 149,
+          "productId": "alpine-water-bottle",
+          "quantity": 26,
+          "seo": {
+            "metaDescription": "",
+            "title": "Alpine Insulated Water Bottle (600ml)"
+          },
+          "sku": "ALP1403",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755361103607
+        },
+        "artisan-ceramic-mug": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🏠 Home & Garden",
+          "createdAt": 1755366503067,
+          "description": {
+            "full": "Microwave & dishwasher safe stoneware with unique glaze patterns.",
+            "short": "Microwave & dishwasher safe stoneware with unique glaze patterns."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755366501540_0_pexels-enginakyurt-2347380.jpg?alt=media&token=5d762798-6dc0-486d-96fa-84c02d29cbbe"
+          },
+          "name": "Artisan Ceramic Mug",
+          "price": 79,
+          "productId": "artisan-ceramic-mug",
+          "quantity": 30,
+          "seo": {
+            "metaDescription": "",
+            "title": "Artisan Ceramic Mug"
+          },
+          "sku": "ART6761",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755366503067
+        },
+        "athletic-ankle-socks": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1755360801539,
+          "description": {
+            "full": "Moisture‑wicking fabric with arch support for daily comfort.",
+            "short": "Moisture‑wicking fabric with arch support for daily comfort."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755360799763_0_pexels-alljos-1225136%20(1).jpg?alt=media&token=e31d08ca-556c-441e-8611-6dd5c1af17b6"
+          },
+          "name": "Athletic Ankle Socks (3‑Pair)",
+          "price": 69,
+          "productId": "athletic-ankle-socks",
+          "quantity": 50,
+          "seo": {
+            "metaDescription": "",
+            "title": "Athletic Ankle Socks (3‑Pair)"
+          },
+          "sku": "ATH9067",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755360801539
+        },
+        "aurora-wireless-earbuds": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755367111143,
+          "description": {
+            "full": "Bluetooth 5.3, ENC mics for calls, 24h total playtime with case, IPX5 splash resistant.",
+            "short": "Bluetooth 5.3, ENC mics for calls, 24h total playtime with case, IPX5 splash resistant."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755367110586_0_pexels-soulful-pizza-2080276-3780681.jpg?alt=media&token=4747c3bd-4ed5-454a-ac98-900437ec9882"
+          },
+          "name": "Aurora Wireless Earbuds",
+          "price": 399,
+          "productId": "aurora-wireless-earbuds",
+          "quantity": 22,
+          "seo": {
+            "metaDescription": "",
+            "title": "Aurora Wireless Earbuds"
+          },
+          "sku": "AUR4209",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755367111143
+        },
+        "bamboo-chopping-board": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🏠 Home & Garden",
+          "createdAt": 1755366714798,
+          "description": {
+            "full": "Large bamboo board, moisture resistant, easy to clean. Juice groove.",
+            "short": "Large bamboo board, moisture resistant, easy to clean. Juice groove."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755366712516_0_pexels-valeriya-2110485.jpg?alt=media&token=ef92a258-e385-4527-89a1-e4596548d6ce"
+          },
+          "name": "Bamboo Chopping Board (L)",
+          "price": 129,
+          "productId": "bamboo-chopping-board",
+          "quantity": 18,
+          "seo": {
+            "metaDescription": "",
+            "title": "Bamboo Chopping Board (L)"
+          },
+          "sku": "BAM4651",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755366714798
+        },
+        "compact-led-ring-light": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755366286628,
+          "description": {
+            "full": "10\" dimmable ring light with tripod and phone mount. USB powered.",
+            "short": "10\" dimmable ring light with tripod and phone mount. USB powered."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755366284961_0_pexels-kampratt-3182625.jpg?alt=media&token=ade97007-ba93-4c49-9a32-1d41c073be4f"
+          },
+          "name": "Compact LED Ring Light",
+          "price": 159,
+          "productId": "compact-led-ring-light",
+          "quantity": 16,
+          "seo": {
+            "metaDescription": "",
+            "title": "Compact LED Ring Light"
+          },
+          "sku": "COM9249",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755366286628
+        },
+        "compact-makeup-mirror": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "💄 Beauty & Cosmetics",
+          "createdAt": 1755364330385,
+          "description": {
+            "full": "Pocket mirror with soft LED lighting and USB‑C recharge.",
+            "short": "Pocket mirror with soft LED lighting and USB‑C recharge."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755364328604_0_pexels-cottonbro-6635915.jpg?alt=media&token=dd3d2d2d-82ea-4f70-8338-5670c4b6db62"
+          },
+          "name": "Compact Makeup Mirror",
+          "price": 69,
+          "productId": "compact-makeup-mirror",
+          "quantity": 33,
+          "seo": {
+            "metaDescription": "",
+            "title": "Compact Makeup Mirror"
+          },
+          "sku": "COM3331",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755364330385
+        },
+        "controller-dock-stand": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🎮 Sports & Gaming",
+          "createdAt": 1755362654528,
+          "description": {
+            "full": "LED indicators, over‑charge protection, includes USB‑C cable.",
+            "short": "LED indicators, over‑charge protection, includes USB‑C cable."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755362651857_0_pexels-amar-12458820.jpg?alt=media&token=b49dc254-7210-43d2-850c-ef9d1cceb6f9"
+          },
+          "name": "Dual Controller Dock Stand",
+          "price": 169,
+          "productId": "controller-dock-stand",
+          "quantity": 12,
+          "seo": {
+            "metaDescription": "",
+            "title": "Dual Controller Dock Stand"
+          },
+          "sku": "DUA4086",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755362654528
+        },
+        "desk-led-lamp": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🏠 Home & Garden",
+          "createdAt": 1755365313461,
+          "description": {
+            "full": "Adjustable arm lamp with touch controls and USB charging port.",
+            "short": "Adjustable arm lamp with touch controls and USB charging port."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365311752_0_pexels-aashu56781-974746.jpg?alt=media&token=f1c6407d-c945-4082-a921-4d4bd326b4ab"
+          },
+          "name": "Flexi Desk LED Lamp",
+          "price": 189,
+          "productId": "desk-led-lamp",
+          "quantity": 15,
+          "seo": {
+            "metaDescription": "",
+            "title": "Flexi Desk LED Lamp"
+          },
+          "sku": "FLE1364",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365313461
+        },
+        "everyday-canvas-tote": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1755363778953,
+          "description": {
+            "full": "Durable canvas for markets, books, and beach days. Machine washable.",
+            "short": "Durable canvas for markets, books, and beach days. Machine washable."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755363777098_0_pexels-muffinsaurs-1214212%20(1).jpg?alt=media&token=6e580658-c981-4a9b-9bb9-4cbf5722ea4e"
+          },
+          "name": "Everyday Canvas Tote",
+          "price": 99,
+          "productId": "everyday-canvas-tote",
+          "quantity": 40,
+          "seo": {
+            "metaDescription": "",
+            "title": "Everyday Canvas Tote"
+          },
+          "sku": "EVE7822",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755363778953
+        },
+        "foldable-phone-stand": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755378856723,
+          "description": {
+            "full": "Pocket‑size aluminum stand for phones and small tablets.",
+            "short": "Pocket‑size aluminum stand for phones and small tablets."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755378856032_0_pexels-oguzhan-oncu-349382156-14168781%20(1).jpg?alt=media&token=bef8db32-8341-411a-962f-a118917ac75c"
+          },
+          "name": "Foldable Phone Stand",
+          "price": 49,
+          "productId": "foldable-phone-stand",
+          "quantity": 38,
+          "seo": {
+            "metaDescription": "",
+            "title": "Foldable Phone Stand"
+          },
+          "sku": "FOL2155",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755378856723
+        },
+        "gaming-mouse-pad-xl": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🎮 Sports & Gaming",
+          "createdAt": 1755365445082,
+          "description": {
+            "full": "Extended size for keyboard + mouse, stitched edges to prevent fray.",
+            "short": "Extended size for keyboard + mouse, stitched edges to prevent fray."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365443370_0_pexels-bertellifotografia-19012035.jpg?alt=media&token=bcd891d4-9d88-4cad-823e-303e8b42f402"
+          },
+          "name": "Gaming Mouse Pad XL",
+          "price": 99,
+          "productId": "gaming-mouse-pad-xl",
+          "quantity": 27,
+          "seo": {
+            "metaDescription": "",
+            "title": "Gaming Mouse Pad XL"
+          },
+          "sku": "GAM3481",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365445082
+        },
+        "gel-pen-set-10": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📚 Books & Education",
+          "createdAt": 1755364889851,
+          "description": {
+            "full": "Fine 0.5mm pens in assorted colors; smear‑resistant notes.",
+            "short": "Fine 0.5mm pens in assorted colors; smear‑resistant notes."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755364887008_0_pexels-thngocbich-709303.jpg?alt=media&token=297a93a7-0013-4bcd-a064-1ca1d29c6e75"
+          },
+          "name": "Smooth Gel Pen Set (10)",
+          "price": 49,
+          "productId": "gel-pen-set-10",
+          "quantity": 55,
+          "seo": {
+            "metaDescription": "",
+            "title": "Smooth Gel Pen Set (10)"
+          },
+          "sku": "SMO7343",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755364889851
+        },
+        "jade-face-roller": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "💄 Beauty & Cosmetics",
+          "createdAt": 1755366581666,
+          "description": {
+            "full": "Dual‑ended genuine stone roller for soothing facial massage.",
+            "short": "Dual‑ended genuine stone roller for soothing facial massage."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755366579996_0_pexels-shiny-diamond-3762660.jpg?alt=media&token=5f5ccb3e-aef5-48a9-9586-d5b0cc401507"
+          },
+          "name": "Jade Face Roller",
+          "price": 89,
+          "productId": "jade-face-roller",
+          "quantity": 20,
+          "seo": {
+            "metaDescription": "",
+            "title": "Jade Face Roller"
+          },
+          "sku": "JAD1459",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755366581666
+        },
+        "laptop-sleeve-13": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755362723447,
+          "description": {
+            "full": "Slim sleeve with microfiber lining and external accessories pocket.",
+            "short": "Slim sleeve with microfiber lining and external accessories pocket."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755362722379_0_pexels-bilakis-12444595%20(1).jpg?alt=media&token=fe69730b-b01e-4c36-a04e-8e6a1b2c0708"
+          },
+          "name": "Neoprene Laptop Sleeve (13\")",
+          "price": 179,
+          "productId": "laptop-sleeve-13",
+          "quantity": 21,
+          "seo": {
+            "metaDescription": "",
+            "title": "Neoprene Laptop Sleeve (13\")"
+          },
+          "sku": "NEO6688",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755362723447
+        },
+        "microfiber-towels-3pack": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🏠 Home & Garden",
+          "createdAt": 1755363354222,
+          "description": {
+            "full": "Versatile towels for gym, kitchen, and car care. 30×30cm.",
+            "short": "Versatile towels for gym, kitchen, and car care. 30×30cm."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755363351310_0_pexels-karolina-grabowska-4862952.jpg?alt=media&token=1992d945-3df3-4d50-a132-ccebd10d7776"
+          },
+          "name": "Microfiber Towels (3‑Pack)",
+          "price": 59,
+          "productId": "microfiber-towels-3pack",
+          "quantity": 45,
+          "seo": {
+            "metaDescription": "",
+            "title": "Microfiber Towels (3‑Pack)"
+          },
+          "sku": "MIC1440",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755363354222
+        },
+        "mini-screwdriver-kit": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🔧 Tools & Hardware",
+          "createdAt": 1755363114197,
+          "description": {
+            "full": "Aluminum handle with 24 hardened steel bits for phones & gadgets.",
+            "short": "Aluminum handle with 24 hardened steel bits for phones & gadgets."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755363111335_0_pexels-cottonbro-5184907.jpg?alt=media&token=4f2a8956-c168-48b9-9def-57078460aa16"
+          },
+          "name": "Mini Precision Screwdriver Kit (24‑in‑1)",
+          "price": 169,
+          "productId": "mini-screwdriver-kit",
+          "quantity": 14,
+          "seo": {
+            "metaDescription": "",
+            "title": "Mini Precision Screwdriver Kit (24‑in‑1)"
+          },
+          "sku": "MIN2423",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755363114197
+        },
+        "nova-hoodie": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1755366827574,
+          "description": {
+            "full": "Soft cotton blend, kangaroo pocket, ribbed cuffs. Sizes S–XL.",
+            "short": "Soft cotton blend, kangaroo pocket, ribbed cuffs. Sizes S–XL."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755366825983_0_pexels-highervibration-33405099.jpg?alt=media&token=93207091-c549-4ec4-a067-a897c7e45bbc"
+          },
+          "name": "Nova Hoodie (Unisex)",
+          "price": 299,
+          "productId": "nova-hoodie",
+          "quantity": 25,
+          "seo": {
+            "metaDescription": "",
+            "title": "Nova Hoodie (Unisex)"
+          },
+          "sku": "NOV0716",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755366827574
+        },
+        "planner-notebook-a5": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📚 Books & Education",
+          "createdAt": 1755365130287,
+          "description": {
+            "full": "Hardcover lay‑flat notebook with elastic band and back pocket.",
+            "short": "Hardcover lay‑flat notebook with elastic band and back pocket."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365128308_0_pexels-tara-winstead-6690902.jpg?alt=media&token=ff5e0125-e156-4d7e-a5ff-eef9215d07ec"
+          },
+          "name": "A5 Planner Notebook",
+          "price": 79,
+          "productId": "planner-notebook-a5",
+          "quantity": 42,
+          "seo": {
+            "metaDescription": "",
+            "title": "A5 Planner Notebook"
+          },
+          "sku": "A5 6829",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365130287
+        },
+        "portable-ssd-500": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755365230477,
+          "description": {
+            "full": "Shock‑resistant, pocket‑size solid state drive for fast transfer.",
+            "short": "Shock‑resistant, pocket‑size solid state drive for fast transfer."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365227864_0_pexels-japy-4633278.jpg?alt=media&token=643b5864-82b8-4551-b3ae-6b931795a2e9"
+          },
+          "name": "Portable SSD 500GB",
+          "price": 799,
+          "productId": "portable-ssd-500",
+          "quantity": 8,
+          "seo": {
+            "metaDescription": "",
+            "title": "Portable SSD 500GB"
+          },
+          "sku": "POR0453",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365230477
+        },
+        "power-bank-10k": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755365370636,
+          "description": {
+            "full": "Fast charge output with LED indicators and multi‑protect safety.",
+            "short": "Fast charge output with LED indicators and multi‑protect safety."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365369079_0_pexels-goumbik-518530%20(1).jpg?alt=media&token=d67ab027-b7f5-41cc-b433-8649a23b5f1c"
+          },
+          "name": "VoltGo Power Bank 10,000mAh",
+          "price": 299,
+          "productId": "power-bank-10k",
+          "quantity": 17,
+          "seo": {
+            "metaDescription": "",
+            "title": "VoltGo Power Bank 10,000mAh"
+          },
+          "sku": "VOL9570",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365370636
+        },
+        "pro-speed-jump-rope": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🎮 Sports & Gaming",
+          "createdAt": 1755366613016,
+          "description": {
+            "full": "Adjustable steel cable rope for HIIT and cardio. Smooth rotation.",
+            "short": "Adjustable steel cable rope for HIIT and cardio. Smooth rotation."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755366612399_0_pexels-dom-j-7304-45056.jpg?alt=media&token=94e79259-ea52-4bbb-9af2-c83cf609fb46"
+          },
+          "name": "Pro Speed Jump Rope",
+          "price": 89,
+          "productId": "pro-speed-jump-rope",
+          "quantity": 35,
+          "seo": {
+            "metaDescription": "",
+            "title": "Pro Speed Jump Rope"
+          },
+          "sku": "PRO7583",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755366613016
+        },
+        "resistance-bands-set": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🎮 Sports & Gaming",
+          "createdAt": 1755365677029,
+          "description": {
+            "full": "Color‑coded bands with door anchor and travel pouch.",
+            "short": "Color‑coded bands with door anchor and travel pouch."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365675112_0_pexels-shvetsa-5067745.jpg?alt=media&token=6b5d820b-0ae6-4116-8924-4fb44c3ddad2"
+          },
+          "name": "Resistance Bands Set (5)",
+          "price": 129,
+          "productId": "resistance-bands-set",
+          "quantity": 36,
+          "seo": {
+            "metaDescription": "",
+            "title": "Resistance Bands Set (5)"
+          },
+          "sku": "RES3131",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365677029
+        },
+        "sleek-smartwatch-lite": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755367061544,
+          "description": {
+            "full": "Heart-rate, sleep tracking, step counter, WhatsApp & SMS notifications, 7-day battery.",
+            "short": "Heart-rate, sleep tracking, step counter, WhatsApp & SMS notifications, 7-day battery."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755367060360_0_pexels-vishven-solanki-1441477-2861929.jpg?alt=media&token=483a4122-c22b-41d6-816c-3cb0bd6c83e8"
+          },
+          "name": "Sleek Smartwatch Lite",
+          "price": 549,
+          "productId": "sleek-smartwatch-lite",
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "Sleek Smartwatch Lite"
+          },
+          "sku": "SLE9872",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755367061544
+        },
+        "slim-card-wallet": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1755366147669,
+          "description": {
+            "full": "Minimalist PU wallet with quick-pull strap for daily cards and cash.",
+            "short": "Minimalist PU wallet with quick-pull strap for daily cards and cash."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755366145042_0_pexels-axwell-wallets-301813443-14401868.jpg?alt=media&token=d6f9c4e5-f3aa-4860-88fa-9c866c1ab3eb"
+          },
+          "name": "Slim Card Wallet",
+          "price": 119,
+          "productId": "slim-card-wallet",
+          "quantity": 28,
+          "seo": {
+            "metaDescription": "",
+            "title": "Slim Card Wallet"
+          },
+          "sku": "SLI9900",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755366147669
+        },
+        "spark-mini-bluetooth-speaker": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755367189895,
+          "description": {
+            "full": "Ultra-portable speaker with clear mids and surprising bass for its size. 8h battery, USB-C charging.",
+            "short": "Ultra-portable speaker with clear mids and surprising bass for its size. 8h battery, USB-C charging."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755367188212_0_pexels-zeleboba-33453406.jpg?alt=media&token=c3ac597e-46fc-4f1b-b234-af42448a63d3"
+          },
+          "name": "Spark Mini Bluetooth Speaker",
+          "price": 249,
+          "productId": "spark-mini-bluetooth-speaker",
+          "quantity": 14,
+          "seo": {
+            "metaDescription": "",
+            "title": "Spark Mini Bluetooth Speaker"
+          },
+          "sku": "SPA9942",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755367189895
+        },
+        "usb-c-fast-cable": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755365817389,
+          "description": {
+            "full": "60W braided Type‑C to Type‑C cable with strong strain relief.",
+            "short": "60W braided Type‑C to Type‑C cable with strong strain relief."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365815597_0_pexels-readymade-3921711.jpg?alt=media&token=c6d0e5dd-bd29-4b1a-af5c-b5aedf7fb15e"
+          },
+          "name": "USB‑C Fast Charging Cable (1m)",
+          "price": 49,
+          "productId": "usb-c-fast-cable",
+          "quantity": 60,
+          "seo": {
+            "metaDescription": "",
+            "title": "USB‑C Fast Charging Cable (1m)"
+          },
+          "sku": "USB7802",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365817389
+        },
+        "velvet-scrunchies-3pack": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "💄 Beauty & Cosmetics",
+          "createdAt": 1755363681680,
+          "description": {
+            "full": "Three colors per pack. Gentle on hair, great for daily styles.",
+            "short": "Three colors per pack. Gentle on hair, great for daily styles."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755363679438_0_pexels-pexels-user-40039379-7261697%20(1).jpg?alt=media&token=37b66bc5-f5c7-40c7-a8da-4901f5fd16c1"
+          },
+          "name": "Velvet Scrunchies (3‑Pack)",
+          "price": 39,
+          "productId": "velvet-scrunchies-3pack",
+          "quantity": 50,
+          "seo": {
+            "metaDescription": "",
+            "title": "Velvet Scrunchies (3‑Pack)"
+          },
+          "sku": "VEL6737",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755363681680
+        },
+        "wireless-compact-keyboard": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "📱 Electronics",
+          "createdAt": 1755365506259,
+          "description": {
+            "full": "Dual‑mode wireless keyboard with low‑profile keys and 12 shortcuts.",
+            "short": "Dual‑mode wireless keyboard with low‑profile keys and 12 shortcuts."
+          },
+          "featured": false,
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2FOPAslZR16zMTmjHi4PMSYyNFhdE2%2F1755365503669_0_pexels-federico-orlandi-1423142-3260626.jpg?alt=media&token=856f14ec-cbed-4f5a-a2a7-be20bf552157"
+          },
+          "name": "Wireless Compact Keyboard",
+          "price": 259,
+          "productId": "wireless-compact-keyboard",
+          "quantity": 19,
+          "seo": {
+            "metaDescription": "",
+            "title": "Wireless Compact Keyboard"
+          },
+          "sku": "WIR4926",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755365506259
+        },
+        "yoga-mat-6mm": {
+          "analytics": {
+            "contacts": 0,
+            "views": 2
+          },
+          "category": "🎮 Sports & Gaming",
+          "createdAt": 1731000027000,
+          "description": "Lightweight TPE mat with carry strap—perfect for home workouts.",
+          "featured": false,
+          "images": {
+            "primary": "https://images.unsplash.com/photo-1588286840104-8957b019727f?q=80&w=1200&auto=format&fit=crop"
+          },
+          "name": "Comfort Yoga Mat 6mm",
+          "price": 199,
+          "quantity": 24,
+          "shortDescription": "Non‑slip surface.",
+          "sku": "YOG-MAT-028",
+          "status": "active",
+          "updatedAt": 1731000027000
+        }
+      },
+      "profile": {
+        "businessCategory": "Electronics",
+        "businessEmail": "test1@gmail.com",
+        "businessType": "individual",
+        "category": "📱 Electronics",
+        "city": "Lagos",
+        "country": "Nigeria",
+        "currency": "NGN",
+        "deliveryOptions": [
+          "pickup",
+          "shipping",
+          "delivery",
+          "courier"
+        ],
+        "email": "test1@gmail.com",
+        "location": "",
+        "onboardingCompleted": true,
+        "onboardingCompletedAt": 1755670328756,
+        "paymentMethods": [
+          "bank_transfer",
+          "mobile_money",
+          "cash",
+          "card"
+        ],
+        "storeDescription": "Your trusted spot for phones, earbuds, power banks, and everyday tech that just works. We hand-pick quality gadgets at fair prices and deliver fast—chat us on WhatsApp for quick recommendations and same-day pickup options.",
+        "storeName": "Bow Tech & Gadgets",
+        "updatedAt": 1755737833711,
+        "whatsappNumber": "+16478563451"
+      },
+      "storeDescription": "Your trusted spot for phones, earbuds, power banks, and everyday tech that just works. We hand-pick quality gadgets at fair prices and deliver fast—chat us on WhatsApp for quick recommendations and same-day pickup options.",
+      "storeName": "Bow Tech & Gadgets",
+      "updatedAt": 1755579328960,
+      "whatsappNumber": "+6478563451"
+    },
+    "YLK1jBoGHBf0nryLJcwZ19yjqRC2": {
+      "businessEmail": "sg@gmail.com",
+      "businessType": "individual",
+      "category": "🍔 Food & Beverages",
+      "city": "Accra",
+      "country": "Ghana",
+      "createdAt": 1754952988312,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "pickup",
+        "shipping",
+        "delivery",
+        "courier"
+      ],
+      "email": "sg@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754953057285,
+      "paymentMethods": [
+        "cash",
+        "card",
+        "mobile_money",
+        "bank_transfer"
+      ],
+      "products": {
+        "-OXQM0GaA7UkoJ0qoOop": {
+          "analytics": {
+            "contacts": 0,
+            "views": 0
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1754953191387,
+          "description": {
+            "full": "Your Favourite Cappucino!",
+            "short": "Your Favourite Cappucino!"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FYLK1jBoGHBf0nryLJcwZ19yjqRC2%2F1754953130071_0_IMG_7356.jpeg?alt=media&token=e4055e79-8a62-459c-a052-cc8ed0beb10a"
+          },
+          "name": "Cappucino",
+          "price": 10,
+          "productId": "-OXQM0GaA7UkoJ0qoOop",
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "Cappucino"
+          },
+          "sku": "CAP2962",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1754953191387
+        },
+        "-OXQMWoj547pBvOjg3Y0": {
+          "analytics": {
+            "contacts": 0,
+            "views": 0
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754953293188,
+          "description": {
+            "full": "Crystal Clear, Delicious",
+            "short": "Crystal Clear, Delicious"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FYLK1jBoGHBf0nryLJcwZ19yjqRC2%2F1754953271419_0_IMG_0632.jpeg?alt=media&token=519927f4-0835-4d1f-9cf2-25cb22139556"
+          },
+          "name": "Matcha",
+          "price": 10,
+          "productId": "-OXQMWoj547pBvOjg3Y0",
+          "quantity": 4,
+          "seo": {
+            "metaDescription": "",
+            "title": "Matcha"
+          },
+          "sku": "MAT7100",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1754953293188
+        }
+      },
+      "profile": {
+        "createdAt": 1755355211378,
+        "currency": "GHS",
+        "email": "sg@gmail.com",
+        "onboardingCompleted": false,
+        "storeName": "sg"
+      },
+      "storeDescription": "Delicious Food and Bevereages",
+      "storeName": "SG Store",
+      "whatsappNumber": "+16478563451"
+    },
+    "b8tk8WKxzcV0GqpTJku3x508jZA3": {
+      "businessEmail": "123@gmail.com",
+      "businessType": "individual",
+      "category": "🎮 Sports & Gaming",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754754429162,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "courier",
+        "delivery"
+      ],
+      "email": "123@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754754471965,
+      "paymentMethods": [
+        "cash",
+        "card"
+      ],
+      "products": {
+        "-OXEWFtQEY7zMgP8Nk8L": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754754518626,
+          "description": "another cup cake",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2Fb8tk8WKxzcV0GqpTJku3x508jZA3%2F1754754515794_IMG_1317.jpeg?alt=media&token=ee8c4ab1-8d9b-4b51-9129-97fd4eaead8a",
+          "lastUpdated": 1754754518626,
+          "name": "another cup cake",
+          "price": 10,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OYE-DZN_EhViq8xeCp7": {
+          "analytics": {
+            "contacts": 0,
+            "orders": 0,
+            "views": 0
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1755819600081,
+          "description": {
+            "full": "another cup and another cu",
+            "short": "another cup and another cu"
+          },
+          "featured": false,
+          "features": [
+            "good",
+            "great",
+            "best"
+          ],
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/stores%2Fb8tk8WKxzcV0GqpTJku3x508jZA3%2F1755819598436_0_pexels-ali-salman-rizvi-3241398-30738885%20(3).jpg?alt=media&token=027baf51-7a97-4a9c-8de1-b04a45ab764d"
+          },
+          "name": "and another cu",
+          "price": 10,
+          "productId": "-OYE-DZN_EhViq8xeCp7",
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "and another cu"
+          },
+          "sku": "AND4391",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "11x12",
+            "materials": "metal",
+            "origin": "Brand",
+            "weight": "1ib"
+          },
+          "status": "active",
+          "subcategory": "",
+          "tags": [
+            "cup",
+            "screw"
+          ],
+          "updatedAt": 1755819600082
+        }
+      },
+      "profile": {
+        "businessEmail": "23@gmail.com",
+        "businessType": "individual",
+        "category": "📱 Electronics",
+        "city": "acd",
+        "country": "Ghana",
+        "createdAt": 1755819424986,
+        "currency": "GHS",
+        "deliveryOptions": [
+          "delivery",
+          "pickup"
+        ],
+        "email": "123@gmail.com",
+        "onboardingCompleted": true,
+        "onboardingCompletedAt": 1755819504914,
+        "paymentMethods": [
+          "bank_transfer",
+          "card"
+        ],
+        "role": "seller",
+        "storeDescription": "e2e is me describe well and be ok",
+        "storeName": "e2e",
+        "whatsappNumber": "+16478563451"
+      },
+      "storeDescription": "describe what you sell",
+      "storeName": "123store",
+      "whatsappNumber": "23909678356474"
+    },
+    "dIXNRucVIKPF91iQF3piRfr1hmi2": {
+      "businessEmail": "dera@gmail.com",
+      "businessType": "individual",
+      "category": "🏠 Home & Garden",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754790700126,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "courier",
+        "delivery"
+      ],
+      "email": "dera@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754790759495,
+      "paymentMethods": [
+        "bank_transfer"
+      ],
+      "products": {
+        "-OXGg0PF9DpOCjACwMsh": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754790893176,
+          "description": "food and food",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FdIXNRucVIKPF91iQF3piRfr1hmi2%2F1754790889837_IMG_1317.jpeg?alt=media&token=59949977-08e0-4c1a-a9da-ffa4eb2a03fa",
+          "lastUpdated": 1754790893176,
+          "name": "curry goat",
+          "price": 20,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXGgC144sUDG9xYUawK": {
+          "category": "",
+          "createdAt": 1754790940781,
+          "description": "",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FdIXNRucVIKPF91iQF3piRfr1hmi2%2F1754790938517_IMG_1314.jpeg?alt=media&token=78866b28-4629-4bbe-8932-6f6441064a56",
+          "lastUpdated": 1754790940781,
+          "name": "foodi",
+          "price": 20,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        },
+        "1754790940946": {
+          "category": "🍔 Food & Beverages",
+          "description": "food again",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FdIXNRucVIKPF91iQF3piRfr1hmi2%2F1754790938517_IMG_1314.jpeg?alt=media&token=78866b28-4629-4bbe-8932-6f6441064a56",
+          "lastUpdated": 1754790976458,
+          "name": "foodi",
+          "price": 20,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "storeDescription": "dekiokikok dekiokioke dekeredi",
+      "storeName": "ddikikik",
+      "whatsappNumber": "16478563451"
+    },
+    "dUOYRRDaKudGp7kRDGmD9FRmzVh2": {
+      "analytics": {
+        "2025-08-10": {
+          "-OXHbXgn2hVbMObTtBVn": {
+            "action": "contact",
+            "productId": "-OXHPAPRQeK8ebqc6vcu",
+            "timestamp": 1754806496223,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/139.0.7258.76 Mobile/15E148 Safari/604.1"
+          },
+          "-OXHgrAyFealLRPDbRsU": {
+            "action": "contact",
+            "productId": "-OXHPAPRQeK8ebqc6vcu",
+            "timestamp": 1754807890861,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/139.0.7258.76 Mobile/15E148 Safari/604.1"
+          },
+          "-OXHhIibNYaqmwVv8iJJ": {
+            "action": "contact",
+            "productId": "-OXHPAPRQeK8ebqc6vcu",
+            "timestamp": 1754808007831,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/139.0.7258.76 Mobile/15E148 Safari/604.1"
+          },
+          "-OXJPgtAOgY3WiQaY00B": {
+            "action": "contact",
+            "productId": "-OXHPAPRQeK8ebqc6vcu",
+            "timestamp": 1754836684536,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/139.0.7258.76 Mobile/15E148 Safari/604.1"
+          },
+          "-OXJPxYcq02bJEsSuoPJ": {
+            "action": "view",
+            "productId": "-OXHPAPRQeK8ebqc6vcu",
+            "timestamp": 1754836752786,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/139.0.7258.76 Mobile/15E148 Safari/604.1"
+          },
+          "-OXJPxsn8CGDxdhj4cL4": {
+            "action": "view",
+            "productId": "-OXHPAPRQeK8ebqc6vcu",
+            "timestamp": 1754836754140,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/139.0.7258.76 Mobile/15E148 Safari/604.1"
+          }
+        }
+      },
+      "businessEmail": "brock1kai@gmail.com",
+      "businessType": "individual",
+      "category": "👗 Fashion & Clothing",
+      "city": "Accra",
+      "country": "Ghana",
+      "createdAt": 1754802634119,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "pickup",
+        "delivery",
+        "courier",
+        "shipping"
+      ],
+      "email": "brock1kai@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754802740071,
+      "paymentMethods": [
+        "cash",
+        "mobile_money",
+        "bank_transfer",
+        "card"
+      ],
+      "products": {
+        "-OXHOXZ2yqCxrUMj-SOE": {
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1754802825422,
+          "description": "Axumite",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FdUOYRRDaKudGp7kRDGmD9FRmzVh2%2F1754802817817_IMG_9369.png?alt=media&token=3002fc7d-5398-46f4-b922-2da2064acfb2",
+          "lastUpdated": 1754802825422,
+          "name": "Dress",
+          "price": 100,
+          "quantity": 100,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXHOvmtvuQjpQg67eTa": {
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1754802928772,
+          "description": "Looking great",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FdUOYRRDaKudGp7kRDGmD9FRmzVh2%2F1754802922129_IMG_0148.png?alt=media&token=eb73f4de-18de-4136-a2f4-5c15c6d23b61",
+          "lastUpdated": 1754802928772,
+          "name": "Habesha dress",
+          "price": 100,
+          "quantity": 100,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXHPAPRQeK8ebqc6vcu": {
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1754802992744,
+          "description": "Another",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FdUOYRRDaKudGp7kRDGmD9FRmzVh2%2F1754802986144_IMG_0206.png?alt=media&token=1c86cf0c-c4c8-461b-9212-991620cb8e86",
+          "lastUpdated": 1754802992744,
+          "name": "Another",
+          "price": 100,
+          "quantity": 100,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "storeDescription": "Here we come people!",
+      "storeName": "Snipers",
+      "whatsappNumber": "16478563451"
+    },
+    "fQtu1Kn4Y0SFu1dcXc3fnj4vpNp2": {
+      "profile": {
+        "createdAt": 1755820285296,
+        "currency": "GHS",
+        "email": "c2e@gmail.com",
+        "onboardingCompleted": false,
+        "role": "seller",
+        "storeName": "c2e"
+      }
+    },
+    "gS1Ny74I8vOAhL63FG8DbaGFE7C3": {
+      "businessCategory": "",
+      "businessEmail": "lolo@gmail.com",
+      "businessType": "individual",
+      "category": "🏠 Home & Garden",
+      "city": "accra",
+      "country": "Ghana",
+      "createdAt": 1754747919095,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "pickup",
+        "shipping"
+      ],
+      "email": "lolo@gmail.com",
+      "location": "",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754747968577,
+      "paymentMethods": [
+        "cash",
+        "bank_transfer"
+      ],
+      "storeDescription": "In jesus name here we go.",
+      "storeName": "lolo",
+      "updatedAt": 1754952943535,
+      "whatsappNumber": "+16478563451"
+    },
+    "iBsqPIdtU7aSUzrjlJs2Z1QQWfg1": {
+      "businessEmail": "meme@gmail.com",
+      "businessType": "individual",
+      "category": "📚 Books & Education",
+      "city": "adde",
+      "country": "Ghana",
+      "createdAt": 1754748893863,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "shipping",
+        "delivery"
+      ],
+      "email": "meme@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754748938544,
+      "paymentMethods": [
+        "bank_transfer",
+        "cash"
+      ],
+      "storeDescription": "hello amina and amina andamina",
+      "storeName": "hello amina",
+      "whatsappNumber": "238978654736"
+    },
+    "oHPDBUa4sFPo5tuHqcvsMousuJF2": {
+      "businessEmail": "sade@gmail.com",
+      "businessType": "individual",
+      "category": "👗 Fashion & Clothing",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "createdAt": 1754791746066,
+      "currency": "KES",
+      "deliveryOptions": [
+        "courier",
+        "delivery",
+        "pickup",
+        "shipping"
+      ],
+      "email": "sade@gmail.com",
+      "lastUpdated": 1754794022787,
+      "notifications": {
+        "lowStock": true,
+        "marketing": false,
+        "newOrders": true,
+        "payments": true
+      },
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754791820459,
+      "paymentMethods": [
+        "bank_transfer",
+        "cash",
+        "card",
+        "mobile_money"
+      ],
+      "products": {
+        "-OXGkBHDR0EFK6a-4Khz": {
+          "category": "🍔 Food & Beverages",
+          "description": "Bouqet",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FoHPDBUa4sFPo5tuHqcvsMousuJF2%2F1754793723631_IMG_1317.jpeg?alt=media&token=dae06658-835a-4b06-b3e7-3ce9018f9a69",
+          "lastUpdated": 1754793726204,
+          "name": "Cup Cske",
+          "price": 10000,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXGnqXUDrnwBCFux5Lv": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754792945803,
+          "description": "delicious",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FoHPDBUa4sFPo5tuHqcvsMousuJF2%2F1754792943156_IMG_1109.jpeg?alt=media&token=c3e9561b-d22d-43b5-b08b-dd1a5e2e57d8",
+          "lastUpdated": 1754792945803,
+          "name": "Matcha drink",
+          "price": 20,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXGpMsqt_JYQc20m6Jb": {
+          "category": "📱 Electronics",
+          "createdAt": 1754793344548,
+          "description": "xx",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FoHPDBUa4sFPo5tuHqcvsMousuJF2%2F1754793342080_IMG_1325.jpeg?alt=media&token=fc8708b8-2fdd-426d-b1d3-eaae78066558",
+          "lastUpdated": 1754793344548,
+          "name": "xx",
+          "price": 1,
+          "quantity": 1,
+          "source": "manual",
+          "status": "active"
+        },
+        "1754791986460": {
+          "category": "🍔 Food & Beverages",
+          "description": "Matcha Drink",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FoHPDBUa4sFPo5tuHqcvsMousuJF2%2F1754792155391_IMG_0858.jpeg?alt=media&token=f20f8d1a-cbe1-42a2-b603-4b73231ac799",
+          "lastUpdated": 1754792157612,
+          "name": "African Dress",
+          "price": 10000,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "storeDescription": "We sell everything under the Sun!",
+      "storeName": "Sade's Store",
+      "whatsappNumber": "+1 647 856 3451"
+    },
+    "oTG5Ao86TwbMX2DgdsoQV4H6Ath2": {
+      "profile": {
+        "createdAt": 1755820155613,
+        "currency": "GHS",
+        "email": "e2e@gmail.com",
+        "onboardingCompleted": false,
+        "role": "seller",
+        "storeName": "e2e"
+      }
+    },
+    "sB01bZ6uqUPqM8au4X5M7Z2SWPB2": {
+      "analytics": {
+        "2025-08-11": {
+          "-OXM9TOxjr7QptzXYkqd": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754882762572,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXM9Tjlse7bFAm3gPm5": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754882763966,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXM9Tnwawv4lcfqYIna": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754882764227,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXM9U6ih1mUdZ2c236u": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754882765494,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXMA66oOw25KfPnJ4ZQ": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754882929352,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXMAIv8himWRvgZlT_b": {
+            "action": "contact",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754882981790,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXMAlNQm2FxkXowfqBm": {
+            "action": "contact",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754883102403,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          }
+        },
+        "2025-08-12": {
+          "-OXQnIqKWWTWlKUgIQai": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1754960576129,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXQnJ51afhLgNgdMWn5": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1754960577102,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXQnJFWAPouR9vUF-xA": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1754960577765,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXQnJJ9ja6iGnykSnZf": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1754960578004,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXR4hKWdqKhVySREbkZ": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754965399109,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXR4hplVUbNE3tOggMq": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754965401190,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXR4i94stKR1nhJ4Un8": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754965402483,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXR4iLpw1Ad00QVA07s": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754965403257,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXR4ifOEmOxneL_XEy6": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754965404574,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXR4t77BqBi5TxX_3Kb": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1754965447491,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXR5FcwKQZcH_nSbbUZ": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1754965543728,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXR5H_mJXo-nUf5ErfK": {
+            "action": "contact",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1754965551724,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          }
+        },
+        "2025-08-13": {
+          "-OXVonr-n7I-ZIDyu67c": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044855408,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVoovj2TLQ3Qs7F4FR": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044859805,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVopJCEdA3X8nSp2bm": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044861372,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVopPSYPTBsPhZWQC0": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044861765,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVoqR2KSPdrG12neSU": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044865970,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVoqxv1QG5cVswP6Md": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044868138,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVoryTCHQsUV6dLyuQ": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044872269,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVosPaLBp-fdh--O-0": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755044874068,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVpCoIzt5XJlqFOjPj": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1755044961726,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVpDGROPsKbvnY_FQA": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1755044963584,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVpDcMEqUn-cAwS6ug": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1755044965056,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVpDqxJ7PQKFNpQeD5": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1755044965986,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVuCzxskv1OjP13JCo": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1755046273188,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXVwz8c1Ny4I1gmCVYz": {
+            "action": "view",
+            "productId": "-OXQ_7xbhLWOErdwA4-a",
+            "timestamp": 1755046998788,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXWEpIJv7UmCMfVsbaw": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1755051939205,
+            "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Mobile Safari/537.36"
+          },
+          "-OXWIXzA4asTBL-dkorp": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1755052912759,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+          },
+          "-OXWQRg1k5s1pXcdW60q": {
+            "action": "view",
+            "productId": "-OXLJ7HcjK7I4A4fnRx7",
+            "timestamp": 1755054984106,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXWVJ1_R9lQKe14Qvg2": {
+            "action": "contact",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755056259421,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXWW0bCUYYAP4Un5ZDD": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755056446090,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXWW6d5924l-tyitXqJ": {
+            "action": "view",
+            "productId": "-OXR59ed80oMRrnhs6N3",
+            "timestamp": 1755056470787,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXZ-X-5DULPLaNMwgPo": {
+            "action": "view",
+            "productId": "-OXYzTgApY-z1Qfx79jY",
+            "timestamp": 1755098259632,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXZ-_SOYlXW5FBN1DvL": {
+            "action": "contact",
+            "productId": "-OXYzTgApY-z1Qfx79jY",
+            "timestamp": 1755098273792,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXZ5YjWiix98f3_vVLJ": {
+            "action": "contact",
+            "productId": "-OXLCvjHfeqZjmKhqmfR",
+            "timestamp": 1755099839703,
+            "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+          },
+          "-OXZ5i6WlWy3tCeVf5qk": {
+            "action": "view",
+            "productId": "-OXLDBYyVmTyokyFy5hr",
+            "timestamp": 1755099882200,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+          },
+          "-OXZ6Dv-uudHlhBGQf0A": {
+            "action": "view",
+            "productId": "-OXYzTgApY-z1Qfx79jY",
+            "timestamp": 1755100016487,
+            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
+          }
+        }
+      },
+      "businessEmail": "hellio@gmail.com",
+      "businessType": "individual",
+      "category": "👗 Fashion & Clothing",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754865006007,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "courier",
+        "delivery",
+        "pickup",
+        "shipping"
+      ],
+      "email": "hellio@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754865084834,
+      "paymentMethods": [
+        "cash",
+        "card",
+        "mobile_money",
+        "bank_transfer"
+      ],
+      "products": {
+        "-OXL6OW5h0qAhJbsGXo8": {
+          "analytics": {
+            "contacts": 0,
+            "views": 0
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754865178595,
+          "description": {
+            "full": "Delicious Cappucion",
+            "short": "Delicious Cappucion"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FsB01bZ6uqUPqM8au4X5M7Z2SWPB2%2F1754865172686_0_IMG_1109.jpeg?alt=media&token=9993e1c8-4c38-4fe0-80b3-934368718a52"
+          },
+          "name": "Capuccino",
+          "price": 10,
+          "quantity": 2,
+          "seo": {
+            "metaDescription": "",
+            "title": "Capuccino"
+          },
+          "sku": "CAP4931",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1754865178595
+        },
+        "-OXLCvjHfeqZjmKhqmfR": {
+          "analytics": {
+            "contacts": 1,
+            "views": 0
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754866891557,
+          "description": {
+            "full": "Delicious Matcha",
+            "short": "Delicious Matcha"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FsB01bZ6uqUPqM8au4X5M7Z2SWPB2%2F1754866884293_0_IMG_0858.jpeg?alt=media&token=81f256da-8f4d-48b6-9583-e26c3363ac44"
+          },
+          "name": "Matcha",
+          "price": 10,
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "Matcha"
+          },
+          "sku": "MAT9772",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1754866891557
+        },
+        "-OXLDBYyVmTyokyFy5hr": {
+          "analytics": {
+            "contacts": 0,
+            "views": 1
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754867156788,
+          "description": {
+            "full": "Delicious Burger",
+            "short": "Delicious Burger"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FsB01bZ6uqUPqM8au4X5M7Z2SWPB2%2F1754867151450_0_IMG_1315.jpeg?alt=media&token=7a31d491-04ef-4f31-babb-299bb7177969"
+          },
+          "name": "Burger",
+          "price": 10,
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "Burger"
+          },
+          "sku": "BUR9214",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1754867156788
+        },
+        "-OXLJ7HcjK7I4A4fnRx7": {
+          "analytics": {
+            "contacts": 0,
+            "views": 3
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1755050760943,
+          "description": {
+            "full": "Street food just got",
+            "short": "Street food just got"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FsB01bZ6uqUPqM8au4X5M7Z2SWPB2%2F1755050758493_0_IMG_1317.jpeg?alt=media&token=99e30bd1-8a75-46a6-845b-01f2fc770023"
+          },
+          "name": "Another Food",
+          "price": 10,
+          "productId": "-OXLJ7HcjK7I4A4fnRx7",
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "Another Food"
+          },
+          "sku": "ANO8083",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755050760943
+        },
+        "-OXQ_7xbhLWOErdwA4-a": {
+          "analytics": {
+            "contacts": 0,
+            "views": 10
+          },
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754956861171,
+          "description": {
+            "full": "Cappucino!",
+            "short": "Cappucino!"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FsB01bZ6uqUPqM8au4X5M7Z2SWPB2%2F1754956853398_0_IMG_7356.jpeg?alt=media&token=8c18d0c3-9da6-45ba-a7ed-e14fb147f482"
+          },
+          "name": "Cappubino",
+          "price": 10,
+          "productId": "-OXQ_7xbhLWOErdwA4-a",
+          "quantity": 6,
+          "seo": {
+            "metaDescription": "",
+            "title": "Cappubino"
+          },
+          "sku": "CAP3676",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1754956861171
+        },
+        "-OXR59ed80oMRrnhs6N3": {
+          "analytics": {
+            "contacts": 2,
+            "views": 11
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1754965518928,
+          "description": {
+            "full": "dress and dress",
+            "short": "dress and dress"
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FsB01bZ6uqUPqM8au4X5M7Z2SWPB2%2F1754965515684_0_IMG_6076.jpeg?alt=media&token=abc5e6cb-4716-4df4-aa03-c871308ecbc1"
+          },
+          "name": "dress",
+          "price": 10,
+          "productId": "-OXR59ed80oMRrnhs6N3",
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "dress"
+          },
+          "sku": "DRE3132",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "",
+            "materials": "",
+            "origin": "",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1754965518928
+        },
+        "-OXYzTgApY-z1Qfx79jY": {
+          "analytics": {
+            "contacts": 0,
+            "views": 1
+          },
+          "category": "👗 Fashion & Clothing",
+          "createdAt": 1755099984988,
+          "description": {
+            "full": "Fashion & fasho...",
+            "short": "Fashion & fasho..."
+          },
+          "images": {
+            "primary": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FsB01bZ6uqUPqM8au4X5M7Z2SWPB2%2F1755097981499_0_IMG_1747.jpeg?alt=media&token=0f75b721-7b9d-40b0-823c-3a1e8107b92c"
+          },
+          "name": "test 1",
+          "price": 10,
+          "productId": "-OXYzTgApY-z1Qfx79jY",
+          "quantity": 10,
+          "seo": {
+            "metaDescription": "",
+            "title": "test 1"
+          },
+          "sku": "TES1907",
+          "specifications": {
+            "care": "",
+            "condition": "New",
+            "dimensions": "12x12",
+            "materials": "All Cotton",
+            "origin": "Limau",
+            "weight": ""
+          },
+          "status": "active",
+          "subcategory": "",
+          "updatedAt": 1755099984988
+        }
+      },
+      "storeDescription": "Ama ia a fashion store",
+      "storeName": "ama",
+      "whatsappNumber": "+16478563451"
+    },
+    "utQ4wG6IOoMoL7tUx7m683et7Co1": {
+      "businessEmail": "run@gmail.com",
+      "businessType": "individual",
+      "category": "💍 Jewelry & Accessories",
+      "city": "add",
+      "country": "Ghana",
+      "createdAt": 1754753606216,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "delivery",
+        "shipping"
+      ],
+      "email": "run@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754753646662,
+      "paymentMethods": [
+        "cash",
+        "card"
+      ],
+      "products": {
+        "-OXET8FYEVSIKF2HFA0T": {
+          "category": "🍔 Food & Beverages",
+          "createdAt": 1754753700791,
+          "description": "cupcake",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FutQ4wG6IOoMoL7tUx7m683et7Co1%2F1754753698121_IMG_1317.jpeg?alt=media&token=24a02ac8-54cf-45c2-8a6a-537190875dc3",
+          "lastUpdated": 1754753700791,
+          "name": "cupcake",
+          "price": 10,
+          "quantity": 20,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "storeDescription": "jewlery is thoing when it is diamonds and gold",
+      "storeName": "rundems",
+      "whatsappNumber": "235 789 9087 3456"
+    },
+    "wXE27GYjVsgnuGMcSalHGj7wj7E2": {
+      "businessEmail": "kjio@gmail.com",
+      "businessType": "individual",
+      "category": "👶 Baby & Kids",
+      "city": "Calgary",
+      "country": "Ghana",
+      "createdAt": 1754751057541,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "pickup"
+      ],
+      "email": "kjio@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754751108834,
+      "paymentMethods": [
+        "mobile_money",
+        "card"
+      ],
+      "profile": {
+        "createdAt": 1755731275558,
+        "currency": "GHS",
+        "email": "kjio@gmail.com",
+        "onboardingCompleted": false,
+        "role": "seller",
+        "storeName": "kjio"
+      },
+      "storeDescription": "babies and gifts anbdekjing and gifts",
+      "storeName": "dinas",
+      "whatsappNumber": "234 24 123456"
+    },
+    "yGUjqVQWT6glmQflv4fSZUyALJC3": {
+      "businessEmail": "sss@gmail.com",
+      "businessType": "individual",
+      "category": "📚 Books & Education",
+      "city": "acc",
+      "country": "Ghana",
+      "createdAt": 1754753081123,
+      "currency": "GHS",
+      "deliveryOptions": [
+        "courier",
+        "delivery"
+      ],
+      "email": "sss@gmail.com",
+      "onboardingCompleted": true,
+      "onboardingCompletedAt": 1754753136512,
+      "paymentMethods": [
+        "bank_transfer"
+      ],
+      "products": {
+        "-OXERGgQOJv0CZI4G4dV": {
+          "category": "📱 Electronics",
+          "createdAt": 1754753211068,
+          "description": "food dood",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FyGUjqVQWT6glmQflv4fSZUyALJC3%2F1754753207983_IMG_1317.jpeg?alt=media&token=93ea8098-e349-4111-9b2c-c5f10c49d43f",
+          "lastUpdated": 1754753211068,
+          "name": "fffffff",
+          "price": 45,
+          "quantity": 4,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXERgGsL1RtUIfggZZS": {
+          "category": "📱 Electronics",
+          "createdAt": 1754753319961,
+          "description": "food dood",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FyGUjqVQWT6glmQflv4fSZUyALJC3%2F1754753317420_IMG_1317.jpeg?alt=media&token=0b0c17f3-7fcf-4e74-b565-61ca64359fcd",
+          "lastUpdated": 1754753319961,
+          "name": "fffffff",
+          "price": 45,
+          "quantity": 4,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXERihylihHxSeUg5na": {
+          "category": "📱 Electronics",
+          "createdAt": 1754753329952,
+          "description": "food dood",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FyGUjqVQWT6glmQflv4fSZUyALJC3%2F1754753327918_IMG_1317.jpeg?alt=media&token=ddf62a74-e96c-4b73-a84f-890ba3419de6",
+          "lastUpdated": 1754753329952,
+          "name": "fffffff",
+          "price": 45,
+          "quantity": 4,
+          "source": "manual",
+          "status": "active"
+        },
+        "-OXESAYVSzcJM4JGqqIl": {
+          "category": "📱 Electronics",
+          "createdAt": 1754753448066,
+          "description": "food dood",
+          "imageUrl": "https://firebasestorage.googleapis.com/v0/b/yourapp-mvp.firebasestorage.app/o/products%2FyGUjqVQWT6glmQflv4fSZUyALJC3%2F1754753445060_IMG_1317.jpeg?alt=media&token=38d4afaf-7643-4373-90da-a0f00593332c",
+          "lastUpdated": 1754753448066,
+          "name": "fffffff",
+          "price": 45,
+          "quantity": 4,
+          "source": "manual",
+          "status": "active"
+        }
+      },
+      "storeDescription": "dcthccccc dddddddd dddddd tttt",
+      "storeName": "ddddd",
+      "whatsappNumber": "234 24 1234567"
+    }
+  }
+}
