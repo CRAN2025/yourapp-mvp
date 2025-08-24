@@ -32,7 +32,7 @@ export default function GDPRCompliance() {
                 ShopLynk.app ("<strong>ShopLynk</strong>", "<strong>we</strong>", "<strong>us</strong>", or "<strong>our</strong>") is committed to protecting personal data and complying with the EU General Data Protection Regulation (GDPR) and the UK GDPR.
               </p>
               <p className="text-indigo-800 leading-relaxed mt-3">
-                This page summarizes how we meet key GDPR obligations. It should be read together with our <a href="/privacy" className="underline hover:text-indigo-900"><strong>Privacy Policy</strong></a>, <a href="/cookies" className="underline hover:text-indigo-900"><strong>Cookie Policy</strong></a>, and <strong>Data Processing Addendum (DPA)</strong>.
+                This page summarizes how we meet key GDPR obligations. It should be read together with our <a href="/privacy" className="underline hover:text-indigo-900"><strong>Privacy Policy</strong></a>, <a href="/cookies" className="underline hover:text-indigo-900"><strong>Cookie Policy</strong></a>, and <a href="/dpa" className="underline hover:text-indigo-900"><strong>Data Processing Addendum (DPA)</strong></a>.
               </p>
             </div>
 
@@ -153,6 +153,12 @@ export default function GDPRCompliance() {
                   <a href="/subprocessors" className="inline-flex items-center text-blue-600 hover:text-blue-800 underline">
                     <Users className="w-4 h-4 mr-1" />
                     View Sub-processor List
+                  </a>
+                </p>
+                <p className="text-blue-800">
+                  <a href="/dpa" className="inline-flex items-center text-blue-600 hover:text-blue-800 underline">
+                    <FileText className="w-4 h-4 mr-1" />
+                    Data Processing Addendum
                   </a>
                 </p>
               </div>
