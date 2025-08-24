@@ -89,7 +89,9 @@ export function useAuth() {
   const signUpWithEmail = async (email: string, password: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
+      console.log('Attempting sign up with email:', email);
       const result = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('Sign up successful:', result.user.uid);
       
       // Create initial seller profile
       const sellerData = {
@@ -120,12 +122,13 @@ export function useAuth() {
   const sendPhoneVerification = async (phoneNumber: string, recaptchaContainer: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
+      console.log('Attempting phone verification for:', phoneNumber);
       
       // Initialize reCAPTCHA
       const verifier = new RecaptchaVerifier(auth, recaptchaContainer, {
         size: 'invisible',
         callback: () => {
-          // reCAPTCHA solved
+          console.log('reCAPTCHA solved');
         },
       });
       
