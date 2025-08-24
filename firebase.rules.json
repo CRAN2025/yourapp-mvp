@@ -1,0 +1,32 @@
+{
+  "rules": {
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('sellers').child(auth.uid).child('isAdmin').val() == true)",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "products": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        "$pid": { 
+          ".write": "auth != null && auth.uid == $uid"
+        }
+      }
+    },
+    "public": {
+      "$sellerId": { 
+        ".read": true, 
+        ".write": "auth != null && auth.uid == $sellerId" 
+      }
+    },
+    "events": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('sellers').child(auth.uid).child('isAdmin').val() == true)",
+        "$eid": { 
+          ".write": "auth != null && auth.uid == $uid" 
+        }
+      }
+    }
+  }
+}
