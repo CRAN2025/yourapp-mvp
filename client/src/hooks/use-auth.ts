@@ -74,12 +74,16 @@ export function useAuth() {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
-      await signInWithEmailAndPassword(auth, email, password);
+      console.log('Attempting sign in with email:', email);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Sign in successful:', result.user.uid);
     } catch (error) {
+      console.error('Email sign in error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Sign in failed';
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Sign in failed',
+        error: errorMessage,
       }));
       throw error;
     }
@@ -109,10 +113,12 @@ export function useAuth() {
       await set(sellerRef, sellerData);
       
     } catch (error) {
+      console.error('Email sign up error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Sign up failed';
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Sign up failed',
+        error: errorMessage,
       }));
       throw error;
     }
@@ -140,10 +146,12 @@ export function useAuth() {
       setState(prev => ({ ...prev, loading: false }));
       return confirmResult;
     } catch (error) {
+      console.error('Phone verification error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send verification code';
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Failed to send verification code',
+        error: errorMessage,
       }));
       throw error;
     }

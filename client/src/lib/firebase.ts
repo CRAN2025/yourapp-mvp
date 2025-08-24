@@ -38,7 +38,20 @@ console.log('Firebase initialized with config:', {
   projectId: firebaseConfig.projectId,
   authDomain: firebaseConfig.authDomain,
   hasApiKey: !!firebaseConfig.apiKey,
-  hasAppId: !!firebaseConfig.appId
+  hasAppId: !!firebaseConfig.appId,
+  apiKeyPrefix: firebaseConfig.apiKey ? firebaseConfig.apiKey.substring(0, 8) + '...' : 'MISSING',
+  appIdPrefix: firebaseConfig.appId ? firebaseConfig.appId.substring(0, 8) + '...' : 'MISSING'
 });
+
+// Validate required config
+if (!firebaseConfig.apiKey) {
+  console.error('❌ VITE_FIREBASE_API_KEY is missing!');
+}
+if (!firebaseConfig.projectId) {
+  console.error('❌ VITE_FIREBASE_PROJECT_ID is missing!');
+}
+if (!firebaseConfig.appId) {
+  console.error('❌ VITE_FIREBASE_APP_ID is missing!');
+}
 
 export default app;
