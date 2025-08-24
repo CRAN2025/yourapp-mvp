@@ -573,7 +573,7 @@ export default function MarketLanding() {
                 <li><a href="/terms" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-terms">Terms of Service</a></li>
                 <li><a href="/privacy" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-privacy">Privacy Policy</a></li>
                 <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>GDPR Compliant</span></li>
-                <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>Cookie Policy</span></li>
+                <li><a href="/cookies" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-cookies">Cookie Policy</a></li>
               </ul>
             </div>
           </div>
