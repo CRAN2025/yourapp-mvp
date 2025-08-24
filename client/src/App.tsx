@@ -20,6 +20,7 @@ import Admin from "@/pages/Admin";
 import Upgrade from "@/pages/Upgrade";
 import TermsOfService from "@/pages/TermsOfService";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import CookiePolicy from "@/pages/CookiePolicy";
 import ContactSupport from "@/pages/ContactSupport";
 import NotFound from "@/pages/not-found";
 
@@ -38,6 +39,7 @@ function Router() {
       {/* Legal and support pages */}
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/cookies" component={CookiePolicy} />
       <Route path="/support" component={ContactSupport} />
 
       {/* Protected routes - require authentication */}
