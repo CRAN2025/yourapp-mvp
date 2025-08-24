@@ -1,7 +1,7 @@
 import { ArrowLeft, Cookie, Settings, Eye, Shield } from 'lucide-react';
 import { useLocation } from 'wouter';
 
-export function CookiePolicy() {
+export default function CookiePolicy() {
   const [, navigate] = useLocation();
 
   return (
