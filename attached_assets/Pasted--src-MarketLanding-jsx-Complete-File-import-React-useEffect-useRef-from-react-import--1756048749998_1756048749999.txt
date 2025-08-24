@@ -1,13 +1,11 @@
+// src/MarketLanding.jsx - Complete File
 import React, { useEffect, useRef } from 'react';
-import { useLocation } from 'wouter';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function MarketLanding() {
-  const [location, navigate] = useLocation();
+  const navigate = useNavigate();
+  const { hash, search } = useLocation();
   const rootRef = useRef(null);
-
-  // Extract hash and search from current location
-  const [path, search] = location.split('?');
-  const hash = path.includes('#') ? '#' + path.split('#')[1] : '';
 
   // Smooth-scroll when arriving with /#signup
   useEffect(() => {
@@ -21,26 +19,26 @@ export default function MarketLanding() {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    const els = root.querySelectorAll('.reveal-on-scroll') as NodeListOf<HTMLElement>;
+    const els = root.querySelectorAll('.reveal-on-scroll');
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible')),
       { threshold: 0.12 }
     );
-    els.forEach((el: HTMLElement) => io.observe(el));
+    els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
 
   const goCreate = () => {
-    const qp = new URLSearchParams(search || '');
+    const qp = new URLSearchParams(search);
     qp.set('from', 'landing_signup');
-    try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
-    // Navigate to /auth instead of /login to match the app routing
-    navigate(`/auth?${qp.toString()}`);
+    try { window.gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
+    // keep the "from" context when navigating to login
+    navigate(`/login?${qp.toString()}`);
   };
 
   const goLogin = () => {
-    try { (window as any).gtag?.('event', 'login_click', { source: 'marketing_landing' }); } catch {}
-    navigate('/auth');
+    try { window.gtag?.('event', 'login_click', { source: 'marketing_landing' }); } catch {}
+    navigate('/login');
   };
 
   return (
@@ -128,7 +126,7 @@ export default function MarketLanding() {
             <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-            <button onClick={goCreate} className="btn btnNav btnPrimary" data-testid="header-create-store">Create your free store</button>
+            <button onClick={goCreate} className="btn btnNav btnPrimary">Create your free store</button>
           </nav>
         </div>
       </header>
@@ -148,7 +146,7 @@ export default function MarketLanding() {
 
               {/* Primary CTA only (demo button removed) */}
               <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom: 6 }}>
-                <button onClick={goCreate} className="btn btnPrimary" style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }} data-testid="hero-create-store">
+                <button onClick={goCreate} className="btn btnPrimary" style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }}>
                   Create your free store
                 </button>
               </div>
@@ -243,7 +241,7 @@ export default function MarketLanding() {
 }
 
 /* ——— Subcomponents ——— */
-function FeatureCard({ icon, title, body }: { icon: string; title: string; body: string }) {
+function FeatureCard({ icon, title, body }) {
   return (
     <div
       className="glass card reveal-on-scroll"
@@ -281,7 +279,7 @@ function PreviewDevice() {
             <div style={{ height: 92, borderRadius: 12, background: 'linear-gradient(135deg,#e7ecff,#f6f9ff)' }} />
             <div style={{ fontWeight: 700, marginTop: 8, letterSpacing:'-0.01em' }}>{name}</div>
             <div style={{ opacity:.75, fontSize: 13 }}>{price}</div>
-            <button className="btn btnPrimary" style={{ width:'100%', marginTop: 8, borderRadius: 16, fontSize: 12 }}>Contact on WhatsApp</button>
+            <button className="btn btnPrimary" style={{ width:'100%', marginTop: 8, borderRadius: 16 }}>Contact on WhatsApp</button>
           </div>
         ))}
       </div>
@@ -290,7 +288,7 @@ function PreviewDevice() {
 }
 
 /* ——— styles (JS objects) ——— */
-const ctaBand: React.CSSProperties = {
+const ctaBand = {
   marginTop: 36,
   display: 'flex',
   gap: 20,
@@ -301,19 +299,19 @@ const ctaBand: React.CSSProperties = {
   borderRadius: 'var(--radius-card)',
   padding: 24,
   boxShadow: 'var(--shadow)',
-  flexWrap: 'wrap' as const,
+  flexWrap: 'wrap',
   backdropFilter: 'saturate(160%) blur(10px)',
   WebkitBackdropFilter: 'saturate(160%) blur(10px)',
 };
 
-const winDot = (bg: string) => ({ width: 12, height: 12, borderRadius: 12, background: bg, border: '1px solid rgba(0,0,0,.08)' });
+const winDot = (bg) => ({ width: 12, height: 12, borderRadius: 12, background: bg, border: '1px solid rgba(0,0,0,.08)' });
 
-const blobA: React.CSSProperties = {
+const blobA = {
   position:'absolute', top:-160, left:-140, width:420, height:420, borderRadius:'50%',
   background:'radial-gradient(closest-side, rgba(90,107,255,.22), transparent)',
   filter:'blur(6px)', zIndex:1
 };
-const blobB: React.CSSProperties = {
+const blobB = {
   position:'absolute', bottom:-200, right:-160, width:520, height:520, borderRadius:'50%',
   background:'radial-gradient(closest-side, rgba(103,209,255,.22), transparent)',
   filter:'blur(10px)', zIndex:1
