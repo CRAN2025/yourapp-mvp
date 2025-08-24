@@ -77,8 +77,13 @@ export function useAuth() {
       console.log('Attempting sign in with email:', email);
       const result = await signInWithEmailAndPassword(auth, email, password);
       console.log('Sign in successful:', result.user.uid);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Email sign in error:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        customData: error.customData
+      });
       const errorMessage = error instanceof Error ? error.message : 'Sign in failed';
       setState(prev => ({
         ...prev,
@@ -118,8 +123,14 @@ export function useAuth() {
       const sellerRef = ref(database, `sellers/${result.user.uid}`);
       await set(sellerRef, sellerData);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Email sign up error:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        customData: error.customData,
+        stack: error.stack
+      });
       const errorMessage = error instanceof Error ? error.message : 'Sign up failed';
       setState(prev => ({
         ...prev,
