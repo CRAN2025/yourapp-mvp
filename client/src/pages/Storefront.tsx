@@ -27,7 +27,7 @@ export default function Storefront() {
   useEffect(() => {
     if (!user) return;
 
-    const productsRef = ref(database, `users/${user.uid}/products`);
+    const productsRef = ref(database, `sellers/${user.uid}/products`);
     
     const unsubscribe = onValue(productsRef, (snapshot) => {
       try {

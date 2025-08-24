@@ -40,7 +40,7 @@ export function useAuth() {
         
         if (user) {
           // Fetch seller profile
-          const sellerRef = ref(database, `users/${user.uid}`);
+          const sellerRef = ref(database, `sellers/${user.uid}`);
           const sellerSnapshot = await get(sellerRef);
           const seller = sellerSnapshot.exists() ? sellerSnapshot.val() : null;
           
@@ -115,7 +115,7 @@ export function useAuth() {
         updatedAt: serverTimestamp(),
       };
       
-      const sellerRef = ref(database, `users/${result.user.uid}`);
+      const sellerRef = ref(database, `sellers/${result.user.uid}`);
       await set(sellerRef, sellerData);
       
     } catch (error: any) {
@@ -174,7 +174,7 @@ export function useAuth() {
       const result = await confirmationResult.confirm(code);
       
       // Check if seller profile exists, create if not
-      const sellerRef = ref(database, `users/${result.user.uid}`);
+      const sellerRef = ref(database, `sellers/${result.user.uid}`);
       const sellerSnapshot = await get(sellerRef);
       
       if (!sellerSnapshot.exists()) {
@@ -230,7 +230,7 @@ export function useAuth() {
     if (!state.user) throw new Error('No authenticated user');
 
     try {
-      const sellerRef = ref(database, `users/${state.user.uid}`);
+      const sellerRef = ref(database, `sellers/${state.user.uid}`);
       await set(sellerRef, {
         ...state.seller,
         ...updates,
