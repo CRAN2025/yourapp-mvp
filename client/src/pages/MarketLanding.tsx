@@ -59,9 +59,16 @@ export default function MarketLanding() {
   const faqs = [
     { q: "How quickly can I set up my store?", a: "Most users have their store ready in under 5 minutes. Just add your products, customize your storefront, and share your link!" },
     { q: "Is WhatsApp integration really free?", a: "Yes! WhatsApp integration is completely free. We simply provide direct links to start conversations with your customers." },
-    { q: "What happens after the beta period?", a: "We'll offer affordable pricing plans. Early users get exclusive discounts and priority support." },
-    { q: "Can I use my own domain?", a: "Absolutely! Custom domains are available with our Pro plan, coming soon." },
-    { q: "Do I need technical skills?", a: "Not at all! Our platform is designed for everyone. If you can send a text message, you can create a store." }
+    { q: "Do I need technical skills?", a: "Not at all! Our platform is designed for everyone. If you can send a text message, you can create a store." },
+    { q: "How does WhatsApp integration work?", a: "We generate direct WhatsApp links for each product. When customers click 'Order via WhatsApp', it opens a chat with you pre-filled with product details." },
+    { q: "Can I customize my store design?", a: "Yes! Upload your logo, choose colors, add cover images, and personalize your store description to match your brand." },
+    { q: "What payment methods can I accept?", a: "You can arrange payment directly with customers via WhatsApp - cash on delivery, bank transfer, mobile money, or any method you prefer." },
+    { q: "Can I track my orders and analytics?", a: "Absolutely! Get detailed insights on page views, product popularity, customer interactions, and order tracking through our dashboard." },
+    { q: "Is there a limit to products I can add?", a: "No limits during beta! Add unlimited products, categories, and images to showcase your full catalog." },
+    { q: "Can I use my own domain?", a: "Custom domains are available with our Pro plan, coming soon. For now, you get a shoplink.com subdomain." },
+    { q: "What happens after the beta period?", a: "We'll offer affordable pricing plans starting at just $9/month. Early users get exclusive discounts and priority support." },
+    { q: "Do you support multiple languages?", a: "Currently we support English, with Spanish, French, and Arabic coming soon. Your store content can be in any language." },
+    { q: "Can I manage inventory?", a: "Yes! Track stock levels, mark items as out of stock, and get notifications when inventory is low." }
   ];
 
   // Rotate testimonials automatically
@@ -518,15 +525,77 @@ export default function MarketLanding() {
       </section>
 
       {/* Enhanced Footer */}
-      <footer className="container" style={{ margin: '0 auto 40px', padding: '20px', textAlign: 'center', opacity: .65, position:'relative', zIndex:2 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16, flexWrap: 'wrap' }}>
-          <button onClick={() => alert('Terms of Service coming soon!')} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Terms of Service</button>
-          <button onClick={() => alert('Privacy Policy coming soon!')} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Privacy Policy</button>
-          <button onClick={() => alert('Contact support: hello@shoplink.com')} style={{ background: 'none', border: 'none', color: 'inherit', fontSize: 14, cursor: 'pointer', textDecoration: 'underline' }}>Contact Support</button>
-          <a href="#faq" style={{ color: 'inherit', textDecoration: 'none', fontSize: 14 }}>FAQ</a>
-        </div>
-        <div style={{ fontSize: 12, opacity: 0.5 }}>
-          © {new Date().getFullYear()} ShopLink • Made with ❤️ for entrepreneurs worldwide
+      <footer className="container" style={{ marginTop: 80, paddingBottom: 40, position: 'relative', zIndex: 2 }}>
+        <div className="glass card" style={{ padding: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 40, marginBottom: 40 }}>
+            {/* Company Info */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <div style={{ fontSize: 24 }}>🛍️</div>
+                <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
+              </div>
+              <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
+                The easiest way to create a WhatsApp-ready online store. Launch your business in minutes, not days.
+              </p>
+              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+                <a href="mailto:hello@shoplink.com" style={{ padding: '8px 16px', backgroundColor: 'rgba(90,107,255,0.1)', borderRadius: '8px', fontSize: 14, fontWeight: 600, color: '#5a6bff', textDecoration: 'none' }}>
+                  Contact Us
+                </a>
+              </div>
+            </div>
+
+            {/* Product Links */}
+            <div>
+              <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Product</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <li><a href="#faq" onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }} style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>FAQ</a></li>
+                <li><a href="/auth" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Create Store</a></li>
+                <li><a href="#features" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }} style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Features</a></li>
+                <li><a href="#pricing" onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }} style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Pricing</a></li>
+              </ul>
+            </div>
+
+            {/* Support Links */}
+            <div>
+              <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Support</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <li><a href="/support" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-support">Help Center</a></li>
+                <li><a href="mailto:support@shoplink.com" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Email Support</a></li>
+                <li><a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>WhatsApp Help</a></li>
+                <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>Live Chat (Coming Soon)</span></li>
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Legal</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <li><a href="/terms" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-terms">Terms of Service</a></li>
+                <li><a href="/privacy" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-privacy">Privacy Policy</a></li>
+                <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>GDPR Compliant</span></li>
+                <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>Cookie Policy</span></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Section */}
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+              <p style={{ margin: 0, color: 'var(--ink)', opacity: 0.6, fontSize: 14 }}>
+                © 2025 ShopLink. All rights reserved.
+              </p>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>
+                  Made with ❤️ for small businesses
+                </span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <span style={{ fontSize: 20 }}>🌟</span>
+                  <span style={{ fontSize: 20 }}>🚀</span>
+                  <span style={{ fontSize: 20 }}>💼</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

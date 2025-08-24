@@ -18,6 +18,9 @@ import Storefront from "@/pages/Storefront";
 import StorefrontPublic from "@/pages/StorefrontPublic";
 import Admin from "@/pages/Admin";
 import Upgrade from "@/pages/Upgrade";
+import TermsOfService from "@/pages/TermsOfService";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import ContactSupport from "@/pages/ContactSupport";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -31,6 +34,11 @@ function Router() {
         </AuthGuard>
       </Route>
       <Route path="/store/:sellerId" component={StorefrontPublic} />
+      
+      {/* Legal and support pages */}
+      <Route path="/terms" component={TermsOfService} />
+      <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/support" component={ContactSupport} />
 
       {/* Protected routes - require authentication */}
       <Route path="/onboarding">
