@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopLynk.app — Data Subject Request (August 24, 2025)</title>
+<style>
+  body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial; margin: 0; background:#fff; color:#111; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+  h1 { font-size: 1.8rem; margin: 0 0 .25rem; }
+  p.muted { color:#555; }
+  form { margin-top: 1.5rem; }
+  fieldset { border:1px solid #e5e5e5; padding:1rem; margin:1rem 0; border-radius:.5rem; }
+  legend { padding:0 .5rem; font-weight:600; }
+  label { display:block; margin:.5rem 0 .25rem; }
+  input[type="text"], input[type="email"], select, textarea { width:100%; padding:.6rem; border:1px solid #ccc; border-radius:.375rem; }
+  textarea { min-height: 130px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .actions { margin-top:1rem; }
+  button { padding:.7rem 1rem; border:0; border-radius:.5rem; cursor:pointer; }
+  button.primary { background:#111; color:#fff; }
+  button.secondary { background:#eee; }
+  .help { color:#666; font-size:.9rem; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Data Subject Rights Request</h1>
+    <p class="muted"><strong>Last Updated:</strong> August 24, 2025</p>
+    <p>Use this form to request access, correction, deletion, portability, restriction/objection, or opt-out of certain processing. We may need additional information to verify your identity and relationship to ShopLynk.app.</p>
+
+    <!-- Replace ACTION with your endpoint or privacy email handler -->
+    <form method="POST" action="[YOUR_ENDPOINT_OR_FORM_SERVICE]">
+      <fieldset>
+        <legend>Identity</legend>
+        <div class="row">
+          <div>
+            <label for="name">Full name</label>
+            <input id="name" name="name" type="text" required>
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label for="country">Country/Region</label>
+            <input id="country" name="country" type="text" placeholder="e.g., Canada, Germany" required>
+          </div>
+          <div>
+            <label for="relation">Relationship to ShopLynk</label>
+            <select id="relation" name="relation" required>
+              <option value="">Select one</option>
+              <option>Buyer</option>
+              <option>Seller</option>
+              <option>Visitor</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Request Type</legend>
+        <label><input type="checkbox" name="request_type" value="access"> Access my data</label>
+        <label><input type="checkbox" name="request_type" value="correction"> Correct inaccurate data</label>
+        <label><input type="checkbox" name="request_type" value="deletion"> Delete my data</label>
+        <label><input type="checkbox" name="request_type" value="portability"> Data portability</label>
+        <label><input type="checkbox" name="request_type" value="restriction"> Restrict processing</label>
+        <label><input type="checkbox" name="request_type" value="objection"> Object to processing</label>
+        <label><input type="checkbox" name="request_type" value="optout_ads"> Opt out of targeted advertising / sharing</label>
+        <label><input type="checkbox" name="request_type" value="withdraw_consent"> Withdraw consent</label>
+        <label for="details">Details of your request</label>
+        <textarea id="details" name="details" placeholder="Describe your request (what data, relevant dates, any additional info)"></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Verification & Authorization</legend>
+        <label for="verification">Identity verification details</label>
+        <textarea id="verification" name="verification" placeholder="Provide information to help us verify your identity (do not send full ID numbers)"></textarea>
+        <label><input type="checkbox" name="agent" value="yes"> I am an authorized agent submitting on behalf of the data subject</label>
+        <p class="help">If you are an agent, upload the authorization to your request or provide details above. We may contact the data subject to verify.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Declarations</legend>
+        <label><input type="checkbox" name="truth" required> I declare the information in this request is accurate and that I am entitled to make this request.</label>
+        <label><input type="checkbox" name="contact_ok" required> I consent to ShopLynk using the details provided to contact me about this request.</label>
+      </fieldset>
+
+      <div class="actions">
+        <button class="primary" type="submit">Submit Request</button>
+        <button class="secondary" type="reset">Clear</button>
+      </div>
+    </form>
+
+    <p class="help">Need help? Email <a href="mailto:privacy@shoplynk.app">privacy@shoplynk.app</a>.</p>
+  </div>
+</body>
+</html>

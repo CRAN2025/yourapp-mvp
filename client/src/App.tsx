@@ -21,6 +21,8 @@ import Upgrade from "@/pages/Upgrade";
 import TermsOfService from "@/pages/TermsOfService";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import CookiePolicy from "@/pages/CookiePolicy";
+import GDPRCompliance from "@/pages/GDPRCompliance";
+import DataSubjectRequest from "@/pages/DataSubjectRequest";
 import ContactSupport from "@/pages/ContactSupport";
 import NotFound from "@/pages/not-found";
 
@@ -40,6 +42,8 @@ function Router() {
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/cookies" component={CookiePolicy} />
+      <Route path="/gdpr" component={GDPRCompliance} />
+      <Route path="/data-request" component={DataSubjectRequest} />
       <Route path="/support" component={ContactSupport} />
 
       {/* Protected routes - require authentication */}
