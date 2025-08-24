@@ -25,6 +25,7 @@ import GDPRCompliance from "@/pages/GDPRCompliance";
 import DataSubjectRequest from "@/pages/DataSubjectRequest";
 import SubprocessorList from "@/pages/SubprocessorList";
 import DataProcessingAddendum from "@/pages/DataProcessingAddendum";
+import FAQ from "@/pages/FAQ";
 import ContactSupport from "@/pages/ContactSupport";
 import NotFound from "@/pages/not-found";
 
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/data-request" component={DataSubjectRequest} />
       <Route path="/subprocessors" component={SubprocessorList} />
       <Route path="/dpa" component={DataProcessingAddendum} />
+      <Route path="/faq" component={FAQ} />
       <Route path="/support" component={ContactSupport} />
 
       {/* Protected routes - require authentication */}

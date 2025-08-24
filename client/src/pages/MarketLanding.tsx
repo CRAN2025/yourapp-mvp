@@ -56,19 +56,11 @@ export default function MarketLanding() {
   ];
 
   // FAQ data
+  // Top 3 most essential FAQs for landing page
   const faqs = [
     { q: "How quickly can I set up my store?", a: "Most users have their store ready in under 5 minutes. Just add your products, customize your storefront, and share your link!" },
     { q: "Is WhatsApp integration really free?", a: "Yes! WhatsApp integration is completely free. We simply provide direct links to start conversations with your customers." },
-    { q: "Do I need technical skills?", a: "Not at all! Our platform is designed for everyone. If you can send a text message, you can create a store." },
-    { q: "How does WhatsApp integration work?", a: "We generate direct WhatsApp links for each product. When customers click 'Order via WhatsApp', it opens a chat with you pre-filled with product details." },
-    { q: "Can I customize my store design?", a: "Yes! Upload your logo, choose colors, add cover images, and personalize your store description to match your brand." },
-    { q: "What payment methods can I accept?", a: "You can arrange payment directly with customers via WhatsApp - cash on delivery, bank transfer, mobile money, or any method you prefer." },
-    { q: "Can I track my orders and analytics?", a: "Absolutely! Get detailed insights on page views, product popularity, customer interactions, and order tracking through our dashboard." },
-    { q: "Is there a limit to products I can add?", a: "No limits during beta! Add unlimited products, categories, and images to showcase your full catalog." },
-    { q: "Can I use my own domain?", a: "Custom domains are available with our Pro plan, coming soon. For now, you get a shoplink.com subdomain." },
-    { q: "What happens after the beta period?", a: "We'll offer affordable pricing plans starting at just $9/month. Early users get exclusive discounts and priority support." },
-    { q: "Do you support multiple languages?", a: "Currently we support English, with Spanish, French, and Arabic coming soon. Your store content can be in any language." },
-    { q: "Can I manage inventory?", a: "Yes! Track stock levels, mark items as out of stock, and get notifications when inventory is low." }
+    { q: "Do I need technical skills?", a: "Not at all! Our platform is designed for everyone. If you can send a text message, you can create a store." }
   ];
 
   // Rotate testimonials automatically
@@ -498,6 +490,17 @@ export default function MarketLanding() {
               )}
             </div>
           ))}
+          
+          {/* More FAQs Link */}
+          <div className="text-center mt-8">
+            <a 
+              href="/faq" 
+              className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              data-testid="button-more-faqs"
+            >
+              View All FAQs →
+            </a>
+          </div>
         </div>
       </section>
 
@@ -548,7 +551,7 @@ export default function MarketLanding() {
             <div>
               <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Product</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <li><a href="#faq" onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }} style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>FAQ</a></li>
+                <li><a href="/faq" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-faq">FAQ</a></li>
                 <li><a href="/auth" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Create Store</a></li>
                 <li><a href="#features" onClick={(e) => { e.preventDefault(); document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }); }} style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Features</a></li>
                 <li><a href="#pricing" onClick={(e) => { e.preventDefault(); document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }} style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Pricing</a></li>
