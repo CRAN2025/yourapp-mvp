@@ -86,7 +86,7 @@ export default function GDPRCompliance() {
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Processors (Sub-processors)</h2>
               <p className="text-gray-700 leading-relaxed">
-                We use vetted service providers for hosting, storage, analytics, support, and security. See our <strong>Sub-processor List</strong>. We require data protection terms and confidentiality commitments from all providers.
+                We use vetted service providers for hosting, storage, analytics, support, and security. See our <a href="/subprocessors" className="text-indigo-600 hover:text-indigo-800 underline"><strong>Sub-processor List</strong></a>. We require data protection terms and confidentiality commitments from all providers.
               </p>
             </section>
 
@@ -147,6 +147,12 @@ export default function GDPRCompliance() {
                   <a href="/cookies" className="inline-flex items-center text-blue-600 hover:text-blue-800 underline">
                     <Globe className="w-4 h-4 mr-1" />
                     Manage Cookie Preferences
+                  </a>
+                </p>
+                <p className="text-blue-800">
+                  <a href="/subprocessors" className="inline-flex items-center text-blue-600 hover:text-blue-800 underline">
+                    <Users className="w-4 h-4 mr-1" />
+                    View Sub-processor List
                   </a>
                 </p>
               </div>
