@@ -175,11 +175,13 @@ export default function Auth() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email address</FormLabel>
+                          <FormLabel htmlFor="email">Email address</FormLabel>
                           <FormControl>
                             <Input
+                              id="email"
                               type="email"
                               placeholder="Enter your email"
+                              autoComplete="email"
                               {...field}
                               data-testid="input-email"
                             />
@@ -194,12 +196,14 @@ export default function Auth() {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel htmlFor="password">Password</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Input
+                                id="password"
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Enter your password"
+                                autoComplete="current-password"
                                 className="pr-12"
                                 {...field}
                                 data-testid="input-password"
@@ -233,12 +237,13 @@ export default function Auth() {
                           <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                             <FormControl>
                               <Checkbox
+                                id="keep-signed-in"
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
                                 data-testid="checkbox-keep-signed-in"
                               />
                             </FormControl>
-                            <FormLabel className="text-sm font-normal">
+                            <FormLabel htmlFor="keep-signed-in" className="text-sm font-normal">
                               Keep me signed in
                             </FormLabel>
                           </FormItem>
@@ -287,11 +292,13 @@ export default function Auth() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone number</FormLabel>
+                            <FormLabel htmlFor="phone">Phone number</FormLabel>
                             <FormControl>
                               <Input
+                                id="phone"
                                 type="tel"
                                 placeholder="+1 (555) 123-4567"
+                                autoComplete="tel"
                                 {...field}
                                 data-testid="input-phone"
                               />
@@ -322,12 +329,14 @@ export default function Auth() {
                         name="code"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Verification code</FormLabel>
+                            <FormLabel htmlFor="verification-code">Verification code</FormLabel>
                             <FormControl>
                               <Input
+                                id="verification-code"
                                 type="text"
                                 maxLength={6}
                                 placeholder="000000"
+                                autoComplete="one-time-code"
                                 className="text-center text-2xl tracking-widest"
                                 {...field}
                                 data-testid="input-verification-code"
