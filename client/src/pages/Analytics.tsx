@@ -59,7 +59,7 @@ export default function Analytics() {
         });
 
         // Load products
-        const productsRef = ref(database, `products/${user.uid}`);
+        const productsRef = ref(database, `users/${user.uid}/products`);
         const productsUnsubscribe = onValue(productsRef, (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.val();

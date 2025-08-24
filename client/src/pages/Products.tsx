@@ -32,7 +32,7 @@ export default function Products() {
   useEffect(() => {
     if (!user) return;
 
-    const productsRef = ref(database, `products/${user.uid}`);
+    const productsRef = ref(database, `users/${user.uid}/products`);
     
     const unsubscribe = onValue(productsRef, (snapshot) => {
       try {
