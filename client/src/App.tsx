@@ -26,6 +26,8 @@ import DataSubjectRequest from "@/pages/DataSubjectRequest";
 import SubprocessorList from "@/pages/SubprocessorList";
 import DataProcessingAddendum from "@/pages/DataProcessingAddendum";
 import FAQ from "@/pages/FAQ";
+import Features from "@/pages/Features";
+import Pricing from "@/pages/Pricing";
 import ContactSupport from "@/pages/ContactSupport";
 import NotFound from "@/pages/not-found";
 
@@ -50,6 +52,8 @@ function Router() {
       <Route path="/subprocessors" component={SubprocessorList} />
       <Route path="/dpa" component={DataProcessingAddendum} />
       <Route path="/faq" component={FAQ} />
+      <Route path="/features" component={Features} />
+      <Route path="/pricing" component={Pricing} />
       <Route path="/support" component={ContactSupport} />
 
       {/* Protected routes - require authentication */}
