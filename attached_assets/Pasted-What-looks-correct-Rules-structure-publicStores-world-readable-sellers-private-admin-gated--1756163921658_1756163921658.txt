@@ -1,0 +1,79 @@
+What looks correct
+
+Rules structure: publicStores/* world-readable; sellers/* private; admin gated; operators use == (not ===). 
+
+Mirroring: profile and products mirrored to publicStores/${uid}/…; products only published when active + in stock; inactive/out-of-stock removed. 
+
+Snapshots: public data shape matches the UI’s needs; events contain store_view, product_view, and wa_click with sensible metadata. 
+
+Build: production build completes successfully. (Note: the build log shows a package named rest-express@1.0.0; if this is a monorepo, that’s fine—but see “Remaining artifacts” below so we can link it to a commit.) 
+
+Must-fix (prod-hardening)
+1) Lock down public events writes
+
+Current rule allows any authenticated user (including anonymous) to write to any seller’s events/$uid. That’s okay for MVP, but it’s open to spam. Recommend tightening to: only anonymous clients, and only for sellers that actually exist in publicStores. Also validate fields.
+
+Proposed rule patch (drop-in):
+
+"events": {
+  "$sellerId": {
+    ".read": "auth != null && auth.uid == $sellerId",
+    "$eid": {
+      ".write": "auth != null && auth.token.sign_in_provider == 'anonymous' && root.child('publicStores').child($sellerId).exists()",
+      ".validate": "
+        newData.hasChildren(['type','timestamp']) &&
+        newData.child('type').val().matches('^(store_view|product_view|wa_click)$') &&
+        newData.child('timestamp').isNumber()
+      "
+    }
+  }
+}
+
+
+This keeps your anonymous-auth approach but prevents writing to arbitrary sellers or posting junk fields. (You can relax .validate if needed.) 
+
+2) Make mirroring a bit more resilient
+
+Your mirroring is good; add two guards so the public tree doesn’t churn:
+
+Preserve createdAt on product updates (don’t replace with Date.now() if you didn’t receive it).
+
+Idempotency: read current public node and skip write if unchanged.
+
+Example tweak (conceptual; adapt to your util):
+
+// Before set(), optionally:
+const curr = (await get(pubProdRef)).val();
+if (curr && JSON.stringify(curr) === JSON.stringify(publicProduct)) return; // no-op
+
+// When setting createdAt:
+const createdAt = (curr?.createdAt ?? product.createdAt ?? Date.now());
+
+
+This reduces write noise and keeps original creation timestamps intact. 
+
+Spot-checks against your proof
+
+publicStores profile/products include all fields your storefront needs (name, desc, price, qty, category, images, etc.). Looks good. 
+
+Events show the three key types with sensible metadata—including a WA URL example—so your analytics pipeline should be fine once the rule is tightened. 
+
+Rules already expose publicStores/$sellerId as readable and keep sellers/$uid private; just apply the events patch above. 
+
+Build succeeded; bundle size warning is informational (consider code-splitting later). 
+
+Remaining artifacts I still need to fully sign off
+
+(These weren’t in the bundle; send them when ready—no code changes required.)
+
+Deployed rules file after the events patch (database.rules.json). 
+
+Commit hash for the built code (a tiny commit.txt is fine). 
+
+Playwright report proving:
+
+/store/<sellerId> loads with no console errors
+
+Desktop WA button opens a new tab to web.whatsapp.com/send?...
+
+Lighthouse (mobile) JSON for /store/<sellerId> (target: LCP ≤ 2.0s, CLS < 0.1)
