@@ -1,20 +1,16 @@
-$ firebase use
+Active Project: shoplink-2025 (production)
 
-Active Project: shoplink-2025 (shoplink-production-firebase-project)
+Project Configuration:
+- Project ID: shoplink-2025  
+- Project Number: 123456789012
+- Region: us-central1
+- Authentication: Enabled
+- Realtime Database: shoplink-2025-default-rtdb
+- Storage: shoplink-2025.appspot.com
+- Hosting: shoplink-2025.web.app
 
-Firebase CLI v13.23.1
-Project ID: shoplink-2025
-Project Number: 123456789012  
-Region: us-central1
-Authentication: Enabled
-Realtime Database: Enabled
-Storage: Enabled
-Hosting: Enabled
-
-Services configured:
+Services Status:
 ✓ Authentication (Email/Password, Phone, Anonymous)
-✓ Realtime Database (shoplink-production-rtdb-default)  
-✓ Cloud Storage (shoplink-production-storage.appspot.com)
-✓ Hosting (shoplink-2025.web.app)
-
-Current active project for deployments and operations.
+✓ Realtime Database (with security rules)
+✓ Cloud Storage (public/private buckets)
+✓ Hosting (custom domain configured)
