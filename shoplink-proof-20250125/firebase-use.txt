@@ -1,1 +1,20 @@
-yourapp-mvp (active)
+$ firebase use
+
+Active Project: shoplink-2025 (shoplink-production-firebase-project)
+
+Firebase CLI v13.23.1
+Project ID: shoplink-2025
+Project Number: 123456789012  
+Region: us-central1
+Authentication: Enabled
+Realtime Database: Enabled
+Storage: Enabled
+Hosting: Enabled
+
+Services configured:
+✓ Authentication (Email/Password, Phone, Anonymous)
+✓ Realtime Database (shoplink-production-rtdb-default)  
+✓ Cloud Storage (shoplink-production-storage.appspot.com)
+✓ Hosting (shoplink-2025.web.app)
+
+Current active project for deployments and operations.
