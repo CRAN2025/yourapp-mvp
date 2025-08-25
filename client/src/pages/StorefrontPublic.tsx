@@ -805,14 +805,15 @@ Product Link: ${productUrl}`;
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10"></div>
           </div>
 
-          {/* Store Information Card - Centered with Safe Gutters */}
-          <div className="mx-auto max-w-7xl relative" style={{
-            paddingInline: 'clamp(12px, 4vw, 24px)',
-            paddingLeft: 'max(16px, env(safe-area-inset-left))',
-            paddingRight: 'max(16px, env(safe-area-inset-right))'
-          }}>
-            <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 p-8 lg:p-10 -mt-28 relative z-10">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
+          {/* Store Information Card - Full Bleed White Section */}
+          <div className="w-full relative -mt-28 z-10">
+            <div className="bg-white/95 backdrop-blur-xl shadow-2xl border-y border-white/30 py-8 lg:py-10">
+              <div className="mx-auto max-w-7xl" style={{
+                paddingInline: 'clamp(12px, 4vw, 24px)',
+                paddingLeft: 'max(16px, env(safe-area-inset-left))',
+                paddingRight: 'max(16px, env(safe-area-inset-right))'
+              }}>
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
                 {/* Store Avatar with Status Indicator */}
                 <div className="relative flex-shrink-0">
                   <div className="relative">
@@ -950,6 +951,7 @@ Product Link: ${productUrl}`;
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </header>
 
