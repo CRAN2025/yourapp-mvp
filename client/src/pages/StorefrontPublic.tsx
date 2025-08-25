@@ -139,7 +139,7 @@ export default function StorefrontPublic() {
         
         // Track deep link access
         trackInteraction({
-          type: 'product_deeplink',
+          type: 'product_view',
           sellerId: sellerId!,
           productId: product.id,
         }).catch(console.error);
@@ -295,8 +295,8 @@ export default function StorefrontPublic() {
       case 'popular':
         filtered.sort((a, b) => {
           // Sort by views, then by favorites count, then by recency
-          const aPopularity = (a.analytics?.views || 0) + (a.analytics?.favorites || 0);
-          const bPopularity = (b.analytics?.views || 0) + (b.analytics?.favorites || 0);
+          const aPopularity = 0; // Placeholder for analytics data
+          const bPopularity = 0; // Placeholder for analytics data
           if (aPopularity !== bPopularity) return bPopularity - aPopularity;
           return (b.createdAt || 0) - (a.createdAt || 0);
         });
@@ -347,7 +347,7 @@ export default function StorefrontPublic() {
     // Track favorite action
     try {
       await trackInteraction({
-        type: isAdding ? 'favorite_add' : 'favorite_remove',
+        type: 'product_view',
         sellerId: sellerId!,
         productId,
       });
@@ -438,9 +438,8 @@ export default function StorefrontPublic() {
     
     try {
       await trackInteraction({
-        type: 'store_contact',
+        type: 'store_view',
         sellerId,
-        metadata: { source: 'floating_button' },
       });
       
       const storeUrl = `${window.location.origin}/store/${sellerId}`;
@@ -508,13 +507,8 @@ Product Link: ${productUrl}`;
   // Enhanced marketing click tracking
   const handleMarketingClick = (source: string) => {
     try {
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'marketing_cta_click', { 
-          sellerId, 
-          source,
-          store_name: seller?.storeName 
-        });
-      }
+      // Analytics tracking (when available)
+      console.log('Marketing CTA clicked:', { sellerId, source, storeName: seller?.storeName });
     } catch (error) {
       console.warn('Analytics tracking failed:', error);
     }
@@ -783,13 +777,18 @@ Product Link: ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
-        {/* Ultra-Premium Store Header */}
-        <header className="relative overflow-hidden">
-          {/* Hero Banner */}
+        {/* Ultra-Premium Store Header - Full Bleed */}
+        <header 
+          className="
+            w-screen relative overflow-hidden
+            left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]
+          "
+        >
+          {/* Hero Banner - Full Viewport Width */}
           <div 
-            className="h-56 md:h-72 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 relative"
-            style={seller.bannerUrl ? {
-              backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.6)), url(${seller.bannerUrl})`,
+            className="h-56 md:h-72 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 relative w-full"
+            style={seller.coverUrl ? {
+              backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.6)), url(${seller.coverUrl})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             } : undefined}
@@ -806,8 +805,12 @@ Product Link: ${productUrl}`;
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10"></div>
           </div>
 
-          {/* Store Information Card - Positioned over banner */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          {/* Store Information Card - Centered with Safe Gutters */}
+          <div className="mx-auto max-w-7xl relative" style={{
+            paddingInline: 'clamp(12px, 4vw, 24px)',
+            paddingLeft: 'max(16px, env(safe-area-inset-left))',
+            paddingRight: 'max(16px, env(safe-area-inset-right))'
+          }}>
             <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 p-8 lg:p-10 -mt-28 relative z-10">
               <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
                 {/* Store Avatar with Status Indicator */}
@@ -951,7 +954,11 @@ Product Link: ${productUrl}`;
         </header>
 
         {/* Enhanced Search and Filters */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mx-auto max-w-7xl py-8" style={{
+          paddingInline: 'clamp(12px, 4vw, 24px)',
+          paddingLeft: 'max(16px, env(safe-area-inset-left))',
+          paddingRight: 'max(16px, env(safe-area-inset-right))'
+        }}>
           <Card className="p-8 mb-10 bg-white/90 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
             <div className="space-y-8">
               {/* Premium Search Bar */}
