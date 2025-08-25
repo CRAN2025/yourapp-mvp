@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Upload, Trash2, Plus, Minus } from 'lucide-react';
@@ -70,7 +70,8 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<string[]>(product?.images || []);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   // Get currency from seller profile
   const currency = useMemo(() => {
@@ -83,84 +84,102 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
 
   const form = useForm<ProductFormData>({
     defaultValues: {
-      name: product?.name || '',
-      description: product?.description || '',
-      price: product?.price?.toString() || '',
-      quantity: product?.quantity?.toString() || '',
-      category: product?.category || '',
-      subcategory: product?.subcategory || '',
-      images: product?.images || [],
+      name: '',
+      description: '',
+      price: '',
+      quantity: '',
+      category: '',
+      subcategory: '',
+      images: [],
       // Enhanced attributes
-      brand: product?.brand || '',
-      condition: product?.condition || 'new',
-      size: product?.size || '',
-      color: product?.color || '',
-      material: product?.material || '',
-      weight: product?.weight || '',
-      dimensions: product?.dimensions || '',
-      tags: product?.tags || [],
-      sku: product?.sku || '',
-      isHandmade: product?.isHandmade ?? false,
-      isCustomizable: product?.isCustomizable ?? false,
-      processingTime: product?.processingTime || '',
+      brand: '',
+      condition: 'new',
+      size: '',
+      color: '',
+      material: '',
+      weight: '',
+      dimensions: '',
+      tags: [],
+      sku: '',
+      isHandmade: false,
+      isCustomizable: false,
+      processingTime: '',
       // New Etsy-inspired attributes
-      madeToOrder: product?.madeToOrder ?? false,
-      materials: product?.materials || [],
-      chainLength: product?.chainLength || '',
-      pendantSize: product?.pendantSize || '',
-      personalizationOptions: product?.personalizationOptions || '',
-      giftWrapping: product?.giftWrapping ?? false,
-      returnPolicy: product?.returnPolicy || '',
-      shipsFrom: product?.shipsFrom || '',
-      careInstructions: product?.careInstructions || '',
-      occasion: product?.occasion || '',
-      style: product?.style || '',
-      targetAgeGroup: product?.targetAgeGroup || '',
-      features: product?.features || [],
-      sustainability: product?.sustainability || '',
-      warranty: product?.warranty || '',
-      isActive: product?.isActive ?? true,
+      madeToOrder: false,
+      materials: [],
+      chainLength: '',
+      pendantSize: '',
+      personalizationOptions: '',
+      giftWrapping: false,
+      returnPolicy: '',
+      shipsFrom: '',
+      careInstructions: '',
+      occasion: '',
+      style: '',
+      targetAgeGroup: '',
+      features: [],
+      sustainability: '',
+      warranty: '',
+      isActive: true,
     },
-    values: product ? {
-      name: product.name,
-      description: product.description || '',
-      price: product.price.toString(),
-      quantity: product.quantity.toString(),
-      category: product.category,
-      subcategory: product.subcategory || '',
-      images: product.images || [],
-      brand: product.brand || '',
-      condition: product.condition || 'new',
-      size: product.size || '',
-      color: product.color || '',
-      material: product.material || '',
-      weight: product.weight || '',
-      dimensions: product.dimensions || '',
-      tags: product.tags || [],
-      sku: product.sku || '',
-      isHandmade: product.isHandmade ?? false,
-      isCustomizable: product.isCustomizable ?? false,
-      processingTime: product.processingTime || '',
-      // New Etsy-inspired attributes
-      madeToOrder: product.madeToOrder ?? false,
-      materials: product.materials || [],
-      chainLength: product.chainLength || '',
-      pendantSize: product.pendantSize || '',
-      personalizationOptions: product.personalizationOptions || '',
-      giftWrapping: product.giftWrapping ?? false,
-      returnPolicy: product.returnPolicy || '',
-      shipsFrom: product.shipsFrom || '',
-      careInstructions: product.careInstructions || '',
-      occasion: product.occasion || '',
-      style: product.style || '',
-      targetAgeGroup: product.targetAgeGroup || '',
-      features: product.features || [],
-      sustainability: product.sustainability || '',
-      warranty: product.warranty || '',
-      isActive: product.isActive ?? true,
-    } : undefined,
   });
   
+  // Initialize form when modal opens
+  useEffect(() => {
+    if (open && !isInitialized) {
+      // Initialize form with product data or defaults
+      const defaultValues = {
+        name: product?.name || '',
+        description: product?.description || '',
+        price: product?.price?.toString() || '',
+        quantity: product?.quantity?.toString() || '',
+        category: product?.category || '',
+        subcategory: product?.subcategory || '',
+        images: product?.images || [],
+        // Enhanced attributes
+        brand: product?.brand || '',
+        condition: product?.condition || 'new',
+        size: product?.size || '',
+        color: product?.color || '',
+        material: product?.material || '',
+        weight: product?.weight || '',
+        dimensions: product?.dimensions || '',
+        tags: product?.tags || [],
+        sku: product?.sku || '',
+        isHandmade: product?.isHandmade ?? false,
+        isCustomizable: product?.isCustomizable ?? false,
+        processingTime: product?.processingTime || '',
+        // New Etsy-inspired attributes
+        madeToOrder: product?.madeToOrder ?? false,
+        materials: product?.materials || [],
+        chainLength: product?.chainLength || '',
+        pendantSize: product?.pendantSize || '',
+        personalizationOptions: product?.personalizationOptions || '',
+        giftWrapping: product?.giftWrapping ?? false,
+        returnPolicy: product?.returnPolicy || '',
+        shipsFrom: product?.shipsFrom || '',
+        careInstructions: product?.careInstructions || '',
+        occasion: product?.occasion || '',
+        style: product?.style || '',
+        targetAgeGroup: product?.targetAgeGroup || '',
+        features: product?.features || [],
+        sustainability: product?.sustainability || '',
+        warranty: product?.warranty || '',
+        isActive: product?.isActive ?? true,
+      };
+      
+      form.reset(defaultValues);
+      setExistingImages(product?.images || []);
+      setImageFiles([]);
+      setIsInitialized(true);
+    }
+    
+    // Reset initialization when modal closes
+    if (!open) {
+      setIsInitialized(false);
+    }
+  }, [open, product, form, isInitialized]);
+
   // Handle number inputs properly to prevent leading zeros
   const handleNumberInput = useCallback((field: any, value: string) => {
     // Remove leading zeros except for decimal numbers like "0.5"
@@ -288,10 +307,7 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
       }
 
       onSuccess?.();
-      onClose();
-      form.reset();
-      setImageFiles([]);
-      setExistingImages([]);
+      handleClose();
     } catch (error) {
       console.error('Error saving product:', error);
       toast({
@@ -328,8 +344,16 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
     }
   };
 
+  // Clean up when modal closes completely
+  const handleClose = () => {
+    setIsInitialized(false);
+    setImageFiles([]);
+    setExistingImages([]);
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
