@@ -1,12 +1,25 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X, Upload, Trash2 } from 'lucide-react';
+import { X, Upload, Trash2, Plus, Minus } from 'lucide-react';
 import { ref, push, update, serverTimestamp } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { database, storage } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
-import { insertProductSchema, categories, type Product, type InsertProduct } from '@shared/schema';
+import { insertProductSchema, categories, countries, type Product, type InsertProduct } from '@shared/schema';
+import { formatPrice, getCurrencySymbol } from '@/lib/utils/currency';
+
+// Form interface with string values for numbers (to handle input properly)
+interface ProductFormData {
+  name: string;
+  description?: string;
+  price: string;
+  quantity: string;
+  category: string;
+  subcategory?: string;
+  images: string[];
+  isActive: boolean;
+}
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,25 +37,59 @@ interface ProductModalProps {
 }
 
 export default function ProductModal({ open, onClose, product, onSuccess }: ProductModalProps) {
-  const { user } = useAuthContext();
+  const { user, seller } = useAuthContext();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>(product?.images || []);
+  
+  // Get currency from seller profile
+  const currency = useMemo(() => {
+    if (seller?.currency) return seller.currency;
+    const country = countries.find(c => c.name === seller?.country);
+    return country?.currency || 'USD';
+  }, [seller?.currency, seller?.country]);
+  
+  // Currency symbol mapping
+  const currencySymbols: Record<string, string> = {
+    'USD': '$', 'CAD': 'C$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
+    'AUD': 'A$', 'CHF': 'CHF', 'CNY': '¥', 'INR': '₹', 'KRW': '₩',
+    'GHS': '₵', 'NGN': '₦', 'ZAR': 'R', 'AED': 'د.إ', 'SAR': 'ر.س',
+    'BRL': 'R$', 'MXN': '$', 'SGD': 'S$', 'HKD': 'HK$', 'NOK': 'kr',
+    'SEK': 'kr', 'DKK': 'kr', 'PLN': 'zł', 'CZK': 'Kč', 'ILS': '₪',
+    'TRY': '₺', 'RUB': '₽', 'THB': '฿', 'MYR': 'RM', 'IDR': 'Rp',
+    'PHP': '₱', 'VND': '₫', 'KES': 'KSh', 'UGX': 'USh', 'TZS': 'TSh',
+    'EGP': 'E£', 'MAD': 'د.م.', 'COP': '$', 'CLP': '$', 'ARS': '$'
+  };
+  
+  const currencySymbol = currencySymbols[currency] || currency;
 
-  const form = useForm<InsertProduct>({
-    resolver: zodResolver(insertProductSchema),
+  const form = useForm<ProductFormData>({
     defaultValues: {
       name: product?.name || '',
       description: product?.description || '',
-      price: product?.price || 0,
-      quantity: product?.quantity || 0,
+      price: product?.price?.toString() || '',
+      quantity: product?.quantity?.toString() || '',
       category: product?.category || '',
       subcategory: product?.subcategory || '',
       images: product?.images || [],
       isActive: product?.isActive ?? true,
     },
   });
+  
+  // Handle number inputs properly to prevent leading zeros
+  const handleNumberInput = useCallback((field: any, value: string) => {
+    // Remove leading zeros except for decimal numbers like "0.5"
+    const cleanValue = value.replace(/^0+(?=\d)/, '') || value;
+    field.onChange(cleanValue);
+  }, []);
+  
+  // Format price display with currency
+  const formatPriceDisplay = useCallback((value: string | number) => {
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue) || numValue === 0) return '';
+    return formatPrice(numValue, currency);
+  }, [currency]);
 
   const uploadImages = async (): Promise<string[]> => {
     if (imageFiles.length === 0) return existingImages;
@@ -59,16 +106,44 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
     return [...existingImages, ...newImageUrls];
   };
 
-  const onSubmit = async (data: InsertProduct) => {
+  const onSubmit = async (data: ProductFormData) => {
     if (!user) return;
+
+    // Validate the data
+    const price = parseFloat(data.price) || 0;
+    const quantity = parseInt(data.quantity) || 0;
+    
+    if (price < 0) {
+      toast({
+        title: 'Invalid price',
+        description: 'Price must be a positive number.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (quantity < 0) {
+      toast({
+        title: 'Invalid quantity',
+        description: 'Quantity must be a positive number.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
       setLoading(true);
 
       const imageUrls = await uploadImages();
-      const productData = {
-        ...data,
+      const productData: InsertProduct = {
+        name: data.name,
+        description: data.description,
+        price,
+        quantity,
+        category: data.category,
+        subcategory: data.subcategory,
         images: imageUrls,
+        isActive: data.isActive,
       };
 
       if (product) {
@@ -214,20 +289,20 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price (CAD) *</FormLabel>
+                    <FormLabel>Price ({currency}) *</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                          $
+                          {currencySymbol}
                         </span>
                         <Input
-                          type="number"
-                          step="0.01"
+                          type="text"
+                          inputMode="decimal"
                           min="0"
                           placeholder="0.00"
                           className="pl-8"
                           {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          onChange={(e) => handleNumberInput(field, e.target.value)}
                           data-testid="input-product-price"
                         />
                       </div>
@@ -249,7 +324,7 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
                         min="0"
                         placeholder="0"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        onChange={(e) => handleNumberInput(field, e.target.value)}
                         data-testid="input-product-quantity"
                       />
                     </FormControl>
@@ -276,7 +351,7 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
                       <SelectContent>
                         {categories.map((category) => (
                           <SelectItem key={category} value={category}>
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                            {category}
                           </SelectItem>
                         ))}
                       </SelectContent>

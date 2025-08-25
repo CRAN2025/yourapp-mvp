@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import logoUrl from '@/assets/logo.png';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -44,9 +45,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-8">
               <Link href="/">
-                <span className="text-xl font-bold text-primary cursor-pointer">
-                  ShopLink
-                </span>
+                <div className="flex items-center space-x-2 cursor-pointer">
+                  <img 
+                    src={logoUrl} 
+                    alt="ShoplYnk" 
+                    className="w-8 h-8"
+                  />
+                  <span className="text-xl font-bold text-primary">
+                    ShoplYnk
+                  </span>
+                </div>
               </Link>
               
               <nav className="hidden md:flex space-x-8">
