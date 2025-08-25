@@ -74,18 +74,41 @@ export function useAuth() {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
+      
+      // Input validation
+      if (!email || !email.includes('@')) {
+        throw new Error('Please enter a valid email address');
+      }
+      if (!password || password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
+      }
+      
       console.log('Attempting sign in with email:', email);
       const result = await signInWithEmailAndPassword(auth, email, password);
       console.log('Sign in successful:', result.user.uid);
     } catch (error: any) {
       console.error('Email sign in error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Sign in failed';
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Sign in failed';
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email address';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed attempts. Please try again later';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setState(prev => ({
         ...prev,
         loading: false,
         error: errorMessage,
       }));
-      throw error;
+      throw new Error(errorMessage);
     }
   };
 
@@ -93,17 +116,20 @@ export function useAuth() {
   const signUpWithEmail = async (email: string, password: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
+      
+      // Input validation
+      if (!email || !email.includes('@')) {
+        throw new Error('Please enter a valid email address');
+      }
+      if (!password || password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
+      }
+      
       console.log('Attempting sign up with email:', email);
-      console.log('Auth object:', auth);
-      console.log('Firebase config check:', {
-        hasAuth: !!auth,
-        authCurrentUser: auth.currentUser,
-        authApp: auth.app?.name
-      });
       const result = await createUserWithEmailAndPassword(auth, email, password);
       console.log('Sign up successful:', result.user.uid);
       
-      // Create initial seller profile
+      // Create initial seller profile with retry logic
       const sellerData = {
         id: result.user.uid,
         email: result.user.email!,
@@ -116,17 +142,43 @@ export function useAuth() {
       };
       
       const sellerRef = ref(database, `sellers/${result.user.uid}`);
-      await set(sellerRef, sellerData);
+      
+      // Retry database write up to 3 times
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          await set(sellerRef, sellerData);
+          break;
+        } catch (dbError) {
+          retries--;
+          if (retries === 0) throw dbError;
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        }
+      }
       
     } catch (error: any) {
       console.error('Email sign up error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Sign up failed';
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Sign up failed';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account with this email already exists';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Use at least 6 characters';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your connection';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setState(prev => ({
         ...prev,
         loading: false,
         error: errorMessage,
       }));
-      throw error;
+      throw new Error(errorMessage);
     }
   };
 
