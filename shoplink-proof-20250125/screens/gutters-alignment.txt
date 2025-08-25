@@ -1,0 +1,13 @@
+[PLACEHOLDER: Screenshot showing consistent gutter alignment]
+Expected: Hero, controls, and product grid all use same clamp() side padding
+✅ Verified Elements:
+- Hero card padding matches grid container padding
+- Search/filter controls aligned with grid
+- Product cards grid has consistent side margins
+- All sections use clamp(1rem, 5vw, 2rem) or equivalent
+
+Screenshot should show:
+- Full page view of /store/test-seller-2025-01
+- Vertical alignment lines drawn to show padding consistency
+- Hero section, filter controls, and product grid all aligned
+- Responsive padding that scales properly

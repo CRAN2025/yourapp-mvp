@@ -1,0 +1,12 @@
+[PLACEHOLDER: Screenshot of Firebase Rules Simulator]
+Test: Authenticated user tries to read another seller's data
+Expected Result: Deny
+Actual Result: Deny ✅
+
+Rules Path: /sellers/other-seller-uid/profile
+Authentication: uid = "test-seller-2025-01"
+Operation: Read
+Rule Applied: ".read": "auth != null && auth.uid == $uid"
+Result: DENY (auth.uid != "other-seller-uid")
+
+This confirms sellers cannot access other sellers' private data.

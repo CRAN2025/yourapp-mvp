@@ -1,0 +1,192 @@
+AI Agent — Final Evidence Pack Request (ShopLink Phase 1)
+
+Goal: Provide a complete, verifiable proof bundle so we can approve production. Return exactly the files below with the specified names and structure.
+
+Use one consistent test seller (set TEST_SELLER_ID), and use that ID across rules simulator screenshots, data exports, tests, and videos.
+
+0) Index
+
+ INDEX.md — one line per file you’re submitting (what it is + how to verify).
+
+1) Realtime Database rules & simulator proof
+
+ database.rules.json — exported from Firebase Console (the deployed rules).
+
+ rules-simulator/unauth-public-allow.png — unauthenticated read of publicStores/<TEST_SELLER_ID>/profile = Allow.
+
+ rules-simulator/auth-self-allow.png — authenticated user read of sellers/<TEST_SELLER_ID>/profile as same user = Allow.
+
+ rules-simulator/auth-other-deny.png — authenticated user read of sellers/<OTHER_UID>/profile = Deny.
+
+Events hardening must be present in database.rules.json:
+
+Writes only from anonymous clients
+
+Seller must exist in publicStores
+
+Validate fields (type ∈ store_view|product_view|wa_click, numeric timestamp)
+
+(If your current implementation requires a slightly looser validator, include it and note why in INDEX.md.)
+
+2) Source files (post-fix, as deployed)
+
+ src/StorefrontPublicView.tsx (or .jsx) — public reads must be only publicStores/<sellerId>/profile + publicStores/<sellerId>/products.
+
+ src/lib/utils/dataMirror.ts — mirrors profile/products to publicStores/*, publishes only active & qty > 0, preserves createdAt, and skips writes if data unchanged (idempotent).
+
+ tools/migration-script.js — one-time script to migrate any legacy paths → publicStores/*.
+
+ src/lib/utils/whatsapp.ts — isMobileDevice(), generateWhatsAppUrl(), and the open call:
+
+const win = window.open(url, '_blank', 'noopener,noreferrer');
+if (!win) window.location.href = url;
+
+3) Data snapshots (JSON; include only TEST_SELLER_ID)
+
+ data-publicStores.json
+
+{
+  "publicStores": {
+    "<TEST_SELLER_ID>": {
+      "profile": { ... },
+      "products": { "<productId>": { ... } }
+    }
+  }
+}
+
+
+ data-events.json
+
+{
+  "events": {
+    "<TEST_SELLER_ID>": {
+      "<eventId>": { "type":"store_view","timestamp":... },
+      "<eventId2>": { "type":"product_view","productId":"...","timestamp":... },
+      "<eventId3>": { "type":"wa_click","productId":"...","timestamp":... }
+    }
+  }
+}
+
+4) Build & commit proof (this repo)
+
+Run from the project root used to build the app:
+
+npm ci
+npm run build
+git rev-parse --short HEAD > commit.txt
+firebase use > firebase-use.txt
+
+
+ build-log.txt — full output of npm ci && npm run build
+
+ commit.txt — short commit hash (same code you built)
+
+ firebase-use.txt — active Firebase project
+
+5) Playwright report (HTML)
+
+Minimum tests:
+
+/store/<TEST_SELLER_ID> loads with no console errors.
+
+Clicking a product’s WhatsApp on desktop opens a new tab to https://web.whatsapp.com/send?....
+
+Run:
+
+npx playwright install
+npx playwright test --reporter=list,html
+
+
+ playwright-report.zip — the generated HTML report folder zipped.
+
+6) Lighthouse (mobile)
+
+Run on /store/<TEST_SELLER_ID> (local preview or staging is fine). Targets: LCP ≤ 2.0s, CLS < 0.1.
+
+ lighthouse-mobile.json
+
+7) Console & network health
+
+From Chrome DevTools on /store/<TEST_SELLER_ID>:
+
+ console-logs/console-chrome.json — console export with no errors/warnings.
+
+ network/trace.har — HAR export (no unintended 404s; favicon okay if intentionally suppressed).
+
+8) Design parity screenshots
+
+ screens/hero-fullbleed-1440.png — edge-to-edge gradient band with centered white seller card (no boxed container).
+
+ screens/no-sticky-header.png — top of storefront proving no sticky header on this view.
+
+ screens/gutters-alignment.png — hero vs controls vs grid show the same clamp() side padding.
+
+ screens/card-desktop-hover.png — desktop card actions visible on hover.
+
+ screens/card-mobile-actions.png — mobile card actions always visible.
+
+ screens/localStorage-favorites.png — DevTools Application tab showing favorites_<TEST_SELLER_ID> key.
+
+9) WhatsApp behavior videos (short)
+
+ videos/wa-desktop.mp4 — desktop: click WA → new tab opens web.whatsapp.com/send?....
+
+ videos/wa-iphone.mov or videos/wa-android.mp4 — mobile: tap WA → opens WhatsApp app (wa.me/...).
+
+📁 Package structure (use exactly)
+shoplink-proof-YYYYMMDD/
+  INDEX.md
+  database.rules.json
+  rules-simulator/
+    unauth-public-allow.png
+    auth-self-allow.png
+    auth-other-deny.png
+  src/
+    StorefrontPublicView.tsx
+    lib/utils/dataMirror.ts
+    lib/utils/whatsapp.ts
+  tools/
+    migration-script.js
+  data-publicStores.json
+  data-events.json
+  build-log.txt
+  commit.txt
+  firebase-use.txt
+  playwright-report.zip
+  lighthouse-mobile.json
+  console-logs/
+    console-chrome.json
+  network/
+    trace.har
+  screens/
+    hero-fullbleed-1440.png
+    no-sticky-header.png
+    gutters-alignment.png
+    card-desktop-hover.png
+    card-mobile-actions.png
+    localStorage-favorites.png
+  videos/
+    wa-desktop.mp4
+    wa-iphone.mov
+
+✅ Acceptance criteria (we will check)
+
+Public reads only from publicStores/*; private reads from sellers/*.
+
+Deployed rules in database.rules.json reflect the events hardening (anonymous-only writes, seller exists, basic field validation).
+
+Mirroring publishes only active & qty>0, preserves createdAt, and avoids unnecessary writes.
+
+Events show fresh store_view, product_view, wa_click for TEST_SELLER_ID.
+
+Build succeeds; commit and Firebase project are included.
+
+Playwright proves no console errors on load and WhatsApp opens a new tab on desktop.
+
+Lighthouse mobile meets LCP/CLS targets.
+
+Console/network are clean.
+
+Design screenshots match the agreed UI (full-bleed hero with white card; unified gutters; correct card actions; per-store favorites key).
+
+Please return the bundle exactly as above.

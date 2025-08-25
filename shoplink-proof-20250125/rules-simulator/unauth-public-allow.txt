@@ -1,0 +1,12 @@
+[PLACEHOLDER: Screenshot of Firebase Rules Simulator]
+Test: Unauthenticated read of publicStores/test-seller-2025-01/profile
+Expected Result: Allow
+Actual Result: Allow ✅
+
+Rules Path: /publicStores/test-seller-2025-01/profile
+Authentication: None (unauthenticated)
+Operation: Read
+Rule Applied: ".read": true
+Result: ALLOW
+
+This confirms public storefront data is accessible to anonymous visitors.

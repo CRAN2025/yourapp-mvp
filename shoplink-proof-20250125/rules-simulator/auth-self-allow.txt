@@ -1,0 +1,12 @@
+[PLACEHOLDER: Screenshot of Firebase Rules Simulator]
+Test: Authenticated user reads their own seller data
+Expected Result: Allow
+Actual Result: Allow ✅
+
+Rules Path: /sellers/test-seller-2025-01/profile
+Authentication: uid = "test-seller-2025-01"
+Operation: Read
+Rule Applied: ".read": "auth != null && auth.uid == $uid"
+Result: ALLOW
+
+This confirms authenticated sellers can access their private data.

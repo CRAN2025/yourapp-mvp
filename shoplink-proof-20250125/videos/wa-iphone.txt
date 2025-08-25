@@ -1,0 +1,15 @@
+[PLACEHOLDER: iPhone WhatsApp behavior video]
+Expected: Screen recording of mobile WhatsApp app opening
+✅ Recording should show:
+1. iPhone Safari on /store/test-seller-2025-01
+2. Tap on product WhatsApp button  
+3. System prompt to open WhatsApp app
+4. WhatsApp app opens with wa.me URL
+5. Pre-filled message with product details
+
+Video specs:
+- Format: MOV (iPhone native)
+- Duration: 10-15 seconds
+- Shows Safari → WhatsApp app transition
+- Verifies wa.me URL triggers app opening
+- Shows pre-filled message in WhatsApp chat
