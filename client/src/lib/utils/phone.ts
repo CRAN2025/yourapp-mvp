@@ -36,11 +36,17 @@ export function validatePhoneNumber(phone: string, countryCode: string): { isVal
     };
   }
   
-  // Clean and normalize
-  let normalized = phone.replace(/\s/g, '');
-  if (!normalized.startsWith('+')) {
-    // Try to add country code
-    normalized = pattern.code + normalized.replace(/^0+/, '');
+  // Auto-format: Clean and normalize
+  let normalized = phone.replace(/[\s\-\(\)]/g, ''); // Remove spaces, dashes, parentheses
+  
+  // Remove leading zeros
+  normalized = normalized.replace(/^0+/, '');
+  
+  // If no country code, auto-add it based on selected country
+  if (!normalized.startsWith('+') && !normalized.startsWith(pattern.code.substring(1))) {
+    normalized = pattern.code + normalized;
+  } else if (!normalized.startsWith('+')) {
+    normalized = '+' + normalized;
   }
   
   const isValid = pattern.pattern.test(normalized);
