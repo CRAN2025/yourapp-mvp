@@ -8,6 +8,14 @@ import { database, storage } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { insertProductSchema, categories, countries, productConditions, type Product, type InsertProduct } from '@shared/schema';
 import { formatPrice, getCurrencySymbol } from '@/lib/utils/currency';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+import ImageUpload from './ImageUpload';
 
 // Form interface with string values for numbers (to handle input properly)
 interface ProductFormData {
@@ -33,14 +41,6 @@ interface ProductFormData {
   processingTime?: string;
   isActive: boolean;
 }
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useToast } from '@/hooks/use-toast';
-import ImageUpload from './ImageUpload';
 
 interface ProductModalProps {
   open: boolean;
@@ -63,19 +63,7 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
     return country?.currency || 'USD';
   }, [seller?.currency, seller?.country]);
   
-  // Currency symbol mapping
-  const currencySymbols: Record<string, string> = {
-    'USD': '$', 'CAD': 'C$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
-    'AUD': 'A$', 'CHF': 'CHF', 'CNY': '¥', 'INR': '₹', 'KRW': '₩',
-    'GHS': '₵', 'NGN': '₦', 'ZAR': 'R', 'AED': 'د.إ', 'SAR': 'ر.س',
-    'BRL': 'R$', 'MXN': '$', 'SGD': 'S$', 'HKD': 'HK$', 'NOK': 'kr',
-    'SEK': 'kr', 'DKK': 'kr', 'PLN': 'zł', 'CZK': 'Kč', 'ILS': '₪',
-    'TRY': '₺', 'RUB': '₽', 'THB': '฿', 'MYR': 'RM', 'IDR': 'Rp',
-    'PHP': '₱', 'VND': '₫', 'KES': 'KSh', 'UGX': 'USh', 'TZS': 'TSh',
-    'EGP': 'E£', 'MAD': 'د.م.', 'COP': '$', 'CLP': '$', 'ARS': '$'
-  };
-  
-  const currencySymbol = currencySymbols[currency] || currency;
+  const currencySymbol = getCurrencySymbol(currency);
 
   const form = useForm<ProductFormData>({
     defaultValues: {
