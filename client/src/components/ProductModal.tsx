@@ -39,6 +39,22 @@ interface ProductFormData {
   isHandmade: boolean;
   isCustomizable: boolean;
   processingTime?: string;
+  // New Etsy-inspired attributes
+  madeToOrder: boolean;
+  materials: string[];
+  chainLength?: string;
+  pendantSize?: string;
+  personalizationOptions?: string;
+  giftWrapping: boolean;
+  returnPolicy?: string;
+  shipsFrom?: string;
+  careInstructions?: string;
+  occasion?: string;
+  style?: string;
+  targetAgeGroup?: string;
+  features: string[];
+  sustainability?: string;
+  warranty?: string;
   isActive: boolean;
 }
 
@@ -87,6 +103,22 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
       isHandmade: product?.isHandmade ?? false,
       isCustomizable: product?.isCustomizable ?? false,
       processingTime: product?.processingTime || '',
+      // New Etsy-inspired attributes
+      madeToOrder: product?.madeToOrder ?? false,
+      materials: product?.materials || [],
+      chainLength: product?.chainLength || '',
+      pendantSize: product?.pendantSize || '',
+      personalizationOptions: product?.personalizationOptions || '',
+      giftWrapping: product?.giftWrapping ?? false,
+      returnPolicy: product?.returnPolicy || '',
+      shipsFrom: product?.shipsFrom || '',
+      careInstructions: product?.careInstructions || '',
+      occasion: product?.occasion || '',
+      style: product?.style || '',
+      targetAgeGroup: product?.targetAgeGroup || '',
+      features: product?.features || [],
+      sustainability: product?.sustainability || '',
+      warranty: product?.warranty || '',
       isActive: product?.isActive ?? true,
     },
     values: product ? {
@@ -109,6 +141,22 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
       isHandmade: product.isHandmade ?? false,
       isCustomizable: product.isCustomizable ?? false,
       processingTime: product.processingTime || '',
+      // New Etsy-inspired attributes
+      madeToOrder: product.madeToOrder ?? false,
+      materials: product.materials || [],
+      chainLength: product.chainLength || '',
+      pendantSize: product.pendantSize || '',
+      personalizationOptions: product.personalizationOptions || '',
+      giftWrapping: product.giftWrapping ?? false,
+      returnPolicy: product.returnPolicy || '',
+      shipsFrom: product.shipsFrom || '',
+      careInstructions: product.careInstructions || '',
+      occasion: product.occasion || '',
+      style: product.style || '',
+      targetAgeGroup: product.targetAgeGroup || '',
+      features: product.features || [],
+      sustainability: product.sustainability || '',
+      warranty: product.warranty || '',
       isActive: product.isActive ?? true,
     } : undefined,
   });
@@ -192,6 +240,22 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
         isHandmade: data.isHandmade,
         isCustomizable: data.isCustomizable,
         processingTime: data.processingTime,
+        // New Etsy-inspired attributes
+        madeToOrder: data.madeToOrder,
+        materials: data.materials,
+        chainLength: data.chainLength,
+        pendantSize: data.pendantSize,
+        personalizationOptions: data.personalizationOptions,
+        giftWrapping: data.giftWrapping,
+        returnPolicy: data.returnPolicy,
+        shipsFrom: data.shipsFrom,
+        careInstructions: data.careInstructions,
+        occasion: data.occasion,
+        style: data.style,
+        targetAgeGroup: data.targetAgeGroup,
+        features: data.features,
+        sustainability: data.sustainability,
+        warranty: data.warranty,
         isActive: data.isActive,
       };
 
@@ -585,6 +649,32 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
                       ⚙️ Customizable
                     </label>
                   </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="madeToOrder"
+                      {...form.register('madeToOrder')}
+                      className="rounded border-gray-300"
+                      data-testid="checkbox-made-to-order"
+                    />
+                    <label htmlFor="madeToOrder" className="text-sm font-medium">
+                      📋 Made to Order
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="giftWrapping"
+                      {...form.register('giftWrapping')}
+                      className="rounded border-gray-300"
+                      data-testid="checkbox-gift-wrapping"
+                    />
+                    <label htmlFor="giftWrapping" className="text-sm font-medium">
+                      🎁 Gift Wrapping Available
+                    </label>
+                  </div>
                 </div>
 
                 <FormField
@@ -598,6 +688,227 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
                           placeholder="1-3 business days"
                           {...field}
                           data-testid="input-processing-time"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Additional Product Details */}
+              <div className="border-t pt-6 mt-6">
+                <h3 className="text-lg font-semibold mb-4">Additional Details</h3>
+                
+                {/* Chain Length, Pendant Size, Personalization */}
+                <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                  <FormField
+                    control={form.control}
+                    name="chainLength"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Chain/Length</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="19-21 inches, adjustable"
+                            {...field}
+                            data-testid="input-chain-length"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="pendantSize"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Pendant/Item Size</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="13mm, Small, Large"
+                            {...field}
+                            data-testid="input-pendant-size"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="style"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Style</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Minimalist, Vintage, Boho"
+                            {...field}
+                            data-testid="input-style"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Occasion, Target Age, Ships From */}
+                <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                  <FormField
+                    control={form.control}
+                    name="occasion"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Occasion</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Birthday, Wedding, Anniversary"
+                            {...field}
+                            data-testid="input-occasion"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="targetAgeGroup"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age Group</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Adults, Teen, Kids"
+                            {...field}
+                            data-testid="input-target-age"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="shipsFrom"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ships From</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="United States, Canada, etc."
+                            {...field}
+                            data-testid="input-ships-from"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Personalization Options */}
+                <FormField
+                  control={form.control}
+                  name="personalizationOptions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Personalization Options</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={2}
+                          placeholder="Custom engraving, birth flower selection, color choices..."
+                          className="resize-none"
+                          {...field}
+                          data-testid="textarea-personalization"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Care Instructions */}
+                <FormField
+                  control={form.control}
+                  name="careInstructions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Care Instructions</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={2}
+                          placeholder="How to clean, store, and maintain this product..."
+                          className="resize-none"
+                          {...field}
+                          data-testid="textarea-care-instructions"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Return Policy and Warranty */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="returnPolicy"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Return Policy</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="45 days returns accepted"
+                            {...field}
+                            data-testid="input-return-policy"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="warranty"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Warranty</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="1 year quality guarantee"
+                            {...field}
+                            data-testid="input-warranty"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Sustainability */}
+                <FormField
+                  control={form.control}
+                  name="sustainability"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sustainability</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          rows={2}
+                          placeholder="Eco-friendly materials, carbon offset shipping, sustainable practices..."
+                          className="resize-none"
+                          {...field}
+                          data-testid="textarea-sustainability"
                         />
                       </FormControl>
                       <FormMessage />

@@ -58,6 +58,22 @@ export const productSchema = z.object({
   isHandmade: z.boolean().default(false),
   isCustomizable: z.boolean().default(false),
   processingTime: z.string().optional(), // e.g., "1-3 business days"
+  // New attributes based on Etsy listing analysis
+  madeToOrder: z.boolean().default(false),
+  materials: z.array(z.string()).default([]), // Multiple materials like "14k gold fill, sterling silver"
+  chainLength: z.string().optional(), // "19-21 inches, adjustable"
+  pendantSize: z.string().optional(), // "13mm"
+  personalizationOptions: z.string().optional(), // Custom engraving, etc.
+  giftWrapping: z.boolean().default(false),
+  returnPolicy: z.string().optional(), // "45 days returns accepted"
+  shipsFrom: z.string().optional(), // Country/region where item ships from
+  careInstructions: z.string().optional(), // How to maintain the product
+  occasion: z.string().optional(), // "Birthday, Wedding, Anniversary"
+  style: z.string().optional(), // "Minimalist, Vintage, Boho"
+  targetAgeGroup: z.string().optional(), // "Adults, Teen, Kids"
+  features: z.array(z.string()).default([]), // "Adjustable, Waterproof, Hypoallergenic"
+  sustainability: z.string().optional(), // Eco-friendly aspects
+  warranty: z.string().optional(), // Quality guarantee info
   isActive: z.boolean().default(true),
   createdAt: z.number(),
   updatedAt: z.number(),
