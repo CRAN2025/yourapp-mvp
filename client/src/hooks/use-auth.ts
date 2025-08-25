@@ -289,11 +289,17 @@ export function useAuth() {
 
     try {
       const sellerRef = ref(database, `sellers/${state.user.uid}`);
-      await set(sellerRef, {
+      const updatedProfile = {
         ...state.seller,
         ...updates,
-        updatedAt: serverTimestamp(),
-      });
+        updatedAt: Date.now(),
+      };
+      
+      await set(sellerRef, updatedProfile);
+      
+      // Mirror to public store
+      const { mirrorSellerProfile } = await import('@/lib/utils/dataMirror');
+      await mirrorSellerProfile(state.user.uid, updatedProfile);
     } catch (error) {
       throw error;
     }

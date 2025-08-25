@@ -58,13 +58,6 @@ export function openWhatsApp(
   forceMobile?: boolean
 ): void {
   const url = generateWhatsAppUrl(e164Number, message, forceMobile);
-  const isMobile = forceMobile ?? isMobileDevice();
-  
-  if (isMobile) {
-    // Mobile: Open in same window (will launch app)
-    window.location.href = url;
-  } else {
-    // Desktop: Open in new tab and keep store open
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
+  const win = window.open(url, '_blank', 'noopener,noreferrer');
+  if (!win) window.location.href = url;
 }

@@ -1,0 +1,256 @@
+Agent — Review & Fix Work Order (ShopLink Phase 1)
+
+Please review the findings below, then implement the fixes and return the requested artifacts. This is about aligning code paths ↔ RTDB rules and public storefront data with our original design.
+
+🎯 Summary of the issue (what you must fix)
+
+Path mismatch: Public storefront code still reads data from users/... (or sellers/...) while our rules only allow public reads at publicStores/{sellerId}/.... Result: Permission denied / wrong data.
+
+Rules operator: RTDB rules use ==, not JavaScript ===. Using === can cause unintended denies.
+
+Data mirror: The seller’s private data isn’t being mirrored to publicStores/*, so the public page either can’t load or loads stale data.
+
+✅ Step-by-step fixes
+1) Align RTDB rules (and export them)
+
+Action: Deploy rules using == and our public/private split, then export database.rules.json.
+
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        "products": {
+          ".read": "auth != null && auth.uid == $uid",
+          "$productId": {
+            ".read": "auth != null && auth.uid == $uid",
+            ".write": "auth != null && auth.uid == $uid"
+          }
+        }
+      }
+    },
+
+    "events": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null"  // If public visitors write events, see Step 4.
+      }
+    },
+
+    "publicStores": {
+      "$sellerId": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $sellerId"
+      }
+    },
+
+    "admin": {
+      ".read": "auth != null && root.child('sellers').child(auth.uid).child('isAdmin').val() == true",
+      ".write": "auth != null && root.child('sellers').child(auth.uid).child('isAdmin').val() == true"
+    }
+  }
+}
+
+
+Return: database.rules.json (the actually deployed file).
+
+2) Fix code paths to match rules
+
+Search the repo for stale paths and list what you changed:
+
+npx -y ripgrep -n "users/|sellers/|publicStores/" src || true
+
+
+Change private profile reads (e.g., in App.jsx):
+
+- get(ref(db, `users/${fbUser.uid}/profile`))
++ get(ref(db, `sellers/${fbUser.uid}/profile`))
+
+
+Change public storefront reads (e.g., in StorefrontPublicView.jsx):
+
+- const profileRef  = ref(db, `users/${sellerId}/publicProfile`);
+- const productsRef = ref(db, `users/${sellerId}/products`);
++ const profileRef  = ref(db, `publicStores/${sellerId}/profile`);
++ const productsRef = ref(db, `publicStores/${sellerId}/products`);
+
+
+If the current public data lives under storefronts/*, either migrate it (Step 3) or change rules to allow reads there (migration preferred).
+
+3) Mirror public-safe data into publicStores/*
+
+When a seller updates profile/products, write a public subset to publicStores.
+
+Client-side example (on save profile):
+
+import { ref, set, update } from 'firebase/database';
+const privateRef = ref(db, `sellers/${uid}/profile`);
+await update(privateRef, profile);
+
+const publicRef = ref(db, `publicStores/${uid}/profile`);
+await set(publicRef, {
+  storeName: profile.storeName || 'Store',
+  currency: profile.currency || 'GHS',
+  location: profile.location || '',
+  storeDescription: profile.storeDescription || '',
+  whatsappNumber: profile.whatsappNumber || '',
+  bannerUrl: profile.bannerUrl || ''
+});
+
+
+Products (on create/update/delete):
+
+const pubProdRef = ref(db, `publicStores/${uid}/products/${productId}`);
+if (product.status === 'active' && product.quantity > 0) {
+  await set(pubProdRef, {
+    name: product.name,
+    description: product.description || '',
+    price: Number(product.price) || 0,
+    quantity: Number(product.quantity) || 0,
+    category: product.category || '',
+    images: Array.isArray(product.images) ? product.images : [],
+    createdAt: product.createdAt || Date.now(),
+    status: 'active'
+  });
+} else {
+  await set(pubProdRef, null); // remove from public index
+}
+
+
+One-time migration (if data is currently under storefronts/*):
+
+Copy storefronts/{sellerId} → publicStores/{sellerId} as per the shapes above.
+
+Provide the Node/Admin script or a simple one-off migration code and logs.
+
+4) Ensure events can be written from public pages
+
+Pick one:
+
+Option A: Anonymous Auth (fast for MVP)
+
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+
+useEffect(() => {
+  const auth = getAuth();
+  if (!auth.currentUser) signInAnonymously(auth).catch(() => {});
+}, []);
+
+
+This satisfies events/$uid/.write: auth != null.
+
+Option B: Cloud Function endpoint
+Expose an HTTP endpoint that validates and writes events server-side; keep RTDB events writes locked down.
+
+Return: The chosen approach & a short proof (screenshot of a recent wa_click under events/{sellerId}).
+
+5) Keep WhatsApp device-aware behavior
+
+Confirm (or patch) helpers:
+
+export const isMobileDevice = () => /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+export const generateWhatsAppUrl = (e164, message = '') => {
+  const phone = String(e164 || '').replace(/[^\d+]/g, '').replace(/^\+/, '');
+  const text = encodeURIComponent(message);
+  return isMobileDevice()
+    ? `https://wa.me/${phone}?text=${text}`
+    : `https://web.whatsapp.com/send?phone=${phone}&text=${text}`;
+};
+
+
+Open:
+
+const win = window.open(url, '_blank', 'noopener,noreferrer');
+if (!win) window.location.href = url;
+
+📦 What to return (evidence, not claims)
+
+Diffs / Code snippets
+
+StorefrontPublicView.jsx path changes to publicStores/*
+
+Any App.jsx (or profile loader) changes to sellers/*
+
+Mirror logic snippets for profile/products (or Function code)
+
+If migration done: the script + stdout summary
+
+Rules
+
+database.rules.json (deployed)
+
+Rules Simulator screenshots:
+
+Unauthed read publicStores/{sellerId}/profile → Allow
+
+Authed user read sellers/{uid}/profile → Allow
+
+Authed user read sellers/{other}/profile → Deny
+
+Data snapshots
+
+JSON exports of:
+
+publicStores/{sellerId}/profile
+
+publicStores/{sellerId}/products (2–3 items)
+
+events/{sellerId} showing recent store_view, product_view, wa_click
+
+Build proof (this repo)
+
+Commands & outputs:
+
+npm ci
+npm run build
+git rev-parse --short HEAD > commit.txt
+
+
+Return build-log.txt + commit.txt
+
+Playwright mini-report (prove WA desktop behavior)
+
+Two tests:
+
+/store/:sellerId loads with no console errors
+
+Clicking product WhatsApp opens new tab to web.whatsapp.com/send?...
+
+Return the HTML report (playwright-report.zip)
+
+Lighthouse (mobile) JSON for /store/:sellerId
+
+Targets: LCP ≤ 2.0s, CLS < 0.1
+
+Return lighthouse-mobile.json
+
+Design parity screenshots
+
+Hero edge-to-edge band with white seller card (no sticky header) at 1440px
+
+Controls bar below hero with aligned gutters
+
+Product cards: hover-only actions on desktop, always visible on mobile
+
+Show localStorage key favorites_<sellerId> in DevTools
+
+✅ Acceptance criteria (go/no-go)
+
+Public storefront reads only from publicStores/*; private reads from sellers/*
+
+RTDB rules use ==, and Rules Simulator shows expected Allow/Deny
+
+Public data is mirrored on save and/or migrated
+
+Public events write successfully (anon auth or Function)
+
+Build succeeds; Playwright + Lighthouse pass targets
+
+Design parity proven via screenshots (no sticky header; unified gutters)
+
+Please proceed and return the artifacts listed above.

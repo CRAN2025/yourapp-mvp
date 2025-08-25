@@ -2,18 +2,7 @@
  * Detect if user is on a mobile device
  */
 export function isMobileDevice(): boolean {
-  // Check for touch capability
-  const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  
-  // Check screen size
-  const isSmallScreen = window.innerWidth <= 768;
-  
-  // Check user agent for mobile indicators
-  const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-  const isMobileUA = mobileRegex.test(navigator.userAgent);
-  
-  // Consider mobile if any of these conditions are true
-  return hasTouch && (isSmallScreen || isMobileUA);
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 /**
