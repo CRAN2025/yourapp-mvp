@@ -806,329 +806,94 @@ Product Link: ${productUrl}`;
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
         {/* ===== Header / Banner (FULL-BLEED) ===== */}
         <FullBleedSection>
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.95)',
-              borderRadius: 20,
-              padding: '0 0 24px',
-              marginBottom: 24,
-              boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
-            }}
-          >
+          <div className="mx-auto max-w-3xl md:max-w-4xl bg-white/95 rounded-2xl shadow-xl overflow-hidden">
+            {/* Optional banner (falls back to gradient) */}
             <div
+              className="h-40 md:h-48 w-full"
               style={{
-                height: 160,
-                borderTopLeftRadius: 20,
-                borderTopRightRadius: 20,
-                background: seller?.coverUrl
-                  ? `url(${seller.coverUrl}) center/cover no-repeat`
+                background: seller?.bannerUrl
+                  ? `url(${seller.bannerUrl}) center/cover no-repeat`
                   : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
               }}
             />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                padding: '0 24px',
-                marginTop: -30,
-              }}
-            >
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg,#5a6bff,#67d1ff)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 28,
-                  boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
-                  border: '3px solid #fff',
-                }}
-              >
-                {seller?.logoUrl ? (
-                  <img
-                    src={seller.logoUrl}
-                    alt={seller.storeName}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: '50%',
-                      objectFit: 'cover'
-                    }}
-                  />
-                ) : (
-                  '🛍️'
+
+            <div className="px-[clamp(12px,4vw,24px)] pb-6 -mt-8">
+              {/* Header row */}
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-cyan-400 border-4 border-white shadow-md flex items-center justify-center text-2xl">
+                  {seller?.profileImageUrl ? (
+                    <img
+                      src={seller.profileImageUrl}
+                      alt={seller.storeName}
+                      className="w-full h-full object-cover rounded-full"
+                      onError={(e) => (e.currentTarget.style.display = 'none')}
+                    />
+                  ) : '🛍️'}
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-2xl md:text-3xl font-bold truncate">
+                    {seller.storeName}
+                  </h1>
+                  <p className="text-muted-foreground truncate">
+                    {seller.location || 'Online Store'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Chips */}
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                {!!paymentMethods.length && (
+                  <button
+                    onClick={() => setShowPaymentModal(true)}
+                    className="px-3 py-2 rounded-full border text-sm bg-indigo-50 border-indigo-100"
+                    title="View payment methods"
+                  >
+                    💳 {paymentMethods.length} Payment Methods
+                  </button>
+                )}
+                {!!deliveryOptions.length && (
+                  <button
+                    onClick={() => setShowDeliveryModal(true)}
+                    className="px-3 py-2 rounded-full border text-sm bg-cyan-50 border-cyan-100"
+                    title="View delivery options"
+                  >
+                    🚚 {deliveryOptions.length} Delivery Options
+                  </button>
+                )}
+                {seller.currency && (
+                  <span className="px-3 py-2 rounded-full border text-sm bg-slate-50 border-slate-200">
+                    🌐 {seller.currency} Currency
+                  </span>
                 )}
               </div>
-              <div style={{ flex: 1 }}>
-                <h1 className="typ-title" style={{ fontSize: 28, margin: '0 0 4px' }}>
-                  {seller?.storeName || 'Store'}
-                </h1>
-                <p className="typ-meta" style={{ margin: 0 }}>
-                  {seller?.location || 'Online Store'}
-                </p>
-              </div>
-            </div>
 
-{/* old content removed */}
-                  <div className="space-y-3">
-                    <h1 className="text-4xl lg:text-5xl font-black text-slate-800 leading-tight">
-                      {seller.storeName}
-                    </h1>
-                    {seller.storeDescription && (
-                      <p className="text-slate-600 text-lg lg:text-xl leading-relaxed line-clamp-2 max-w-3xl">
-                        {seller.storeDescription}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Enhanced Info Badges */}
-                  <div className="flex flex-wrap gap-3">
-                    {(seller.city || seller.country) && (
-                      <Badge 
-                        className="bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 hover:from-blue-100 hover:to-indigo-100 px-4 py-2.5 text-sm font-bold border border-blue-200 transition-all duration-300 hover:scale-105"
-                      >
-                        <MapPin className="w-4 h-4 mr-2" />
-                        {seller.city ? `${seller.city}, ${seller.country}` : seller.country}
-                      </Badge>
-                    )}
-                    
-                    {paymentMethods.length > 0 && (
-                      <Badge 
-                        className="bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-800 hover:from-emerald-100 hover:to-green-100 cursor-pointer px-4 py-2.5 text-sm font-bold border border-emerald-200 transition-all duration-300 hover:scale-105"
-                        onClick={() => setShowPaymentModal(true)}
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        {paymentMethods.length} Payment Method{paymentMethods.length > 1 ? 's' : ''}
-                      </Badge>
-                    )}
-                    
-                    {deliveryOptions.length > 0 && (
-                      <Badge 
-                        className="bg-gradient-to-r from-purple-50 to-violet-50 text-purple-800 hover:from-purple-100 hover:to-violet-100 cursor-pointer px-4 py-2.5 text-sm font-bold border border-purple-200 transition-all duration-300 hover:scale-105"
-                        onClick={() => setShowDeliveryModal(true)}
-                      >
-                        <Truck className="w-4 h-4 mr-2" />
-                        {deliveryOptions.length} Delivery Option{deliveryOptions.length > 1 ? 's' : ''}
-                      </Badge>
-                    )}
-
-                    {seller.currency && (
-                      <Badge className="bg-gradient-to-r from-orange-50 to-amber-50 text-orange-800 px-4 py-2.5 text-sm font-bold border border-orange-200">
-                        <Globe className="w-4 h-4 mr-2" />
-                        {seller.currency} Currency
-                      </Badge>
-                    )}
-
-                    <Badge className="bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 px-4 py-2.5 text-sm font-bold border border-emerald-200">
-                      <Clock className="w-4 h-4 mr-2" />
-                      Usually responds within 2 hours
-                    </Badge>
-                    
-                    <Badge className="bg-gradient-to-r from-violet-50 to-purple-50 text-violet-800 px-4 py-2.5 text-sm font-bold border border-violet-200">
-                      <Shield className="w-4 h-4 mr-2" />
-                      Verified Seller
-                    </Badge>
-                  </div>
-
-                  {/* Enhanced Action Buttons */}
-                  <div className="flex flex-wrap gap-4 pt-4">
-                    <Button
-                      onClick={handleFloatingChatClick}
-                      className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 px-8 py-4 text-lg font-bold rounded-2xl"
-                      size="lg"
-                    >
-                      <MessageCircle className="w-6 h-6 mr-3" />
-                      Chat on WhatsApp
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      asChild
-                      className="border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 hover:scale-105 px-8 py-4 text-lg font-bold rounded-2xl bg-white/80 backdrop-blur-sm"
-                      size="lg"
-                      onClick={() => handleMarketingClick('header_cta')}
-                    >
-                      <a
-                        href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_cta&utm_campaign=public&seller=${sellerId}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Sparkles className="w-6 h-6 mr-3" />
-                        Create Your Store
-                      </a>
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      className="text-slate-600 hover:text-slate-800 hover:bg-slate-100 px-6 py-4 rounded-2xl font-semibold"
-                    >
-                      <Award className="w-5 h-5 mr-2" />
-                      {products.length} Products
-                    </Button>
-
-            {/* chips */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 12,
-                flexWrap: 'wrap',
-                padding: '12px 24px 0',
-              }}
-            >
-              {paymentMethods.length > 0 && (
-                <button
-                  onClick={() => setShowPaymentModal(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: '#eef2ff',
-                    color: '#374151',
-                    padding: '10px 14px',
-                    borderRadius: 999,
-                    fontWeight: 700,
-                    border: '1px solid #e5e7eb',
-                    cursor: 'pointer',
-                  }}
-                  title="View payment methods"
-                >
-                  💳 {paymentMethods.length} Payment Methods
-                </button>
+              {/* Description */}
+              {seller.storeDescription && (
+                <p className="mt-3 text-slate-700 line-clamp-2">{seller.storeDescription}</p>
               )}
-              {deliveryOptions.length > 0 && (
-                <button
-                  onClick={() => setShowDeliveryModal(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: '#ecfeff',
-                    color: '#374151',
-                    padding: '10px 14px',
-                    borderRadius: 999,
-                    fontWeight: 700,
-                    border: '1px solid #e5e7eb',
-                    cursor: 'pointer',
-                  }}
-                  title="View delivery options"
+
+              {/* Action pills */}
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {seller.whatsappNumber && (
+                  <button
+                    onClick={handleFloatingChatClick}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-emerald-50 border-emerald-200 text-emerald-700 font-semibold"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Chat with seller on WhatsApp
+                  </button>
+                )}
+                <a
+                  href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
+                  target="_blank" rel="noopener noreferrer"
+                  onClick={() => handleMarketingClick('hero')}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-blue-50 border-blue-200 text-blue-700 font-bold"
                 >
-                  🚚 {deliveryOptions.length} Delivery Options
-                </button>
-              )}
-              {seller?.currency && (
-                <div
-                  className="typ-meta"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: '#f3f4f6',
-                    color: '#4b5563',
-                    padding: '10px 14px',
-                    borderRadius: 999,
-                    fontWeight: 700,
-                    border: '1px solid #e5e7eb',
-                  }}
-                >
-                  🌐 {seller.currency} Currency
-                </div>
-              )}
-            </div>
-
-            {/* Store description */}
-            {seller?.storeDescription && (
-              <p
-                className="typ-body"
-                style={{
-                  margin: '8px 24px 0',
-                  color: '#374151',
-                  lineHeight: 1.5,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}
-              >
-                {seller.storeDescription}
-              </p>
-            )}
-
-            {/* Action pills */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 12,
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-                padding: '12px 24px',
-              }}
-            >
-              <button
-                onClick={handleFloatingChatClick}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: 'rgba(37,211,102,0.12)',
-                  color: '#25D366',
-                  padding: '8px 16px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  border: '1px solid rgba(37,211,102,0.25)',
-                  cursor: 'pointer',
-                }}
-              >
-                <MessageCircle size={16} /> Chat with seller on WhatsApp
-              </button>
-
-              <a
-                href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => handleMarketingClick('header_badge')}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: 'rgba(59,130,246,0.12)',
-                  color: '#3b82f6',
-                  padding: '8px 16px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  border: '1px solid rgba(59,130,246,0.25)',
-                  textDecoration: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                ✨ Create your free ShopLink store
-              </a>
-
-              <div
-                className="typ-meta"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: 'rgba(59,130,246,0.12)',
-                  color: '#3b82f6',
-                  padding: '8px 16px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  border: '1px solid rgba(59,130,246,0.25)',
-                }}
-              >
-                ⚡ Usually responds within 2 hours
+                  ✨ Create your free ShopLink store
+                </a>
               </div>
             </div>
           </div>
-        </div>
         </FullBleedSection>
 
         {/* Enhanced Search and Filters */}

@@ -1,0 +1,90 @@
+<FullBleedSection>
+  <div className="mx-auto max-w-3xl md:max-w-4xl bg-white/95 rounded-2xl shadow-xl overflow-hidden">
+    {/* Optional banner (falls back to gradient) */}
+    <div
+      className="h-40 md:h-48 w-full"
+      style={{
+        background: seller?.bannerUrl
+          ? `url(${seller.bannerUrl}) center/cover no-repeat`
+          : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
+      }}
+    />
+
+    <div className="px-[clamp(12px,4vw,24px)] pb-6 -mt-8">
+      {/* Header row */}
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-cyan-400 border-4 border-white shadow-md flex items-center justify-center text-2xl">
+          {seller?.profileImageUrl ? (
+            <img
+              src={seller.profileImageUrl}
+              alt={seller.storeName}
+              className="w-full h-full object-cover rounded-full"
+              onError={(e) => (e.currentTarget.style.display = 'none')}
+            />
+          ) : '🛍️'}
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-3xl font-bold truncate">
+            {seller.storeName}
+          </h1>
+          <p className="text-muted-foreground truncate">
+            {seller.location || 'Online Store'}
+          </p>
+        </div>
+      </div>
+
+      {/* Chips */}
+      <div className="flex flex-wrap items-center gap-2 mt-4">
+        {!!paymentMethods.length && (
+          <button
+            onClick={() => setShowPaymentModal(true)}
+            className="px-3 py-2 rounded-full border text-sm bg-indigo-50 border-indigo-100"
+            title="View payment methods"
+          >
+            💳 {paymentMethods.length} Payment Methods
+          </button>
+        )}
+        {!!deliveryOptions.length && (
+          <button
+            onClick={() => setShowDeliveryModal(true)}
+            className="px-3 py-2 rounded-full border text-sm bg-cyan-50 border-cyan-100"
+            title="View delivery options"
+          >
+            🚚 {deliveryOptions.length} Delivery Options
+          </button>
+        )}
+        {seller.currency && (
+          <span className="px-3 py-2 rounded-full border text-sm bg-slate-50 border-slate-200">
+            🌐 {seller.currency} Currency
+          </span>
+        )}
+      </div>
+
+      {/* Description */}
+      {seller.storeDescription && (
+        <p className="mt-3 text-slate-700 line-clamp-2">{seller.storeDescription}</p>
+      )}
+
+      {/* Action pills */}
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {seller.whatsappNumber && (
+          <button
+            onClick={handleFloatingChatClick}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-emerald-50 border-emerald-200 text-emerald-700 font-semibold"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Chat with seller on WhatsApp
+          </button>
+        )}
+        <a
+          href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
+          target="_blank" rel="noopener noreferrer"
+          onClick={() => handleMarketingClick('hero')}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-blue-50 border-blue-200 text-blue-700 font-bold"
+        >
+          ✨ Create your free ShopLink store
+        </a>
+      </div>
+    </div>
+  </div>
+</FullBleedSection>
