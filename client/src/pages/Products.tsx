@@ -236,6 +236,45 @@ export default function Products() {
                       {product.description}
                     </p>
                   )}
+                  
+                  {/* Enhanced Product Attributes */}
+                  <div className="space-y-2 mb-4">
+                    {product.brand && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Brand:</span>
+                        <Badge variant="secondary" className="text-xs">{product.brand}</Badge>
+                      </div>
+                    )}
+                    {product.condition && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Condition:</span>
+                        <Badge variant="outline" className="text-xs capitalize">{product.condition}</Badge>
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-1">
+                      {product.size && (
+                        <Badge variant="secondary" className="text-xs">Size: {product.size}</Badge>
+                      )}
+                      {product.color && (
+                        <Badge variant="secondary" className="text-xs">Color: {product.color}</Badge>
+                      )}
+                      {product.material && (
+                        <Badge variant="secondary" className="text-xs">Material: {product.material}</Badge>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {product.isHandmade && (
+                        <Badge variant="outline" className="text-xs">🎨 Handmade</Badge>
+                      )}
+                      {product.isCustomizable && (
+                        <Badge variant="outline" className="text-xs">⚙️ Customizable</Badge>
+                      )}
+                      {product.processingTime && (
+                        <Badge variant="secondary" className="text-xs">⏱️ {product.processingTime}</Badge>
+                      )}
+                    </div>
+                  </div>
+                  
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xl font-bold text-foreground" data-testid={`product-price-${product.id}`}>
                       {formatPrice(product.price)}

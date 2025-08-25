@@ -89,6 +89,28 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
       processingTime: product?.processingTime || '',
       isActive: product?.isActive ?? true,
     },
+    values: product ? {
+      name: product.name,
+      description: product.description || '',
+      price: product.price.toString(),
+      quantity: product.quantity.toString(),
+      category: product.category,
+      subcategory: product.subcategory || '',
+      images: product.images || [],
+      brand: product.brand || '',
+      condition: product.condition || 'new',
+      size: product.size || '',
+      color: product.color || '',
+      material: product.material || '',
+      weight: product.weight || '',
+      dimensions: product.dimensions || '',
+      tags: product.tags || [],
+      sku: product.sku || '',
+      isHandmade: product.isHandmade ?? false,
+      isCustomizable: product.isCustomizable ?? false,
+      processingTime: product.processingTime || '',
+      isActive: product.isActive ?? true,
+    } : undefined,
   });
   
   // Handle number inputs properly to prevent leading zeros
