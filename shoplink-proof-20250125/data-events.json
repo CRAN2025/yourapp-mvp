@@ -1,0 +1,69 @@
+{
+  "events": {
+    "test-seller-2025-01": {
+      "event-001-store-view": {
+        "type": "store_view",
+        "sellerId": "test-seller-2025-01",
+        "timestamp": 1756164100000,
+        "metadata": {
+          "device": "desktop",
+          "source": "direct_link",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
+      },
+      "event-002-product-view": {
+        "type": "product_view",
+        "sellerId": "test-seller-2025-01",
+        "productId": "prod-001-kente-necklace",
+        "timestamp": 1756164150000,
+        "metadata": {
+          "device": "desktop",
+          "source": "product_card",
+          "productName": "Traditional Kente Pattern Necklace",
+          "productPrice": 145,
+          "category": "Jewelry",
+          "viewSource": "grid"
+        }
+      },
+      "event-003-wa-click": {
+        "type": "wa_click",
+        "sellerId": "test-seller-2025-01",
+        "productId": "prod-001-kente-necklace",
+        "timestamp": 1756164200000,
+        "metadata": {
+          "device": "desktop",
+          "source": "product_modal",
+          "productName": "Traditional Kente Pattern Necklace",
+          "productPrice": 145,
+          "category": "Jewelry",
+          "whatsapp_url": "https://web.whatsapp.com/send?phone=233123456789&text=Hi%21%20I%27m%20interested%20in%20your%20Traditional%20Kente%20Pattern%20Necklace%20for%20GHS%20145"
+        }
+      },
+      "event-004-store-wa-click": {
+        "type": "wa_click",
+        "sellerId": "test-seller-2025-01",
+        "timestamp": 1756164250000,
+        "metadata": {
+          "action": "store_contact",
+          "source": "floating_button",
+          "device": "mobile",
+          "whatsapp_url": "https://wa.me/233123456789?text=Hello%21%20I%20discovered%20your%20beautiful%20store"
+        }
+      },
+      "event-005-mobile-product-view": {
+        "type": "product_view",
+        "sellerId": "test-seller-2025-01",
+        "productId": "prod-002-shea-butter",
+        "timestamp": 1756164300000,
+        "metadata": {
+          "device": "mobile",
+          "source": "product_card",
+          "productName": "Raw Organic Shea Butter",
+          "productPrice": 85,
+          "category": "Beauty & Personal Care",
+          "viewSource": "grid"
+        }
+      }
+    }
+  }
+}

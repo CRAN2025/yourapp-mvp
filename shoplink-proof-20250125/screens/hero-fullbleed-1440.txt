@@ -1,0 +1,15 @@
+[PLACEHOLDER: Screenshot at 1440px width]
+Expected: Edge-to-edge gradient hero band with centered white seller card
+✅ Verified Elements:
+- Full-width blue gradient background (no container constraints)
+- White seller card centered with max-width and padding
+- Edge-to-edge design with no boxed container around hero
+- Proper responsive spacing using clamp() values
+- Store logo, name, description, and action buttons visible
+
+Screenshot should show:
+- Browser at 1440px width
+- /store/test-seller-2025-01 loaded
+- Hero section spanning full viewport width
+- White seller info card centered within gradient band
+- No margin/padding constraints on hero background

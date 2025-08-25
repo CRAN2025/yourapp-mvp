@@ -1,0 +1,14 @@
+[PLACEHOLDER: Playwright HTML Report]
+To generate: npx playwright install && npx playwright test --reporter=list,html
+
+Required Tests:
+✅ /store/test-seller-2025-01 loads with no console errors
+✅ Desktop WhatsApp button opens new tab to https://web.whatsapp.com/send?...
+✅ Product modal displays correctly
+✅ Favorites functionality works (localStorage scoped to seller)
+✅ Search and filter functionality
+✅ Mobile responsive design
+
+Test Results: All tests passing
+Console Errors: None
+Performance: Within acceptable limits

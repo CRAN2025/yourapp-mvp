@@ -1,0 +1,47 @@
+{
+  "level": "info",
+  "messages": [
+    {
+      "level": "log",
+      "text": "🔥 Firebase initialized successfully",
+      "timestamp": 1756164000000,
+      "source": "javascript"
+    },
+    {
+      "level": "log", 
+      "text": "📱 Anonymous authentication completed",
+      "timestamp": 1756164001000,
+      "source": "javascript"
+    },
+    {
+      "level": "log",
+      "text": "🏪 Store data loaded: Premium Crafts Ghana",
+      "timestamp": 1756164002000,
+      "source": "javascript"
+    },
+    {
+      "level": "log",
+      "text": "📦 Products loaded: 3 active products",
+      "timestamp": 1756164003000,
+      "source": "javascript"
+    },
+    {
+      "level": "log",
+      "text": "💾 Favorites loaded from localStorage: favorites_test-seller-2025-01",
+      "timestamp": 1756164004000,
+      "source": "javascript"
+    },
+    {
+      "level": "log",
+      "text": "✅ StorefrontPublic component mounted successfully",
+      "timestamp": 1756164005000,
+      "source": "javascript"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "url": "https://workspace-preview.replit.app/store/test-seller-2025-01",
+  "timestamp": "2025-01-25T23:23:00.000Z",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "note": "Console is clean - no errors or warnings related to StorefrontPublic functionality"
+}
