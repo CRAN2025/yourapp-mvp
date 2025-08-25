@@ -1,0 +1,102 @@
+{
+  "firebaseConfig": {
+    "projectId": "yourapp-mvp",
+    "databaseURL": "https://yourapp-mvp-default-rtdb.europe-west1.firebasedatabase.app",
+    "region": "europe-west1"
+  },
+  "databaseStructure": {
+    "sellers": {
+      "{userId}": {
+        "id": "string",
+        "email": "string", 
+        "storeName": "string",
+        "storeDescription": "string",
+        "category": "string",
+        "country": "string",
+        "city": "string",
+        "whatsappNumber": "string",
+        "isAdmin": "boolean",
+        "onboardingCompleted": "boolean",
+        "createdAt": "number",
+        "logoUrl": "string",
+        "coverUrl": "string",
+        "deliveryOptions": "array",
+        "paymentMethods": "array",
+        "products": {
+          "{productId}": {
+            "id": "string",
+            "name": "string", 
+            "description": "string",
+            "price": "number",
+            "category": "string",
+            "images": "array",
+            "inStock": "boolean",
+            "featured": "boolean"
+          }
+        }
+      }
+    },
+    "events": {
+      "{sellerId}": {
+        "{eventId}": {
+          "type": "store_view | product_view | wa_click",
+          "sellerId": "string",
+          "productId": "string (optional)",
+          "timestamp": "number",
+          "metadata": "object"
+        }
+      }
+    }
+  },
+  "sampleData": {
+    "seller": {
+      "id": "demo-seller-123",
+      "email": "demo@store.com",
+      "storeName": "Demo Store",
+      "storeDescription": "Premium handcrafted products with WhatsApp orders",
+      "category": "Fashion & Accessories",
+      "country": "Ghana",
+      "city": "Accra",
+      "whatsappNumber": "+233123456789",
+      "isAdmin": false,
+      "onboardingCompleted": true,
+      "createdAt": 1756161317007,
+      "deliveryOptions": ["pickup", "local_delivery"],
+      "paymentMethods": ["cash", "mobile_money"]
+    },
+    "product": {
+      "id": "sunset-earrings-001",
+      "name": "Sunset Earrings",
+      "description": "Beautiful handcrafted earrings with sunset colors",
+      "price": 120,
+      "category": "Jewelry",
+      "images": ["https://example.com/earrings.jpg"],
+      "inStock": true,
+      "featured": true
+    },
+    "event": {
+      "id": "event-001",
+      "type": "wa_click", 
+      "sellerId": "demo-seller-123",
+      "productId": "sunset-earrings-001",
+      "timestamp": 1756161317007,
+      "metadata": {
+        "device": "mobile",
+        "source": "product_card"
+      }
+    }
+  },
+  "pathAlignment": {
+    "note": "No legacy 'users/' paths found in codebase",
+    "currentPaths": [
+      "sellers/{uid}",
+      "sellers/{uid}/products",
+      "events/{sellerId}"
+    ],
+    "accessPatterns": {
+      "authenticated_seller": "Can read/write own seller data",
+      "admin": "Can read all seller data + toggle admin status",
+      "public": "Read-only access to storefront data via components"
+    }
+  }
+}

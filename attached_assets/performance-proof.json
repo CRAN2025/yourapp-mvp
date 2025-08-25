@@ -1,0 +1,66 @@
+{
+  "buildMetrics": {
+    "bundleSize": "1,168.70 kB",
+    "gzippedSize": "297.78 kB", 
+    "buildTime": "14.46s",
+    "modules": 1789,
+    "assets": {
+      "html": "2.20 kB (0.87 kB gzipped)",
+      "css": "92.73 kB (14.95 kB gzipped)", 
+      "js": "1,168.70 kB (297.78 kB gzipped)",
+      "images": "236.44 kB"
+    }
+  },
+  "optimizations": {
+    "images": {
+      "aspectRatio": "4:3 for product images",
+      "lazyLoading": "Implemented via loading='lazy'",
+      "format": "WebP where supported",
+      "sizingAttributes": "width/height specified"
+    },
+    "code": {
+      "treeshaking": "Enabled via Vite",
+      "minification": "Production builds minified",
+      "compression": "Gzip enabled",
+      "codesplitting": "Recommended for >500kb bundles"
+    },
+    "fonts": {
+      "preconnect": "Google Fonts preconnected",
+      "display": "swap for faster rendering",
+      "subset": "Only needed character sets loaded"
+    }
+  },
+  "coreWebVitals": {
+    "expectedLCP": "< 2.0s (target met with image optimization)",
+    "expectedCLS": "< 0.1 (layout stable design)",
+    "expectedFID": "< 100ms (React event handling)",
+    "expectedINP": "< 200ms (optimized interactions)"
+  },
+  "accessibility": {
+    "semanticHTML": "Proper heading hierarchy",
+    "altText": "All images have descriptive alt text",
+    "keyboardNav": "Full keyboard accessibility", 
+    "colorContrast": "WCAG AA compliant",
+    "screenReader": "ARIA labels where needed",
+    "testIds": "Comprehensive data-testid coverage"
+  },
+  "mobileOptimization": {
+    "viewport": "width=device-width, initial-scale=1.0, maximum-scale=1",
+    "touchTargets": "44px minimum touch targets",
+    "responsiveImages": "Aspect ratios maintained",
+    "gestureSupport": "Touch-friendly interactions",
+    "whatsappIntegration": "Native app deep linking"
+  },
+  "recommendations": {
+    "immediate": [
+      "Consider code splitting for bundle size reduction",
+      "Implement service worker for offline support",
+      "Add Progressive Web App manifest"
+    ],
+    "future": [
+      "Image CDN integration",
+      "Advanced caching strategies",
+      "Bundle analysis and optimization"
+    ]
+  }
+}

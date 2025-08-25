@@ -1,0 +1,40 @@
+<!-- SEO & Head Tags Implementation for Storefront Page -->
+
+<!-- Dynamic Title Example -->
+<title>Demo Store | ShopLink - WhatsApp Orders Made Easy</title>
+
+<!-- Core Meta Tags -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+
+<!-- SEO Meta Tags (set dynamically in StorefrontPublic component) -->
+<meta name="description" content="Browse our collection of premium products including Sunset Earrings, Handwoven Baskets, and Shea Body Butter. WhatsApp orders available with fast delivery." />
+
+<!-- Open Graph Tags for Social Sharing -->
+<meta property="og:title" content="Demo Store | ShopLink" />
+<meta property="og:description" content="Browse our collection of premium products including Sunset Earrings, Handwoven Baskets, and Shea Body Butter. WhatsApp orders available with fast delivery." />
+<meta property="og:image" content="https://yourapp-mvp.firebasestorage.app/store-covers/demo-store-cover.jpg" />
+<meta property="og:url" content="https://yourapp.com/store/demo-seller-id" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ShopLink" />
+
+<!-- Twitter Card Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Demo Store | ShopLink" />
+<meta name="twitter:description" content="Browse our collection of premium products including Sunset Earrings, Handwoven Baskets, and Shea Body Butter. WhatsApp orders available with fast delivery." />
+<meta name="twitter:image" content="https://yourapp-mvp.firebasestorage.app/store-covers/demo-store-cover.jpg" />
+
+<!-- Additional SEO Tags -->
+<meta name="robots" content="index, follow" />
+<meta name="author" content="Demo Store" />
+<meta name="keywords" content="whatsapp shopping, online store, handmade products, local business" />
+
+<!-- Preconnect for Performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- NOTE: In the actual StorefrontPublic component, these are set dynamically using JavaScript:
+- document.title = `${seller.storeName} | ShopLink`
+- Meta tags are updated via document.querySelector('meta[name="description"]').content = seller.description
+- Open Graph tags are updated similarly for proper social media sharing
+-->
