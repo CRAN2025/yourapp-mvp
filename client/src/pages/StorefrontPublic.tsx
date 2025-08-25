@@ -1090,7 +1090,7 @@ Product Link: ${productUrl}`;
                 href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handleMarketingClick}
+                onClick={() => handleMarketingClick('header_badge')}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -1128,6 +1128,7 @@ Product Link: ${productUrl}`;
               </div>
             </div>
           </div>
+        </div>
         </FullBleedSection>
 
         {/* Enhanced Search and Filters */}
