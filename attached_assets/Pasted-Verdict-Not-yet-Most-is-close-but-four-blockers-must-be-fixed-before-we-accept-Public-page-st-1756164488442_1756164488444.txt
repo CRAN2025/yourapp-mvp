@@ -1,0 +1,115 @@
+Verdict
+
+Not yet ✅. Most is close, but four blockers must be fixed before we accept:
+
+Public page still reads private paths.
+
+Store WA click is tracked as store_view (should be wa_click).
+
+Favorites key is global, not per-store.
+
+Realtime DB events rule still allows any authenticated user to write to any seller.
+
+Below I show exactly where, why, and how to fix.
+
+1) Public storefront is fetching from sellers/* (private)
+
+Your deployed component loads the seller and products from the private tree:
+
+sellers/${sellerId} (seller) and
+
+sellers/${sellerId}/products (products).
+See lines loading data with ref(database, ...). 
+ 
+
+Fix (exact diff):
+
+- const sellerRef = ref(database, `sellers/${sellerId}`);
++ const sellerRef = ref(database, `publicStores/${sellerId}/profile`);
+
+- const productsRef = ref(database, `sellers/${sellerId}/products`);
++ const productsRef = ref(database, `publicStores/${sellerId}/products`);
+
+
+Your public snapshots are already in the right place (publicStores/<sellerId>/profile and /products) so switching the reads will align with your rules. 
+ 
+
+2) Store-level WhatsApp click is tracked as store_view
+
+In the store contact CTA you’re logging store_view instead of wa_click. That will inflate view counts. 
+
+Fix:
+
+- await trackInteraction({ type: 'store_view', sellerId });
++ await trackInteraction({ type: 'wa_click', sellerId });
+
+
+(Product-level WA clicks already use wa_click — keep that.) 
+
+3) Favorites are not scoped per store
+
+LocalStorage key is shoplink_favorites (global), so favorites from one store bleed into another. 
+ 
+
+Fix:
+
+// on load
+- const saved = localStorage.getItem('shoplink_favorites');
++ const favKey = `shoplink_favorites_${sellerId}`;
++ const saved = localStorage.getItem(favKey);
+
+// on save
+- localStorage.setItem('shoplink_favorites', JSON.stringify(Array.from(newFavorites)));
++ localStorage.setItem(favKey, JSON.stringify(Array.from(newFavorites)));
+
+4) RTDB events rule is too open
+
+Current rule: ".write": "auth != null" at /events/$uid. Any signed-in user (including anon) can write to any seller node. 
+
+Hardened rule (drop-in):
+
+"events": {
+  "$sellerId": {
+    ".read": "auth != null && auth.uid == $sellerId",
+    "$eid": {
+      ".write": "auth != null && auth.token.sign_in_provider == 'anonymous' && root.child('publicStores').child($sellerId).exists()",
+      ".validate": "
+        newData.hasChildren(['type','timestamp']) &&
+        newData.child('type').val().matches('^(store_view|product_view|wa_click)$') &&
+        newData.child('timestamp').isNumber()
+      "
+    }
+  }
+}
+
+
+This keeps anonymous writes for analytics but prevents cross-tenant spam.
+
+Design alignment nits (quick wins)
+A) Sticky header on public view
+
+The public storefront header is sticky: className="... sticky top-0 ...". Our spec for the public storefront was non-sticky. Remove sticky top-0 z-40 .... 
+
+Fix:
+
+- <div className="bg-background border-b sticky top-0 z-40 backdrop-blur-sm bg-background/95">
++ <div className="bg-background border-b">
+
+B) Full-bleed hero is good — keep it
+
+You already ship a proper full-bleed section using the edge-to-edge band with inner clamp; that matches the design. 
+
+Mirroring util — small hardening (optional but recommended)
+
+Your mirroring works (active + qty>0 go public; else remove). It sets createdAt if missing, but does not preserve on subsequent updates and doesn’t skip identical writes. 
+ 
+
+Suggested tweak (conceptual):
+
+// before set(pubProdRef, publicProduct):
+const curr = (await get(pubProdRef)).val();
+const createdAt = curr?.createdAt ?? product.createdAt ?? Date.now();
+const publicProduct = { ...computed, createdAt, updatedAt: Date.now() };
+
+if (curr && JSON.stringify(curr) === JSON.stringify(publicProduct)) return; // idempotent no-op
+await set(pubProdRef, publicProduct);

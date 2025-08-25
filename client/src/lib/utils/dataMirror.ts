@@ -1,4 +1,4 @@
-import { ref, set, remove, update } from 'firebase/database';
+import { ref, set, remove, update, get } from 'firebase/database';
 import { database } from '@/lib/firebase';
 import type { Seller, Product } from '@shared/schema';
 
@@ -7,6 +7,10 @@ import type { Seller, Product } from '@shared/schema';
  */
 export async function mirrorSellerProfile(uid: string, profile: Partial<Seller>): Promise<void> {
   const publicRef = ref(database, `publicStores/${uid}/profile`);
+  
+  // Get current data to preserve createdAt and check for changes
+  const curr = (await get(publicRef)).val();
+  const createdAt = curr?.createdAt ?? profile.createdAt ?? Date.now();
   
   const publicProfile = {
     storeName: profile.storeName || 'Store',
@@ -19,9 +23,12 @@ export async function mirrorSellerProfile(uid: string, profile: Partial<Seller>)
     coverUrl: profile.coverUrl || '',
     deliveryOptions: Array.isArray(profile.deliveryOptions) ? profile.deliveryOptions : [],
     paymentMethods: Array.isArray(profile.paymentMethods) ? profile.paymentMethods : [],
-    createdAt: profile.createdAt || Date.now()
+    createdAt
   };
 
+  // Idempotent check - skip if no changes
+  if (curr && JSON.stringify(curr) === JSON.stringify(publicProfile)) return;
+  
   await set(publicRef, publicProfile);
 }
 
@@ -33,6 +40,10 @@ export async function mirrorProduct(uid: string, productId: string, product: Par
   
   // Only mirror active products with stock
   if (product.isActive && (product.quantity || 0) > 0) {
+    // Get current data to preserve createdAt and check for changes
+    const curr = (await get(pubProdRef)).val();
+    const createdAt = curr?.createdAt ?? product.createdAt ?? Date.now();
+    
     const publicProduct = {
       id: productId,
       name: product.name || '',
@@ -49,10 +60,13 @@ export async function mirrorProduct(uid: string, productId: string, product: Par
       dimensions: product.dimensions || '',
       tags: Array.isArray(product.tags) ? product.tags : [],
       isActive: true,
-      createdAt: product.createdAt || Date.now(),
+      createdAt,
       updatedAt: Date.now()
     };
 
+    // Idempotent check - skip if no changes
+    if (curr && JSON.stringify(curr) === JSON.stringify(publicProduct)) return;
+    
     await set(pubProdRef, publicProduct);
   } else {
     // Remove from public index if inactive or out of stock
