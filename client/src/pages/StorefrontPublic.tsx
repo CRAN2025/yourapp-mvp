@@ -20,28 +20,10 @@ import { useToast } from '@/hooks/use-toast';
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
 
-// --- Full-bleed section helper (edge-to-edge band) ---
+// --- Full-bleed section helper ---
 const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
-  <section
-    style={{
-      width: '100vw',
-      position: 'relative',
-      left: '50%',
-      right: '50%',
-      marginLeft: '-50vw',
-      marginRight: '-50vw',
-      // pick your hero gradient; the band itself is full width
-      background: 'linear-gradient(135deg,#6f3ef4 0%,#38bdf8 100%)',
-      padding: '24px 0',
-    }}
-  >
-    <div
-      style={{
-        maxWidth: 980,
-        margin: '0 auto',
-        paddingInline: 'clamp(12px,4vw,24px)',
-      }}
-    >
+  <section className="w-full bg-blue-600 text-white py-6">
+    <div className="max-w-4xl mx-auto px-4">
       {children}
     </div>
   </section>
@@ -81,33 +63,11 @@ export default function StorefrontPublic() {
     }
   };
 
-  // Ultra-premium placeholder with sophisticated design
-  const ULTRA_PREMIUM_PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
-      <defs>
-        <linearGradient id="premium-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#f8fafc"/>
-          <stop offset="25%" stop-color="#e2e8f0"/>
-          <stop offset="75%" stop-color="#cbd5e1"/>
-          <stop offset="100%" stop-color="#94a3b8"/>
-        </linearGradient>
-        <pattern id="premium-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-          <circle cx="20" cy="20" r="1" fill="#64748b" opacity="0.1"/>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#premium-gradient)"/>
-      <rect width="100%" height="100%" fill="url(#premium-pattern)"/>
-      <g fill="#64748b" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
-        <circle cx="600" cy="350" r="80" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
-        <path d="M560 330 L570 340 L590 320 L620 350 L630 340 L640 350" stroke="#64748b" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <text x="600" y="500" font-size="28" font-weight="600" text-anchor="middle">No Image Available</text>
-        <text x="600" y="535" font-size="16" text-anchor="middle" opacity="0.7">Upload a high-quality image (min 800×600px)</text>
-      </g>
-    </svg>
-  `)}`;
+  // Simple placeholder image
+  const PLACEHOLDER_IMAGE = '/placeholder-product.png';
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = ULTRA_PREMIUM_PLACEHOLDER;
+    e.currentTarget.src = PLACEHOLDER_IMAGE;
   };
 
   // Load favorites with enhanced error handling
@@ -632,67 +592,35 @@ Product Link: ${productUrl}`;
     return option.charAt(0).toUpperCase() + option.slice(1);
   };
 
-  // Ultra-premium loading state
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
-          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse animation-delay-2000"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse animation-delay-4000"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4">
+          <LoadingSpinner size="lg" />
+          <h2 className="text-xl font-semibold text-gray-800">
+            Loading Store
+          </h2>
+          <p className="text-gray-600">
+            Please wait...
+          </p>
         </div>
-        
-        {/* Loading content */}
-        <div className="relative z-10 text-center space-y-8 max-w-md mx-auto px-6">
-          <div className="relative">
-            <div className="w-32 h-32 mx-auto">
-              <LoadingSpinner size="lg" className="w-full h-full" />
-            </div>
-            <div className="absolute -inset-4 bg-white/30 rounded-full blur-xl"></div>
-          </div>
-          
-          <div className="space-y-4">
-            <h2 className="text-3xl font-black text-slate-800 tracking-tight">
-              Loading Store
-            </h2>
-            <p className="text-lg text-slate-600 font-medium">
-              Preparing your shopping experience...
-            </p>
-            <div className="flex justify-center gap-2 mt-6">
-              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-              <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Styles for animations */}
-        <style>{`
-          .animation-delay-2000 { animation-delay: 2s; }
-          .animation-delay-4000 { animation-delay: 4s; }
-        `}</style>
       </div>
     );
   }
 
-  // Ultra-premium error state
+  // Error state
   if (error || !seller) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-          <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
-        </div>
-        
-        <div className="relative z-10 text-center space-y-8 max-w-md mx-auto px-6">
-          <div className="w-32 h-32 mx-auto bg-white rounded-full flex items-center justify-center shadow-2xl">
-            <Globe className="w-16 h-16 text-red-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4 max-w-md mx-auto px-6">
+          <div className="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center shadow-md">
+            <Globe className="w-8 h-8 text-red-500" />
           </div>
           
-          <div className="space-y-4">
-            <h2 className="text-4xl font-black text-slate-800">Store Not Found</h2>
-            <p className="text-lg text-slate-600 leading-relaxed">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-gray-800">Store Not Found</h2>
+            <p className="text-gray-600">
               {error || "This store could not be found or may have been removed."}
             </p>
             <Button 
@@ -991,9 +919,9 @@ Product Link: ${productUrl}`;
             </div>
           )}
 
-          {/* Ultra-Premium Product Grid */}
+          {/* Product Grid */}
           {filteredProducts.length === 0 ? (
-            <Card className="p-16 text-center bg-white/90 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
+            <Card className="p-8 text-center">
               <EmptyState
                 icon={<Search className="h-20 w-20 text-slate-400" />}
                 title={searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
@@ -1019,43 +947,40 @@ Product Link: ${productUrl}`;
               {filteredProducts.map((product) => (
                 <Card
                   key={product.id}
-                  className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 shadow-lg hover:shadow-3xl hover:-translate-y-2 bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden"
+                  className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer border rounded-lg overflow-hidden"
                   onClick={() => handleProductView(product)}
                   data-testid={`card-product-${product.id}`}
                 >
                   <div className="relative overflow-hidden">
-                    {/* Enhanced product image */}
-                    <div className="aspect-square relative bg-gradient-to-br from-slate-100 to-slate-50">
+                    {/* Product image */}
+                    <div className="aspect-square relative bg-gray-100">
                       <img
-                        src={getProductImageUrl(product) || ULTRA_PREMIUM_PLACEHOLDER}
+                        src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover"
                         onLoad={(e) => handleImageLoad(product.id, e)}
                         onError={handleImageError}
                         loading="lazy"
                       />
                       
-                      {/* Ultra-premium overlay gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                      
-                      {/* Enhanced quality warning */}
+                      {/* Quality warning */}
                       {lowResImages[product.id] && (
-                        <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-3 py-2 rounded-full font-bold shadow-xl flex items-center gap-1">
+                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
                           <Info className="h-3 w-3" />
                           Low Res
                         </div>
                       )}
                       
-                      {/* Enhanced favorite button */}
+                      {/* Favorite button */}
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="absolute top-3 right-3 h-10 w-10 p-0 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                        className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-50 rounded-full shadow-md"
                         onClick={(e) => toggleFavorite(product.id, e)}
                         data-testid={`button-favorite-${product.id}`}
                       >
                         <Heart
-                          className={`h-5 w-5 transition-colors duration-300 ${
+                          className={`h-4 w-4 ${
                             favorites.has(product.id)
                               ? 'fill-red-500 text-red-500'
                               : 'text-slate-600 hover:text-red-500'
@@ -1063,35 +988,35 @@ Product Link: ${productUrl}`;
                         />
                       </Button>
 
-                      {/* Enhanced product badges */}
-                      <div className="absolute bottom-3 left-3 flex gap-2">
+                      {/* Product badges */}
+                      <div className="absolute bottom-2 left-2 flex gap-1">
                         {product.features?.includes('featured') && (
-                          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold px-3 py-1 rounded-full shadow-xl">
+                          <Badge className="bg-yellow-500 text-white text-xs px-2 py-1 rounded">
                             ⭐ Featured
                           </Badge>
                         )}
                         {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                          <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold px-3 py-1 rounded-full shadow-xl animate-pulse">
+                          <Badge className="bg-green-500 text-white text-xs px-2 py-1 rounded">
                             🆕 New
                           </Badge>
                         )}
                         {product.quantity < 5 && (
-                          <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold px-3 py-1 rounded-full shadow-xl">
+                          <Badge className="bg-red-500 text-white text-xs px-2 py-1 rounded">
                             📍 Limited
                           </Badge>
                         )}
                       </div>
                     </div>
 
-                    {/* Enhanced product info */}
-                    <CardContent className="p-6 space-y-4">
+                    {/* Product info */}
+                    <CardContent className="p-4 space-y-3">
                       {/* Product name and brand */}
                       <div className="space-y-2">
-                        <h3 className="font-bold text-lg line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+                        <h3 className="font-semibold text-base line-clamp-2">
                           {product.name}
                         </h3>
                         {product.brand && (
-                          <p className="text-sm text-slate-500 font-semibold uppercase tracking-wide">
+                          <p className="text-sm text-gray-500 uppercase">
                             {product.brand}
                           </p>
                         )}
@@ -1102,21 +1027,21 @@ Product Link: ${productUrl}`;
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-3">
-                              <span className="text-2xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text">
+                              <span className="text-xl font-bold text-green-600">
                                 {formatPrice(product.price)}
                               </span>
                             </div>
-                            <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 font-bold px-3 py-1 rounded-full">
+                            <Badge variant="secondary" className="text-xs">
                               📦 {product.category}
                             </Badge>
                           </div>
                         </div>
                       </div>
 
-                      {/* Enhanced action buttons */}
-                      <div className="flex gap-3 pt-4 border-t border-slate-200">
+                      {/* Action buttons */}
+                      <div className="flex gap-2 pt-3 border-t border-gray-200">
                         <Button
-                          className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1134,28 +1059,28 @@ Product Link: ${productUrl}`;
                             e.stopPropagation();
                             handleProductView(product);
                           }}
-                          className="px-6 border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-2xl font-bold transition-all duration-300 hover:scale-105"
+                          className="px-4 border border-gray-200 hover:bg-gray-50 rounded-md"
                           data-testid={`button-view-${product.id}`}
                         >
                           View
                         </Button>
                       </div>
 
-                      {/* Enhanced product attributes */}
+                      {/* Product attributes */}
                       {(product.color || product.size || product.material) && (
-                        <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-100">
+                        <div className="flex flex-wrap gap-1 pt-3 border-t border-gray-100">
                           {product.color && (
-                            <span className="text-xs bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 px-3 py-2 rounded-full font-bold border border-blue-200">
+                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-200">
                               🎨 {product.color}
                             </span>
                           )}
                           {product.size && (
-                            <span className="text-xs bg-gradient-to-r from-purple-50 to-violet-50 text-purple-700 px-3 py-2 rounded-full font-bold border border-purple-200">
+                            <span className="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-200">
                               📏 {product.size}
                             </span>
                           )}
                           {product.material && (
-                            <span className="text-xs bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 px-3 py-2 rounded-full font-bold border border-green-200">
+                            <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded border border-green-200">
                               🧵 {product.material}
                             </span>
                           )}
@@ -1368,7 +1293,7 @@ Product Link: ${productUrl}`;
               <div className="relative">
                 <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
                   <img
-                    src={getProductImageUrl(selectedProduct) || ULTRA_PREMIUM_PLACEHOLDER}
+                    src={getProductImageUrl(selectedProduct) || PLACEHOLDER_IMAGE}
                     alt={selectedProduct.name}
                     className="w-full h-full object-cover"
                     onLoad={(e) => handleImageLoad(selectedProduct.id, e)}
@@ -1449,22 +1374,22 @@ Product Link: ${productUrl}`;
                 </div>
               </div>
               
-              {/* Ultra-Premium Product Details */}
-              <CardContent className="p-10 space-y-8">
-                {/* Enhanced Header Section */}
-                <div className="space-y-6">
+              {/* Product Details */}
+              <CardContent className="p-6 space-y-6">
+                {/* Header Section */}
+                <div className="space-y-4">
                   <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
                     <div className="flex-1 space-y-4">
                       <div className="space-y-3">
-                        <h2 className="text-4xl lg:text-5xl font-black text-slate-800 leading-tight">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">
                           {selectedProduct.name}
                         </h2>
                         <div className="flex items-center gap-3">
-                          <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 font-bold px-4 py-2 text-lg border border-blue-200">
+                          <Badge variant="secondary" className="px-3 py-1">
                             📦 {selectedProduct.category}
                           </Badge>
                           {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                            <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold px-4 py-2 text-lg animate-pulse">
+                            <Badge className="bg-green-500 text-white px-3 py-1">
                               🆕 NEW ARRIVAL
                             </Badge>
                           )}
@@ -1473,15 +1398,15 @@ Product Link: ${productUrl}`;
                     </div>
                     
                     <div className="lg:text-right space-y-2">
-                      <div className="text-5xl lg:text-6xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text">
+                      <div className="text-3xl lg:text-4xl font-bold text-green-600">
                         {formatPrice(selectedProduct.price)}
                       </div>
-                      <div className="text-lg text-slate-500 font-semibold">per unit</div>
+                      <div className="text-sm text-gray-500">per unit</div>
                     </div>
                   </div>
                   
-                  {/* Enhanced Stock Status */}
-                  <div className="flex items-center gap-6 p-6 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-200">
+                  {/* Stock Status */}
+                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div className={`w-6 h-6 rounded-full shadow-lg ${
                       selectedProduct.quantity > 10 ? 'bg-emerald-500' :
                       selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
@@ -1489,12 +1414,12 @@ Product Link: ${productUrl}`;
                       <div className="w-full h-full rounded-full animate-pulse opacity-50"></div>
                     </div>
                     <div className="flex-1">
-                      <span className="font-bold text-xl text-slate-800">
+                      <span className="font-semibold text-lg text-gray-800">
                         {selectedProduct.quantity > 10 ? '✅ In Stock & Ready to Ship' :
                          selectedProduct.quantity > 0 ? `⚠️ Limited Stock - Only ${selectedProduct.quantity} Left` : 
                          '❌ Currently Out of Stock'}
                       </span>
-                      <p className="text-slate-600 mt-1">
+                      <p className="text-gray-600 mt-1 text-sm">
                         {selectedProduct.quantity > 0 
                           ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available for immediate purchase`
                           : 'Contact seller for restocking information'
@@ -1504,22 +1429,20 @@ Product Link: ${productUrl}`;
                   </div>
                 </div>
 
-                {/* Enhanced Description */}
+                {/* Description */}
                 {selectedProduct.description && (
                   <div className="space-y-4">
-                    <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Info className="w-5 h-5 text-blue-600" />
-                      </div>
-                      Product Description
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <Info className="w-4 h-4 text-blue-600" />
+                      Description
                     </h3>
-                    <p className="text-slate-600 leading-relaxed text-lg p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
+                    <p className="text-gray-600 p-4 bg-blue-50 rounded-lg border border-blue-100">
                       {selectedProduct.description}
                     </p>
                   </div>
                 )}
                 
-                {/* Ultra-Enhanced Product Attributes */}
+                {/* Product Attributes */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[
                     { label: 'Brand', value: selectedProduct.brand, icon: '🏷️' },
@@ -1530,30 +1453,28 @@ Product Link: ${productUrl}`;
                     { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
                     { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
                   ].filter(item => item.value).map((item, index) => (
-                    <div key={index} className="p-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border-2 border-slate-200 hover:shadow-lg transition-all duration-300">
+                    <div key={index} className="p-4 bg-white rounded-lg border border-gray-200">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="text-2xl">{item.icon}</span>
-                        <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+                        <span className="text-sm font-medium text-gray-500 uppercase">
                           {item.label}
                         </span>
                       </div>
-                      <p className="font-bold text-xl text-slate-800 capitalize">{item.value}</p>
+                      <p className="font-semibold text-lg text-gray-800 capitalize">{item.value}</p>
                     </div>
                   ))}
                 </div>
 
-                {/* Enhanced Special Features */}
+                {/* Special Features */}
                 {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).madeToOrder || (selectedProduct as any).giftWrapping) && (
                   <div className="space-y-4">
-                    <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 text-purple-600" />
-                      </div>
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-600" />
                       Special Features
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {(selectedProduct as any).isHandmade && (
-                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border-2 border-orange-200">
+                        <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                           <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl">🎨</div>
                           <div>
                             <span className="font-bold text-orange-800">Handmade</span>
@@ -1562,7 +1483,7 @@ Product Link: ${productUrl}`;
                         </div>
                       )}
                       {(selectedProduct as any).isCustomizable && (
-                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
+                        <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                           <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-2xl">⚙️</div>
                           <div>
                             <span className="font-bold text-blue-800">Customizable</span>
@@ -1571,7 +1492,7 @@ Product Link: ${productUrl}`;
                         </div>
                       )}
                       {(selectedProduct as any).madeToOrder && (
-                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200">
+                        <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                           <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-2xl">📋</div>
                           <div>
                             <span className="font-bold text-purple-800">Made to Order</span>
