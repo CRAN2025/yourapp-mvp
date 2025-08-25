@@ -1,0 +1,84 @@
+What I could verify from the files I can access
+❗️Critical: Public page is still reading from private paths
+
+In your uploaded StorefrontPublic-Downloadable.tsx, the data loader fetches:
+
+sellers/${sellerId} for the seller profile, and
+
+sellers/${sellerId}/products for the products.
+See the code that builds those refs here: ref(database, \sellers/${sellerId}`)andref(database, `sellers/${sellerId}/products`)`. 
+ 
+
+With your current RTDB rules, sellers/* is private, so the public storefront would get Permission denied. The public page should read only from:
+
+publicStores/${sellerId}/profile
+
+publicStores/${sellerId}/products
+
+Fix (patch exactly this file)
+- const sellerRef   = ref(database, `sellers/${sellerId}`);
++ const sellerRef   = ref(database, `publicStores/${sellerId}/profile`);
+
+- const productsRef = ref(database, `sellers/${sellerId}/products`);
++ const productsRef = ref(database, `publicStores/${sellerId}/products`);
+
+
+(If this TSX is a “downloadable” variant and not the one you deploy, please confirm the deployed file reads from publicStores/*.)
+
+✅ Good: full-bleed hero helper present
+
+I do see the edge-to-edge FullBleedSection with the gradient band and inner max-width wrapper: that aligns with the design. 
+
+⚠️ Minor analytics nit
+
+handleFloatingChatClick currently logs a store_view before opening WhatsApp; that should be a wa_click (store-level) to avoid double-counting store views. The product WhatsApp handler correctly logs wa_click. 
+ 
+
+Change:
+
+- await trackInteraction({ type: 'store_view', sellerId });
++ await trackInteraction({ type: 'wa_click', sellerId });
+
+Files I still need to review (I couldn’t find them in the upload)
+
+The agent said “all are included,” but in what I can access I only see the storefront TSX. Please upload these so I can fully sign off:
+
+Deployed rules
+
+database.rules.json (exported from Firebase Console, not a snippet)
+
+Mirroring & migration code
+
+client/src/lib/utils/dataMirror.ts (or your actual path)
+
+migration-script.js (or the Admin SDK script you used)
+
+Data snapshots (JSON)
+
+data-publicStores.json with:
+
+publicStores/<sellerId>/profile
+
+publicStores/<sellerId>/products (2–3 items)
+
+data-events.json with fresh store_view and wa_click under events/<sellerId>
+
+Build proof for this repo
+
+build-log-fixed.txt (from npm ci && npm run build)
+
+commit.txt (git rev-parse --short HEAD)
+
+Playwright evidence
+
+playwright-report.zip including:
+
+loads /store/<sellerId> with no console errors
+
+desktop WA button opens new tab to web.whatsapp.com/send?...
+
+Performance + console
+
+lighthouse-mobile.json for /store/<sellerId>
+
+console-logs.zip (Chrome DevTools export for /store/<sellerId>)

@@ -437,7 +437,7 @@ export default function StorefrontPublic() {
     
     try {
       await trackInteraction({
-        type: 'store_view',
+        type: 'wa_click',
         sellerId,
         metadata: { action: 'store_contact', source: 'floating_button' },
       });
