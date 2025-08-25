@@ -1,0 +1,20 @@
+Route & Database Path Scan Output
+
+Command: grep -rn "users/\|sellers/\|publicStores/" client/src/
+
+Results:
+client/src/hooks/use-auth.ts:43:          const sellerRef = ref(database, `sellers/${user.uid}`);
+client/src/hooks/use-auth.ts:150:      const sellerRef = ref(database, `sellers/${result.user.uid}`);
+client/src/hooks/use-auth.ts:235:      const sellerRef = ref(database, `sellers/${result.user.uid}`);
+client/src/hooks/use-auth.ts:291:      const sellerRef = ref(database, `sellers/${state.user.uid}`);
+client/src/components/ProductModal.tsx:283:        const productRef = ref(database, `sellers/${user.uid}/products/${product.id}`);
+client/src/components/ProductModal.tsx:295:        const productsRef = ref(database, `sellers/${user.uid}/products`);
+client/src/pages/Admin.tsx:50:              const productsRef = ref(database, `sellers/${uid}/products`);
+client/src/pages/Admin.tsx:123:      const sellerRef = ref(database, `sellers/${sellerId}`);
+client/src/pages/Analytics.tsx:62:        const productsRef = ref(database, `sellers/${user.uid}/products`);
+client/src/pages/Storefront.tsx:30:    const productsRef = ref(database, `sellers/${user.uid}/products`);
+client/src/pages/Products.tsx:35:    const productsRef = ref(database, `sellers/${user.uid}/products`);
+client/src/pages/StorefrontPublic.tsx:244:        const sellerRef = ref(database, `sellers/${sellerId}`);
+client/src/pages/StorefrontPublic.tsx:268:        const productsRef = ref(database, `sellers/${sellerId}/products`);
+
+Analysis: No legacy "users/" paths found. All database references properly use "sellers/" structure.

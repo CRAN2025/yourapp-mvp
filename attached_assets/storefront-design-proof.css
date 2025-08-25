@@ -1,0 +1,155 @@
+/* Storefront Design Parity Proof - CSS Implementation */
+
+/* 1. Hero Section: Edge-to-edge with centered content */
+.hero-section {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background: linear-gradient(135deg, #6f3ef4 0%, #38bdf8 100%);
+  padding: 24px 0;
+}
+
+.hero-content {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 4vw, 24px);
+}
+
+/* 2. Unified Gutters: Consistent spacing throughout */
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 4vw, 24px);
+}
+
+/* 3. White Seller Card in Hero */
+.seller-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+/* 4. Product Cards with 4:3 Aspect Ratio */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 0 clamp(12px, 4vw, 24px);
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-image {
+  aspect-ratio: 4/3; /* Ensures 4:3 ratio */
+  width: 100%;
+  object-fit: cover;
+  background: linear-gradient(135deg, #e7ecff, #f6f9ff);
+}
+
+/* 5. Hover Actions on Desktop */
+@media (min-width: 768px) {
+  .product-actions {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  
+  .product-card:hover .product-actions {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* 6. Always Visible Actions on Mobile */
+@media (max-width: 767px) {
+  .product-actions {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 7. No Sticky Header on Storefront */
+.storefront-header {
+  position: static; /* Not sticky/fixed */
+  background: transparent;
+}
+
+/* 8. Favorites localStorage Key Implementation */
+/* Key format: favorites_<sellerId> 
+   Example: favorites_demo-seller-123
+   Stored as JSON array: ["product1", "product2"] */
+
+/* 9. Store Info Chips */
+.store-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* 10. Action Pills */
+.action-pills {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.action-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-pill-primary {
+  background: white;
+  color: #6f3ef4;
+}
+
+.action-pill-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive Design Breakpoints */
+@media (max-width: 640px) {
+  .hero-content {
+    padding: 0 16px;
+  }
+  
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    padding: 0 16px;
+  }
+}

@@ -1,0 +1,156 @@
+Build & Commit Proof
+
+Commit hash: output of
+
+git rev-parse --short HEAD
+
+
+Build log (no warnings/errors):
+
+npm ci
+npm run build
+
+
+Attach the full terminal output (txt).
+
+2) Route Guards (Playwright evidence)
+
+Add this test at tests/storefront.spec.ts (or your existing suite) to cover public, auth, admin, and WA behavior.
+Run:
+
+npx playwright install
+npx playwright test --reporter=list,html
+
+
+Return the HTML report (playwright-report/) zipped.
+
+3) Realtime Database Rules & Path Alignment
+
+Export the deployed RTDB rules as database.rules.json.
+
+Repo path scan output (prove no stale users/ reads):
+
+npx -y ripgrep -n "users/|sellers/|publicStores/" src || true
+
+
+Attach the command output (txt).
+
+Rules Simulator screenshots showing:
+
+Read publicStores/{sellerId}/profile as unauthenticated = Allow.
+
+Read sellers/{uid}/profile as that user = Allow.
+
+Read sellers/{other}/profile as that user = Deny.
+
+4) Events Write Strategy (public visitors)
+
+If using Anonymous Auth: show code snippet calling signInAnonymously() on the public storefront and return a Rules Simulator screenshot that events/{sellerId} write = Allow.
+
+If using a Function endpoint: return the function code + a log excerpt showing a recent wa_click write.
+
+5) WhatsApp Integration Proof
+
+Return the exact code for:
+
+isMobileDevice() and generateWhatsAppUrl(...)
+
+The window.open(url, '_blank', 'noopener,noreferrer') call.
+
+Videos:
+
+Desktop Chrome: click product WA → new tab opens web.whatsapp.com/send?....
+
+iPhone Safari and Android Chrome: WA app deep-link opens (wa.me/...).
+
+6) Storefront Design Parity (screenshots)
+
+Hero: edge-to-edge band with centered white seller card (logo/banner, chips, description, action pills) at 1440px.
+
+No sticky header present on storefront (top-of-page screenshot).
+
+Unified gutters: hero/controls/grid aligned using px-[clamp(12px,4vw,24px)] (side-by-side screenshots).
+
+Product cards:
+
+Desktop: action buttons appear on hover.
+
+Mobile: action buttons always visible.
+
+Image ratio 4:3 (screenshot + CSS snippet confirming aspect-[4/3] or equivalent).
+
+Favorites per store: show the localStorage key (e.g., favorites_<sellerId>) in DevTools.
+
+7) Three Entry Points (90-sec max videos each)
+
+Seller: /auth → /onboarding → /products → /storefront (no console errors).
+
+Buyer: /store/:sellerId (search, category, sort, favorites).
+
+Admin: /admin (blocked for non-admin; allowed for admin).
+
+8) Console & Network Hygiene
+
+DevTools console exports (Chrome, Safari, Firefox) for the three entry points showing no errors/warnings.
+
+Network log: no 404s (favicon is allowed if intentionally suppressed).
+
+9) Performance & A11y
+
+Lighthouse Mobile JSON for /store/:sellerId:
+
+LCP ≤ 2.0s, CLS < 0.1.
+
+Accessibility: axe (or Lighthouse) report with 0 critical issues.
+
+Evidence that images specify width/height or aspect-ratio (code snippet).
+
+10) SEO & Head Tags (store page)
+
+Paste the <head> snippet showing <title>Store Name | ShopLink</title> and OG tags (og:title, og:description, og:image).
+
+11) Environment & Project Target
+
+.env keys list (redacted values) and Firebase project id the app points to.
+
+firebase.js snippet confirming the databaseURL.
+
+Command output:
+
+firebase use
+
+12) Data Snapshots (for quick spot-check)
+
+JSON export (or screenshots) of:
+
+publicStores/{sellerId}/profile
+
+publicStores/{sellerId}/products (2–3 sample items)
+
+events/{sellerId} (recent store_view, product_view, wa_click)
+
+Acceptance: return these files/folders
+
+build-log.txt
+
+database.rules.json
+
+route-scan.txt (ripgrep output)
+
+playwright-report.zip
+
+console-logs/ (Chrome/Safari/Firefox exports)
+
+lighthouse-mobile.json
+
+a11y-report.png (or HTML)
+
+head-snippet.html
+
+env-keys.txt (names only) + firebase-use.txt
+
+data-snapshots/ (profile.json, products.json, events.json)
+
+videos/ (3 short mp4/webm and the WA flows)
+
+screenshots/ (hero, no-sticky, gutters, cards desktop/mobile, localStorage key)
