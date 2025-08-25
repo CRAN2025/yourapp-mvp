@@ -347,33 +347,21 @@ export default function StorefrontPublic() {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        {/* Store Banner */}
-        {seller.coverUrl && (
-          <div className="relative h-48 md:h-64 lg:h-80 overflow-hidden">
-            <img
-              src={seller.coverUrl}
-              alt={`${seller.storeName} banner`}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40" />
-          </div>
-        )}
-        
+      <div className="min-h-screen bg-gray-50">
         {/* Store Header */}
-        <header className={`bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-lg ${seller.coverUrl ? '-mt-20 relative z-10 mx-4 rounded-t-2xl' : ''}`}>
-          <div className="max-w-6xl mx-auto px-6 py-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-6xl mx-auto px-4 py-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="flex-shrink-0">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl hover:scale-105 transition-transform duration-300">
+                <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center shadow-soft">
                   {seller.logoUrl ? (
                     <img
                       src={seller.logoUrl}
                       alt={seller.storeName}
-                      className="w-24 h-24 rounded-2xl object-cover"
+                      className="w-20 h-20 rounded-2xl object-cover"
                     />
                   ) : (
-                    <span className="text-white font-bold text-3xl">
+                    <span className="text-2xl font-bold text-primary">
                       {seller.storeName[0]?.toUpperCase()}
                     </span>
                   )}
@@ -389,43 +377,30 @@ export default function StorefrontPublic() {
                 <div className="flex flex-wrap gap-3">
                   {(seller.city || seller.country) && (
                     <Badge variant="outline" className="bg-primary/10 text-primary">
-                      <MapPin className="w-3 h-3 mr-1" />
-                      {seller.city ? `${seller.city}, ${seller.country}` : seller.country}
+                      📍 {seller.city ? `${seller.city}, ${seller.country}` : seller.country}
                     </Badge>
                   )}
                   
                   {/* Payment Methods */}
                   {paymentMethods.length > 0 && (
-                    <button
+                    <Badge 
+                      variant="outline" 
+                      className="bg-blue-50 text-blue-700 cursor-pointer hover:bg-blue-100"
                       onClick={() => setShowPaymentModal(true)}
-                      className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors text-sm"
                     >
-                      <CreditCard className="w-3 h-3" />
-                      Payment Methods
-                      <Info className="w-3 h-3" />
-                    </button>
+                      💳 Payment Methods
+                    </Badge>
                   )}
                   
                   {/* Delivery Options */}
                   {deliveryOptions.length > 0 && (
-                    <button
+                    <Badge 
+                      variant="outline" 
+                      className="bg-green-50 text-green-700 cursor-pointer hover:bg-green-100"
                       onClick={() => setShowDeliveryModal(true)}
-                      className="flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors text-sm"
                     >
-                      <Truck className="w-3 h-3" />
-                      Delivery Options
-                      <Info className="w-3 h-3" />
-                    </button>
-                  )}
-                  
-                  {seller.whatsappNumber && (
-                    <button
-                      onClick={handleFloatingChatClick}
-                      className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors text-sm"
-                    >
-                      <Phone className="w-3 h-3" />
-                      Chat Now
-                    </button>
+                      🚚 Delivery Options
+                    </Badge>
                   )}
                   
                   <Badge variant="outline" className="bg-success/10 text-success">
@@ -483,13 +458,9 @@ export default function StorefrontPublic() {
                 variant={showFavorites ? 'default' : 'outline'}
                 onClick={() => setShowFavorites(!showFavorites)}
                 data-testid="button-favorites"
-                className={showFavorites ? 'bg-red-500 hover:bg-red-600' : ''}
               >
-                <Heart className={`w-4 h-4 mr-2 ${showFavorites ? 'fill-current' : ''}`} />
+                <Heart className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Favorites</span>
-                {favorites.size > 0 && (
-                  <Badge variant="secondary" className="ml-2 text-xs">{favorites.size}</Badge>
-                )}
               </Button>
             </div>
           </Card>
@@ -642,11 +613,10 @@ export default function StorefrontPublic() {
         </div>
         
         {/* Floating Chat Button */}
-        {showChatFab && seller.whatsappNumber && (
+        {seller.whatsappNumber && (
           <button
             onClick={handleFloatingChatClick}
-            className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all duration-300 hover:scale-110"
-            style={{ animation: 'float 3s ease-in-out infinite' }}
+            className="fixed bottom-6 right-6 w-14 h-14 bg-success hover:bg-success/90 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all duration-300 hover:scale-105"
           >
             <MessageCircle className="w-6 h-6" />
           </button>
@@ -663,123 +633,131 @@ export default function StorefrontPublic() {
         
         {/* Payment Methods Modal */}
         {showPaymentModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowPaymentModal(false)}>
-            <div className="bg-white rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Payment Methods
-                </h3>
-                <button onClick={() => setShowPaymentModal(false)} className="p-1 hover:bg-gray-100 rounded">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="space-y-3">
-                {paymentMethods.map((method, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <span className="text-xl">{getPaymentIcon(method)}</span>
-                    <span className="font-medium">{method}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowPaymentModal(false)}>
+            <Card className="max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <CreditCard className="w-5 h-5" />
+                    Payment Methods
+                  </h3>
+                  <Button variant="ghost" size="sm" onClick={() => setShowPaymentModal(false)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  {paymentMethods.map((method, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                      <span className="text-xl">{getPaymentIcon(method)}</span>
+                      <span className="font-medium">{method}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
         
         {/* Delivery Options Modal */}
         {showDeliveryModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeliveryModal(false)}>
-            <div className="bg-white rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Truck className="w-5 h-5" />
-                  Delivery Options
-                </h3>
-                <button onClick={() => setShowDeliveryModal(false)} className="p-1 hover:bg-gray-100 rounded">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="space-y-3">
-                {deliveryOptions.map((option, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <span className="text-xl">{getDeliveryIcon(option)}</span>
-                    <span className="font-medium">{option}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeliveryModal(false)}>
+            <Card className="max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Truck className="w-5 h-5" />
+                    Delivery Options
+                  </h3>
+                  <Button variant="ghost" size="sm" onClick={() => setShowDeliveryModal(false)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  {deliveryOptions.map((option, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                      <span className="text-xl">{getDeliveryIcon(option)}</span>
+                      <span className="font-medium">{option}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
         
         {/* Product Detail Modal */}
         {showProductModal && selectedProduct && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowProductModal(false)}>
-            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowProductModal(false)}>
+            <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="relative">
                 <img
                   src={getProductImageUrl(selectedProduct)}
                   alt={selectedProduct.name}
-                  className="w-full h-64 object-cover"
+                  className="w-full h-64 object-cover rounded-t-lg"
                 />
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setShowProductModal(false)}
-                  className="absolute top-4 right-4 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                  className="absolute top-4 right-4 w-8 h-8 bg-white/80 backdrop-blur rounded-full"
                 >
                   <X className="w-4 h-4" />
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={(e) => toggleFavorite(selectedProduct.id, e)}
-                  className={`absolute top-4 left-4 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center hover:bg-white transition-colors ${
+                  className={`absolute top-4 left-4 w-8 h-8 bg-white/80 backdrop-blur rounded-full ${
                     favorites.has(selectedProduct.id) ? 'text-red-500' : 'text-gray-400'
                   }`}
                 >
                   <Heart className="w-4 h-4" fill={favorites.has(selectedProduct.id) ? 'currentColor' : 'none'} />
-                </button>
+                </Button>
               </div>
               
-              <div className="p-6">
+              <CardContent className="p-6">
                 <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
-                <p className="text-3xl font-bold text-green-600 mb-4">{formatPrice(selectedProduct.price)}</p>
+                <p className="text-3xl font-bold text-success mb-4">{formatPrice(selectedProduct.price)}</p>
                 
                 {selectedProduct.description && (
-                  <p className="text-gray-600 mb-6">{selectedProduct.description}</p>
+                  <p className="text-muted-foreground mb-6">{selectedProduct.description}</p>
                 )}
                 
                 {/* Product Attributes */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {selectedProduct.brand && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Brand:</span>
+                      <span className="text-sm font-medium text-muted-foreground">Brand:</span>
                       <p className="font-medium">{selectedProduct.brand}</p>
                     </div>
                   )}
                   {selectedProduct.condition && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Condition:</span>
+                      <span className="text-sm font-medium text-muted-foreground">Condition:</span>
                       <p className="font-medium capitalize">{selectedProduct.condition}</p>
                     </div>
                   )}
                   {selectedProduct.size && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Size:</span>
+                      <span className="text-sm font-medium text-muted-foreground">Size:</span>
                       <p className="font-medium">{selectedProduct.size}</p>
                     </div>
                   )}
                   {selectedProduct.color && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Color:</span>
+                      <span className="text-sm font-medium text-muted-foreground">Color:</span>
                       <p className="font-medium">{selectedProduct.color}</p>
                     </div>
                   )}
                   {selectedProduct.material && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Material:</span>
+                      <span className="text-sm font-medium text-muted-foreground">Material:</span>
                       <p className="font-medium">{selectedProduct.material}</p>
                     </div>
                   )}
                   {selectedProduct.chainLength && (
                     <div>
-                      <span className="text-sm font-medium text-gray-500">Chain Length:</span>
+                      <span className="text-sm font-medium text-muted-foreground">Chain Length:</span>
                       <p className="font-medium">{selectedProduct.chainLength}</p>
                     </div>
                   )}
@@ -789,7 +767,7 @@ export default function StorefrontPublic() {
                 <div className="flex gap-3">
                   <Button
                     onClick={() => handleContactProduct(selectedProduct)}
-                    className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                    className="flex-1 bg-success hover:bg-success/90"
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Contact Seller
@@ -797,23 +775,16 @@ export default function StorefrontPublic() {
                   <Button
                     variant="outline"
                     onClick={(e) => toggleFavorite(selectedProduct.id, e)}
-                    className={favorites.has(selectedProduct.id) ? 'border-red-500 text-red-500' : ''}
                   >
-                    <Heart className={`w-4 h-4 ${favorites.has(selectedProduct.id) ? 'fill-current' : ''}`} />
+                    <Heart className={`w-4 h-4 ${favorites.has(selectedProduct.id) ? 'fill-current text-red-500' : ''}`} />
                   </Button>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
       
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-      `}</style>
     </PublicLayout>
   );
 }
