@@ -1,0 +1,167 @@
+Storefront Public View — Go/No-Go QA Checklist
+1) Hero band (edge-to-edge)
+
+ Full-bleed gradient spans 100% width at all breakpoints (no boxed margins).
+
+ Hero card stays centered with max-width and rounded corners.
+
+ No horizontal scrollbars (320–1920px).
+How to test: Resize browser; check iPhone Safari & Android Chrome.
+Fix if not done: Make section full-bleed and keep an inner max-width wrapper.
+
+<section className="w-screen bg-gradient-to-r from-[#6f3ef4] to-[#38bdf8] py-8">
+  <div className="mx-auto max-w-7xl px-[clamp(12px,4vw,24px)]">
+    <HeroCard/>
+  </div>
+</section>
+
+2) Seller card content
+
+ Logo/initial, store name, short bio/location visible.
+
+ Status chips (payments, delivery, response time, verified) render on one line on desktop, wrap cleanly on mobile.
+
+ Primary CTA Chat on WhatsApp; Secondary Create your store.
+Evidence: Screenshot desktop + mobile.
+
+3) Controls bar (below hero)
+
+ Search input placeholder: “Search products, brands, or categories…”
+
+ Category chips (All + categories) work.
+
+ Sort dropdown (Newest first, Price, Popular).
+
+ Favorites toggle (local) with count.
+
+ Left/right padding visually aligns with hero card (not boxed).
+Evidence: Screen recording scrolling from hero → controls.
+
+4) Product grid & cards
+
+ Grid is responsive (2–4 columns depending on width).
+
+ Image uses fixed aspect ratio, object-fit: cover, lazy-loads.
+
+ Title, 2-line truncated description, price “$X.XX per unit”.
+
+ Badges (e.g., In Stock, New) render; no overflow.
+
+ Desktop: WhatsApp button on hover. Mobile: button always visible.
+
+ Empty state friendly when 0 items.
+Evidence: Screenshots at ~360px, 768px, 1280px, 1440px.
+
+5) WhatsApp behavior (must)
+
+ Mobile opens WhatsApp app; Desktop opens WhatsApp Web in a new tab (store remains open).
+
+ Prefilled message includes store name + product name + canonical link.
+
+ URL encoded correctly (no broken characters).
+How to implement:
+
+const href = isMobileDevice()
+  ? `https://wa.me/${e164}?text=${encodeURIComponent(msg)}`
+  : `https://web.whatsapp.com/send?phone=${e164}&text=${encodeURIComponent(msg)}`;
+window.open(href, isMobileDevice() ? '_self' : '_blank', 'noopener,noreferrer');
+
+
+Evidence: Video from iPhone & desktop showing behavior.
+
+6) Analytics events
+
+ store_view fires once per visit (debounced).
+
+ product_view fires on card visibility (IntersectionObserver, once per product per session).
+
+ wa_click fires when WA button is clicked/tapped (includes productId).
+
+ Events appear under /events/{sellerId}/....
+Evidence: JSON export or screenshot from RTDB showing events.
+
+7) Performance
+
+ Mobile Lighthouse (throttled): LCP ≤ 2.0s, CLS < 0.1.
+
+ All images specify width/height to avoid layout shift.
+
+ No large unused JS/libs on public page.
+Evidence: Lighthouse JSON attached.
+
+8) Accessibility (a11y)
+
+ Inputs have labels/aria-labels; keyboard focus rings visible.
+
+ Contrast AA (≥4.5:1) for text on gradient and on cards.
+
+ Respects prefers-reduced-motion.
+Evidence: Axe/Accessibility report screenshot.
+
+9) Responsive safety & safe areas
+
+ Padding uses safe area on iOS:
+
+padding-left: max(16px, env(safe-area-inset-left));
+padding-right: max(16px, env(safe-area-inset-right));
+
+
+ No clipped content on notched devices.
+Evidence: iPhone screenshot with notches.
+
+10) Favorites (local)
+
+ Toggling favorite updates icon and Favorites(n) count.
+
+ Favorites persist per user via localStorage key favorites_{sellerId}.
+Evidence: Refresh page; state persists.
+
+11) Routing & deep links
+
+ Loading a direct /store/:sellerId URL renders without flicker/error.
+
+ Back/forward navigation preserves search/filter state where feasible.
+Evidence: Short screen capture.
+
+12) Errors & empty states
+
+ Graceful error UI on network failure (retry button).
+
+ Skeleton loaders while products fetch.
+Evidence: Simulate offline in DevTools; attach screenshot.
+
+13) Console & network hygiene
+
+ No console errors/warnings (Chrome, Safari, Firefox).
+
+ No 404s for images or assets.
+Evidence: DevTools log exports.
+
+14) SEO / sharing basics
+
+ <title> = Store Name | YourApp.
+
+ Open Graph tags (og:title, og:description, og:image) for store page.
+Evidence: View-source or DevTools Elements screenshot.
+
+Quick “Not-Done → Fix” map (common issues)
+
+Hero boxed: remove outer container; make section full-bleed; keep inner max-width wrapper.
+
+Desktop WA opens same tab: force _blank + noopener.
+
+Encoding issues in WA message: always encodeURIComponent(msg).
+
+CLS spikes: add explicit width/height on images or CSS aspect-ratio.
+
+No product_view events: add IntersectionObserver with {threshold: 0.5}; disconnect after first fire per card.
+
+What the agent must deliver back
+
+Checked checklist (this doc) with all items marked Done.
+
+Screenshots/videos for hero, controls alignment, mobile/desktop WA flow, and accessibility report.
+
+Lighthouse JSON (mobile) + DevTools console/network logs showing no errors.
+
+RTDB events screenshot (store_view, product_view, wa_click).
