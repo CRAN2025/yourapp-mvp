@@ -39,22 +39,20 @@ export async function trackInteraction({
     // Record click events immediately
     await recordEvent();
     
-    function recordEvent() {
-      return (async () => {
-        const eventData: Omit<InsertEvent, 'id'> = {
-          sellerId,
-          type,
-          productId,
-          deviceType: getDeviceType(),
-          metadata,
-        };
-        
-        const eventsRef = ref(database, `events/${sellerId}`);
-        await push(eventsRef, {
-          ...eventData,
-          timestamp: serverTimestamp(),
-        });
-      })();
+    async function recordEvent() {
+      const eventData: Omit<InsertEvent, 'id'> = {
+        sellerId,
+        type,
+        productId,
+        deviceType: getDeviceType(),
+        metadata,
+      };
+      
+      const eventsRef = ref(database, `events/${sellerId}`);
+      await push(eventsRef, {
+        ...eventData,
+        timestamp: serverTimestamp(),
+      });
     }
   } catch (error) {
     console.error('Failed to track interaction:', error);
