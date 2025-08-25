@@ -192,9 +192,31 @@ export default function MarketLanding() {
       <div style={blobA} />
       <div style={blobB} />
 
-      {/* Nav */}
-      <header className="container" style={{ padding: '20px 20px', position:'relative', zIndex:2 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* Nav - Full Bleed */}
+      <header 
+        className=""
+        style={{ 
+          width: '100vw',
+          position: 'relative',
+          left: '50%',
+          right: '50%',
+          marginLeft: '-50vw',
+          marginRight: '-50vw',
+          zIndex: 2,
+          paddingTop: '20px',
+          paddingBottom: '20px'
+        }}
+      >
+        <div 
+          className="mx-auto"
+          style={{
+            maxWidth: '1200px',
+            paddingInline: 'clamp(16px, 4vw, 20px)',
+            paddingLeft: 'max(20px, env(safe-area-inset-left))',
+            paddingRight: 'max(20px, env(safe-area-inset-right))'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <img 
               src={logoUrl} 
@@ -216,13 +238,35 @@ export default function MarketLanding() {
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
           </nav>
+          </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section id="signup" className="container reveal-on-scroll is-visible" style={{ marginTop: 28 }}>
-        <div className="glass heroGlass" style={{ padding: 28 }}>
-          <div className="hero-grid" style={{ display:'grid', gridTemplateColumns: '1.05fr .95fr', gap: 28, alignItems:'center' }}>
+      {/* Hero - Full Bleed */}
+      <section 
+        id="signup" 
+        className="reveal-on-scroll is-visible"
+        style={{ 
+          width: '100vw',
+          position: 'relative',
+          left: '50%',
+          right: '50%',
+          marginLeft: '-50vw',
+          marginRight: '-50vw',
+          marginTop: 28
+        }}
+      >
+        <div className="glass heroGlass" style={{ paddingTop: 28, paddingBottom: 28 }}>
+          <div 
+            className="mx-auto"
+            style={{
+              maxWidth: '1200px',
+              paddingInline: 'clamp(16px, 4vw, 28px)',
+              paddingLeft: 'max(28px, env(safe-area-inset-left))',
+              paddingRight: 'max(28px, env(safe-area-inset-right))'
+            }}
+          >
+            <div className="hero-grid" style={{ display:'grid', gridTemplateColumns: '1.05fr .95fr', gap: 28, alignItems:'center' }}>
             {/* Left copy */}
             <div className="hero-text">
               <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 14px', fontWeight: 900, letterSpacing: '-0.02em' }}>
@@ -276,6 +320,7 @@ export default function MarketLanding() {
             {/* Right: live preview mock */}
             <div className="reveal-on-scroll hero-demo">
               <PreviewDevice />
+            </div>
             </div>
           </div>
         </div>
