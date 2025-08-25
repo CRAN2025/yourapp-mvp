@@ -19,19 +19,21 @@ async function recordEvent({
   productId?: string;
   metadata: Record<string, any>;
 }) {
-  const eventData: Omit<InsertEvent, 'id'> = {
+  const eventData: any = {
     sellerId,
     type,
-    productId: productId || undefined, // Ensure undefined instead of null
     deviceType: getDeviceType(),
     metadata,
+    timestamp: serverTimestamp(),
   };
   
+  // Only include productId if it has a value (Firebase doesn't accept undefined)
+  if (productId) {
+    eventData.productId = productId;
+  }
+  
   const eventsRef = ref(database, `events/${sellerId}`);
-  await push(eventsRef, {
-    ...eventData,
-    timestamp: serverTimestamp(),
-  });
+  await push(eventsRef, eventData);
 }
 
 export async function trackInteraction({
