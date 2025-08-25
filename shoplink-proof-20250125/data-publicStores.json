@@ -1,83 +1,63 @@
 {
-  "publicStores": {
-    "test-seller-2025-01": {
-      "profile": {
-        "storeName": "Premium Crafts Ghana",
-        "storeDescription": "Authentic Ghanaian handcrafted jewelry, textiles, and home decor. Each piece tells a story of traditional artistry and modern elegance.",
-        "category": "Fashion & Accessories",
-        "country": "Ghana",
-        "city": "Accra",
-        "whatsappNumber": "+233123456789",
-        "logoUrl": "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=300&h=300&fit=crop",
-        "coverUrl": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=400&fit=crop",
-        "deliveryOptions": ["pickup", "local_delivery", "nationwide"],
-        "paymentMethods": ["cash", "mobile_money", "bank_transfer"],
-        "createdAt": 1756164000000
+  "test-seller-2025-01": {
+    "profile": {
+      "storeName": "Premium Electronics Store",
+      "storeDescription": "Your trusted source for the latest electronics and gadgets. We offer premium quality products with excellent customer service.",
+      "category": "Electronics",
+      "country": "Ghana",
+      "city": "Accra",
+      "whatsappNumber": "+233123456789",
+      "logoUrl": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=200",
+      "coverUrl": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200",
+      "deliveryOptions": ["pickup", "delivery"],
+      "paymentMethods": ["cash", "mobile_money"],
+      "createdAt": 1756164000000
+    },
+    "products": {
+      "prod-1": {
+        "id": "prod-1",
+        "name": "Wireless Bluetooth Headphones",
+        "description": "Premium quality wireless headphones with noise cancellation and 30-hour battery life.",
+        "price": 150,
+        "quantity": 25,
+        "category": "Audio",
+        "images": ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800"],
+        "brand": "AudioTech",
+        "color": "Black",
+        "tags": ["wireless", "bluetooth", "noise-cancelling"],
+        "isActive": true,
+        "createdAt": 1756164000000,
+        "updatedAt": 1756164000000
       },
-      "products": {
-        "prod-001-kente-necklace": {
-          "id": "prod-001-kente-necklace",
-          "name": "Traditional Kente Pattern Necklace",
-          "description": "Handwoven kente-inspired necklace featuring authentic Ghanaian patterns. Made with quality cotton threads and traditional weaving techniques.",
-          "price": 145,
-          "quantity": 8,
-          "category": "Jewelry",
-          "images": [
-            "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=800&h=600&fit=crop"
-          ],
-          "brand": "Ghana Heritage Crafts",
-          "material": "Cotton threads, brass accents",
-          "color": "Multicolor (Red, Gold, Green)",
-          "size": "Adjustable 16-20 inches",
-          "weight": "45g",
-          "tags": ["handmade", "traditional", "kente", "jewelry", "cultural"],
-          "isActive": true,
-          "createdAt": 1756164000000,
-          "updatedAt": 1756164000000
-        },
-        "prod-002-shea-butter": {
-          "id": "prod-002-shea-butter",
-          "name": "Raw Organic Shea Butter",
-          "description": "100% pure, unrefined shea butter sourced directly from northern Ghana. Perfect for moisturizing and nourishing all skin types.",
-          "price": 85,
-          "quantity": 25,
-          "category": "Beauty & Personal Care",
-          "images": [
-            "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=800&h=600&fit=crop"
-          ],
-          "brand": "Ghana Natural",
-          "material": "100% Raw Shea Nuts",
-          "color": "Natural Cream",
-          "size": "250ml jar",
-          "weight": "280g",
-          "tags": ["organic", "natural", "skincare", "moisturizer", "shea"],
-          "isActive": true,
-          "createdAt": 1756164000000,
-          "updatedAt": 1756164000000
-        },
-        "prod-003-woven-basket": {
-          "id": "prod-003-woven-basket",
-          "name": "Handwoven Storage Basket",
-          "description": "Beautiful handwoven basket made from sustainable local grasses. Perfect for storage or as decorative piece in your home.",
-          "price": 320,
-          "quantity": 5,
-          "category": "Home & Living",
-          "images": [
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
-            "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop"
-          ],
-          "brand": "Volta Weavers",
-          "material": "Natural grass, palm fiber",
-          "color": "Natural Brown",
-          "size": "Large (40cm diameter)",
-          "weight": "450g",
-          "dimensions": "40cm x 40cm x 25cm",
-          "tags": ["handwoven", "storage", "sustainable", "home", "decor"],
-          "isActive": true,
-          "createdAt": 1756164000000,
-          "updatedAt": 1756164000000
-        }
+      "prod-2": {
+        "id": "prod-2",
+        "name": "Smartphone Case - Clear",
+        "description": "Transparent protective case compatible with latest smartphone models. Drop-proof and scratch-resistant.",
+        "price": 25,
+        "quantity": 100,
+        "category": "Accessories",
+        "images": ["https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800"],
+        "brand": "ProtectCase",
+        "color": "Clear",
+        "tags": ["protection", "transparent", "durable"],
+        "isActive": true,
+        "createdAt": 1756164000000,
+        "updatedAt": 1756164000000
+      },
+      "prod-3": {
+        "id": "prod-3",
+        "name": "USB-C Fast Charger",
+        "description": "65W fast charging adapter with USB-C cable included. Compatible with laptops, tablets, and smartphones.",
+        "price": 45,
+        "quantity": 50,
+        "category": "Chargers",
+        "images": ["https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800"],
+        "brand": "PowerTech",
+        "color": "White",
+        "tags": ["fast-charging", "usb-c", "universal"],
+        "isActive": true,
+        "createdAt": 1756164000000,
+        "updatedAt": 1756164000000
       }
     }
   }

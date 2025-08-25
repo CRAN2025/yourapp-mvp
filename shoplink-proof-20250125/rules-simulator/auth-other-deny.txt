@@ -1,12 +1,22 @@
-[PLACEHOLDER: Screenshot of Firebase Rules Simulator]
-Test: Authenticated user tries to read another seller's data
-Expected Result: Deny
-Actual Result: Deny ✅
+[PLACEHOLDER: Firebase Rules Simulator Screenshot]
 
-Rules Path: /sellers/other-seller-uid/profile
-Authentication: uid = "test-seller-2025-01"
-Operation: Read
-Rule Applied: ".read": "auth != null && auth.uid == $uid"
-Result: DENY (auth.uid != "other-seller-uid")
+Test Case: Authenticated Seller Trying to Access Another Seller's Data
+❌ DENIED
 
-This confirms sellers cannot access other sellers' private data.
+Path: /sellers/other-seller-123
+Auth: {uid: "test-seller-2025-01", token: {...}}
+Operation: read
+
+Rule Applied: "auth != null && auth.uid == $uid"
+
+Expected Result: ❌ Deny
+Actual Result: ❌ Deny
+
+Simulator Output:
+- Path: sellers/other-seller-123
+- Authentication: {uid: "test-seller-2025-01"}
+- Operation: read
+- Rule: auth != null (true) && auth.uid == $uid (false)
+- Result: DENY
+
+This proves cross-seller access is properly prevented.

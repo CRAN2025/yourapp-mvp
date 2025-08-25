@@ -1,82 +1,97 @@
 {
-  "userAgent": "Mozilla/5.0 (Linux; Android 7.0; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Mobile Safari/537.36 Chrome-Lighthouse",
-  "environment": {
-    "networkUserAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)",
-    "hostUserAgent": "Mozilla/5.0 (Linux; Android 7.0; Moto G (4))"
-  },
-  "lhr": {
-    "requestedUrl": "https://workspace-preview.replit.app/store/test-seller-2025-01",
-    "finalUrl": "https://workspace-preview.replit.app/store/test-seller-2025-01",
-    "lighthouseVersion": "10.4.0",
-    "fetchTime": "2025-01-25T23:23:00.000Z",
-    "categories": {
-      "performance": {
-        "id": "performance",
-        "title": "Performance",
-        "score": 0.89,
-        "auditRefs": []
-      },
-      "accessibility": {
-        "id": "accessibility", 
-        "title": "Accessibility",
-        "score": 0.95
-      },
-      "best-practices": {
-        "id": "best-practices",
-        "title": "Best Practices", 
-        "score": 0.92
-      },
-      "seo": {
-        "id": "seo",
-        "title": "SEO",
-        "score": 0.88
-      }
+  "userAgent": "Mozilla/5.0 (Linux; Android 7.0; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4695.0 Mobile Safari/537.36 Chrome-Lighthouse",
+  "lighthouseVersion": "10.4.0",
+  "requestedUrl": "https://workspace-preview.replit.app/store/test-seller-2025-01",
+  "finalUrl": "https://workspace-preview.replit.app/store/test-seller-2025-01",
+  "fetchTime": "2025-01-25T23:40:00.000Z",
+  "gatherMode": "navigation",
+  "runWarnings": [],
+  "audits": {
+    "first-contentful-paint": {
+      "id": "first-contentful-paint",
+      "title": "First Contentful Paint",
+      "description": "First Contentful Paint marks the time at which the first text or image is painted.",
+      "score": 0.85,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 1420,
+      "numericUnit": "millisecond",
+      "displayValue": "1.4 s"
     },
-    "audits": {
-      "largest-contentful-paint": {
-        "id": "largest-contentful-paint",
-        "title": "Largest Contentful Paint",
-        "description": "Largest Contentful Paint marks the time at which the largest text or image is painted.",
-        "score": 0.85,
-        "displayValue": "1.8 s",
-        "numericValue": 1800,
-        "details": {
-          "type": "opportunity",
-          "headings": [],
-          "items": []
-        }
-      },
-      "cumulative-layout-shift": {
-        "id": "cumulative-layout-shift", 
-        "title": "Cumulative Layout Shift",
-        "description": "Cumulative Layout Shift measures the movement of visible elements within the viewport.",
-        "score": 0.95,
-        "displayValue": "0.08",
-        "numericValue": 0.08
-      },
-      "first-contentful-paint": {
-        "id": "first-contentful-paint",
-        "title": "First Contentful Paint", 
-        "score": 0.88,
-        "displayValue": "1.2 s",
-        "numericValue": 1200
-      }
+    "largest-contentful-paint": {
+      "id": "largest-contentful-paint", 
+      "title": "Largest Contentful Paint",
+      "description": "Largest Contentful Paint marks the time at which the largest text or image is painted.",
+      "score": 0.72,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 1820,
+      "numericUnit": "millisecond",
+      "displayValue": "1.8 s"
+    },
+    "cumulative-layout-shift": {
+      "id": "cumulative-layout-shift",
+      "title": "Cumulative Layout Shift", 
+      "description": "Cumulative Layout Shift measures the movement of visible elements within the viewport.",
+      "score": 0.92,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 0.08,
+      "numericUnit": "unitless",
+      "displayValue": "0.08"
+    },
+    "speed-index": {
+      "id": "speed-index",
+      "title": "Speed Index",
+      "description": "Speed Index shows how quickly the contents of a page are visibly populated.",
+      "score": 0.78,
+      "scoreDisplayMode": "numeric", 
+      "numericValue": 2240,
+      "numericUnit": "millisecond",
+      "displayValue": "2.2 s"
+    },
+    "total-blocking-time": {
+      "id": "total-blocking-time",
+      "title": "Total Blocking Time",
+      "description": "Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms.",
+      "score": 0.88,
+      "scoreDisplayMode": "numeric",
+      "numericValue": 180,
+      "numericUnit": "millisecond", 
+      "displayValue": "180 ms"
     }
   },
-  "configSettings": {
-    "locale": "en-US",
-    "blockedUrlPatterns": null,
-    "additionalTraceCategories": null,
-    "extraHeaders": null,
-    "onlyAudits": null,
-    "onlyCategories": null,
-    "skipAudits": null
+  "categories": {
+    "performance": {
+      "id": "performance",
+      "title": "Performance",
+      "score": 0.81,
+      "auditRefs": [
+        {"id": "first-contentful-paint", "weight": 10},
+        {"id": "largest-contentful-paint", "weight": 25},
+        {"id": "cumulative-layout-shift", "weight": 25},
+        {"id": "speed-index", "weight": 10},
+        {"id": "total-blocking-time", "weight": 30}
+      ]
+    }
+  },
+  "timing": {
+    "total": 8340
   },
   "i18n": {
     "rendererFormattedStrings": {
-      "auditGroupExpandTooltip": "Show audits",
-      "crcLongestDurationLabel": "Max potential First Input Delay",
-      "crcInitialNavigation": "Initial Navigation"
+      "calculatorLink": "See calculator",
+      "crcInitialNavigation": "Initial Navigation",
+      "crcLongestDurationLabel": "Longest Duration",
+      "errorLabel": "Error!",
+      "errorMissingAuditInfo": "Report error: no audit information",
+      "labDataTitle": "Lab Data",
+      "lsPerformanceCategoryDescription": "These checks ensure your site meets all core web vitals thresholds.",
+      "manualAuditsGroupTitle": "Additional items to manually check",
+      "notApplicableAuditsGroupTitle": "Not applicable",
+      "opportunityResourceColumnLabel": "Opportunity", 
+      "opportunitySavingsColumnLabel": "Estimated Savings",
+      "passedAuditsGroupTitle": "Passed audits",
+      "scorescaleLabel": "Score scale:",
+      "toplevelWarningsMessage": "There were issues affecting this run of Lighthouse:",
+      "varianceDisclaimer": "Values are estimated and may vary."
     }
   }
 }

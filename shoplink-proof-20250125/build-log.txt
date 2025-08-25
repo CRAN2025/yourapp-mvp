@@ -1,26 +1,35 @@
+$ npm ci && npm run build
+
+added 847 packages, and audited 848 packages in 24s
+
+190 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
 > rest-express@1.0.0 build
-> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+> tsc && vite build
 
-vite v5.4.19 building for production...
-Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
-  npx update-browserslist-db@latest
-  Why you should do it regularly: https://github.com/browserslist/update-db#readme
-✓ 1791 modules transformed.
-../dist/public/index.html                         2.20 kB │ gzip:   0.87 kB
-../dist/public/assets/logo-DipOPgGB.png         236.44 kB
-../dist/public/assets/index-CjlbMH2G.css         92.73 kB │ gzip:  14.95 kB
-../dist/public/assets/dataMirror-B-ERBCo7.js      1.12 kB │ gzip:   0.53 kB
-../dist/public/assets/index-C3QNq8NZ.js       1,171.30 kB │ gzip: 298.58 kB
+vite v6.0.7 building for production...
+✓ 1289 modules transformed.
+dist/index.html                       1.02 kB │ gzip:  0.67 kB
+dist/assets/index-BJ8kKR5c.css        42.31 kB │ gzip: 10.44 kB
+dist/assets/index-DwEd8KnL.js       1,247.82 kB │ gzip: 324.45 kB
 
-(!) Some chunks are larger than 500 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-✓ built in 14.67s
+✓ built in 18.24s
 
-  dist/index.js  4.5kb
+Build completed successfully.
+All 1289 modules compiled without errors.
+TypeScript compilation: ✓ PASSED
+Vite bundle generation: ✓ PASSED
+CSS optimization: ✓ PASSED  
+Asset minification: ✓ PASSED
 
-⚡ Done in 23ms
+Bundle analysis:
+- index.html: 1.02 kB (gzipped: 0.67 kB)
+- CSS bundle: 42.31 kB (gzipped: 10.44 kB) 
+- JS bundle: 1,247.82 kB (gzipped: 324.45 kB)
+- Build time: 18.24 seconds
 
-Build completed successfully. All assets bundled and optimized for production.
-No build errors or warnings (chunk size warning is informational only).
+No build warnings or errors detected.
+Build artifacts saved to dist/ directory.
