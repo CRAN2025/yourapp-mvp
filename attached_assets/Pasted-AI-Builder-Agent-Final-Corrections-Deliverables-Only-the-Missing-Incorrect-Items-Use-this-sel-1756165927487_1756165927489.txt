@@ -1,0 +1,173 @@
+AI Builder Agent — Final Corrections & Deliverables (Only the Missing/Incorrect Items)
+
+Use this seller everywhere: TEST_SELLER_ID = test-seller-2025-01
+Rule: No placeholders/ellipses. Everything must be real, reproducible, and from the same commit as the build.
+
+❌ What was wrong / missing
+
+database.rules.json is not deployable
+
+Contains truncated text/ellipses (e.g., sign_in_pr...ymous, ['type','times...']). Needs the exact deployed export with full expressions.
+
+Playwright report is a placeholder
+
+playwright-report.zip wasn’t a real HTML report.
+
+Design screenshots & WhatsApp videos are placeholders
+
+Files in screens/ and videos/ were text stubs, not media.
+
+Build log appears from the wrong package
+
+Shows rest-express@1.0.0. We need the frontend package’s build output (the one with StorefrontPublicView.tsx / Vite).
+
+WhatsApp util incomplete
+
+src/lib/utils/whatsapp.ts had ellipses and referenced a missing device.ts.
+
+Rules simulator “screenshots” are placeholders
+
+rules-simulator/*.png weren’t real images.
+
+✅ What to produce now (exact items to return)
+A) Real RTDB rules export (deployable)
+
+Re-export from Firebase Console → Realtime Database → Rules → Download (no edits or truncation). File must include the hardened events rule:
+
+"events": {
+  "$sellerId": {
+    ".read": "auth != null && auth.uid == $sellerId",
+    "$eid": {
+      ".write": "auth != null && auth.token.sign_in_provider == 'anonymous' && root.child('publicStores').child($sellerId).exists()",
+      ".validate": "
+        newData.hasChildren(['type','timestamp']) &&
+        newData.child('type').val().matches('^(store_view|product_view|wa_click)$') &&
+        newData.child('timestamp').isNumber()
+      "
+    }
+  }
+}
+
+
+Return: database.rules.json (exact deployed export, no ellipses).
+
+B) Real Playwright HTML report
+
+Run from the frontend project root:
+
+npx playwright install
+npx playwright test --reporter=list,html
+
+
+Tests must prove:
+
+/store/<TEST_SELLER_ID> loads with no console errors.
+
+Desktop product WhatsApp click opens a new tab to https://web.whatsapp.com/send?....
+
+Return: playwright-report.zip (zip of the generated playwright-report/ folder).
+
+C) Real design screenshots (PNG) & videos (MP4/MOV)
+
+Create actual media files (no text placeholders):
+
+Screenshots (PNG):
+
+screens/hero-fullbleed-1440.png — edge-to-edge hero with centered white seller card (1440px width).
+
+screens/no-sticky-header.png — top of storefront, no sticky header present.
+
+screens/gutters-alignment.png — hero vs controls vs grid show same clamp() side padding.
+
+screens/card-desktop-hover.png — desktop card with actions visible on hover.
+
+screens/card-mobile-actions.png — mobile card with actions always visible.
+
+screens/localStorage-favorites.png — DevTools showing favorites_<TEST_SELLER_ID> key.
+
+Videos:
+
+videos/wa-desktop.mp4 — desktop: clicking a product’s WA opens new tab → web.whatsapp.com/send?....
+
+videos/wa-iphone.mov or videos/wa-android.mp4 — mobile: tapping WA opens the WhatsApp app via wa.me/....
+
+D) Frontend build proof (correct package)
+
+From the frontend (Vite) project root (the one that builds the UI):
+
+npm ci
+npm run build
+git rev-parse --short HEAD > commit.txt
+firebase use > firebase-use.txt
+
+
+Return:
+
+build-log.txt (full output of npm ci && npm run build)
+
+commit.txt (short hash for the built code)
+
+firebase-use.txt (active Firebase project)
+
+E) Complete WhatsApp util (no ellipses) + device helper
+
+Provide the full source:
+
+src/lib/utils/whatsapp.ts — includes isMobileDevice, generateWhatsAppUrl, and popup-safe open:
+
+const win = window.open(url, '_blank', 'noopener,noreferrer');
+if (!win) window.location.href = url;
+
+
+src/lib/utils/device.ts — if whatsapp.ts imports it (or inline equivalent in whatsapp.ts).
+
+F) Real Rules Simulator screenshots (PNG)
+
+From Firebase Console → Realtime DB → Rules → Simulator:
+
+rules-simulator/unauth-public-allow.png — unauth read publicStores/<TEST_SELLER_ID>/profile = Allow.
+
+rules-simulator/auth-self-allow.png — authed read sellers/<TEST_SELLER_ID>/profile as same user = Allow.
+
+rules-simulator/auth-other-deny.png — authed read sellers/<OTHER_UID>/profile = Deny.
+
+📁 Package structure to re-upload
+shoplink-proof-YYYYMMDD/
+  database.rules.json
+  playwright-report.zip
+  build-log.txt
+  commit.txt
+  firebase-use.txt
+  src/
+    lib/utils/whatsapp.ts
+    lib/utils/device.ts
+  rules-simulator/
+    unauth-public-allow.png
+    auth-self-allow.png
+    auth-other-deny.png
+  screens/
+    hero-fullbleed-1440.png
+    no-sticky-header.png
+    gutters-alignment.png
+    card-desktop-hover.png
+    card-mobile-actions.png
+    localStorage-favorites.png
+  videos/
+    wa-desktop.mp4
+    wa-iphone.mov
+
+✅ Acceptance (pass/fail)
+
+database.rules.json is a real console export with the hardened events rule.
+
+playwright-report.zip is a real HTML report showing both tests passing.
+
+All screens/* and videos/* are actual media files demonstrating the required behaviors.
+
+build-log.txt / commit.txt / firebase-use.txt come from the frontend package you built.
+
+whatsapp.ts and (if used) device.ts are complete (no ellipses).
+
+rules-simulator/*.png are real screenshots with the specified Allow/Deny results.
+
+Return only these corrected/missing items. Once received, I’ll run a final review and sign off.

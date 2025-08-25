@@ -2,7 +2,6 @@
   "rules": {
     ".read": false,
     ".write": false,
-
     "sellers": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
@@ -16,7 +15,6 @@
         }
       }
     },
-
     "events": {
       "$sellerId": {
         ".read": "auth != null && auth.uid == $sellerId",
@@ -26,14 +24,12 @@
         }
       }
     },
-
     "publicStores": {
       "$sellerId": {
         ".read": true,
         ".write": "auth != null && auth.uid == $sellerId"
       }
     },
-
     "admin": {
       ".read": "auth != null && root.child('sellers').child(auth.uid).child('isAdmin').val() == true",
       ".write": "auth != null && root.child('sellers').child(auth.uid).child('isAdmin').val() == true"
