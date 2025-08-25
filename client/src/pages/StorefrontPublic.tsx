@@ -322,6 +322,77 @@ export default function StorefrontPublic() {
                         {product.description}
                       </p>
                     )}
+                    
+                    {/* Enhanced Product Attributes */}
+                    <div className="space-y-2 mb-4">
+                      {product.brand && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">Brand:</span>
+                          <Badge variant="secondary" className="text-xs">{product.brand}</Badge>
+                        </div>
+                      )}
+                      {product.condition && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-muted-foreground">Condition:</span>
+                          <Badge variant="outline" className="text-xs capitalize">{product.condition}</Badge>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {product.size && (
+                          <Badge variant="secondary" className="text-xs">Size: {product.size}</Badge>
+                        )}
+                        {product.color && (
+                          <Badge variant="secondary" className="text-xs">Color: {product.color}</Badge>
+                        )}
+                        {product.material && (
+                          <Badge variant="secondary" className="text-xs">Material: {product.material}</Badge>
+                        )}
+                        {product.chainLength && (
+                          <Badge variant="secondary" className="text-xs">Length: {product.chainLength}</Badge>
+                        )}
+                        {product.pendantSize && (
+                          <Badge variant="secondary" className="text-xs">Size: {product.pendantSize}</Badge>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {product.isHandmade && (
+                          <Badge variant="outline" className="text-xs">🎨 Handmade</Badge>
+                        )}
+                        {product.isCustomizable && (
+                          <Badge variant="outline" className="text-xs">⚙️ Customizable</Badge>
+                        )}
+                        {product.madeToOrder && (
+                          <Badge variant="outline" className="text-xs">📋 Made to Order</Badge>
+                        )}
+                        {product.giftWrapping && (
+                          <Badge variant="outline" className="text-xs">🎁 Gift Wrap Available</Badge>
+                        )}
+                      </div>
+                      {(product.style || product.occasion || product.targetAgeGroup) && (
+                        <div className="flex flex-wrap gap-1">
+                          {product.style && (
+                            <Badge variant="secondary" className="text-xs">{product.style} Style</Badge>
+                          )}
+                          {product.occasion && (
+                            <Badge variant="secondary" className="text-xs">Perfect for {product.occasion}</Badge>
+                          )}
+                          {product.targetAgeGroup && (
+                            <Badge variant="secondary" className="text-xs">For {product.targetAgeGroup}</Badge>
+                          )}
+                        </div>
+                      )}
+                      {(product.processingTime || product.shipsFrom) && (
+                        <div className="flex flex-wrap gap-1">
+                          {product.processingTime && (
+                            <Badge variant="outline" className="text-xs">⏱️ {product.processingTime}</Badge>
+                          )}
+                          {product.shipsFrom && (
+                            <Badge variant="outline" className="text-xs">✈️ Ships from {product.shipsFrom}</Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xl font-bold text-foreground">
                         {formatPrice(product.price)}

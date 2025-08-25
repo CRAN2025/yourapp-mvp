@@ -269,10 +269,47 @@ export default function Products() {
                       {product.isCustomizable && (
                         <Badge variant="outline" className="text-xs">⚙️ Customizable</Badge>
                       )}
+                      {product.madeToOrder && (
+                        <Badge variant="outline" className="text-xs">📋 Made to Order</Badge>
+                      )}
+                      {product.giftWrapping && (
+                        <Badge variant="outline" className="text-xs">🎁 Gift Wrap</Badge>
+                      )}
                       {product.processingTime && (
                         <Badge variant="secondary" className="text-xs">⏱️ {product.processingTime}</Badge>
                       )}
                     </div>
+                    
+                    {/* Additional attributes row */}
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {product.chainLength && (
+                        <Badge variant="secondary" className="text-xs">Length: {product.chainLength}</Badge>
+                      )}
+                      {product.pendantSize && (
+                        <Badge variant="secondary" className="text-xs">Size: {product.pendantSize}</Badge>
+                      )}
+                      {product.style && (
+                        <Badge variant="secondary" className="text-xs">{product.style}</Badge>
+                      )}
+                      {product.occasion && (
+                        <Badge variant="secondary" className="text-xs">{product.occasion}</Badge>
+                      )}
+                    </div>
+                    
+                    {/* Shipping and policy info */}
+                    {(product.shipsFrom || product.returnPolicy || product.warranty) && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {product.shipsFrom && (
+                          <Badge variant="outline" className="text-xs">✈️ Ships from {product.shipsFrom}</Badge>
+                        )}
+                        {product.returnPolicy && (
+                          <Badge variant="outline" className="text-xs">🔄 {product.returnPolicy}</Badge>
+                        )}
+                        {product.warranty && (
+                          <Badge variant="outline" className="text-xs">🛡️ {product.warranty}</Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex items-center justify-between mb-4">
