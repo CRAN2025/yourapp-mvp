@@ -1,0 +1,252 @@
+1) Full-bleed hero band (edge-to-edge)
+
+Add this tiny helper component near the top of StorefrontPublicView.jsx (below imports is fine):
+
+// --- Full-bleed section helper (edge-to-edge band) ---
+const FullBleedSection = ({ children }) => (
+  <section
+    style={{
+      width: '100vw',
+      position: 'relative',
+      left: '50%',
+      right: '50%',
+      marginLeft: '-50vw',
+      marginRight: '-50vw',
+      // pick your hero gradient; the band itself is full width
+      background: 'linear-gradient(135deg,#6f3ef4 0%,#38bdf8 100%)',
+      padding: '24px 0',
+    }}
+  >
+    <div
+      style={{
+        maxWidth: 980,
+        margin: '0 auto',
+        paddingInline: 'clamp(12px,4vw,24px)',
+      }}
+    >
+      {children}
+    </div>
+  </section>
+);
+
+
+Now replace your current header block (the chunk between /* ===== Header / Banner ===== */ and its closing </div>) with this—no other layout changes required:
+
+{/* ===== Header / Banner (FULL-BLEED) ===== */}
+<FullBleedSection>
+  <div
+    style={{
+      background: 'rgba(255,255,255,0.95)',
+      borderRadius: 20,
+      padding: '0 0 24px',
+      marginBottom: 24,
+      boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
+    }}
+  >
+    <div
+      style={{
+        height: 160,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        background: sellerData?.bannerUrl
+          ? `url(${sellerData.bannerUrl}) center/cover no-repeat`
+          : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
+      }}
+    />
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        padding: '0 24px',
+        marginTop: -30,
+      }}
+    >
+      <div
+        style={{
+          width: 72,
+          height: 72,
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg,#5a6bff,#67d1ff)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 28,
+          boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
+          border: '3px solid #fff',
+        }}
+      >
+        🛍️
+      </div>
+      <div style={{ flex: 1 }}>
+        <h1 className="typ-title" style={{ fontSize: 28, margin: '0 0 4px' }}>
+          {sellerData?.storeName || 'Store'}
+        </h1>
+        <p className="typ-meta" style={{ margin: 0 }}>
+          {sellerData?.location || 'Online Store'}
+        </p>
+      </div>
+    </div>
+
+    {/* chips */}
+    <div
+      style={{
+        display: 'flex',
+        gap: 12,
+        flexWrap: 'wrap',
+        padding: '12px 24px 0',
+      }}
+    >
+      {paymentMethods.length > 0 && (
+        <button
+          onClick={() => setShowPaymentModal(true)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: '#eef2ff',
+            color: '#374151',
+            padding: '10px 14px',
+            borderRadius: 999,
+            fontWeight: 700,
+            border: '1px solid #e5e7eb',
+            cursor: 'pointer',
+          }}
+          title="View payment methods"
+        >
+          💳 {paymentMethods.length} Payment Methods
+        </button>
+      )}
+      {deliveryOptions.length > 0 && (
+        <button
+          onClick={() => setShowDeliveryModal(true)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: '#ecfeff',
+            color: '#374151',
+            padding: '10px 14px',
+            borderRadius: 999,
+            fontWeight: 700,
+            border: '1px solid #e5e7eb',
+            cursor: 'pointer',
+          }}
+          title="View delivery options"
+        >
+          🚚 {deliveryOptions.length} Delivery Options
+        </button>
+      )}
+      {sellerData?.currency && (
+        <div
+          className="typ-meta"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: '#f3f4f6',
+            color: '#4b5563',
+            padding: '10px 14px',
+            borderRadius: 999,
+            fontWeight: 700,
+            border: '1px solid #e5e7eb',
+          }}
+        >
+          🌐 {sellerData.currency} Currency
+        </div>
+      )}
+    </div>
+
+    {/* Store description */}
+    {sellerData?.storeDescription && (
+      <p
+        className="typ-body"
+        style={{
+          margin: '8px 24px 0',
+          color: '#374151',
+          lineHeight: 1.5,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}
+      >
+        {sellerData.storeDescription}
+      </p>
+    )}
+
+    {/* Action pills */}
+    <div
+      style={{
+        display: 'flex',
+        gap: 12,
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        padding: '12px 24px',
+      }}
+    >
+      <button
+        onClick={handleFloatingChatClick}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: 'rgba(37,211,102,0.12)',
+          color: '#25D366',
+          padding: '8px 16px',
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 600,
+          border: '1px solid rgba(37,211,102,0.25)',
+          cursor: 'pointer',
+        }}
+      >
+        <MessageCircle size={16} /> Chat with seller on WhatsApp
+      </button>
+
+      <a
+        href={`${SHOPLINK_SIGNUP_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={handleMarketingClick}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: 'rgba(59,130,246,0.12)',
+          color: '#3b82f6',
+          padding: '8px 16px',
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 700,
+          border: '1px solid rgba(59,130,246,0.25)',
+          textDecoration: 'none',
+          cursor: 'pointer',
+        }}
+      >
+        ✨ Create your free ShopLink store
+      </a>
+
+      <div
+        className="typ-meta"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: 'rgba(59,130,246,0.12)',
+          color: '#3b82f6',
+          padding: '8px 16px',
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 600,
+          border: '1px solid rgba(59,130,246,0.25)',
+        }}
+      >
+        ⚡ Usually responds within 2 hours
+      </div>
+    </div>
+  </div>
+</FullBleedSection>
+
+
+Result: the band behind the hero card spans the entire viewport (edge-to-edge), while the card itself stays neatly centered with a max width. No more “boxed” look.

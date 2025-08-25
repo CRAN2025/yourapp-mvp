@@ -20,6 +20,33 @@ import { useToast } from '@/hooks/use-toast';
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
 
+// --- Full-bleed section helper (edge-to-edge band) ---
+const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
+  <section
+    style={{
+      width: '100vw',
+      position: 'relative',
+      left: '50%',
+      right: '50%',
+      marginLeft: '-50vw',
+      marginRight: '-50vw',
+      // pick your hero gradient; the band itself is full width
+      background: 'linear-gradient(135deg,#6f3ef4 0%,#38bdf8 100%)',
+      padding: '24px 0',
+    }}
+  >
+    <div
+      style={{
+        maxWidth: 980,
+        margin: '0 auto',
+        paddingInline: 'clamp(12px,4vw,24px)',
+      }}
+    >
+      {children}
+    </div>
+  </section>
+);
+
 export default function StorefrontPublic() {
   const [, params] = useRoute('/store/:sellerId');
   const { toast } = useToast();
@@ -777,81 +804,76 @@ Product Link: ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
-        {/* Ultra-Premium Store Header - Full Bleed */}
-        <header 
-          className="
-            w-screen relative overflow-hidden
-            left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]
-          "
-        >
-          {/* Hero Banner - Full Viewport Width */}
-          <div 
-            className="h-56 md:h-72 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 relative w-full"
-            style={seller.coverUrl ? {
-              backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.6)), url(${seller.coverUrl})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            } : undefined}
+        {/* ===== Header / Banner (FULL-BLEED) ===== */}
+        <FullBleedSection>
+          <div
+            style={{
+              background: 'rgba(255,255,255,0.95)',
+              borderRadius: 20,
+              padding: '0 0 24px',
+              marginBottom: 24,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
+            }}
           >
-            {/* Animated overlay elements */}
-            <div className="absolute inset-0">
-              <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-white/10 rounded-full animate-float animation-delay-2000"></div>
-              <div className="absolute top-3/4 right-1/4 w-24 h-24 bg-white/5 rounded-full animate-float"></div>
-              <div className="absolute bottom-1/4 left-1/2 w-16 h-16 bg-white/15 rounded-full animate-float animation-delay-4000"></div>
+            <div
+              style={{
+                height: 160,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                background: seller?.coverUrl
+                  ? `url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                padding: '0 24px',
+                marginTop: -30,
+              }}
+            >
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg,#5a6bff,#67d1ff)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 28,
+                  boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
+                  border: '3px solid #fff',
+                }}
+              >
+                {seller?.logoUrl ? (
+                  <img
+                    src={seller.logoUrl}
+                    alt={seller.storeName}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '50%',
+                      objectFit: 'cover'
+                    }}
+                  />
+                ) : (
+                  '🛍️'
+                )}
+              </div>
+              <div style={{ flex: 1 }}>
+                <h1 className="typ-title" style={{ fontSize: 28, margin: '0 0 4px' }}>
+                  {seller?.storeName || 'Store'}
+                </h1>
+                <p className="typ-meta" style={{ margin: 0 }}>
+                  {seller?.location || 'Online Store'}
+                </p>
+              </div>
             </div>
-            
-            {/* Gradient overlays for depth */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10"></div>
-          </div>
 
-          {/* Store Information Card - Full Bleed White Section */}
-          <div className="w-full relative -mt-28 z-10">
-            <div className="bg-white/95 backdrop-blur-xl shadow-2xl border-y border-white/30 py-8 lg:py-10">
-              <div className="mx-auto max-w-7xl" style={{
-                paddingInline: 'clamp(12px, 4vw, 24px)',
-                paddingLeft: 'max(16px, env(safe-area-inset-left))',
-                paddingRight: 'max(16px, env(safe-area-inset-right))'
-              }}>
-                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
-                {/* Store Avatar with Status Indicator */}
-                <div className="relative flex-shrink-0">
-                  <div className="relative">
-                    <div className="w-28 h-28 lg:w-32 lg:h-32 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-600 p-1 shadow-2xl">
-                      <div className="w-full h-full rounded-xl bg-white flex items-center justify-center overflow-hidden">
-                        {seller.logoUrl ? (
-                          <img
-                            src={seller.logoUrl}
-                            alt={seller.storeName}
-                            className="w-full h-full object-cover rounded-xl"
-                          />
-                        ) : (
-                          <span className="text-3xl lg:text-4xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-                            {seller.storeName[0]?.toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Enhanced online indicator */}
-                    <div className="absolute -bottom-2 -right-2">
-                      <div className="w-8 h-8 bg-emerald-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
-                        <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Store rating badge (if available) */}
-                  <div className="absolute -top-2 -left-2">
-                    <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-2 border-white shadow-lg font-bold px-3 py-1">
-                      <Star className="w-4 h-4 mr-1 fill-current" />
-                      4.9
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Store Details */}
-                <div className="flex-1 space-y-6">
+{/* old content removed */}
                   <div className="space-y-3">
                     <h1 className="text-4xl lg:text-5xl font-black text-slate-800 leading-tight">
                       {seller.storeName}
@@ -947,13 +969,166 @@ Product Link: ${productUrl}`;
                       <Award className="w-5 h-5 mr-2" />
                       {products.length} Products
                     </Button>
-                  </div>
+
+            {/* chips */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                flexWrap: 'wrap',
+                padding: '12px 24px 0',
+              }}
+            >
+              {paymentMethods.length > 0 && (
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#eef2ff',
+                    color: '#374151',
+                    padding: '10px 14px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    border: '1px solid #e5e7eb',
+                    cursor: 'pointer',
+                  }}
+                  title="View payment methods"
+                >
+                  💳 {paymentMethods.length} Payment Methods
+                </button>
+              )}
+              {deliveryOptions.length > 0 && (
+                <button
+                  onClick={() => setShowDeliveryModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#ecfeff',
+                    color: '#374151',
+                    padding: '10px 14px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    border: '1px solid #e5e7eb',
+                    cursor: 'pointer',
+                  }}
+                  title="View delivery options"
+                >
+                  🚚 {deliveryOptions.length} Delivery Options
+                </button>
+              )}
+              {seller?.currency && (
+                <div
+                  className="typ-meta"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#f3f4f6',
+                    color: '#4b5563',
+                    padding: '10px 14px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    border: '1px solid #e5e7eb',
+                  }}
+                >
+                  🌐 {seller.currency} Currency
                 </div>
+              )}
+            </div>
+
+            {/* Store description */}
+            {seller?.storeDescription && (
+              <p
+                className="typ-body"
+                style={{
+                  margin: '8px 24px 0',
+                  color: '#374151',
+                  lineHeight: 1.5,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {seller.storeDescription}
+              </p>
+            )}
+
+            {/* Action pills */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+                padding: '12px 24px',
+              }}
+            >
+              <button
+                onClick={handleFloatingChatClick}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'rgba(37,211,102,0.12)',
+                  color: '#25D366',
+                  padding: '8px 16px',
+                  borderRadius: 999,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  border: '1px solid rgba(37,211,102,0.25)',
+                  cursor: 'pointer',
+                }}
+              >
+                <MessageCircle size={16} /> Chat with seller on WhatsApp
+              </button>
+
+              <a
+                href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleMarketingClick}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'rgba(59,130,246,0.12)',
+                  color: '#3b82f6',
+                  padding: '8px 16px',
+                  borderRadius: 999,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  border: '1px solid rgba(59,130,246,0.25)',
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                ✨ Create your free ShopLink store
+              </a>
+
+              <div
+                className="typ-meta"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  background: 'rgba(59,130,246,0.12)',
+                  color: '#3b82f6',
+                  padding: '8px 16px',
+                  borderRadius: 999,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  border: '1px solid rgba(59,130,246,0.25)',
+                }}
+              >
+                ⚡ Usually responds within 2 hours
               </div>
             </div>
           </div>
-          </div>
-        </header>
+        </FullBleedSection>
 
         {/* Enhanced Search and Filters */}
         <div className="mx-auto max-w-7xl py-8" style={{
