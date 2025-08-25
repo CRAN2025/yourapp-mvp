@@ -169,11 +169,42 @@ export default function StorefrontPublic() {
           type: 'product_view',
           sellerId: sellerId!,
           productId: product.id,
+          metadata: { source: 'deeplink' },
         }).catch(console.error);
       }
     }
   }, [products, sellerId]);
 
+  // Enhanced keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Close modals with Escape
+      if (e.key === 'Escape') {
+        setShowProductModal(false);
+        setShowPaymentModal(false);
+        setShowDeliveryModal(false);
+        setContactNotification({show: false, product: null});
+        return;
+      }
+      
+      // Navigate products with arrow keys when modal is open
+      if (showProductModal && selectedProduct) {
+        const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+        if (e.key === 'ArrowLeft' && currentIndex > 0) {
+          const prevProduct = filteredProducts[currentIndex - 1];
+          setSelectedProduct(prevProduct);
+          window.history.replaceState(null, '', `#${prevProduct.id}`);
+        } else if (e.key === 'ArrowRight' && currentIndex < filteredProducts.length - 1) {
+          const nextProduct = filteredProducts[currentIndex + 1];
+          setSelectedProduct(nextProduct);
+          window.history.replaceState(null, '', `#${nextProduct.id}`);
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showProductModal, selectedProduct, filteredProducts]);
 
   // Auto-dismiss notifications with improved timing
   useEffect(() => {
@@ -322,8 +353,8 @@ export default function StorefrontPublic() {
       case 'popular':
         filtered.sort((a, b) => {
           // Sort by views, then by favorites count, then by recency
-          const aPopularity = 0; // Placeholder for analytics data
-          const bPopularity = 0; // Placeholder for analytics data
+          const aPopularity = ((a as any).analytics?.views || 0) + ((a as any).analytics?.favorites || 0);
+          const bPopularity = ((b as any).analytics?.views || 0) + ((b as any).analytics?.favorites || 0);
           if (aPopularity !== bPopularity) return bPopularity - aPopularity;
           return (b.createdAt || 0) - (a.createdAt || 0);
         });
@@ -377,6 +408,7 @@ export default function StorefrontPublic() {
         type: 'product_view',
         sellerId: sellerId!,
         productId,
+        metadata: { action: isAdding ? 'favorite_add' : 'favorite_remove' },
       });
     } catch (error) {
       console.warn('Failed to track favorite action:', error);
@@ -399,37 +431,6 @@ export default function StorefrontPublic() {
       }
     }
   };
-
-  // Enhanced keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Close modals with Escape
-      if (e.key === 'Escape') {
-        setShowProductModal(false);
-        setShowPaymentModal(false);
-        setShowDeliveryModal(false);
-        setContactNotification({show: false, product: null});
-        return;
-      }
-      
-      // Navigate products with arrow keys when modal is open
-      if (showProductModal && selectedProduct && filteredProducts) {
-        const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
-        if (e.key === 'ArrowLeft' && currentIndex > 0) {
-          const prevProduct = filteredProducts[currentIndex - 1];
-          setSelectedProduct(prevProduct);
-          window.history.replaceState(null, '', `#${prevProduct.id}`);
-        } else if (e.key === 'ArrowRight' && currentIndex < filteredProducts.length - 1) {
-          const nextProduct = filteredProducts[currentIndex + 1];
-          setSelectedProduct(nextProduct);
-          window.history.replaceState(null, '', `#${nextProduct.id}`);
-        }
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showProductModal, selectedProduct, filteredProducts]);
 
   // Enhanced product view with analytics
   const handleProductView = async (product: Product) => {
@@ -467,6 +468,7 @@ export default function StorefrontPublic() {
       await trackInteraction({
         type: 'store_view',
         sellerId,
+        metadata: { action: 'store_contact', source: 'floating_button' },
       });
       
       const storeUrl = `${window.location.origin}/store/${sellerId}`;
@@ -534,8 +536,13 @@ Product Link: ${productUrl}`;
   // Enhanced marketing click tracking
   const handleMarketingClick = (source: string) => {
     try {
-      // Analytics tracking (when available)
-      console.log('Marketing CTA clicked:', { sellerId, source, storeName: seller?.storeName });
+      if (typeof (window as any).gtag !== 'undefined') {
+        (window as any).gtag('event', 'marketing_cta_click', { 
+          sellerId, 
+          source,
+          store_name: seller?.storeName 
+        });
+      }
     } catch (error) {
       console.warn('Analytics tracking failed:', error);
     }
@@ -631,68 +638,69 @@ Product Link: ${productUrl}`;
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 opacity-40">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse"></div>
+          <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse animation-delay-2000"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-pulse animation-delay-4000"></div>
         </div>
         
-        <div className="relative bg-white/90 backdrop-blur-2xl rounded-3xl p-16 shadow-2xl border border-white/20 max-w-md w-full mx-4">
-          <div className="flex flex-col items-center space-y-8">
-            {/* Enhanced loading spinner */}
-            <div className="relative">
-              <div className="w-20 h-20 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
-              <div className="absolute inset-2 border-4 border-transparent border-b-purple-400 rounded-full animate-spin animate-reverse"></div>
-              <div className="absolute inset-4 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+        {/* Loading content */}
+        <div className="relative z-10 text-center space-y-8 max-w-md mx-auto px-6">
+          <div className="relative">
+            <div className="w-32 h-32 mx-auto">
+              <LoadingSpinner size="lg" className="w-full h-full" />
             </div>
-            
-            <div className="text-center space-y-4">
-              <h3 className="text-2xl font-bold text-slate-800">Loading Store...</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Fetching the latest products and store information
-              </p>
-              <div className="flex items-center justify-center space-x-2 text-sm text-slate-500">
-                <Sparkles className="w-4 h-4 animate-pulse" />
-                <span>This may take a few moments</span>
-              </div>
+            <div className="absolute -inset-4 bg-white/30 rounded-full blur-xl"></div>
+          </div>
+          
+          <div className="space-y-4">
+            <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+              Loading Store
+            </h2>
+            <p className="text-lg text-slate-600 font-medium">
+              Preparing your shopping experience...
+            </p>
+            <div className="flex justify-center gap-2 mt-6">
+              <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             </div>
           </div>
         </div>
+        
+        {/* Styles for animations */}
+        <style>{`
+          .animation-delay-2000 { animation-delay: 2s; }
+          .animation-delay-4000 { animation-delay: 4s; }
+        `}</style>
       </div>
     );
   }
 
-  // Enhanced error state
-  if (error) {
+  // Ultra-premium error state
+  if (error || !seller) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-red-50 to-orange-100 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 relative overflow-hidden">
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+          <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
         </div>
         
-        <div className="relative bg-white/90 backdrop-blur-2xl rounded-3xl p-16 shadow-2xl border border-white/20 text-center max-w-lg mx-4">
-          <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
-            <X className="w-10 h-10 text-white" />
+        <div className="relative z-10 text-center space-y-8 max-w-md mx-auto px-6">
+          <div className="w-32 h-32 mx-auto bg-white rounded-full flex items-center justify-center shadow-2xl">
+            <Globe className="w-16 h-16 text-red-500" />
           </div>
           
-          <h2 className="text-3xl font-bold text-slate-800 mb-4">Store Unavailable</h2>
-          <p className="text-slate-600 mb-8 leading-relaxed text-lg">{error}</p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              onClick={() => window.history.back()}
-              className="bg-slate-600 hover:bg-slate-700 text-white shadow-lg"
+          <div className="space-y-4">
+            <h2 className="text-4xl font-black text-slate-800">Store Not Found</h2>
+            <p className="text-lg text-slate-600 leading-relaxed">
+              {error || "This store could not be found or may have been removed."}
+            </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               size="lg"
             >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Go Back
-            </Button>
-            <Button
-              onClick={() => window.location.reload()}
-              variant="outline"
-              className="border-2 border-slate-200 hover:bg-slate-50"
-              size="lg"
-            >
+              <ArrowLeft className="w-5 h-5 mr-3" />
               Try Again
             </Button>
           </div>
@@ -701,77 +709,18 @@ Product Link: ${productUrl}`;
     );
   }
 
-  if (!seller) return null;
-
   return (
     <>
+      {/* Enhanced CSS Animations */}
       <style>{`
-        @keyframes heartBeat {
-          0% { transform: scale(1); }
-          25% { transform: scale(1.1); }
-          50% { transform: scale(1.2); }
-          75% { transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-        
-        @keyframes slideUp {
-          from { 
-            transform: translateY(30px); 
-            opacity: 0; 
-          }
-          to { 
-            transform: translateY(0); 
-            opacity: 1; 
-          }
-        }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-8px) rotate(1deg); }
-          66% { transform: translateY(4px) rotate(-1deg); }
-        }
-        
-        @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
         }
         
         @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        
-        @keyframes fadeInScale {
-          0% { 
-            opacity: 0; 
-            transform: scale(0.8); 
-          }
-          100% { 
-            opacity: 1; 
-            transform: scale(1); 
-          }
-        }
-        
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        
-        .animate-reverse {
-          animation-direction: reverse;
+          0%, 100% { transform: translateX(-100%); }
+          50% { transform: translateX(100%); }
         }
         
         .animate-shimmer {
@@ -811,8 +760,8 @@ Product Link: ${productUrl}`;
             <div
               className="h-40 md:h-48 w-full"
               style={{
-                background: seller?.bannerUrl
-                  ? `url(${seller.bannerUrl}) center/cover no-repeat`
+                background: seller?.coverUrl
+                  ? `url(${seller.coverUrl}) center/cover no-repeat`
                   : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
               }}
             />
@@ -821,9 +770,9 @@ Product Link: ${productUrl}`;
               {/* Header row */}
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-cyan-400 border-4 border-white shadow-md flex items-center justify-center text-2xl">
-                  {seller?.profileImageUrl ? (
+                  {seller?.logoUrl ? (
                     <img
-                      src={seller.profileImageUrl}
+                      src={seller.logoUrl}
                       alt={seller.storeName}
                       className="w-full h-full object-cover rounded-full"
                       onError={(e) => (e.currentTarget.style.display = 'none')}
@@ -939,437 +888,352 @@ Product Link: ${productUrl}`;
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    {['all', ...categories].map((category) => (
-                      <Button
-                        key={category}
-                        variant={categoryFilter === category ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setCategoryFilter(category)}
-                        className={`rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 ${
-                          categoryFilter === category 
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl scale-105' 
-                            : 'bg-white/80 backdrop-blur-sm hover:bg-blue-50 border-2 hover:border-blue-300 hover:scale-105'
-                        }`}
-                      >
-                        {category === 'all' ? (
-                          <>
-                            <span>All Products</span>
-                            <Badge className="ml-2 bg-white/20 text-current border-0 text-xs">
-                              {products.length}
-                            </Badge>
-                          </>
-                        ) : (
-                          <>
-                            <span className="capitalize">{category}</span>
-                            <Badge className="ml-2 bg-white/20 text-current border-0 text-xs">
-                              {products.filter(p => p.category === category).length}
-                            </Badge>
-                          </>
-                        )}
-                      </Button>
-                    ))}
+                    <Button
+                      variant={categoryFilter === 'all' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setCategoryFilter('all')}
+                      className="rounded-full px-6 py-3 font-bold transition-all duration-300 hover:scale-105"
+                    >
+                      All Categories ({products.length})
+                    </Button>
+                    {categories.slice(0, 6).map(category => {
+                      const count = products.filter(p => p.category === category).length;
+                      return (
+                        <Button
+                          key={category}
+                          variant={categoryFilter === category ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setCategoryFilter(category)}
+                          className="rounded-full px-6 py-3 font-bold transition-all duration-300 hover:scale-105"
+                        >
+                          {category} ({count})
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Sort and Favorites */}
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-slate-700 uppercase tracking-wide whitespace-nowrap">Sort:</span>
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-52 border-2 border-slate-200 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm" data-testid="select-sort">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl border-2 shadow-2xl">
-                        <SelectItem value="newest">🆕 Newest First</SelectItem>
-                        <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
-                        <SelectItem value="price-high">💎 Price: High to Low</SelectItem>
-                        <SelectItem value="name">🔤 Name A-Z</SelectItem>
-                        <SelectItem value="popular">🔥 Most Popular</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
+                {/* Enhanced Controls */}
+                <div className="flex gap-4 items-center flex-wrap">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-48 h-12 rounded-xl border-2 border-slate-200 focus:border-blue-500 font-semibold">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-2 border-slate-200">
+                      <SelectItem value="newest">🆕 Newest First</SelectItem>
+                      <SelectItem value="popular">🔥 Most Popular</SelectItem>
+                      <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">💎 Price: High to Low</SelectItem>
+                      <SelectItem value="name">📝 Name A-Z</SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <Button
-                    variant={showFavorites ? 'default' : 'outline'}
+                    variant={showFavorites ? "default" : "outline"}
+                    size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className={`rounded-xl px-6 py-3 transition-all duration-300 font-semibold ${
-                      showFavorites 
-                        ? 'bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white shadow-lg hover:scale-105' 
-                        : 'border-2 hover:border-red-300 hover:bg-red-50 bg-white/80 backdrop-blur-sm hover:scale-105'
-                    }`}
-                    data-testid="button-favorites"
+                    className="h-12 px-6 rounded-xl border-2 border-slate-200 font-bold transition-all duration-300 hover:scale-105"
+                    data-testid="button-toggle-favorites"
                   >
-                    <Heart className="w-5 h-5 mr-2" fill={showFavorites ? 'currentColor' : 'none'} />
-                    <span className="hidden sm:inline">Favorites</span>
-                    {favorites.size > 0 && (
-                      <Badge className="ml-2 bg-white/20 text-current border-0 text-xs">
+                    <Heart className={`w-5 h-5 mr-2 ${showFavorites ? 'fill-current text-red-500' : 'text-slate-400'}`} />
+                    Favorites {favorites.size > 0 && (
+                      <Badge className="ml-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
                         {favorites.size}
                       </Badge>
                     )}
                   </Button>
                 </div>
               </div>
-
-              {/* Enhanced Results Summary */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                <div className="flex items-center gap-4 text-sm text-slate-600">
-                  <span className="font-semibold">
-                    Showing {filteredProducts.length} of {products.length} products
-                  </span>
-                  {searchQuery && (
-                    <Badge variant="outline" className="font-semibold">
-                      Search: "{searchQuery}"
-                    </Badge>
-                  )}
-                  {categoryFilter !== 'all' && (
-                    <Badge variant="outline" className="font-semibold capitalize">
-                      Category: {categoryFilter}
-                    </Badge>
-                  )}
-                  {showFavorites && (
-                    <Badge variant="outline" className="font-semibold text-red-600 border-red-200">
-                      Favorites Only
-                    </Badge>
-                  )}
-                </div>
-                
-                {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setCategoryFilter('all');
-                      setShowFavorites(false);
-                    }}
-                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 font-semibold"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Clear All Filters
-                  </Button>
-                )}
-              </div>
             </div>
           </Card>
 
-          {/* Enhanced Products Grid */}
-          {filteredProducts.length === 0 ? (
-            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-20 text-center shadow-2xl border border-white/20">
-              <div className="max-w-md mx-auto space-y-8">
-                <div className="relative">
-                  <div className="w-32 h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto shadow-xl">
-                    <Search className="w-16 h-16 text-slate-400" />
+          {/* Enhanced Results Summary */}
+          {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
+            <div className="mb-8">
+              <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-slate-800">
+                      Found {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''}
+                    </h3>
+                    <div className="flex flex-wrap gap-2 text-sm text-slate-600">
+                      {searchQuery && (
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          Search: "{searchQuery}"
+                        </Badge>
+                      )}
+                      {categoryFilter !== 'all' && (
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          Category: {categoryFilter}
+                        </Badge>
+                      )}
+                      {showFavorites && (
+                        <Badge variant="secondary" className="bg-red-100 text-red-800">
+                          <Heart className="w-3 h-3 mr-1" />
+                          Favorites Only
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <h3 className="text-3xl font-bold text-slate-800">
-                    {products.length === 0 ? 'No Products Yet' : 'No Matches Found'}
-                  </h3>
-                  <p className="text-slate-600 text-lg leading-relaxed">
-                    {products.length === 0
-                      ? 'This amazing store is being set up with incredible products. Check back soon for the latest arrivals!'
-                      : 'We couldn\'t find any products matching your criteria. Try adjusting your search or browse our categories.'}
-                  </p>
-                </div>
-                
-                {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
                   <Button
+                    variant="ghost"
                     onClick={() => {
                       setSearchQuery('');
                       setCategoryFilter('all');
                       setShowFavorites(false);
                     }}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 px-8 py-4 rounded-2xl font-semibold"
-                    size="lg"
+                    className="text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl font-semibold"
                   >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Show All Products
+                    Clear Filters
                   </Button>
-                )}
-              </div>
+                </div>
+              </Card>
             </div>
+          )}
+
+          {/* Ultra-Premium Product Grid */}
+          {filteredProducts.length === 0 ? (
+            <Card className="p-16 text-center bg-white/90 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
+              <EmptyState
+                icon={<Search className="h-20 w-20 text-slate-400" />}
+                title={searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
+                description={
+                  searchQuery || categoryFilter !== 'all' || showFavorites
+                    ? "Try adjusting your search or filters to find what you're looking for."
+                    : "This store doesn't have any products listed yet. Check back soon!"
+                }
+                action={
+                  (searchQuery || categoryFilter !== 'all' || showFavorites) && (
+                    <Button
+                      onClick={() => {
+                        setSearchQuery('');
+                        setCategoryFilter('all');
+                        setShowFavorites(false);
+                      }}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                    >
+                      Clear All Filters
+                    </Button>
+                  )
+                }
+              />
+            </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredProducts.map((product, index) => (
+              {filteredProducts.map((product) => (
                 <Card
                   key={product.id}
-                  className="group overflow-hidden bg-white/95 backdrop-blur-sm hover:bg-white transition-all duration-700 hover:shadow-2xl hover:scale-[1.03] cursor-pointer border-0 rounded-3xl relative"
-                  style={{
-                    animation: `slideUp 0.8s ease-out ${index * 0.1}s both`
-                  }}
+                  className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 shadow-lg hover:shadow-3xl hover:-translate-y-2 bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden"
                   onClick={() => handleProductView(product)}
-                  data-testid={`product-card-${product.id}`}
+                  data-testid={`card-product-${product.id}`}
                 >
-                  {/* Product Image Container */}
-                  <div className="relative overflow-hidden rounded-t-3xl">
+                  <div className="relative overflow-hidden">
+                    {/* Enhanced product image */}
                     <div className="aspect-square relative bg-gradient-to-br from-slate-100 to-slate-50">
                       <img
-                        src={getProductImageUrl(product)}
+                        src={getProductImageUrl(product.images?.[0]) || ULTRA_PREMIUM_PLACEHOLDER}
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
+                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                         onLoad={(e) => handleImageLoad(product.id, e)}
                         onError={handleImageError}
+                        loading="lazy"
                       />
                       
-                      {/* Enhanced image overlay with shimmer effect */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/0 via-transparent to-black/0 group-hover:from-black/10 transition-all duration-700"></div>
+                      {/* Ultra-premium overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                       
-                      {/* Premium quality warning */}
+                      {/* Enhanced quality warning */}
                       {lowResImages[product.id] && (
-                        <div className="absolute top-4 left-4 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-3 py-2 rounded-full font-bold shadow-lg">
-                          ⚠️ Low Quality
+                        <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-3 py-2 rounded-full font-bold shadow-xl flex items-center gap-1">
+                          <Info className="h-3 w-3" />
+                          Low Res
                         </div>
                       )}
                       
-                      {/* Enhanced Favorite Button */}
+                      {/* Enhanced favorite button */}
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={`absolute top-4 right-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg ${
-                          favorites.has(product.id) ? 'text-red-500 opacity-100 bg-red-50' : 'text-slate-600'
-                        }`}
+                        className="absolute top-3 right-3 h-10 w-10 p-0 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
                         onClick={(e) => toggleFavorite(product.id, e)}
                         data-testid={`button-favorite-${product.id}`}
                       >
-                        <Heart 
-                          className="w-6 h-6" 
-                          fill={favorites.has(product.id) ? 'currentColor' : 'none'} 
+                        <Heart
+                          className={`h-5 w-5 transition-colors duration-300 ${
+                            favorites.has(product.id)
+                              ? 'fill-red-500 text-red-500'
+                              : 'text-slate-600 hover:text-red-500'
+                          }`}
                         />
                       </Button>
 
-                      {/* Enhanced Stock Status Badge */}
-                      <div className="absolute bottom-4 left-4">
-                        <Badge 
-                          className={`font-bold text-sm px-3 py-2 shadow-lg ${
-                            product.quantity > 10 
-                              ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white' 
-                              : product.quantity > 0 
-                              ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' 
-                              : 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
-                          }`}
-                        >
-                          {product.quantity > 10 
-                            ? '✅ In Stock' 
-                            : product.quantity > 0 
-                            ? `⚠️ ${product.quantity} Left` 
-                            : '❌ Sold Out'
-                          }
-                        </Badge>
+                      {/* Enhanced product badges */}
+                      <div className="absolute bottom-3 left-3 flex gap-2">
+                        {product.features?.includes('featured') && (
+                          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold px-3 py-1 rounded-full shadow-xl">
+                            ⭐ Featured
+                          </Badge>
+                        )}
+                        {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                          <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold px-3 py-1 rounded-full shadow-xl animate-pulse">
+                            🆕 New
+                          </Badge>
+                        )}
+                        {product.quantity < 5 && (
+                          <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold px-3 py-1 rounded-full shadow-xl">
+                            📍 Limited
+                          </Badge>
+                        )}
                       </div>
-
-                      {/* New/Featured Badge */}
-                      {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                        <div className="absolute top-4 left-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs px-3 py-2 rounded-full font-bold shadow-lg animate-pulse">
-                          🆕 NEW
-                        </div>
-                      )}
                     </div>
-                  </div>
 
-                  {/* Enhanced Product Info */}
-                  <CardContent className="p-6 space-y-5">
-                    {/* Product Title and Description */}
-                    <div className="space-y-3">
-                      <h3 className="font-bold text-xl text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
-                        {product.name}
-                      </h3>
-                      {product.description && (
-                        <p className="text-slate-600 text-sm line-clamp-2 leading-relaxed">
-                          {product.description}
-                        </p>
-                      )}
-                    </div>
-                    
-                    {/* Enhanced Product Attributes */}
-                    <div className="space-y-3">
-                      {product.brand && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Brand:</span>
-                          <Badge variant="secondary" className="text-xs font-bold bg-slate-100 text-slate-800">
+                    {/* Enhanced product info */}
+                    <CardContent className="p-6 space-y-4">
+                      {/* Product name and brand */}
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-lg line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
+                          {product.name}
+                        </h3>
+                        {product.brand && (
+                          <p className="text-sm text-slate-500 font-semibold uppercase tracking-wide">
                             {product.brand}
-                          </Badge>
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Price and category */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text">
+                                {formatPrice(product.price)}
+                              </span>
+                            </div>
+                            <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 font-bold px-3 py-1 rounded-full">
+                              📦 {product.category}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Enhanced action buttons */}
+                      <div className="flex gap-3 pt-4 border-t border-slate-200">
+                        <Button
+                          className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactProduct(product);
+                          }}
+                          data-testid={`button-contact-${product.id}`}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          WhatsApp
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleProductView(product);
+                          }}
+                          className="px-6 border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-2xl font-bold transition-all duration-300 hover:scale-105"
+                          data-testid={`button-view-${product.id}`}
+                        >
+                          View
+                        </Button>
+                      </div>
+
+                      {/* Enhanced product attributes */}
+                      {(product.color || product.size || product.material) && (
+                        <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-100">
+                          {product.color && (
+                            <span className="text-xs bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 px-3 py-2 rounded-full font-bold border border-blue-200">
+                              🎨 {product.color}
+                            </span>
+                          )}
+                          {product.size && (
+                            <span className="text-xs bg-gradient-to-r from-purple-50 to-violet-50 text-purple-700 px-3 py-2 rounded-full font-bold border border-purple-200">
+                              📏 {product.size}
+                            </span>
+                          )}
+                          {product.material && (
+                            <span className="text-xs bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 px-3 py-2 rounded-full font-bold border border-green-200">
+                              🧵 {product.material}
+                            </span>
+                          )}
                         </div>
                       )}
-                      
-                      {/* Attribute Pills */}
-                      <div className="flex flex-wrap gap-2">
-                        {product.condition && (
-                          <Badge variant="outline" className="text-xs font-semibold capitalize bg-white">
-                            {product.condition}
-                          </Badge>
-                        )}
-                        {product.size && (
-                          <Badge variant="secondary" className="text-xs font-semibold">
-                            Size {product.size}
-                          </Badge>
-                        )}
-                        {product.color && (
-                          <Badge variant="secondary" className="text-xs font-semibold">
-                            {product.color}
-                          </Badge>
-                        )}
-                        {product.material && (
-                          <Badge variant="secondary" className="text-xs font-semibold">
-                            {product.material}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Special Features */}
-                      <div className="flex flex-wrap gap-2">
-                        {product.isHandmade && (
-                          <Badge className="text-xs bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border border-orange-200">
-                            🎨 Handmade
-                          </Badge>
-                        )}
-                        {product.isCustomizable && (
-                          <Badge className="text-xs bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200">
-                            ⚙️ Customizable
-                          </Badge>
-                        )}
-                        {product.madeToOrder && (
-                          <Badge className="text-xs bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 border border-purple-200">
-                            📋 Made to Order
-                          </Badge>
-                        )}
-                        {product.giftWrapping && (
-                          <Badge className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-200">
-                            🎁 Gift Wrap
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Enhanced Price Section */}
-                    <div className="flex items-end justify-between pt-4 border-t border-slate-100">
-                      <div className="space-y-1">
-                        <div className="text-3xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text">
-                          {formatPrice(product.price)}
-                        </div>
-                        <div className="text-xs text-slate-500">per unit</div>
-                      </div>
-                      <Badge 
-                        variant="outline" 
-                        className="bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 hover:from-blue-100 hover:to-indigo-100 px-4 py-2.5 text-sm font-bold border border-blue-200 transition-all duration-300 hover:scale-105"
-                      >
-                        📦 {product.category}
-                      </Badge>
-                    </div>
-                    
-                    {/* Premium WhatsApp Contact Button */}
-                    <Button
-                      className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white transition-all duration-300 hover:shadow-xl font-bold py-4 rounded-2xl group-hover:scale-105"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleContactProduct(product);
-                      }}
-                      data-testid={`button-whatsapp-${product.id}`}
-                    >
-                      <MessageCircle className="w-5 h-5 mr-3" />
-                      Contact on WhatsApp
-                    </Button>
-                  </CardContent>
+                    </CardContent>
+                  </div>
                 </Card>
               ))}
             </div>
           )}
 
-          {/* Enhanced Footer */}
-          <div className="text-center mt-20 py-16">
-            <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-12 max-w-2xl mx-auto shadow-2xl border border-white/20">
-              <div className="space-y-6">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto shadow-xl">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-                
-                <div className="space-y-3">
-                  <h3 className="text-2xl font-bold text-slate-800">
-                    Powered by <span className="text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">ShopLink</span>
-                  </h3>
-                  <p className="text-slate-600 leading-relaxed">
-                    Create your own beautiful online store in minutes, just like this one!
-                  </p>
-                </div>
-                
-                <Button
-                  variant="outline"
-                  asChild
-                  className="border-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 hover:scale-105 px-8 py-4 rounded-2xl font-bold bg-white/80 backdrop-blur-sm"
-                  onClick={() => handleMarketingClick('footer_cta')}
-                  size="lg"
+          {/* Load more or pagination */}
+          {filteredProducts.length >= 20 && (
+            <div className="text-center mt-16">
+              <Card className="inline-block p-8 bg-white/90 backdrop-blur-xl shadow-xl border-0 rounded-3xl">
+                <p className="text-slate-600 mb-6 text-lg font-semibold">
+                  You've seen all {filteredProducts.length} products
+                </p>
+                <Button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
                 >
-                  <a
-                    href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=footer&utm_campaign=public&seller=${sellerId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Zap className="w-5 h-5 mr-2" />
-                    Create Your Store Free
-                  </a>
+                  <ArrowLeft className="w-5 h-5 mr-3 rotate-90" />
+                  Back to Top
                 </Button>
-              </div>
+              </Card>
+            </div>
+          )}
+        </div>
+
+        {/* Enhanced floating contact button */}
+        {showChatFab && seller.whatsappNumber && (
+          <div className="fixed bottom-8 right-8 z-50">
+            <Button
+              onClick={handleFloatingChatClick}
+              className="h-16 w-16 rounded-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
+              data-testid="button-floating-contact"
+            >
+              <MessageCircle className="h-8 w-8 group-hover:scale-110 transition-transform duration-300" />
+              <span className="sr-only">Contact store via WhatsApp</span>
+            </Button>
+            
+            {/* Floating tooltip */}
+            <div className="absolute bottom-20 right-0 bg-black/90 text-white px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">
+              💬 Chat with {seller.storeName}
+              <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/90"></div>
             </div>
           </div>
-        </div>
-        
-        {/* Ultra-Premium Floating WhatsApp Button */}
-        {showChatFab && seller.whatsappNumber && (
-          <button
-            onClick={handleFloatingChatClick}
-            className="fixed bottom-8 right-8 w-18 h-18 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-full shadow-2xl flex items-center justify-center z-50 transition-all duration-500 hover:scale-110 animate-float group"
-            aria-label="Chat with seller on WhatsApp"
-            style={{
-              animation: 'float 4s ease-in-out infinite'
-            }}
-          >
-            <div className="relative">
-              <MessageCircle className="w-8 h-8" />
-              {/* Notification dot with pulse */}
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse shadow-lg">
-                <div className="absolute inset-0 w-4 h-4 bg-red-400 rounded-full animate-ping"></div>
-              </div>
-            </div>
-            
-            {/* Tooltip */}
-            <div className="absolute bottom-full right-0 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-              <div className="bg-black/90 text-white text-sm font-semibold px-4 py-2 rounded-xl whitespace-nowrap shadow-xl">
-                Chat with {seller.storeName}
-                <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/90"></div>
-              </div>
-            </div>
-          </button>
         )}
-        
-        {/* Enhanced Contact Success Notification */}
-        {contactNotification.show && (
-          <div className="fixed top-8 right-8 z-50 max-w-sm animate-slideUp">
-            <Card className="bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0 shadow-2xl rounded-2xl overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <CheckCircle className="w-7 h-7" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <h4 className="font-bold text-lg">Message Sent! 📱</h4>
-                    <p className="text-sm opacity-95 leading-relaxed">
-                      Opening WhatsApp to continue your conversation about <strong>{contactNotification.product?.name}</strong>. The seller will respond soon!
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setContactNotification({show: false, product: null})}
-                    className="text-white hover:bg-white/20 p-2 h-8 w-8 rounded-full flex-shrink-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
+
+        {/* Enhanced contact notification */}
+        {contactNotification.show && contactNotification.product && (
+          <div className="fixed top-24 right-8 z-50 max-w-sm animate-fadeInScale">
+            <Card className="p-6 bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-2xl border-0 rounded-2xl">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-6 h-6" />
                 </div>
-              </CardContent>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-lg">WhatsApp Opening...</h4>
+                  <p className="text-sm opacity-90 line-clamp-2">
+                    Contacted seller about "{contactNotification.product.name}"
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setContactNotification({show: false, product: null})}
+                  className="text-white hover:bg-white/20 rounded-full p-2 h-8 w-8 flex-shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
             </Card>
           </div>
         )}
@@ -1508,7 +1372,7 @@ Product Link: ${productUrl}`;
               <div className="relative">
                 <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
                   <img
-                    src={getProductImageUrl(selectedProduct)}
+                    src={getProductImageUrl(selectedProduct.images?.[0]) || ULTRA_PREMIUM_PLACEHOLDER}
                     alt={selectedProduct.name}
                     className="w-full h-full object-cover"
                     onLoad={(e) => handleImageLoad(selectedProduct.id, e)}
@@ -1667,8 +1531,8 @@ Product Link: ${productUrl}`;
                     { label: 'Size', value: selectedProduct.size, icon: '📏' },
                     { label: 'Color', value: selectedProduct.color, icon: '🎨' },
                     { label: 'Material', value: selectedProduct.material, icon: '🧵' },
-                    { label: 'Chain Length', value: selectedProduct.chainLength, icon: '📐' },
-                    { label: 'Pendant Size', value: selectedProduct.pendantSize, icon: '💎' },
+                    { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
+                    { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
                   ].filter(item => item.value).map((item, index) => (
                     <div key={index} className="p-6 bg-gradient-to-br from-white to-slate-50 rounded-2xl border-2 border-slate-200 hover:shadow-lg transition-all duration-300">
                       <div className="flex items-center gap-3 mb-2">
@@ -1683,36 +1547,56 @@ Product Link: ${productUrl}`;
                 </div>
 
                 {/* Enhanced Special Features */}
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-purple-600" />
-                    Special Features
-                  </h3>
-                  <div className="flex flex-wrap gap-4">
-                    {selectedProduct.isHandmade && (
-                      <Badge className="bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 px-6 py-3 text-lg font-bold border-2 border-orange-200">
-                        🎨 Handcrafted with Care
-                      </Badge>
-                    )}
-                    {selectedProduct.isCustomizable && (
-                      <Badge className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 px-6 py-3 text-lg font-bold border-2 border-blue-200">
-                        ⚙️ Fully Customizable
-                      </Badge>
-                    )}
-                    {selectedProduct.madeToOrder && (
-                      <Badge className="bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 px-6 py-3 text-lg font-bold border-2 border-purple-200">
-                        📋 Made to Order
-                      </Badge>
-                    )}
-                    {selectedProduct.giftWrapping && (
-                      <Badge className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-6 py-3 text-lg font-bold border-2 border-green-200">
-                        🎁 Gift Wrapping Available
-                      </Badge>
-                    )}
+                {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).madeToOrder || (selectedProduct as any).giftWrapping) && (
+                  <div className="space-y-4">
+                    <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-purple-600" />
+                      </div>
+                      Special Features
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {(selectedProduct as any).isHandmade && (
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border-2 border-orange-200">
+                          <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl">🎨</div>
+                          <div>
+                            <span className="font-bold text-orange-800">Handmade</span>
+                            <p className="text-sm text-orange-600">Crafted with care by skilled artisans</p>
+                          </div>
+                        </div>
+                      )}
+                      {(selectedProduct as any).isCustomizable && (
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
+                          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-2xl">⚙️</div>
+                          <div>
+                            <span className="font-bold text-blue-800">Customizable</span>
+                            <p className="text-sm text-blue-600">Can be personalized to your preferences</p>
+                          </div>
+                        </div>
+                      )}
+                      {(selectedProduct as any).madeToOrder && (
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-2 border-purple-200">
+                          <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-2xl">📋</div>
+                          <div>
+                            <span className="font-bold text-purple-800">Made to Order</span>
+                            <p className="text-sm text-purple-600">Specially created just for you</p>
+                          </div>
+                        </div>
+                      )}
+                      {(selectedProduct as any).giftWrapping && (
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200">
+                          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-2xl">🎁</div>
+                          <div>
+                            <span className="font-bold text-green-800">Gift Wrapping</span>
+                            <p className="text-sm text-green-600">Beautiful packaging available</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
                 
-                {/* Enhanced Action Buttons */}
+                {/* Ultra-Premium Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t-2 border-slate-200">
                   <Button
                     onClick={() => handleContactProduct(selectedProduct)}
