@@ -1,0 +1,83 @@
+What to change
+
+Header/Hero section = full-bleed band
+
+Background gradient and any decorative shapes must span 100% of the viewport width.
+
+Do not place this section inside .container, max-w-*, or centered wrappers.
+
+Inner content width
+
+Keep a comfortable reading width for the white hero card via an inner wrapper (e.g., max-w-7xl mx-auto), but the section itself must be full-width.
+
+Safe gutters
+
+Use responsive side padding to avoid text touching the bezel:
+
+padding-inline: clamp(12px, 4vw, 24px);
+
+Respect iOS safe areas: padding-left/right: max(16px, env(safe-area-inset-left/right));
+
+Acceptance criteria
+
+On mobile (≤ 420px) and desktop (≥ 1440px), the gradient touches both left/right edges of the screen (no “boxed” look).
+
+No horizontal scrollbars at any width (320–1920px).
+
+The white hero card remains centered with rounded corners & shadow, but the band behind it is full-bleed.
+
+The search/filter bar right below the hero aligns visually with the hero card (same left/right padding) and does not reintroduce an outer boxed container.
+
+Lighthouse CLS < 0.1; no layout shift when images load.
+
+Tailwind implementation (preferred)
+// BEFORE (boxed)
+<section className="container mx-auto max-w-7xl px-4 py-8 bg-gradient-to-r from-[#6f3ef4] to-[#38bdf8]">
+  <HeroCard />
+</section>
+
+// AFTER (edge-to-edge)
+<section
+  className="
+    w-screen
+    bg-gradient-to-r from-[#6f3ef4] to-[#38bdf8]
+    py-8
+    /* optional: ensure no parent container constrains width */
+    relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]
+  "
+>
+  <div className="mx-auto max-w-7xl px-[clamp(12px,4vw,24px)]">
+    <HeroCard />
+  </div>
+</section>
+
+
+If the page root already spans the viewport, you can drop the left-1/2 … -ml-[50vw] breakout and just keep w-screen.
+
+Plain CSS option
+.full-bleed {
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  padding-block: 2rem;
+  background: linear-gradient(90deg, #6f3ef4, #38bdf8);
+}
+.full-bleed > .inner {
+  max-width: 80rem;     /* ~1280px */
+  margin: 0 auto;
+  padding-inline: clamp(12px, 4vw, 24px);
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+
+<section class="full-bleed">
+  <div class="inner">
+    <!-- Hero card -->
+  </div>
+</section>
+
+Remove container classes here
+
+Any container mx-auto max-w-* px-* applied to the outer hero section.
+
+Any component-level wrapper that constrains the hero to a fixed width.
