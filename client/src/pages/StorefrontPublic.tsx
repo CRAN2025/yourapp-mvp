@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useRoute } from 'wouter';
+import { useState, useEffect, useMemo } from 'react';
+import { useRoute, useLocation } from 'wouter';
 import { ref, get } from 'firebase/database';
-import { Search, Heart } from 'lucide-react';
+import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -25,10 +25,72 @@ export default function StorefrontPublic() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const [showFavorites, setShowFavorites] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [showChatFab, setShowChatFab] = useState(false);
+  const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
 
   const sellerId = params?.sellerId;
+  const [location] = useLocation();
+
+  // Load favorites from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('favorites');
+      if (saved) setFavorites(new Set(JSON.parse(saved)));
+    } catch (e) {
+      console.error('Error loading favorites:', e);
+    }
+  }, []);
+
+  // Handle floating chat button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const shouldShow = window.scrollY > 300 || window.innerWidth > 768;
+      setShowChatFab(shouldShow);
+    };
+    
+    handleScroll();
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
+  // Handle product deep linking
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && products.length > 0) {
+      const product = products.find(p => p.id === hash);
+      if (product) {
+        setSelectedProduct(product);
+        setShowProductModal(true);
+      }
+    }
+  }, [products]);
+
+  // Handle ESC key for modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowProductModal(false);
+        setShowPaymentModal(false);
+        setShowDeliveryModal(false);
+        setContactNotification({show: false, product: null});
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Load seller and products data
   useEffect(() => {
@@ -83,22 +145,48 @@ export default function StorefrontPublic() {
     loadStoreData();
   }, [sellerId, toast]);
 
-  // Filter products
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
-    const matchesFavorites = !showFavorites || favorites.has(product.id);
-    
-    return matchesSearch && matchesCategory && matchesFavorites;
-  });
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let filtered = products.filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+      const matchesFavorites = !showFavorites || favorites.has(product.id);
+      
+      return matchesSearch && matchesCategory && matchesFavorites;
+    });
+
+    // Sort products
+    switch (sortBy) {
+      case 'price-low':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'name':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'popular':
+        // Sort by views if available, otherwise by creation date
+        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        break;
+      case 'newest':
+      default:
+        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        break;
+    }
+
+    return filtered;
+  }, [products, searchQuery, categoryFilter, showFavorites, favorites, sortBy]);
 
   // Get unique categories from products
   const categories = Array.from(new Set(products.map(p => p.category)));
 
-  const toggleFavorite = (productId: string) => {
+  const toggleFavorite = (productId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const newFavorites = new Set(favorites);
     if (newFavorites.has(productId)) {
       newFavorites.delete(productId);
@@ -106,13 +194,50 @@ export default function StorefrontPublic() {
       newFavorites.add(productId);
     }
     setFavorites(newFavorites);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
+    } catch (e) {
+      console.error('Error saving favorites:', e);
+    }
   };
 
-  const handleWhatsAppContact = async (product: Product) => {
-    if (!seller || !sellerId) return;
-
+  const handleProductView = async (product: Product) => {
     try {
-      // Track WhatsApp click
+      await trackInteraction({
+        type: 'product_view',
+        sellerId: sellerId!,
+        productId: product.id,
+        metadata: {
+          productName: product.name,
+          productPrice: product.price,
+        },
+      });
+      
+      setSelectedProduct(product);
+      setShowProductModal(true);
+      
+      // Update URL hash for deep linking
+      window.history.pushState(null, '', `#${product.id}`);
+    } catch (error) {
+      console.error('Error tracking product view:', error);
+    }
+  };
+
+  const handleFloatingChatClick = async () => {
+    if (!seller?.whatsappNumber || !sellerId) return;
+    
+    const storeUrl = `${window.location.origin}/store/${sellerId}`;
+    const message = `👋 Hi! I'm interested in your products at *${seller.storeName}*.\nCould you share availability, payment, and delivery options?\n\n🔗 ${storeUrl}`;
+    
+    openWhatsApp(seller.whatsappNumber, message);
+  };
+
+  const handleContactProduct = async (product: Product) => {
+    if (!seller?.whatsappNumber || !sellerId) return;
+    
+    try {
       await trackInteraction({
         type: 'wa_click',
         sellerId,
@@ -122,43 +247,74 @@ export default function StorefrontPublic() {
           productPrice: product.price,
         },
       });
-
-      // Create WhatsApp message
+      
       const message = createWhatsAppMessage({
         storeName: seller.storeName,
         productName: product.name,
         productId: product.id,
-        url: window.location.href,
+        url: `${window.location.origin}/store/${sellerId}`,
       });
-
-      // Open WhatsApp
-      openWhatsApp(seller.whatsappNumber, message);
-
+      
+      const productUrl = `${window.location.origin}/store/${sellerId}#${product.id}`;
+      const fullMessage = `${message}\n\n🔗 ${productUrl}`;
+      
+      openWhatsApp(seller.whatsappNumber, fullMessage);
+      
+      // Show notification on mobile
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          setContactNotification({show: true, product});
+          setTimeout(() => setContactNotification({show: false, product: null}), 3000);
+        }, 1000);
+      }
     } catch (error) {
-      console.error('Error opening WhatsApp:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to open WhatsApp. Please try again.',
-        variant: 'destructive',
-      });
+      console.error('Error contacting seller:', error);
     }
   };
 
-  const handleProductView = async (product: Product) => {
-    if (!sellerId) return;
+  // Helper functions for payment and delivery
+  const paymentMethods = useMemo(() => {
+    if (!seller?.paymentMethods) return [];
+    return Array.isArray(seller.paymentMethods) ? seller.paymentMethods : [];
+  }, [seller?.paymentMethods]);
+
+  const deliveryOptions = useMemo(() => {
+    if (!seller?.deliveryOptions) return [];
+    return Array.isArray(seller.deliveryOptions) ? seller.deliveryOptions : [];
+  }, [seller?.deliveryOptions]);
+
+  const getPaymentIcon = (method: string) => {
+    const key = method.toLowerCase();
+    if (key.includes('mobile') || key.includes('momo')) return '📱';
+    if (key.includes('card')) return '💳';
+    if (key.includes('bank')) return '🏦';
+    if (key.includes('cash')) return '💵';
+    if (key.includes('paypal')) return '🔵';
+    return '💳';
+  };
+
+  const getDeliveryIcon = (option: string) => {
+    const key = option.toLowerCase();
+    if (key.includes('pickup')) return '🏪';
+    if (key.includes('delivery')) return '🚚';
+    if (key.includes('shipping')) return '📦';
+    if (key.includes('post')) return '📮';
+    return '🚚';
+  };
+
+  const handleWhatsAppContact = async (product: Product) => {
+    if (!seller || !sellerId) return;
 
     try {
-      await trackInteraction({
-        type: 'product_view',
-        sellerId,
-        productId: product.id,
-        metadata: {
-          productName: product.name,
-          productPrice: product.price,
-        },
-      });
+      // Use the new contact handler
+      await handleContactProduct(product);
     } catch (error) {
-      console.error('Error tracking product view:', error);
+      console.error('Error contacting seller:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to contact seller. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -191,21 +347,33 @@ export default function StorefrontPublic() {
 
   return (
     <PublicLayout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        {/* Store Banner */}
+        {seller.coverUrl && (
+          <div className="relative h-48 md:h-64 lg:h-80 overflow-hidden">
+            <img
+              src={seller.coverUrl}
+              alt={`${seller.storeName} banner`}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40" />
+          </div>
+        )}
+        
         {/* Store Header */}
-        <header className="bg-white border-b border-gray-200">
-          <div className="max-w-6xl mx-auto px-4 py-6">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+        <header className={`bg-white/90 backdrop-blur-sm border-b border-gray-200 shadow-lg ${seller.coverUrl ? '-mt-20 relative z-10 mx-4 rounded-t-2xl' : ''}`}>
+          <div className="max-w-6xl mx-auto px-6 py-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
               <div className="flex-shrink-0">
-                <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center shadow-soft">
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl hover:scale-105 transition-transform duration-300">
                   {seller.logoUrl ? (
                     <img
                       src={seller.logoUrl}
                       alt={seller.storeName}
-                      className="w-20 h-20 rounded-2xl object-cover"
+                      className="w-24 h-24 rounded-2xl object-cover"
                     />
                   ) : (
-                    <span className="text-2xl font-bold text-primary">
+                    <span className="text-white font-bold text-3xl">
                       {seller.storeName[0]?.toUpperCase()}
                     </span>
                   )}
@@ -221,9 +389,45 @@ export default function StorefrontPublic() {
                 <div className="flex flex-wrap gap-3">
                   {(seller.city || seller.country) && (
                     <Badge variant="outline" className="bg-primary/10 text-primary">
-                      📍 {seller.city ? `${seller.city}, ${seller.country}` : seller.country}
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {seller.city ? `${seller.city}, ${seller.country}` : seller.country}
                     </Badge>
                   )}
+                  
+                  {/* Payment Methods */}
+                  {paymentMethods.length > 0 && (
+                    <button
+                      onClick={() => setShowPaymentModal(true)}
+                      className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors text-sm"
+                    >
+                      <CreditCard className="w-3 h-3" />
+                      Payment Methods
+                      <Info className="w-3 h-3" />
+                    </button>
+                  )}
+                  
+                  {/* Delivery Options */}
+                  {deliveryOptions.length > 0 && (
+                    <button
+                      onClick={() => setShowDeliveryModal(true)}
+                      className="flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors text-sm"
+                    >
+                      <Truck className="w-3 h-3" />
+                      Delivery Options
+                      <Info className="w-3 h-3" />
+                    </button>
+                  )}
+                  
+                  {seller.whatsappNumber && (
+                    <button
+                      onClick={handleFloatingChatClick}
+                      className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors text-sm"
+                    >
+                      <Phone className="w-3 h-3" />
+                      Chat Now
+                    </button>
+                  )}
+                  
                   <Badge variant="outline" className="bg-success/10 text-success">
                     🕒 Usually responds in 1 hour
                   </Badge>
@@ -261,13 +465,31 @@ export default function StorefrontPublic() {
                   ))}
                 </SelectContent>
               </Select>
+              
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full md:w-48" data-testid="select-sort">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="name">Name A-Z</SelectItem>
+                  <SelectItem value="popular">Most Popular</SelectItem>
+                </SelectContent>
+              </Select>
+              
               <Button
                 variant={showFavorites ? 'default' : 'outline'}
                 onClick={() => setShowFavorites(!showFavorites)}
                 data-testid="button-favorites"
+                className={showFavorites ? 'bg-red-500 hover:bg-red-600' : ''}
               >
-                <Heart className="w-4 h-4 mr-2" />
+                <Heart className={`w-4 h-4 mr-2 ${showFavorites ? 'fill-current' : ''}`} />
                 <span className="hidden sm:inline">Favorites</span>
+                {favorites.size > 0 && (
+                  <Badge variant="secondary" className="ml-2 text-xs">{favorites.size}</Badge>
+                )}
               </Button>
             </div>
           </Card>
@@ -409,7 +631,8 @@ export default function StorefrontPublic() {
                       }}
                       data-testid={`button-whatsapp-${product.id}`}
                     >
-                      💬 Contact on WhatsApp
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Contact on WhatsApp
                     </Button>
                   </CardContent>
                 </Card>
@@ -417,7 +640,180 @@ export default function StorefrontPublic() {
             </div>
           )}
         </div>
+        
+        {/* Floating Chat Button */}
+        {showChatFab && seller.whatsappNumber && (
+          <button
+            onClick={handleFloatingChatClick}
+            className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg flex items-center justify-center z-50 transition-all duration-300 hover:scale-110"
+            style={{ animation: 'float 3s ease-in-out infinite' }}
+          >
+            <MessageCircle className="w-6 h-6" />
+          </button>
+        )}
+        
+        {/* Contact Notification */}
+        {contactNotification.show && (
+          <div className="fixed top-6 right-6 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 max-w-sm">
+            <p className="text-sm font-medium">
+              💬 Message sent! Check WhatsApp to continue your conversation about {contactNotification.product?.name}.
+            </p>
+          </div>
+        )}
+        
+        {/* Payment Methods Modal */}
+        {showPaymentModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowPaymentModal(false)}>
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  Payment Methods
+                </h3>
+                <button onClick={() => setShowPaymentModal(false)} className="p-1 hover:bg-gray-100 rounded">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                {paymentMethods.map((method, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span className="text-xl">{getPaymentIcon(method)}</span>
+                    <span className="font-medium">{method}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Delivery Options Modal */}
+        {showDeliveryModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDeliveryModal(false)}>
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Truck className="w-5 h-5" />
+                  Delivery Options
+                </h3>
+                <button onClick={() => setShowDeliveryModal(false)} className="p-1 hover:bg-gray-100 rounded">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                {deliveryOptions.map((option, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span className="text-xl">{getDeliveryIcon(option)}</span>
+                    <span className="font-medium">{option}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Product Detail Modal */}
+        {showProductModal && selectedProduct && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowProductModal(false)}>
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="relative">
+                <img
+                  src={getProductImageUrl(selectedProduct)}
+                  alt={selectedProduct.name}
+                  className="w-full h-64 object-cover"
+                />
+                <button
+                  onClick={() => setShowProductModal(false)}
+                  className="absolute top-4 right-4 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center hover:bg-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => toggleFavorite(selectedProduct.id, e)}
+                  className={`absolute top-4 left-4 w-8 h-8 bg-white/80 backdrop-blur rounded-full flex items-center justify-center hover:bg-white transition-colors ${
+                    favorites.has(selectedProduct.id) ? 'text-red-500' : 'text-gray-400'
+                  }`}
+                >
+                  <Heart className="w-4 h-4" fill={favorites.has(selectedProduct.id) ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+              
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-2">{selectedProduct.name}</h2>
+                <p className="text-3xl font-bold text-green-600 mb-4">{formatPrice(selectedProduct.price)}</p>
+                
+                {selectedProduct.description && (
+                  <p className="text-gray-600 mb-6">{selectedProduct.description}</p>
+                )}
+                
+                {/* Product Attributes */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  {selectedProduct.brand && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-500">Brand:</span>
+                      <p className="font-medium">{selectedProduct.brand}</p>
+                    </div>
+                  )}
+                  {selectedProduct.condition && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-500">Condition:</span>
+                      <p className="font-medium capitalize">{selectedProduct.condition}</p>
+                    </div>
+                  )}
+                  {selectedProduct.size && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-500">Size:</span>
+                      <p className="font-medium">{selectedProduct.size}</p>
+                    </div>
+                  )}
+                  {selectedProduct.color && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-500">Color:</span>
+                      <p className="font-medium">{selectedProduct.color}</p>
+                    </div>
+                  )}
+                  {selectedProduct.material && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-500">Material:</span>
+                      <p className="font-medium">{selectedProduct.material}</p>
+                    </div>
+                  )}
+                  {selectedProduct.chainLength && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-500">Chain Length:</span>
+                      <p className="font-medium">{selectedProduct.chainLength}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => handleContactProduct(selectedProduct)}
+                    className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Contact Seller
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={(e) => toggleFavorite(selectedProduct.id, e)}
+                    className={favorites.has(selectedProduct.id) ? 'border-red-500 text-red-500' : ''}
+                  >
+                    <Heart className={`w-4 h-4 ${favorites.has(selectedProduct.id) ? 'fill-current' : ''}`} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+      
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
     </PublicLayout>
   );
 }
