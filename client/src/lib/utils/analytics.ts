@@ -30,16 +30,16 @@ export async function trackInteraction({
       
       viewTimeouts[key] = setTimeout(async () => {
         delete viewTimeouts[key];
-        await recordEvent();
+        await recordEventAsync();
       }, 500);
       
       return;
     }
     
     // Record click events immediately
-    await recordEvent();
+    await recordEventAsync();
     
-    async function recordEvent() {
+    async function recordEventAsync() {
       const eventData: Omit<InsertEvent, 'id'> = {
         sellerId,
         type,
