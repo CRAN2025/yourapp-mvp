@@ -1,0 +1,89 @@
+{
+  "publicStores": {
+    "demo-seller-123": {
+      "profile": {
+        "storeName": "Demo Store",
+        "storeDescription": "Premium handcrafted products with WhatsApp orders",
+        "category": "Fashion & Accessories",
+        "country": "Ghana",
+        "city": "Accra",
+        "whatsappNumber": "+233123456789",
+        "logoUrl": "https://example.com/logo.jpg",
+        "coverUrl": "https://example.com/cover.jpg",
+        "deliveryOptions": ["pickup", "local_delivery"],
+        "paymentMethods": ["cash", "mobile_money"],
+        "createdAt": 1756162375000
+      },
+      "products": {
+        "sunset-earrings-001": {
+          "id": "sunset-earrings-001",
+          "name": "Sunset Earrings",
+          "description": "Beautiful handcrafted earrings with sunset colors",
+          "price": 120,
+          "quantity": 5,
+          "category": "Jewelry",
+          "images": ["https://example.com/earrings.jpg"],
+          "brand": "Handmade Ghana",
+          "material": "Sterling Silver",
+          "color": "Gold/Orange",
+          "size": "Medium",
+          "tags": ["handmade", "jewelry", "sunset"],
+          "isActive": true,
+          "createdAt": 1756162375000,
+          "updatedAt": 1756162375000
+        },
+        "handwoven-basket-002": {
+          "id": "handwoven-basket-002",
+          "name": "Handwoven Basket",
+          "description": "Traditional handwoven storage basket",
+          "price": 240,
+          "quantity": 3,
+          "category": "Home & Living",
+          "images": ["https://example.com/basket.jpg"],
+          "brand": "Traditional Crafts",
+          "material": "Natural Fiber",
+          "color": "Natural Brown",
+          "size": "Large",
+          "tags": ["handwoven", "basket", "storage"],
+          "isActive": true,
+          "createdAt": 1756162375000,
+          "updatedAt": 1756162375000
+        }
+      }
+    }
+  },
+  "events": {
+    "demo-seller-123": {
+      "event-001": {
+        "type": "store_view",
+        "sellerId": "demo-seller-123",
+        "timestamp": 1756162375000,
+        "metadata": {
+          "device": "mobile",
+          "source": "direct_link"
+        }
+      },
+      "event-002": {
+        "type": "product_view",
+        "sellerId": "demo-seller-123",
+        "productId": "sunset-earrings-001",
+        "timestamp": 1756162380000,
+        "metadata": {
+          "device": "mobile",
+          "source": "product_card"
+        }
+      },
+      "event-003": {
+        "type": "wa_click",
+        "sellerId": "demo-seller-123",
+        "productId": "sunset-earrings-001",
+        "timestamp": 1756162385000,
+        "metadata": {
+          "device": "mobile",
+          "source": "product_modal",
+          "whatsapp_url": "https://wa.me/233123456789?text=Hi%21%20I%27m%20interested..."
+        }
+      }
+    }
+  }
+}
