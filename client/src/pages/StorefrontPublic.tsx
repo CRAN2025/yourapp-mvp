@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { ref, get } from 'firebase/database';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -51,6 +52,16 @@ export default function StorefrontPublic() {
 
   const sellerId = params?.sellerId;
   const [location] = useLocation();
+
+  // Anonymous authentication for events writing
+  useEffect(() => {
+    const auth = getAuth();
+    if (!auth.currentUser) {
+      signInAnonymously(auth).catch(() => {
+        console.warn('Anonymous auth failed, events may not be tracked');
+      });
+    }
+  }, []);
 
   // Enhanced image quality detection
   const MIN_WIDTH = 800;
@@ -240,8 +251,8 @@ export default function StorefrontPublic() {
         setLoading(true);
         setError(null);
 
-        // Load seller data with timeout
-        const sellerRef = ref(database, `sellers/${sellerId}`);
+        // Load seller data from public store with timeout
+        const sellerRef = ref(database, `publicStores/${sellerId}/profile`);
         const sellerSnapshot = await Promise.race([
           get(sellerRef),
           new Promise((_, reject) => 
@@ -264,8 +275,8 @@ export default function StorefrontPublic() {
         
         setSeller(sellerData);
 
-        // Load products with enhanced filtering
-        const productsRef = ref(database, `sellers/${sellerId}/products`);
+        // Load products from public store with enhanced filtering
+        const productsRef = ref(database, `publicStores/${sellerId}/products`);
         const productsSnapshot = await Promise.race([
           get(productsRef),
           new Promise((_, reject) => 

@@ -281,10 +281,15 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
       if (product) {
         // Update existing product
         const productRef = ref(database, `sellers/${user.uid}/products/${product.id}`);
-        await update(productRef, {
+        const updatedProduct = {
           ...productData,
           updatedAt: serverTimestamp(),
-        });
+        };
+        await update(productRef, updatedProduct);
+
+        // Mirror to public store
+        const { mirrorProduct } = await import('@/lib/utils/dataMirror');
+        await mirrorProduct(user.uid, product.id, { ...product, ...updatedProduct });
 
         toast({
           title: 'Product updated',
@@ -293,12 +298,19 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
       } else {
         // Create new product
         const productsRef = ref(database, `sellers/${user.uid}/products`);
-        await push(productsRef, {
+        const newProductRef = push(productsRef, {
           ...productData,
           sellerId: user.uid,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
+        
+        const newProductId = newProductRef.key;
+        if (newProductId) {
+          // Mirror to public store
+          const { mirrorProduct } = await import('@/lib/utils/dataMirror');
+          await mirrorProduct(user.uid, newProductId, productData);
+        }
 
         toast({
           title: 'Product created',
