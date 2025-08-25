@@ -80,7 +80,7 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
     return country?.currency || 'USD';
   }, [seller?.currency, seller?.country]);
   
-  const currencySymbol = getCurrencySymbol(currency);
+  const currencyCode = currency;
 
   const form = useForm<ProductFormData>({
     defaultValues: {
@@ -429,15 +429,15 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
                     <FormLabel>Price ({currency}) *</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                          {currencySymbol}
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground text-xs font-medium">
+                          {currencyCode}
                         </span>
                         <Input
                           type="text"
                           inputMode="decimal"
                           min="0"
                           placeholder="0.00"
-                          className="pl-8"
+                          className="pl-12"
                           {...field}
                           onChange={(e) => handleNumberInput(field, e.target.value)}
                           data-testid="input-product-price"
