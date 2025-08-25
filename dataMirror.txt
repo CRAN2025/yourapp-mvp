@@ -1,0 +1,61 @@
+import { ref, set, remove, update } from 'firebase/database';
+import { database } from '@/lib/firebase';
+import type { Seller, Product } from '@shared/schema';
+
+/**
+ * Mirror seller profile to public store
+ */
+export async function mirrorSellerProfile(uid: string, profile: Partial<Seller>): Promise<void> {
+  const publicRef = ref(database, `publicStores/${uid}/profile`);
+  
+  const publicProfile = {
+    storeName: profile.storeName || 'Store',
+    storeDescription: profile.storeDescription || '',
+    category: profile.category || '',
+    country: profile.country || '',
+    city: profile.city || '',
+    whatsappNumber: profile.whatsappNumber || '',
+    logoUrl: profile.logoUrl || '',
+    coverUrl: profile.coverUrl || '',
+    deliveryOptions: Array.isArray(profile.deliveryOptions) ? profile.deliveryOptions : [],
+    paymentMethods: Array.isArray(profile.paymentMethods) ? profile.paymentMethods : [],
+    createdAt: profile.createdAt || Date.now()
+  };
+
+  await set(publicRef, publicProfile);
+}
+
+/**
+ * Mirror product to public store
+ */
+export async function mirrorProduct(uid: string, productId: string, product: Partial<Product>): Promise<void> {
+  const pubProdRef = ref(database, `publicStores/${uid}/products/${productId}`);
+  
+  // Only mirror active products with stock
+  if (product.isActive && (product.quantity || 0) > 0) {
+    const publicProduct = {
+      id: productId,
+      name: product.name || '',
+      description: product.description || '',
+      price: Number(product.price) || 0,
+      quantity: Number(product.quantity) || 0,
+      category: product.category || '',
+      images: Array.isArray(product.images) ? product.images : [],
+      brand: product.brand || '',
+      material: product.material || '',
+      color: product.color || '',
+      size: product.size || '',
+      weight: product.weight || '',
+      dimensions: product.dimensions || '',
+      tags: Array.isArray(product.tags) ? product.tags : [],
+      isActive: true,
+      createdAt: product.createdAt || Date.now(),
+      updatedAt: Date.now()
+    };
+
+    await set(pubProdRef, publicProduct);
+  } else {
+    // Remove from public index if inactive or out of stock
+    await remove(pubProdRef);
+  }
+}

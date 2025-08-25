@@ -84,7 +84,8 @@ export default function StorefrontPublic() {
   // Load favorites with enhanced error handling
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('shoplink_favorites');
+      const favKey = `shoplink_favorites_${sellerId}`;
+      const saved = localStorage.getItem(favKey);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
@@ -93,7 +94,7 @@ export default function StorefrontPublic() {
       }
     } catch (error) {
       console.warn('Failed to load favorites from localStorage:', error);
-      localStorage.removeItem('shoplink_favorites');
+      localStorage.removeItem(`shoplink_favorites_${sellerId}`);
     }
   }, []);
 
@@ -368,7 +369,8 @@ export default function StorefrontPublic() {
     
     // Save to localStorage with error handling
     try {
-      localStorage.setItem('shoplink_favorites', JSON.stringify(Array.from(newFavorites)));
+      const favKey = `shoplink_favorites_${sellerId}`;
+      localStorage.setItem(favKey, JSON.stringify(Array.from(newFavorites)));
     } catch (error) {
       console.warn('Failed to save favorites:', error);
     }
