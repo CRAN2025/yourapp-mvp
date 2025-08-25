@@ -35,7 +35,7 @@ export default function AuthGuard({
     }
 
     // Check if user needs to complete onboarding
-    if (requireAuth && user && seller && (!seller.storeName || !seller.whatsappNumber)) {
+    if (requireAuth && user && seller && !seller.onboardingCompleted) {
       if (window.location.pathname !== '/onboarding') {
         navigate('/onboarding');
       }

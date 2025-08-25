@@ -19,6 +19,7 @@ export const sellerSchema = z.object({
   paymentMethods: z.array(z.string()),
   logoUrl: z.string().optional(),
   coverUrl: z.string().optional(),
+  onboardingCompleted: z.boolean().default(false), // Track onboarding completion
   isAdmin: z.boolean().default(false),
   createdAt: z.number(),
   updatedAt: z.number(),
