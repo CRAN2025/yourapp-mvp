@@ -12,6 +12,7 @@ export const sellerSchema = z.object({
   whatsappNumber: z.string(),
   country: z.string(),
   city: z.string().optional(),
+  location: z.string().optional(), // Added location field
   businessType: z.enum(['individual', 'business']).default('individual'),
   currency: z.string(),
   deliveryOptions: z.array(z.string()),
@@ -32,7 +33,7 @@ export const insertSellerSchema = sellerSchema.omit({
 export type Seller = z.infer<typeof sellerSchema>;
 export type InsertSeller = z.infer<typeof insertSellerSchema>;
 
-// Product Schema
+// Product Schema with enhanced e-commerce attributes
 export const productSchema = z.object({
   id: z.string(),
   sellerId: z.string(),
@@ -43,6 +44,19 @@ export const productSchema = z.object({
   category: z.string(),
   subcategory: z.string().optional(),
   images: z.array(z.string()),
+  // Enhanced attributes for e-commerce (like Etsy)
+  brand: z.string().optional(),
+  condition: z.enum(['new', 'like-new', 'good', 'fair', 'vintage']).default('new'),
+  size: z.string().optional(), // e.g., "XL", "32 inches", "One Size"
+  color: z.string().optional(),
+  material: z.string().optional(), // e.g., "Cotton", "Stainless Steel"
+  weight: z.string().optional(), // e.g., "500g", "2 lbs"
+  dimensions: z.string().optional(), // e.g., "30x20x10 cm"
+  tags: z.array(z.string()).default([]), // Additional searchable tags
+  sku: z.string().optional(), // Stock Keeping Unit
+  isHandmade: z.boolean().default(false),
+  isCustomizable: z.boolean().default(false),
+  processingTime: z.string().optional(), // e.g., "1-3 business days"
   isActive: z.boolean().default(true),
   createdAt: z.number(),
   updatedAt: z.number(),
@@ -104,6 +118,22 @@ export const categories = [
   '📦 Other',
   '🎮 Sports & Gaming',
   '🔧 Tools & Hardware',
+] as const;
+
+// Product conditions for e-commerce
+export const productConditions = [
+  { value: 'new', label: 'New', description: 'Brand new, never used' },
+  { value: 'like-new', label: 'Like New', description: 'Excellent condition, barely used' },
+  { value: 'good', label: 'Good', description: 'Good condition with minor signs of use' },
+  { value: 'fair', label: 'Fair', description: 'Functional with noticeable wear' },
+  { value: 'vintage', label: 'Vintage', description: 'Vintage or antique item' },
+] as const;
+
+// Common product sizes
+export const commonSizes = [
+  'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL',
+  'One Size', 'Free Size', 
+  'Custom Size', 'See Description'
 ] as const;
 
 export const countries = [
@@ -171,6 +201,8 @@ export const paymentMethods = [
 ] as const;
 
 export type Category = typeof categories[number];
+export type ProductCondition = typeof productConditions[number]['value'];
+export type CommonSize = typeof commonSizes[number];
 
 // Keep existing user schema for compatibility
 export const users = {

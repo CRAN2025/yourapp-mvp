@@ -6,7 +6,7 @@ import { ref, push, update, serverTimestamp } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { database, storage } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
-import { insertProductSchema, categories, countries, type Product, type InsertProduct } from '@shared/schema';
+import { insertProductSchema, categories, countries, productConditions, type Product, type InsertProduct } from '@shared/schema';
 import { formatPrice, getCurrencySymbol } from '@/lib/utils/currency';
 
 // Form interface with string values for numbers (to handle input properly)
@@ -18,6 +18,19 @@ interface ProductFormData {
   category: string;
   subcategory?: string;
   images: string[];
+  // Enhanced attributes
+  brand?: string;
+  condition: 'new' | 'like-new' | 'good' | 'fair' | 'vintage';
+  size?: string;
+  color?: string;
+  material?: string;
+  weight?: string;
+  dimensions?: string;
+  tags: string[];
+  sku?: string;
+  isHandmade: boolean;
+  isCustomizable: boolean;
+  processingTime?: string;
   isActive: boolean;
 }
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -73,6 +86,19 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
       category: product?.category || '',
       subcategory: product?.subcategory || '',
       images: product?.images || [],
+      // Enhanced attributes
+      brand: product?.brand || '',
+      condition: product?.condition || 'new',
+      size: product?.size || '',
+      color: product?.color || '',
+      material: product?.material || '',
+      weight: product?.weight || '',
+      dimensions: product?.dimensions || '',
+      tags: product?.tags || [],
+      sku: product?.sku || '',
+      isHandmade: product?.isHandmade ?? false,
+      isCustomizable: product?.isCustomizable ?? false,
+      processingTime: product?.processingTime || '',
       isActive: product?.isActive ?? true,
     },
   });
@@ -143,6 +169,19 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
         category: data.category,
         subcategory: data.subcategory,
         images: imageUrls,
+        // Enhanced attributes
+        brand: data.brand,
+        condition: data.condition,
+        size: data.size,
+        color: data.color,
+        material: data.material,
+        weight: data.weight,
+        dimensions: data.dimensions,
+        tags: data.tags,
+        sku: data.sku,
+        isHandmade: data.isHandmade,
+        isCustomizable: data.isCustomizable,
+        processingTime: data.processingTime,
         isActive: data.isActive,
       };
 
@@ -400,6 +439,163 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
                 </FormItem>
               )}
             />
+
+            {/* Enhanced Product Attributes */}
+            <div className="border-t pt-6 mt-6">
+              <h3 className="text-lg font-semibold mb-4">Product Details</h3>
+              
+              {/* Brand and Condition */}
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <FormField
+                  control={form.control}
+                  name="brand"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Brand</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Nike, Apple, Handmade"
+                          {...field}
+                          data-testid="input-product-brand"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="condition"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Condition *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-product-condition">
+                            <SelectValue placeholder="Select condition" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {productConditions.map((condition) => (
+                            <SelectItem key={condition.value} value={condition.value}>
+                              {condition.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Size, Color, Material */}
+              <div className="grid sm:grid-cols-3 gap-4 mb-4">
+                <FormField
+                  control={form.control}
+                  name="size"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Size</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="XL, 32 inches, One Size"
+                          {...field}
+                          data-testid="input-product-size"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="color"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Color</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Red, Blue, Multi-color"
+                          {...field}
+                          data-testid="input-product-color"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="material"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Material</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Cotton, Steel, Plastic"
+                          {...field}
+                          data-testid="input-product-material"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Special Attributes */}
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="isHandmade"
+                      {...form.register('isHandmade')}
+                      className="rounded border-gray-300"
+                      data-testid="checkbox-handmade"
+                    />
+                    <label htmlFor="isHandmade" className="text-sm font-medium">
+                      🎨 Handmade item
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="isCustomizable"
+                      {...form.register('isCustomizable')}
+                      className="rounded border-gray-300"
+                      data-testid="checkbox-customizable"
+                    />
+                    <label htmlFor="isCustomizable" className="text-sm font-medium">
+                      ⚙️ Customizable
+                    </label>
+                  </div>
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="processingTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Processing Time</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="1-3 business days"
+                          {...field}
+                          data-testid="input-processing-time"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 pt-6">

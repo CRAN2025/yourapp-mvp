@@ -219,9 +219,9 @@ export default function StorefrontPublic() {
                   <p className="text-muted-foreground mb-4">{seller.storeDescription}</p>
                 )}
                 <div className="flex flex-wrap gap-3">
-                  {seller.location && (
+                  {(seller.city || seller.country) && (
                     <Badge variant="outline" className="bg-primary/10 text-primary">
-                      📍 {seller.location}
+                      📍 {seller.city ? `${seller.city}, ${seller.country}` : seller.country}
                     </Badge>
                   )}
                   <Badge variant="outline" className="bg-success/10 text-success">
