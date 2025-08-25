@@ -147,36 +147,6 @@ export default function StorefrontPublic() {
     }
   }, [products, sellerId]);
 
-  // Enhanced keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Close modals with Escape
-      if (e.key === 'Escape') {
-        setShowProductModal(false);
-        setShowPaymentModal(false);
-        setShowDeliveryModal(false);
-        setContactNotification({show: false, product: null});
-        return;
-      }
-      
-      // Navigate products with arrow keys when modal is open
-      if (showProductModal && selectedProduct) {
-        const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
-        if (e.key === 'ArrowLeft' && currentIndex > 0) {
-          const prevProduct = filteredProducts[currentIndex - 1];
-          setSelectedProduct(prevProduct);
-          window.history.replaceState(null, '', `#${prevProduct.id}`);
-        } else if (e.key === 'ArrowRight' && currentIndex < filteredProducts.length - 1) {
-          const nextProduct = filteredProducts[currentIndex + 1];
-          setSelectedProduct(nextProduct);
-          window.history.replaceState(null, '', `#${nextProduct.id}`);
-        }
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showProductModal, selectedProduct, filteredProducts]);
 
   // Auto-dismiss notifications with improved timing
   useEffect(() => {
@@ -402,6 +372,37 @@ export default function StorefrontPublic() {
       }
     }
   };
+
+  // Enhanced keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Close modals with Escape
+      if (e.key === 'Escape') {
+        setShowProductModal(false);
+        setShowPaymentModal(false);
+        setShowDeliveryModal(false);
+        setContactNotification({show: false, product: null});
+        return;
+      }
+      
+      // Navigate products with arrow keys when modal is open
+      if (showProductModal && selectedProduct && filteredProducts) {
+        const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+        if (e.key === 'ArrowLeft' && currentIndex > 0) {
+          const prevProduct = filteredProducts[currentIndex - 1];
+          setSelectedProduct(prevProduct);
+          window.history.replaceState(null, '', `#${prevProduct.id}`);
+        } else if (e.key === 'ArrowRight' && currentIndex < filteredProducts.length - 1) {
+          const nextProduct = filteredProducts[currentIndex + 1];
+          setSelectedProduct(nextProduct);
+          window.history.replaceState(null, '', `#${nextProduct.id}`);
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showProductModal, selectedProduct, filteredProducts]);
 
   // Enhanced product view with analytics
   const handleProductView = async (product: Product) => {
