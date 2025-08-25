@@ -175,6 +175,58 @@ export default function StorefrontPublic() {
     }
   }, [products, sellerId]);
 
+  // Enhanced product filtering with fuzzy search
+  const filteredProducts = useMemo(() => {
+    let filtered = products.filter((product) => {
+      // Enhanced search matching
+      const searchTerms = searchQuery.toLowerCase().split(' ').filter(Boolean);
+      const searchableText = [
+        product.name,
+        product.description,
+        product.category,
+        product.brand,
+        product.material,
+        product.color,
+      ].filter(Boolean).join(' ').toLowerCase();
+      
+      const matchesSearch = searchTerms.length === 0 || 
+        searchTerms.every(term => searchableText.includes(term));
+      
+      const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+      const matchesFavorites = !showFavorites || favorites.has(product.id);
+      
+      return matchesSearch && matchesCategory && matchesFavorites;
+    });
+
+    // Enhanced sorting with multiple criteria
+    switch (sortBy) {
+      case 'price-low':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'name':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'popular':
+        filtered.sort((a, b) => {
+          // Sort by views, then by favorites count, then by recency
+          const aPopularity = ((a as any).analytics?.views || 0) + ((a as any).analytics?.favorites || 0);
+          const bPopularity = ((b as any).analytics?.views || 0) + ((b as any).analytics?.favorites || 0);
+          if (aPopularity !== bPopularity) return bPopularity - aPopularity;
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        });
+        break;
+      case 'newest':
+      default:
+        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        break;
+    }
+
+    return filtered;
+  }, [products, searchQuery, categoryFilter, showFavorites, favorites, sortBy]);
+
   // Enhanced keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -315,58 +367,6 @@ export default function StorefrontPublic() {
 
     loadStoreData();
   }, [sellerId]);
-
-  // Enhanced product filtering with fuzzy search
-  const filteredProducts = useMemo(() => {
-    let filtered = products.filter((product) => {
-      // Enhanced search matching
-      const searchTerms = searchQuery.toLowerCase().split(' ').filter(Boolean);
-      const searchableText = [
-        product.name,
-        product.description,
-        product.category,
-        product.brand,
-        product.material,
-        product.color,
-      ].filter(Boolean).join(' ').toLowerCase();
-      
-      const matchesSearch = searchTerms.length === 0 || 
-        searchTerms.every(term => searchableText.includes(term));
-      
-      const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
-      const matchesFavorites = !showFavorites || favorites.has(product.id);
-      
-      return matchesSearch && matchesCategory && matchesFavorites;
-    });
-
-    // Enhanced sorting with multiple criteria
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'name':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'popular':
-        filtered.sort((a, b) => {
-          // Sort by views, then by favorites count, then by recency
-          const aPopularity = ((a as any).analytics?.views || 0) + ((a as any).analytics?.favorites || 0);
-          const bPopularity = ((b as any).analytics?.views || 0) + ((b as any).analytics?.favorites || 0);
-          if (aPopularity !== bPopularity) return bPopularity - aPopularity;
-          return (b.createdAt || 0) - (a.createdAt || 0);
-        });
-        break;
-      case 'newest':
-      default:
-        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        break;
-    }
-
-    return filtered;
-  }, [products, searchQuery, categoryFilter, showFavorites, favorites, sortBy]);
 
   // Enhanced category extraction with counts
   const categories = useMemo(() => {
@@ -1003,18 +1003,14 @@ Product Link: ${productUrl}`;
                     : "This store doesn't have any products listed yet. Check back soon!"
                 }
                 action={
-                  (searchQuery || categoryFilter !== 'all' || showFavorites) && (
-                    <Button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setCategoryFilter('all');
-                        setShowFavorites(false);
-                      }}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
-                    >
-                      Clear All Filters
-                    </Button>
-                  )
+                  (searchQuery || categoryFilter !== 'all' || showFavorites) ? {
+                    label: "Clear All Filters",
+                    onClick: () => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setShowFavorites(false);
+                    }
+                  } : undefined
                 }
               />
             </Card>
@@ -1031,7 +1027,7 @@ Product Link: ${productUrl}`;
                     {/* Enhanced product image */}
                     <div className="aspect-square relative bg-gradient-to-br from-slate-100 to-slate-50">
                       <img
-                        src={getProductImageUrl(product.images?.[0]) || ULTRA_PREMIUM_PLACEHOLDER}
+                        src={getProductImageUrl(product) || ULTRA_PREMIUM_PLACEHOLDER}
                         alt={product.name}
                         className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                         onLoad={(e) => handleImageLoad(product.id, e)}
@@ -1372,7 +1368,7 @@ Product Link: ${productUrl}`;
               <div className="relative">
                 <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
                   <img
-                    src={getProductImageUrl(selectedProduct.images?.[0]) || ULTRA_PREMIUM_PLACEHOLDER}
+                    src={getProductImageUrl(selectedProduct) || ULTRA_PREMIUM_PLACEHOLDER}
                     alt={selectedProduct.name}
                     className="w-full h-full object-cover"
                     onLoad={(e) => handleImageLoad(selectedProduct.id, e)}
