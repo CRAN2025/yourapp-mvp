@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import logoUrl from '@/assets/logo.png';
 
 export default function MarketLanding() {
   const [location, navigate] = useLocation();
@@ -195,8 +196,12 @@ export default function MarketLanding() {
       <header className="container" style={{ padding: '20px 20px', position:'relative', zIndex:2 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ fontSize: 20 }}>🛍️</div>
-            <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
+            <img 
+              src={logoUrl} 
+              alt="ShoplYnk" 
+              style={{ width: 32, height: 32 }}
+            />
+            <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShoplYnk</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
             <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
