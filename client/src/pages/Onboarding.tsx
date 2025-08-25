@@ -51,12 +51,28 @@ type DeliveryPaymentForm = z.infer<typeof deliveryPaymentSchema>;
 type BrandingForm = z.infer<typeof brandingSchema>;
 
 export default function Onboarding() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [, navigate] = useLocation();
+  // Determine starting step based on existing data
   const { seller, updateSellerProfile, loading } = useAuthContext();
+  
+  const getInitialStep = () => {
+    if (!seller) return 1;
+    if (seller.storeName && seller.category) {
+      if (seller.whatsappNumber && seller.country) {
+        if (seller.deliveryOptions && seller.paymentMethods) {
+          return 4; // Go to branding step
+        }
+        return 3; // Go to delivery/payment step
+      }
+      return 2; // Go to business info step
+    }
+    return 1; // Start from store details
+  };
+  
+  const [currentStep, setCurrentStep] = useState(getInitialStep());
+  const [, navigate] = useLocation();
   const { toast } = useToast();
-  const [selectedCountry, setSelectedCountry] = useState('US');
-  const [phoneHint, setPhoneHint] = useState(getPhoneHint('US'));
+  const [selectedCountry, setSelectedCountry] = useState(seller?.country || 'US');
+  const [phoneHint, setPhoneHint] = useState(getPhoneHint(seller?.country || 'US'));
 
   const steps = [
     { id: 1, name: 'Store Details', description: "Let's start with the basics about your store" },
@@ -198,11 +214,15 @@ export default function Onboarding() {
 
   const handleBranding = async (data: BrandingForm) => {
     try {
-      // TODO: Upload logo to Firebase Storage and get URL
-      // For now, complete onboarding
+      // Mark onboarding as completed
+      await updateSellerProfile({
+        onboardingCompleted: true,
+        // TODO: Upload logoFile to Firebase Storage and save URL
+      });
+      
       navigate('/products');
       toast({
-        title: 'Welcome to ShopLink!',
+        title: 'Welcome to ShoplYnk!',
         description: 'Your store setup is complete. Start adding products!',
       });
     } catch (error) {
@@ -215,13 +235,26 @@ export default function Onboarding() {
   };
 
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     if (currentStep === 4) {
-      navigate('/products');
-      toast({
-        title: 'Welcome to ShopLink!',
-        description: 'Your store setup is complete. Start adding products!',
-      });
+      // Mark onboarding as completed when skipping branding
+      try {
+        await updateSellerProfile({
+          onboardingCompleted: true,
+        });
+        
+        navigate('/products');
+        toast({
+          title: 'Welcome to ShoplYnk!',
+          description: 'Your store setup is complete. Start adding products!',
+        });
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to complete onboarding. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } else {
       setCurrentStep(currentStep + 1);
     }
