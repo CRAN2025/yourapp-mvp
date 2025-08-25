@@ -14,12 +14,6 @@ const firebaseConfig = {
   appId: "1:784289207075:web:c33ce2d8a576ba90bfb296"
 };
 
-// Debug log to verify config
-console.log('Firebase Config Loaded:', {
-  hasApiKey: !!firebaseConfig.apiKey,
-  projectId: firebaseConfig.projectId,
-  authDomain: firebaseConfig.authDomain
-});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
