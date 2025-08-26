@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { ref, get } from 'firebase/database';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap } from 'lucide-react';
-import { database } from '@/lib/firebase';
+import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
 import { openWhatsApp, createWhatsAppMessage } from '@/lib/utils/whatsapp';
@@ -49,14 +50,23 @@ export default function StorefrontPublic() {
   const [showChatFab, setShowChatFab] = useState(false);
   const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
   const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
+  const [isOwner, setIsOwner] = useState(false);
 
   const sellerId = params?.sellerId;
   const [location] = useLocation();
 
-  // Anonymous authentication for events writing (separate app)
+  // Owner detection and anonymous authentication for events
   useEffect(() => {
+    // 2A) Isolate analytics auth (secondary app)
     ensureAnonymousEventsAuth();
-  }, []);
+    
+    // 2B) Detect owner on primary app (no anon sign-in here)
+    const unsubscribe = onAuthStateChanged(primaryAuth, (user) => {
+      setIsOwner(!!user && user.uid === sellerId);
+    });
+    
+    return () => unsubscribe();
+  }, [sellerId]);
 
   // Enhanced image quality detection
   const MIN_WIDTH = 800;
@@ -120,25 +130,7 @@ export default function StorefrontPublic() {
     };
   }, []);
 
-  // Enhanced product deep linking with analytics
-  useEffect(() => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && products.length > 0) {
-      const product = products.find(p => p.id === hash);
-      if (product) {
-        setSelectedProduct(product);
-        setShowProductModal(true);
-        
-        // Track deep link access
-        trackInteraction({
-          type: 'product_view',
-          sellerId: sellerId!,
-          productId: product.id,
-          metadata: { source: 'deeplink' },
-        }).catch(console.error);
-      }
-    }
-  }, [products, sellerId]);
+
 
   // Enhanced product filtering with fuzzy search
   const filteredProducts = useMemo(() => {
@@ -191,6 +183,26 @@ export default function StorefrontPublic() {
 
     return filtered;
   }, [products, searchQuery, categoryFilter, showFavorites, favorites, sortBy]);
+
+  // Deep link: open product modal if URL has #productId
+  useEffect(() => {
+    if (!filteredProducts?.length) return;
+    const id = window.location.hash?.slice(1);
+    if (!id) return;
+    const product = filteredProducts.find(p => p.id === id);
+    if (product) {
+      setSelectedProduct(product);
+      setShowProductModal(true);
+      
+      // Track deep link access
+      trackInteraction({
+        type: 'product_view',
+        sellerId: sellerId!,
+        productId: product.id,
+        metadata: { source: 'deeplink' },
+      }).catch(console.error);
+    }
+  }, [filteredProducts, sellerId]);
 
   // Enhanced keyboard navigation
   useEffect(() => {
@@ -755,25 +767,72 @@ Product Link: ${productUrl}`;
                 <p className="mt-3 text-slate-700 line-clamp-2">{seller.storeDescription}</p>
               )}
 
-              {/* Action pills */}
+              {/* Owner read-only view vs buyer CTAs */}
               <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {seller.whatsappNumber && (
-                  <button
-                    onClick={handleFloatingChatClick}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-emerald-50 border-emerald-200 text-emerald-700 font-semibold"
+                {isOwner ? (
+                  <a 
+                    href="/products" 
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border font-bold text-decoration-none cursor-pointer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      background: 'rgba(99,102,241,0.12)',
+                      color: '#6366f1',
+                      padding: '8px 16px',
+                      borderRadius: 999,
+                      fontWeight: 700,
+                      border: '1px solid rgba(0,0,0,0.08)',
+                      textDecoration: 'none'
+                    }}
                   >
-                    <MessageCircle className="h-4 w-4" />
-                    Chat with seller on WhatsApp
-                  </button>
+                    ← Back to dashboard
+                  </a>
+                ) : (
+                  <>
+                    {seller.whatsappNumber && (
+                      <button
+                        onClick={handleFloatingChatClick}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full border font-semibold"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          background: 'rgba(37,211,102,0.12)',
+                          color: '#25D366',
+                          padding: '8px 16px',
+                          borderRadius: 999,
+                          fontWeight: 700,
+                          border: '1px solid rgba(0,0,0,0.08)',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        Chat with seller on WhatsApp
+                      </button>
+                    )}
+                    <a
+                      href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
+                      target="_blank" rel="noopener noreferrer"
+                      onClick={() => handleMarketingClick('hero')}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border font-bold"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        background: 'rgba(59,130,246,0.12)',
+                        color: '#3b82f6',
+                        padding: '8px 16px',
+                        borderRadius: 999,
+                        fontWeight: 700,
+                        border: '1px solid rgba(0,0,0,0.08)',
+                        textDecoration: 'none'
+                      }}
+                    >
+                      ✨ Create your free store
+                    </a>
+                  </>
                 )}
-                <a
-                  href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
-                  target="_blank" rel="noopener noreferrer"
-                  onClick={() => handleMarketingClick('hero')}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full border bg-blue-50 border-blue-200 text-blue-700 font-bold"
-                >
-                  ✨ Create your free ShopLink store
-                </a>
               </div>
             </div>
           </div>
@@ -977,22 +1036,24 @@ Product Link: ${productUrl}`;
                         </div>
                       )}
                       
-                      {/* Favorite button */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-50 rounded-full shadow-md"
-                        onClick={(e) => toggleFavorite(product.id, e)}
-                        data-testid={`button-favorite-${product.id}`}
-                      >
-                        <Heart
-                          className={`h-4 w-4 ${
-                            favorites.has(product.id)
-                              ? 'fill-red-500 text-red-500'
-                              : 'text-slate-600 hover:text-red-500'
-                          }`}
-                        />
-                      </Button>
+                      {/* Favorite button - hidden for owners */}
+                      {!isOwner && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-50 rounded-full shadow-md"
+                          onClick={(e) => toggleFavorite(product.id, e)}
+                          data-testid={`button-favorite-${product.id}`}
+                        >
+                          <Heart
+                            className={`h-4 w-4 ${
+                              favorites.has(product.id)
+                                ? 'fill-red-500 text-red-500'
+                                : 'text-slate-600 hover:text-red-500'
+                            }`}
+                          />
+                        </Button>
+                      )}
 
                       {/* Product badges */}
                       <div className="absolute bottom-2 left-2 flex gap-1">
@@ -1044,32 +1105,49 @@ Product Link: ${productUrl}`;
                         </div>
                       </div>
 
-                      {/* Action buttons */}
+                      {/* Action buttons - different for owners vs buyers */}
                       <div className="flex gap-2 pt-3 border-t border-gray-200">
-                        <Button
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactProduct(product);
-                          }}
-                          data-testid={`button-contact-${product.id}`}
-                        >
-                          <MessageCircle className="h-4 w-4 mr-2" />
-                          WhatsApp
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleProductView(product);
-                          }}
-                          className="px-4 border border-gray-200 hover:bg-gray-50 rounded-md"
-                          data-testid={`button-view-${product.id}`}
-                        >
-                          View
-                        </Button>
+                        {isOwner ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 border border-gray-200 hover:bg-gray-50 rounded-md"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleProductView(product);
+                            }}
+                            data-testid={`button-view-${product.id}`}
+                          >
+                            View Details
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleContactProduct(product);
+                              }}
+                              data-testid={`button-contact-${product.id}`}
+                            >
+                              <MessageCircle className="h-4 w-4 mr-2" />
+                              WhatsApp
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleProductView(product);
+                              }}
+                              className="px-4 border border-gray-200 hover:bg-gray-50 rounded-md"
+                              data-testid={`button-view-${product.id}`}
+                            >
+                              View
+                            </Button>
+                          </>
+                        )}
                       </div>
 
                       {/* Product attributes */}
