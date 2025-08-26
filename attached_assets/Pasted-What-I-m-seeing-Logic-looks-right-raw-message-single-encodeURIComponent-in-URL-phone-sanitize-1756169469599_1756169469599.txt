@@ -1,3 +1,21 @@
+What I’m seeing
+
+✅ Logic looks right: raw message → single encodeURIComponent in URL, phone sanitized to digits, mobile vs desktop routing, popup-safe window.open.
+
+❗️Two problems in the snippet you pasted:
+
+There’s a stray . after openWhatsApp(...) { ... } which will cause a syntax error.
+
+You both import isMobileDevice from ./device and define/export it again below. That’s a duplicate definition and will break TS/ES builds (or shadow unexpectedly).
+
+What to change
+
+Keep device helpers in device.ts and do not re-declare them in whatsapp.ts.
+
+Remove the stray . so the file parses.
+
+Drop-in fixed files
+src/lib/utils/whatsapp.ts
 import { isMobileDevice } from './device';
 
 /** Create WhatsApp message for product inquiry (RAW text) */
@@ -42,4 +60,26 @@ export function openWhatsApp(
   const url = generateWhatsAppUrl(e164Number, message, forceMobile);
   const win = window.open(url, '_blank', 'noopener,noreferrer');
   if (!win) window.location.href = url;
+}
+
+src/lib/utils/device.ts
+/** Detect if user is on a mobile device */
+export function isMobileDevice(): boolean {
+  if (typeof navigator === 'undefined') return false; // SSR safety
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+/** Get device type string for analytics */
+export function getDeviceType(): 'mobile' | 'desktop' {
+  return isMobileDevice() ? 'mobile' : 'desktop';
+}
+
+export function isIOS(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
+export function isAndroid(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /Android/.test(navigator.userAgent);
 }

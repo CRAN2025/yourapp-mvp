@@ -1,8 +1,6 @@
 import { isMobileDevice } from './device';
 
-/**
- * Create WhatsApp message for product inquiry
- */
+/** Create WhatsApp message for product inquiry (RAW text) */
 export function createWhatsAppMessage({
   storeName,
   productName,
@@ -15,44 +13,27 @@ export function createWhatsAppMessage({
   url?: string;
 }): string {
   let message = `Hi! I'm interested in the "${productName}" from ${storeName}.`;
-  
-  if (url) {
-    message += `\n\nI found it here: ${url}`;
-  }
-  
-  if (productId) {
-    message += `\n\nProduct ID: ${productId}`;
-  }
-  
+  if (url) message += `\n\nI found it here: ${url}`;
+  if (productId) message += `\n\nProduct ID: ${productId}`;
   message += '\n\nCould you please provide more details?';
-  
-  return message;
+  return message; // raw text (do NOT encode here)
 }
 
-/**
- * Generate WhatsApp URL based on device type
- */
+/** Generate a WhatsApp URL (mobile = wa.me, desktop = web.whatsapp.com) */
 export function generateWhatsAppUrl(
   e164Number: string,
   message: string,
   forceMobile?: boolean
 ): string {
   const isMobile = forceMobile ?? isMobileDevice();
-  const sanitizedPhone = String(e164Number).replace(/[^\d]/g, '');
-  const encodedMessage = encodeURIComponent(message);
-  
-  if (isMobile) {
-    // Mobile: Opens WhatsApp app directly
-    return `https://wa.me/${sanitizedPhone}?text=${encodedMessage}`;
-  } else {
-    // Desktop: Opens WhatsApp Web in new tab
-    return `https://web.whatsapp.com/send?phone=${sanitizedPhone}&text=${encodedMessage}`;
-  }
+  const phone = String(e164Number || '').replace(/[^\d]/g, ''); // digits only
+  const text = encodeURIComponent(message || '');
+  return isMobile
+    ? `https://wa.me/${phone}?text=${text}`
+    : `https://web.whatsapp.com/send?phone=${phone}&text=${text}`;
 }
 
-/**
- * Open WhatsApp with proper device detection
- */
+/** Open WhatsApp with popup-safe fallback */
 export function openWhatsApp(
   e164Number: string,
   message: string,
