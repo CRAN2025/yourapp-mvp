@@ -1,0 +1,196 @@
+WORK ORDER — Public Storefront, Sessions, and Mirroring
+Goals
+
+Seller session stays intact when opening their public store.
+
+Public page works for everyone (no login), with anonymous analytics.
+
+Owner view is read-only (no self-CTAs), while buyers see WhatsApp + marketing CTA.
+
+Public reads only from publicStores/*.
+
+Mirroring is reliable: quantity > 0 → publish; explicitly inactive or 0 → unpublish.
+
+Deep link #productId opens the product modal.
+
+1) Isolate analytics with a secondary Firebase app
+
+Create src/lib/firebaseEvents.ts:
+
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getDatabase } from 'firebase/database';
+import { firebaseConfig } from '@/firebaseConfig';
+
+export const eventsApp =
+  getApps().find(a => a.name === 'events') ?? initializeApp(firebaseConfig, 'events');
+
+export const eventsAuth = getAuth(eventsApp);
+export const eventsDb = getDatabase(eventsApp);
+
+export async function ensureAnonymousEventsAuth() {
+  if (!eventsAuth.currentUser) {
+    try { await signInAnonymously(eventsAuth); } catch (e) { console.warn('Anon auth failed', e); }
+  }
+}
+
+
+Update analytics to use events DB only:
+
+// src/lib/utils/analytics.ts (or where trackInteraction lives)
+import { ref, push } from 'firebase/database';
+import { eventsDb } from '@/lib/firebaseEvents';
+
+export async function trackInteraction(sellerId: string, payload: any) {
+  const timestamp = Date.now();
+  await push(ref(eventsDb, `events/${sellerId}`), { ...payload, timestamp });
+}
+
+
+Remove any signInAnonymously(getAuth(primaryApp)) calls in the public page.
+
+2) Public storefront: keep seller logged in, still log events
+
+In StorefrontPublic*.tsx:
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { app as primaryApp } from '@/firebase';
+import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
+
+const { sellerId } = useParams();
+const [isOwner, setIsOwner] = useState(false);
+
+useEffect(() => {
+  // 2A) Isolate analytics auth (secondary app)
+  ensureAnonymousEventsAuth();
+  // 2B) Detect owner on primary app (no anon sign-in here)
+  const unsub = onAuthStateChanged(getAuth(primaryApp), (u) => {
+    setIsOwner(!!u && u.uid === sellerId);
+  });
+  return () => unsub();
+}, [sellerId]);
+
+
+Open public store from dashboard in a new tab:
+
+<a href={`/store/${sellerId}`} target="_blank" rel="noopener noreferrer">
+  View Public Store
+</a>
+
+3) Owner read-only view vs buyer CTAs
+
+Hide CTAs/Favorites for owner; show “Back to dashboard”. For buyers, show WhatsApp + marketing CTA.
+
+function pill(bg: string, color: string) {
+  return { display:'inline-flex',alignItems:'center',gap:8,background:bg,color,padding:'8px 16px',borderRadius:999,fontWeight:700,border:'1px solid rgba(0,0,0,0.08)',textDecoration:'none',cursor:'pointer' };
+}
+
+<div style={{ display:'flex',gap:12,justifyContent:'center',flexWrap:'wrap',padding:'12px 24px' }}>
+  {isOwner ? (
+    <a href="/products" className="btn" style={pill('rgba(99,102,241,0.12)', '#6366f1')}>
+      ← Back to dashboard
+    </a>
+  ) : (
+    <>
+      <button onClick={handleFloatingChatClick} className="btn" style={pill('rgba(37,211,102,0.12)', '#25D366')}>
+        Chat with seller on WhatsApp
+      </button>
+      <a
+        href={`${import.meta.env.VITE_MARKETING_URL || '/' }?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
+        target="_blank" rel="noopener noreferrer" className="btn" style={pill('rgba(59,130,246,0.12)', '#3b82f6')}
+      >
+        ✨ Create your free store
+      </a>
+    </>
+  )}
+</div>
+
+
+Pass disableActions={isOwner} down to ProductCard to hide WhatsApp and Favorites for owner.
+
+4) Mirroring: default to “publish when quantity > 0”
+
+In dataMirror.ts:
+
+function shouldPublish(p: any): boolean {
+  const qty = Number(p?.quantity ?? 0);
+  const inactive = String(p?.status ?? '').toLowerCase() === 'inactive' || p?.status === false;
+  return qty > 0 && !inactive; // default publish rule
+}
+
+export async function mirrorProduct(uid: string, productId: string, data: any) {
+  const pubRef = ref(db, `publicStores/${uid}/products/${productId}`);
+  if (shouldPublish(data)) {
+    const { createdAt, ...rest } = data ?? {};
+    await set(pubRef, { ...rest, createdAt: createdAt ?? Date.now() });
+  } else {
+    await remove(pubRef);
+  }
+}
+
+
+Ensure save flows call mirroring:
+
+// after saving profile to sellers/${uid}/profile
+await mirrorSellerProfile(uid, profileData);
+
+// after saving product to sellers/${uid}/products/${productId}
+await mirrorProduct(uid, productId, productData);
+
+
+(Optional) Add a “Publish now” button on Storefront tab to mirror profile + all products in one go.
+
+5) Deep-link: open product modal if URL has #productId
+useEffect(() => {
+  if (!filteredProducts?.length) return;
+  const id = window.location.hash?.slice(1);
+  if (!id) return;
+  const p = filteredProducts.find(x => x.productId === id);
+  if (p) { setSelectedProduct(p); setShowProductModal(true); }
+}, [filteredProducts]);
+
+6) Env & links
+
+Use your marketing site:
+
+VITE_MARKETING_URL=https://yourmarketing.example
+
+Keep public reads to:
+
+publicStores/${sellerId}/profile
+
+publicStores/${sellerId}/products
+
+Keep favorites per store: shoplink_favorites_${sellerId} (already done).
+
+Acceptance Tests (agent must run)
+
+Seller session preserved
+
+Log into dashboard → “View Public Store” (new tab) → return to dashboard tab → still logged in (not Anonymous).
+
+Public page (incognito)
+
+Open /store/gNC7s1HAzJg3rvCVrFEN8QA4x5U2 → profile + products render from publicStores/*.
+
+Owner read-only view
+
+As the seller, open your public page → no WhatsApp / no Favorites / no marketing CTA; Back to dashboard visible.
+
+Anonymous analytics
+
+On public page: visiting logs store_view, product modal logs product_view, WhatsApp logs wa_click in events/<sellerId>/*.
+
+Works even while a seller is logged in elsewhere (because events use secondary app).
+
+Mirroring rules
+
+Product with quantity > 0 appears publicly; setting quantity = 0 (or status: 'inactive') removes it.
+
+“Publish now” (if added) mirrors all existing private data.
+
+Deep link
+
+/store/<sellerId>#<productId> opens the product modal on load.
