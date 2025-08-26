@@ -1,0 +1,41 @@
+{
+  "events": {
+    "seller123": {
+      "event001": {
+        "type": "store_view",
+        "sellerId": "seller123",
+        "productId": null,
+        "timestamp": 1756222800000,
+        "metadata": {
+          "source": "direct",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          "device": "desktop"
+        }
+      },
+      "event002": {
+        "type": "product_view",
+        "sellerId": "seller123", 
+        "productId": "product-abc",
+        "timestamp": 1756222810000,
+        "metadata": {
+          "source": "deeplink",
+          "productName": "Wireless Headphones",
+          "productPrice": 99.99,
+          "category": "electronics"
+        }
+      },
+      "event003": {
+        "type": "wa_click",
+        "sellerId": "seller123",
+        "productId": "product-abc", 
+        "timestamp": 1756222820000,
+        "metadata": {
+          "productName": "Wireless Headphones",
+          "productPrice": 99.99,
+          "category": "electronics",
+          "device": "desktop"
+        }
+      }
+    }
+  }
+}

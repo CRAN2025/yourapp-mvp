@@ -1,0 +1,141 @@
+deliver one final package that proves everything is correct and regression-free.
+
+📦 Upload: shoplynk-go-live-proof-YYYYMMDD.zip
+
+Include the folders/files below (no placeholders, real artifacts).
+
+1) Routing & Session Guard (owner vs anonymous)
+
+Videos
+
+videos/owner-dashboard.mp4 — Logged-in seller opens /products and /storefront (both load). Click View Public Store → opens in new tab; returning to dashboard tab stays logged in.
+
+videos/incognito-guards.mp4 — Incognito opens /products and /storefront → redirects to /auth; opens /store/<sellerId> → loads.
+
+Playwright HTML report (playwright-report/) proving the above redirects & loads.
+
+Console logs (console/owner.json, console/incognito.json) — no errors/warnings.
+
+Pass criteria: owner never becomes anonymous; incognito can’t access dashboard; public store loads.
+
+2) Public vs Private Data Paths
+
+Code grep results:
+
+grep-results/public.txt — references only publicStores/${sellerId}/profile|products in the public page.
+
+grep-results/no-anon-primary.txt — show that signInAnonymously( is not used on the primary app.
+
+Data snapshots
+
+rtdb/public/profile.json — publicStores/<sellerId>/profile.
+
+rtdb/public/products.json — publicStores/<sellerId>/products.
+
+rtdb/private/seller-profile.json — sellers/<uid>/profile (private).
+
+Pass criteria: public page reads only publicStores/*; no anonymous sign-in on primary app.
+
+3) Events on Secondary Firebase App
+
+Code files
+
+src/lib/firebaseEvents.ts
+
+The public page import & call to ensureAnonymousEventsAuth() (show exact lines).
+
+Event samples (rtdb/events.json) — under events/<sellerId>/, include store_view, product_view, wa_click with timestamp & device.
+
+Pass criteria: events are written from the secondary app only; present in RTDB.
+
+4) RTDB Rules (deployable export)
+
+database.rules.json — full export from console (no ellipses). Must include:
+
+publicStores/$sellerId → ".read": true
+
+sellers/$uid → private (auth.uid == $uid)
+
+events/$sellerId:
+
+auth.token.sign_in_provider == 'anonymous'
+
+newData.hasChildren(['type','timestamp'])
+
+newData.child('type').val().matches('^(store_view|product_view|wa_click)$')
+
+newData.child('timestamp').isNumber()
+
+Rules simulator screenshots (rules-sim/*.png):
+
+unauth read publicStores/<sellerId>/profile → Allow
+
+authed (same uid) read sellers/<uid>/profile → Allow
+
+authed (other uid) read sellers/<uid>/profile → Deny
+
+Pass criteria: rules match above and screenshots show expected Allow/Deny.
+
+5) Mirroring Behavior (publish on save)
+
+Video videos/mirroring.mp4 — In /products, edit product qty:
+
+qty > 0 → appears at publicStores/<sellerId>/products.
+
+qty = 0 (or status: inactive) → removed from public.
+
+JSON before/after (rtdb/public/products-before.json, rtdb/public/products-after.json).
+
+Pass criteria: mirror updates instantly on save.
+
+6) Deep-Link Product Modal
+
+URL used (txt):
+
+…/store/<sellerId>#<productId>
+
+Video videos/deeplink.mp4 — Open in incognito, modal auto-opens; closing clears #hash; clicking another card sets #<productId>.
+
+Pass criteria: modal opens from URL fragment; hash maintained/cleared correctly.
+
+7) Owner-vs-Buyer UI on Public Page
+
+Screenshots
+
+screens/public-as-owner.png — shows “← Back to dashboard”, no WhatsApp, no “Create your store”.
+
+screens/public-as-buyer.png — shows WhatsApp & “Create your store” CTA, no “Back to dashboard”.
+
+Pass criteria: correct CTAs per viewer.
+
+8) WhatsApp Links & Device Routing
+
+Code src/lib/utils/whatsapp.ts, device.ts (final versions).
+
+Video videos/wa-desktop.mp4 — opens web.whatsapp.com/send?....
+
+Video videos/wa-mobile.mov — opens wa.me/<number>?text=....
+
+Pass criteria: single encoding; sanitized phone; device-specific URLs.
+
+9) Build Provenance & Environment
+
+build-log.txt — Vite build from the UI package.
+
+commit.txt — git SHA used.
+
+firebase-use.txt — active Firebase project.
+
+env-summary.txt — shows VITE_MARKETING_URL value (redact secrets).
+
+Pass criteria: build succeeds for the correct package; env wired.
+
+10) Performance & Health
+
+Lighthouse lighthouse-mobile.json (LCP ≤ 2.5s, CLS < 0.1).
+
+Network HAR network/store.har — the public store load (no 4xx/5xx).
+
+Console console/public.json — public page clean (no errors).
+
+Pass criteria: pass thresholds; clean console; healthy network.

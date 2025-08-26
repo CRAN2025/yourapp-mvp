@@ -1,0 +1,4 @@
+./lib/utils/dataMirror.ts:    const publicProfileRef = ref(database, `publicStores/${uid}/profile`);
+./lib/utils/dataMirror.ts:    const publicProductRef = ref(database, `publicStores/${uid}/products/${productId}`);
+./pages/StorefrontPublic.tsx:        const sellerRef = ref(database, `publicStores/${sellerId}/profile`);
+./pages/StorefrontPublic.tsx:        const productsRef = ref(database, `publicStores/${sellerId}/products`);

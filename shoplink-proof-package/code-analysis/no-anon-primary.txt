@@ -1,0 +1,2 @@
+./lib/firebaseEvents.ts:import { getAuth, signInAnonymously } from 'firebase/auth';
+./lib/firebaseEvents.ts:      await signInAnonymously(eventsAuth); 
