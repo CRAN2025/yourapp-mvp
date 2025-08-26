@@ -1,0 +1,59 @@
+{
+  "sellers": {
+    "seller123": {
+      "profile": {
+        "id": "seller123",
+        "email": "seller@example.com",
+        "storeName": "Amazing Products Store",
+        "category": "electronics",
+        "whatsappNumber": "+1234567890",
+        "country": "US",
+        "currency": "USD",
+        "businessType": "individual",
+        "storeDescription": "High-quality electronics and gadgets",
+        "isActive": true,
+        "lastUpdated": 1756222800000,
+        "plan": "free",
+        "subscriptionStatus": "active"
+      },
+      "products": {
+        "product-abc": {
+          "id": "product-abc",
+          "name": "Wireless Headphones",
+          "description": "High-quality wireless headphones with noise cancellation",
+          "price": 99.99,
+          "category": "electronics",
+          "quantity": 15,
+          "isActive": true,
+          "images": ["https://example.com/headphones.jpg"],
+          "createdAt": 1756222800000,
+          "status": "published"
+        },
+        "product-xyz": {
+          "id": "product-xyz",
+          "name": "Smart Watch", 
+          "description": "Feature-rich smartwatch with health tracking",
+          "price": 199.99,
+          "category": "electronics",
+          "quantity": 8,
+          "isActive": true,
+          "images": ["https://example.com/watch.jpg"],
+          "createdAt": 1756222800000,
+          "status": "published"
+        },
+        "product-draft": {
+          "id": "product-draft",
+          "name": "Draft Product",
+          "description": "This is a draft product not visible publicly",
+          "price": 49.99,
+          "category": "electronics",
+          "quantity": 0,
+          "isActive": false,
+          "images": [],
+          "createdAt": 1756222800000,
+          "status": "draft"
+        }
+      }
+    }
+  }
+}

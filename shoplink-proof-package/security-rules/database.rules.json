@@ -1,0 +1,25 @@
+{
+  "rules": {
+    "publicStores": {
+      "$sellerId": {
+        ".read": true,
+        ".write": false
+      }
+    },
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "events": {
+      "$sellerId": {
+        ".read": false,
+        ".write": "auth != null && auth.token.sign_in_provider == 'anonymous'",
+        "$eventId": {
+          ".validate": "newData.hasChildren(['type', 'timestamp']) && newData.child('type').val().matches('^(store_view|product_view|wa_click)$') && newData.child('timestamp').isNumber()"
+        }
+      }
+    }
+  }
+}
