@@ -1,0 +1,81 @@
+1) Harden the route guard (block anonymous on seller/admin routes)
+
+Guard these routes: /products, /storefront, /orders, /analytics, /settings, /admin/*.
+
+Rule: redirect to /auth if !user or user.isAnonymous === true.
+
+Optional extra safety: only allow if sellers/<uid>/profile exists; otherwise send to /onboarding.
+
+Snippet (React Router):
+
+// src/auth/AuthGuard.tsx
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { get, ref } from 'firebase/database';
+import { app, db } from '@/firebase';
+
+export default function AuthGuard({ children }) {
+  const [ok, setOk] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (!u || u.isAnonymous) {
+        navigate('/auth', { replace: true });
+        return;
+      }
+      // Optional: ensure seller record exists
+      const snap = await get(ref(db, `sellers/${u.uid}/profile`));
+      if (!snap.exists()) {
+        navigate('/onboarding', { replace: true });
+        return;
+      }
+      setOk(true);
+    });
+    return () => unsub();
+  }, [navigate]);
+
+  if (!ok) return null; // or a small loading spinner
+  return children;
+}
+
+
+Apply guard to routes:
+
+// src/App.tsx (or router file)
+<Route element={<AuthGuard/>}>
+  <Route path="/products" element={<ProductsPage/>} />
+  <Route path="/storefront" element={<StorefrontPreview/>} />
+  <Route path="/orders" element={<OrdersPage/>} />
+  <Route path="/analytics" element={<AnalyticsPage/>} />
+  <Route path="/settings" element={<SettingsPage/>} />
+  <Route path="/admin/*" element={<AdminApp/>} />
+</Route>
+
+2) Keep anonymous auth only for public store analytics (secondary app)
+
+Ensure signInAnonymously is never called on the primary app.
+
+Use your events app module on /store/:sellerId only.
+
+// src/lib/firebaseEvents.ts (already created)
+export async function ensureAnonymousEventsAuth() {
+  if (!eventsAuth.currentUser) {
+    try { await signInAnonymously(eventsAuth); } catch {}
+  }
+}
+
+// In StorefrontPublic component:
+useEffect(() => {
+  ensureAnonymousEventsAuth(); // ok on public store only
+}, []);
+
+3) Persistence = “Keep me signed in”
+
+Set local persistence when the seller logs in so their session survives tabs.
+
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
+const auth = getAuth(app);
+await setPersistence(auth, browserLocalPersistence);
