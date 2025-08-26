@@ -1,0 +1,94 @@
+Instructions for the AI Agent (do these)
+
+Wire the marketing page as the root route
+
+Ensure the marketing page renders at / (no auth required).
+
+CTA logic: if auth.currentUser → route to /products; else → /auth.
+
+Anonymous events (safe, no sign-out)
+
+On the marketing page, attempt signInAnonymously() only if no user is signed in.
+
+Log marketing_view on mount and cta_click on CTA press to events/<uid-or-public>.
+
+Never run anonymous auth on any seller/admin route.
+
+Head SEO & sharing
+
+Add meta tags (title ≤ 60 chars, description ≤ 155), canonical, Open Graph, Twitter card.
+
+Add /public/og-cover.png and reference it in OG/Twitter meta.
+
+Robots & sitemap
+
+Add /public/robots.txt:
+
+User-agent: *
+Allow: /
+
+Sitemap: https://<PRIMARY_DOMAIN>/sitemap.xml
+
+
+Add /public/sitemap.xml with at least /, /features, /pricing, /faq.
+
+Env-driven links
+
+Read VITE_APP_ORIGIN and VITE_MARKETING_URL.
+
+Marketing CTA → ${VITE_APP_ORIGIN || window.location.origin}/auth.
+
+Avoid hardcoding preview URLs.
+
+If VITE_APP_ORIGIN is unset, fall back to relative /auth.
+
+Firebase Hosting config
+
+Add/confirm firebase.json:
+
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": ["**/.*","**/node_modules/**"],
+    "headers": [
+      { "source": "**/*.@(js|css|woff|woff2|svg|png|jpg|jpeg|gif)", "headers":[{"key":"Cache-Control","value":"public,max-age=31536000,immutable"}]},
+      { "source": "index.html", "headers":[{"key":"Cache-Control","value":"no-cache"}]}
+    ],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }]
+  }
+}
+
+
+Scripts: ensure build outputs to dist/.
+
+Build & deploy scripts
+
+Add npm run deploy:hosting → firebase deploy --only hosting.
+
+Produce deploy-proof.txt with:
+
+firebase-tools version
+
+project id used
+
+deploy output URL(s)
+
+git rev-parse --short HEAD
+
+Drop-in assets
+
+Ensure /public/favicon.ico exists (avoid 404).
+
+Optimize hero image (≤200KB), make it LCP (no lazy-load).
+
+Hand-back artifacts
+
+INDEX.md describing what changed.
+
+src/pages/Landing.tsx (or equivalent) with event hooks & head tags.
+
+public/robots.txt, public/sitemap.xml, public/og-cover.png.
+
+firebase.json, .firebaserc (no secrets).
+
+deploy-proof.txt, commit.txt.
