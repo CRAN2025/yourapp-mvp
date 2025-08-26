@@ -81,22 +81,20 @@ export default function StorefrontPublic() {
     e.currentTarget.src = PLACEHOLDER_IMAGE;
   };
 
+  // Memoized favorites key for proper sellerId-based loading
+  const favKey = useMemo(() => `shoplink_favorites_${sellerId}`, [sellerId]);
+
   // Load favorites with enhanced error handling
   useEffect(() => {
     try {
-      const favKey = `shoplink_favorites_${sellerId}`;
       const saved = localStorage.getItem(favKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setFavorites(new Set(parsed));
-        }
-      }
+      setFavorites(saved ? new Set(JSON.parse(saved)) : new Set());
     } catch (error) {
       console.warn('Failed to load favorites from localStorage:', error);
-      localStorage.removeItem(`shoplink_favorites_${sellerId}`);
+      setFavorites(new Set());
+      localStorage.removeItem(favKey);
     }
-  }, []);
+  }, [favKey]);
 
   // Enhanced floating chat button with intelligent positioning
   useEffect(() => {
@@ -285,9 +283,10 @@ export default function StorefrontPublic() {
           )
         ]) as any;
 
+        let productsList: any[] = [];
         if (productsSnapshot.exists()) {
           const data = productsSnapshot.val();
-          const productsList = Object.entries(data)
+          productsList = Object.entries(data)
             .map(([id, productData]: [string, any]) => ({
               id,
               ...productData,
@@ -318,7 +317,7 @@ export default function StorefrontPublic() {
           sellerId,
           metadata: {
             storeName: sellerData.storeName,
-            productCount: products.length,
+            productCount: productsList.length,
           },
         });
 
@@ -369,7 +368,6 @@ export default function StorefrontPublic() {
     
     // Save to localStorage with error handling
     try {
-      const favKey = `shoplink_favorites_${sellerId}`;
       localStorage.setItem(favKey, JSON.stringify(Array.from(newFavorites)));
     } catch (error) {
       console.warn('Failed to save favorites:', error);
