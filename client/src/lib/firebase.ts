@@ -4,7 +4,7 @@ import { getDatabase } from 'firebase/database';
 import { getStorage } from 'firebase/storage';
 
 // Direct configuration for Replit (since env vars aren't working)
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyCXu0cNdLCaqll7l5USNK2NeHo2OjM3OOg",
   authDomain: "yourapp-mvp.firebaseapp.com",
   databaseURL: "https://yourapp-mvp-default-rtdb.europe-west1.firebasedatabase.app",

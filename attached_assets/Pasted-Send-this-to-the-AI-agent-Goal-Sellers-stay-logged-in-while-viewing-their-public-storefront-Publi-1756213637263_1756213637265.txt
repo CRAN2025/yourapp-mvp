@@ -1,0 +1,87 @@
+Send this to the AI agent
+
+Goal: Sellers stay logged in while viewing their public storefront. Public (buyer) pages are viewable by anyone and still log events anonymously. Public reads pull only from publicStores/*. Private data remains in sellers/*.
+
+1) Isolate analytics on a secondary Firebase app
+
+Create src/lib/firebaseEvents.ts:
+
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getDatabase } from 'firebase/database';
+import { firebaseConfig } from '@/firebaseConfig';
+
+export const eventsApp =
+  getApps().find(a => a.name === 'events') ?? initializeApp(firebaseConfig, 'events');
+
+export const eventsAuth = getAuth(eventsApp);
+export const eventsDb = getDatabase(eventsApp);
+
+export async function ensureAnonymousEventsAuth() {
+  if (!eventsAuth.currentUser) {
+    try { await signInAnonymously(eventsAuth); } catch (e) { console.warn('Anon auth failed', e); }
+  }
+}
+
+2) Use the events app for tracking (never the primary app)
+
+Update analytics utility to use eventsDb:
+
+import { ref, push } from 'firebase/database';
+import { eventsDb } from '@/lib/firebaseEvents';
+
+export async function trackInteraction(sellerId: string, payload: any) {
+  const ts = Date.now();
+  await push(ref(eventsDb, `events/${sellerId}`), { ...payload, timestamp: ts });
+}
+
+3) Public storefront: remove primary-app anon sign-in
+
+Delete any signInAnonymously(getAuth(primaryApp)) calls.
+
+In StorefrontPublic mount:
+
+import { useEffect } from 'react';
+import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
+useEffect(() => { ensureAnonymousEventsAuth(); }, []);
+
+4) Keep the seller console session
+
+Ensure the “View Public Store” link opens in a new tab:
+
+<a href={`/store/${uid}`} target="_blank" rel="noopener noreferrer">View Public Store</a>
+
+5) Public data mirroring (make it automatic & tolerant)
+
+After profile save (private write to sellers/${uid}/profile), call:
+
+import { mirrorSellerProfile } from '@/lib/utils/dataMirror';
+await mirrorSellerProfile(uid, profileData);
+
+
+After product save (private write to sellers/${uid}/products/${productId}), call:
+
+import { mirrorProduct } from '@/lib/utils/dataMirror';
+await mirrorProduct(uid, productId, productData);
+
+
+In mirrorProduct, publish when quantity > 0 by default; treat status:'inactive' (or false) as hidden:
+
+function shouldPublish(p:any){const q=Number(p?.quantity??0);const inactive=String(p?.status??'').toLowerCase()==='inactive'||p?.status===false;return q>0 && !inactive;}
+
+
+(Nice-to-have) Add a “Publish now” button on the Storefront tab to mirror profile + all products in one go.
+
+6) Rules & env sanity (confirm, don’t change)
+
+RTDB rules (already deployed):
+
+publicStores/* → .read: true
+
+sellers/$uid → read/write only by that uid
+
+events/$uid → anonymous-only writes (keep as-is)
+
+Ensure Anonymous provider is enabled and the Replit domain is in Authorized domains.
+
+Frontend env points to the same project used by the public page.
