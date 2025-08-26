@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import AuthGuard from "@/components/AuthGuard";
+import SellerAuthGuard from "@/components/auth/AuthGuard";
 
 // Import all pages
 import MarketLanding from "@/pages/MarketLanding";
@@ -63,29 +64,29 @@ function Router() {
         </AuthGuard>
       </Route>
       <Route path="/products">
-        <AuthGuard>
+        <SellerAuthGuard>
           <Products />
-        </AuthGuard>
+        </SellerAuthGuard>
       </Route>
       <Route path="/analytics">
-        <AuthGuard>
+        <SellerAuthGuard>
           <Analytics />
-        </AuthGuard>
+        </SellerAuthGuard>
       </Route>
       <Route path="/orders">
-        <AuthGuard>
+        <SellerAuthGuard>
           <Orders />
-        </AuthGuard>
+        </SellerAuthGuard>
       </Route>
       <Route path="/settings">
-        <AuthGuard>
+        <SellerAuthGuard>
           <Settings />
-        </AuthGuard>
+        </SellerAuthGuard>
       </Route>
       <Route path="/storefront">
-        <AuthGuard>
+        <SellerAuthGuard>
           <Storefront />
-        </AuthGuard>
+        </SellerAuthGuard>
       </Route>
       <Route path="/upgrade">
         <AuthGuard>
@@ -95,9 +96,9 @@ function Router() {
 
       {/* Admin routes - require admin privileges */}
       <Route path="/admin">
-        <AuthGuard requireAdmin>
+        <SellerAuthGuard>
           <Admin />
-        </AuthGuard>
+        </SellerAuthGuard>
       </Route>
 
       {/* Fallback to 404 */}

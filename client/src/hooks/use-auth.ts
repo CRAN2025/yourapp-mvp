@@ -9,6 +9,8 @@ import {
   signInWithPhoneNumber,
   ConfirmationResult,
   onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence,
 } from 'firebase/auth';
 import { ref, get, set, serverTimestamp } from 'firebase/database';
 import { auth, database } from '@/lib/firebase';
@@ -73,6 +75,8 @@ export function useAuth() {
   // Email/Password Sign In
   const signInWithEmail = async (email: string, password: string) => {
     try {
+      // Set persistence to keep user signed in across tabs
+      await setPersistence(auth, browserLocalPersistence);
       setState(prev => ({ ...prev, loading: true, error: null }));
       
       // Input validation
@@ -115,6 +119,8 @@ export function useAuth() {
   // Email/Password Sign Up
   const signUpWithEmail = async (email: string, password: string) => {
     try {
+      // Set persistence to keep user signed in across tabs
+      await setPersistence(auth, browserLocalPersistence);
       setState(prev => ({ ...prev, loading: true, error: null }));
       
       // Input validation
