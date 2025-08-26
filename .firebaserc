@@ -1,5 +1,3 @@
 {
-  "projects": {
-    "default": "yourapp-mvp"
-  }
+  "projects": { "default": "yourapp-mvp" }
 }
