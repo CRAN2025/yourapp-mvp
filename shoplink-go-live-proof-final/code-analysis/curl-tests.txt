@@ -1,0 +1,23 @@
+# Firebase RTDB Rules Testing Commands
+
+## Public Profile Access (No Auth) - Expected: 200
+curl -X GET "https://yourapp-mvp-default-rtdb.firebaseio.com/publicStores/seller123/profile.json"
+Expected: 200 OK with profile data
+
+## Private Seller Access (No Auth) - Expected: 401/403
+curl -X GET "https://yourapp-mvp-default-rtdb.firebaseio.com/sellers/otherUid.json"
+Expected: 401 Unauthorized or 403 Forbidden
+
+## Events Write (Anonymous Token) - Expected: 200
+curl -X POST "https://yourapp-mvp-default-rtdb.firebaseio.com/events/seller123.json?auth=ANONYMOUS_ID_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"type":"store_view","sellerId":"seller123","timestamp":1756223600000}'
+Expected: 200 OK with event ID returned
+
+## Events Write (Non-Anonymous Token) - Expected: 401/403
+curl -X POST "https://yourapp-mvp-default-rtdb.firebaseio.com/events/seller123.json?auth=REGULAR_USER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"type":"store_view","sellerId":"seller123","timestamp":1756223600000}'
+Expected: 401 Unauthorized or 403 Forbidden
+
+Note: Replace ANONYMOUS_ID_TOKEN and REGULAR_USER_TOKEN with actual Firebase ID tokens

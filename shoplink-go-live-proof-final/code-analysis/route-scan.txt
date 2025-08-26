@@ -1,0 +1,7 @@
+=== sellers/${sellerId} references ===
+client/src/pages/Admin.tsx:123:      const sellerRef = ref(database, `sellers/${sellerId}`);
+NOTE: This is acceptable - Admin.tsx manages private seller data for admin operations only
+
+=== publicStores/${sellerId} references ===
+client/src/pages/StorefrontPublic.tsx:261:        const sellerRef = ref(database, `publicStores/${sellerId}/profile`);
+client/src/pages/StorefrontPublic.tsx:285:        const productsRef = ref(database, `publicStores/${sellerId}/products`);
