@@ -1,83 +1,63 @@
-import { ref, set, remove, update, get } from 'firebase/database';
-import { database } from '@/lib/firebase';
-import type { Seller, Product } from '@shared/schema';
+import { ref, set, remove } from 'firebase/database';
+import { database } from '../firebase';
 
 /**
- * Mirror seller profile to public store
+ * Mirror seller profile data to public stores
  */
-export async function mirrorSellerProfile(uid: string, profile: Partial<Seller>): Promise<void> {
-  const publicRef = ref(database, `publicStores/${uid}/profile`);
-  
-  // Get current data to preserve createdAt and check for changes
-  const curr = (await get(publicRef)).val();
-  const createdAt = curr?.createdAt ?? profile.createdAt ?? Date.now();
-  
-  const publicProfile = {
-    storeName: profile.storeName || 'Store',
-    storeDescription: profile.storeDescription || '',
-    category: profile.category || '',
-    country: profile.country || '',
-    city: profile.city || '',
-    whatsappNumber: profile.whatsappNumber || '',
-    logoUrl: profile.logoUrl || '',
-    coverUrl: profile.coverUrl || '',
-    deliveryOptions: Array.isArray(profile.deliveryOptions) ? profile.deliveryOptions : [],
-    paymentMethods: Array.isArray(profile.paymentMethods) ? profile.paymentMethods : [],
-    createdAt
-  };
-
-  // Idempotent check - skip if no changes
-  if (curr && JSON.stringify(curr) === JSON.stringify(publicProfile)) return;
-  
-  await set(publicRef, publicProfile);
-}
-
-/**
- * Mirror product to public store
- */
-export async function mirrorProduct(uid: string, productId: string, product: Partial<Product>): Promise<void> {
-  const pubProdRef = ref(database, `publicStores/${uid}/products/${productId}`);
-  
-  // Only mirror active products with stock
-  if (product.isActive && (product.quantity || 0) > 0) {
-    // Get current data to preserve createdAt and check for changes
-    const curr = (await get(pubProdRef)).val();
-    const createdAt = curr?.createdAt ?? product.createdAt ?? Date.now();
-    
-    const publicProduct = {
-      id: productId,
-      name: product.name || '',
-      description: product.description || '',
-      price: Number(product.price) || 0,
-      quantity: Number(product.quantity) || 0,
-      category: product.category || '',
-      images: Array.isArray(product.images) ? product.images : [],
-      brand: product.brand || '',
-      material: product.material || '',
-      color: product.color || '',
-      size: product.size || '',
-      weight: product.weight || '',
-      dimensions: product.dimensions || '',
-      tags: Array.isArray(product.tags) ? product.tags : [],
-      isActive: true,
-      createdAt,
-      updatedAt: Date.now()
-    };
-
-    // Idempotent check - skip if no changes
-    if (curr && JSON.stringify(curr) === JSON.stringify(publicProduct)) return;
-    
-    await set(pubProdRef, publicProduct);
-  } else {
-    // Remove from public index if inactive or out of stock
-    await remove(pubProdRef);
+export async function mirrorSellerProfile(uid: string, profileData: any) {
+  try {
+    const publicProfileRef = ref(database, `publicStores/${uid}/profile`);
+    await set(publicProfileRef, profileData);
+  } catch (error) {
+    console.error('Failed to mirror seller profile:', error);
+    throw error;
   }
 }
 
 /**
- * Remove product from public store
+ * Mirror product data to public stores
  */
-export async function removePublicProduct(uid: string, productId: string): Promise<void> {
-  const pubProdRef = ref(database, `publicStores/${uid}/products/${productId}`);
-  await remove(pubProdRef);
+export async function mirrorProduct(uid: string, productId: string, productData: any) {
+  try {
+    const shouldPublish = shouldPublishProduct(productData);
+    const publicProductRef = ref(database, `publicStores/${uid}/products/${productId}`);
+    
+    if (shouldPublish) {
+      await set(publicProductRef, productData);
+    } else {
+      // Remove from public if it shouldn't be published
+      await remove(publicProductRef);
+    }
+  } catch (error) {
+    console.error('Failed to mirror product:', error);
+    throw error;
+  }
+}
+
+/**
+ * Determine if a product should be published to public stores
+ * Publish when quantity > 0 by default; treat status:'inactive' (or false) as hidden
+ */
+function shouldPublishProduct(productData: any): boolean {
+  const quantity = Number(productData?.quantity ?? 0);
+  const inactive = String(productData?.status ?? '').toLowerCase() === 'inactive' || productData?.status === false;
+  return quantity > 0 && !inactive;
+}
+
+/**
+ * Mirror all seller data (profile + all products) to public stores
+ */
+export async function mirrorAllSellerData(uid: string, profileData: any, productsData: Record<string, any>) {
+  try {
+    // Mirror profile
+    await mirrorSellerProfile(uid, profileData);
+    
+    // Mirror all products
+    for (const [productId, productData] of Object.entries(productsData)) {
+      await mirrorProduct(uid, productId, productData);
+    }
+  } catch (error) {
+    console.error('Failed to mirror all seller data:', error);
+    throw error;
+  }
 }

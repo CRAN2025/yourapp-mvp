@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { ref, get } from 'firebase/database';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
 import { openWhatsApp, createWhatsAppMessage } from '@/lib/utils/whatsapp';
+import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
 import type { Product, Seller } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,14 +53,9 @@ export default function StorefrontPublic() {
   const sellerId = params?.sellerId;
   const [location] = useLocation();
 
-  // Anonymous authentication for events writing
+  // Anonymous authentication for events writing (separate app)
   useEffect(() => {
-    const auth = getAuth();
-    if (!auth.currentUser) {
-      signInAnonymously(auth).catch(() => {
-        console.warn('Anonymous auth failed, events may not be tracked');
-      });
-    }
+    ensureAnonymousEventsAuth();
   }, []);
 
   // Enhanced image quality detection

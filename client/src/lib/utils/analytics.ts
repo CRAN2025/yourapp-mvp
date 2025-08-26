@@ -1,5 +1,5 @@
-import { ref, push, serverTimestamp } from 'firebase/database';
-import { database } from '../firebase';
+import { ref, push } from 'firebase/database';
+import { eventsDb } from '@/lib/firebaseEvents';
 import { getDeviceType } from './device';
 import type { InsertEvent } from '@shared/schema';
 
@@ -24,7 +24,7 @@ async function recordEvent({
     type,
     deviceType: getDeviceType(),
     metadata,
-    timestamp: serverTimestamp(),
+    timestamp: Date.now(),
   };
   
   // Only include productId if it has a value (Firebase doesn't accept undefined)
@@ -32,7 +32,7 @@ async function recordEvent({
     eventData.productId = productId;
   }
   
-  const eventsRef = ref(database, `events/${sellerId}`);
+  const eventsRef = ref(eventsDb, `events/${sellerId}`);
   await push(eventsRef, eventData);
 }
 

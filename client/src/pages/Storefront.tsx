@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
-import { ref, onValue, off } from 'firebase/database';
-import { ExternalLink, Eye, Search, Heart } from 'lucide-react';
+import { ref, onValue, off, get } from 'firebase/database';
+import { ExternalLink, Eye, Search, Heart, RefreshCw } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
+import { mirrorAllSellerData } from '@/lib/utils/dataMirror';
 import type { Product } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ export default function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isPublishing, setIsPublishing] = useState(false);
 
   // Load products from Firebase
   useEffect(() => {
@@ -69,6 +71,35 @@ export default function Storefront() {
     }
   };
 
+  const handlePublishNow = async () => {
+    if (!user || !seller) return;
+
+    setIsPublishing(true);
+    try {
+      // Get all products from sellers path
+      const productsRef = ref(database, `sellers/${user.uid}/products`);
+      const productsSnapshot = await get(productsRef);
+      const productsData = productsSnapshot.exists() ? productsSnapshot.val() : {};
+
+      // Mirror profile and all products to public store
+      await mirrorAllSellerData(user.uid, seller, productsData);
+
+      toast({
+        title: 'Published successfully',
+        description: 'Your store profile and products have been published to the public store.',
+      });
+    } catch (error) {
+      console.error('Error publishing store:', error);
+      toast({
+        title: 'Publication failed',
+        description: 'Failed to publish your store. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -89,10 +120,21 @@ export default function Storefront() {
               <h1 className="text-3xl font-bold text-foreground mb-2">Storefront Preview</h1>
               <p className="text-muted-foreground">Preview how your store appears to customers</p>
             </div>
-            <Button onClick={handleViewPublicStore} data-testid="button-view-public">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View Public Store
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button 
+                onClick={handlePublishNow} 
+                disabled={isPublishing}
+                data-testid="button-publish-now"
+                variant="outline"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isPublishing ? 'animate-spin' : ''}`} />
+                {isPublishing ? 'Publishing...' : 'Publish Now'}
+              </Button>
+              <Button onClick={handleViewPublicStore} data-testid="button-view-public">
+                <ExternalLink className="w-4 h-4 mr-2" />
+                View Public Store
+              </Button>
+            </div>
           </div>
 
           <Alert className="border-primary/20 bg-primary/5">
