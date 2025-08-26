@@ -26,7 +26,7 @@ export function createWhatsAppMessage({
   
   message += '\n\nCould you please provide more details?';
   
-  return encodeURIComponent(message);
+  return message;
 }
 
 /**
@@ -38,14 +38,15 @@ export function generateWhatsAppUrl(
   forceMobile?: boolean
 ): string {
   const isMobile = forceMobile ?? isMobileDevice();
+  const sanitizedPhone = String(e164Number).replace(/[^\d]/g, '');
   const encodedMessage = encodeURIComponent(message);
   
   if (isMobile) {
     // Mobile: Opens WhatsApp app directly
-    return `https://wa.me/${e164Number.replace('+', '')}?text=${encodedMessage}`;
+    return `https://wa.me/${sanitizedPhone}?text=${encodedMessage}`;
   } else {
     // Desktop: Opens WhatsApp Web in new tab
-    return `https://web.whatsapp.com/send?phone=${e164Number.replace('+', '')}&text=${encodedMessage}`;
+    return `https://web.whatsapp.com/send?phone=${sanitizedPhone}&text=${encodedMessage}`;
   }
 }
 
