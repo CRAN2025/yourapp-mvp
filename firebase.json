@@ -1,7 +1,8 @@
 {
   "hosting": {
     "public": "dist/public",
-    "ignore": ["**/.*", "**/node_modules/**"],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
     "headers": [
       {
         "source": "**/*.@(js|css|woff|woff2|svg|png|jpg|jpeg|gif)",
@@ -23,10 +24,8 @@
       }
     ],
     "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
+      { "source": "/app", "destination": "/app.html" },
+      { "source": "/app/**", "destination": "/app.html" }
     ]
   }
 }

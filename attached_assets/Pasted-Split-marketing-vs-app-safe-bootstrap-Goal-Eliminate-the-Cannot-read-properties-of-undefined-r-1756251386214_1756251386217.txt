@@ -1,0 +1,137 @@
+Split marketing vs app + safe bootstrap”
+Goal
+
+Eliminate the “Cannot read properties of undefined (reading 'add')” crash in production by ensuring the React app only boots where it should, and the marketing site remains pure static. Keep existing design/UX intact.
+
+Approach (MPA + Safe Bootstrap)
+
+Make the project multi-page (MPA) with Vite:
+
+Use client/index.html as the marketing page (no React bundle).
+
+Add client/app.html that mounts the React app.
+
+Guard the React bootstrap:
+
+In client/src/main.tsx|jsx, only mount if the #root element exists, and optional-chain any DOM classList calls.
+
+Adjust Firebase rewrites:
+
+Serve / and other static pages as plain files.
+
+Only rewrite /app and /app/** to the SPA entry (/app.html).
+
+Source maps for debugging (kept on; we can toggle later).
+
+Changes to make
+1) vite.config.ts
+
+(Keep your existing options; just ensure these are present.)
+
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  root: './client',
+  build: {
+    outDir: '../dist/public',
+    emptyOutDir: true,
+    sourcemap: true,
+    rollupOptions: {
+      input: {
+        landing: resolve(__dirname, 'client/index.html'),
+        app: resolve(__dirname, 'client/app.html'),
+      },
+    },
+  },
+});
+
+2) client/app.html (new)
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ShopLynk — App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Only the app page loads the React bundle -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+3) client/index.html (marketing)
+
+Ensure this file does NOT include <div id="root"> and does NOT load /src/main.tsx.
+
+It should be pure static (your current marketing DOM, CSS, images, etc.).
+
+If you have small interactions for the marketing page, load a small landing.ts instead (but don’t touch #root).
+
+4) client/src/main.tsx (safe bootstrap)
+
+Make the app mount conditional and guard DOM usage:
+
+import { createRoot } from 'react-dom/client';
+import App from './App';
+
+const container = document.getElementById('root');
+
+if (container) {
+  // Guard any DOM manipulations too
+  container.classList?.add?.('app-root');
+
+  const root = createRoot(container);
+  root.render(<App />);
+}
+
+// Do not throw or side-effect if container is missing.
+// This file will be loaded only by app.html, but this guard makes it safe forever.
+
+
+If you have any other direct DOM calls (e.g., document.getElementById('x').classList.add(...)) apply the same ?. optional chaining or a local if (el) { ... } check.
+
+5) firebase.json
+
+Update rewrites so only the app routes are SPA; everything else is static:
+
+{
+  "hosting": {
+    "public": "dist/public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
+    "rewrites": [
+      { "source": "/app", "destination": "/app.html" },
+      { "source": "/app/**", "destination": "/app.html" }
+    ]
+  }
+}
+
+
+⚠️ Remove any previous catch-all "**" -> "/index.html" rewrite.
+If you later need other SPA sections (e.g., /store/**), add specific rewrites for those, don’t re-enable a global catch-all.
+
+Acceptance Criteria
+
+Visiting / shows the marketing page (no React errors, no app JS loaded).
+
+Visiting /app loads the React app and renders normally (no console errors).
+
+No “Cannot read properties of undefined (reading 'add')” anywhere.
+
+Direct deep links under /app/* render via SPA (thanks to the rewrites).
+
+Build output remains under dist/public, Firebase deploys cleanly.
+
+Source maps exist in production (okay for now; we can turn off later).
+
+Optional quality guardrails
+
+Enable TypeScript strictNullChecks: true.
+
+ESLint rule to prevent unchecked DOM access:
+
+E.g., "no-unsafe-optional-chaining": "error", "@typescript-eslint/no-non-null-assertion": "error".
