@@ -1,0 +1,13 @@
+{
+  "id": "seller123",
+  "email": "seller@example.com",
+  "storeName": "Amazing Products Store",
+  "category": "electronics",
+  "whatsappNumber": "+1234567890",
+  "country": "US",
+  "currency": "USD",
+  "businessType": "individual",
+  "storeDescription": "High-quality electronics and gadgets",
+  "isActive": true,
+  "lastUpdated": 1756223600000
+}

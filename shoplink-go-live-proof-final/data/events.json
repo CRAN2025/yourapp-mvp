@@ -1,0 +1,25 @@
+{
+  "event001": {
+    "type": "store_view",
+    "sellerId": "seller123",
+    "productId": null,
+    "timestamp": 1756223600000,
+    "metadata": {
+      "source": "direct",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "device": "desktop"
+    }
+  },
+  "event002": {
+    "type": "product_view",
+    "sellerId": "seller123",
+    "productId": "product-abc",
+    "timestamp": 1756223610000,
+    "metadata": {
+      "source": "deeplink",
+      "productName": "Wireless Headphones",
+      "productPrice": 99.99,
+      "category": "electronics"
+    }
+  }
+}

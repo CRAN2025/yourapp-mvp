@@ -1,0 +1,1 @@
+Active Firebase project: yourapp-mvp (from configuration)

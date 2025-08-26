@@ -1,0 +1,101 @@
+Final proof pack for go-live (no placeholders)
+
+Do these, in order:
+
+Remove unsafe source file
+
+Delete StorefrontPublic-Downloadable.tsx from the repo. Rebuild.
+
+Add to the proof pack:
+
+route-scan.txt = output of
+grep -R "sellers/\\${sellerId}" -n client/src || true and
+grep -R "publicStores/\\${sellerId}" -n client/src
+Expect no hits for sellers/${sellerId} and hits for publicStores/${sellerId}.
+
+dist-grep.txt = output of
+grep -R "sellers/" -n dist || true
+Expect no hits.
+
+Harmonize mirroring predicate
+
+Ensure new/updated products set isActive: true by default or change the mirror to:
+
+const isLive = (product.status === 'active' || product.isActive === true) && (product.quantity||0) > 0;
+
+
+Re-export src/lib/utils/dataMirror.ts and include a one-line note in INDEX.md explaining which field(s) gate publishing.
+
+Rules & environment
+
+Keep the deployable database.rules.json you already provided (no ellipses). 
+
+Include firebase-use.txt (present) and add env-summary.txt listing VITE_FIREBASE_* and VITE_MARKETING_URL keys (values masked).
+
+Static behavior proofs (since videos/tests aren’t possible)
+
+Console logs: Capture clean console from:
+
+/store/<TEST_SELLER_ID> (public): no errors after anonymous sign-in attempt.
+
+Seller dashboard /products: authenticated view (not anonymous).
+
+Network HAR: Export public-store.har when loading /store/<TEST_SELLER_ID> showing 200s for:
+
+.../publicStores/<TEST_SELLER_ID>/profile.json
+
+.../publicStores/<TEST_SELLER_ID>/products.json
+
+UI screenshots (PNG):
+
+screens/public-store.png (incognito)
+
+screens/seller-products.png (logged-in)
+
+screens/view-public-from-seller.png (header shows “View Public Store”)
+
+screens/whatsapp-desktop-url.png (href shows web.whatsapp.com)
+
+screens/whatsapp-mobile-url.png (simulate mobile UA; href shows wa.me)
+
+Curl scripts (text) for rules behavior:
+
+curl-tests.txt with:
+
+GET public profile (no auth): 200
+
+GET private sellers/<otherUid> (no auth): 401/403
+
+POST events/<TEST_SELLER_ID> with anonymous ID token: 200
+
+POST events/<TEST_SELLER_ID> with non-anonymous ID token: 401/403
+(Document the exact commands and expected status.)
+
+Build provenance
+
+Rebuild after step 1:
+
+npm ci
+npm run build
+git rev-parse --short HEAD > commit.txt
+
+
+Include build-log.txt, commit.txt, and dist/size-summary.txt (from du -h dist).
+
+Data snapshots
+
+Export pretty JSON of:
+
+publicStores/<TEST_SELLER_ID>/profile
+
+publicStores/<TEST_SELLER_ID>/products (at least 1 item)
+
+events/<TEST_SELLER_ID> (1–2 records)
+
+Save as data/public-profile.json, data/public-products.json, data/events.json.
+
+Package it
+
+Name: shoplink-go-live-proof-final.tar.gz
+
+Include an INDEX.md table mapping each requirement → file(s) that prove it.
