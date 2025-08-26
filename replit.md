@@ -6,6 +6,21 @@ ShopLink is a comprehensive e-commerce platform that enables users to create onl
 
 Preferred communication style: Simple, everyday language.
 
+# Recent Changes (August 26, 2025)
+
+## Authentication Isolation System Implementation
+- **Date**: August 26, 2025  
+- **Status**: ✅ Complete and tested
+- **Description**: Implemented dual Firebase app architecture to allow sellers to stay logged in while viewing public storefront
+- **Key Components**:
+  - Secondary Firebase app for events tracking (`firebaseEvents.ts`)
+  - Data mirroring system (`dataMirror.ts`)  
+  - Public storefront reads from `publicStores/*` only
+  - Analytics isolated to events app with anonymous auth
+  - "Publish Now" button for bulk data synchronization
+- **Testing**: All critical paths verified, build successful, no LSP errors
+- **User Validation**: Pending user acceptance of implementation
+
 # System Architecture
 
 ## Frontend Architecture
