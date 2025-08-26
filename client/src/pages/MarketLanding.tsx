@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import { Helmet } from 'react-helmet-async';
+import { auth } from '@/lib/firebase';
+import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
+import { trackInteraction } from '@/lib/utils/analytics';
+import { onAuthStateChanged } from 'firebase/auth';
 import logoUrl from '@/assets/logo.png';
 
 export default function MarketLanding() {
@@ -12,6 +17,36 @@ export default function MarketLanding() {
   // Extract hash and search from current location
   const [path, search] = location.split('?');
   const hash = path.includes('#') ? '#' + path.split('#')[1] : '';
+
+  // Environment variables
+  const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN;
+  const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
+
+  // Anonymous events and auth detection
+  useEffect(() => {
+    // Track marketing page view
+    const trackMarketingView = async () => {
+      try {
+        await ensureAnonymousEventsAuth();
+        await trackInteraction({
+          type: 'store_view',
+          sellerId: 'marketing',
+          metadata: { source: 'marketing_landing', page: 'home' },
+        });
+      } catch (error) {
+        console.warn('Failed to track marketing view:', error);
+      }
+    };
+
+    // Only attempt anonymous auth if no user is signed in
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        trackMarketingView();
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Smooth-scroll when arriving with /#signup
   useEffect(() => {
@@ -34,19 +69,73 @@ export default function MarketLanding() {
     return () => io.disconnect();
   }, []);
 
-  const goCreate = () => {
+  const goCreate = async () => {
     setIsLoading(true);
+    
+    // Track CTA click
+    try {
+      await trackInteraction({
+        type: 'store_view',
+        sellerId: 'marketing',
+        metadata: { source: 'cta_click', action: 'signup' },
+      });
+    } catch (error) {
+      console.warn('Failed to track CTA click:', error);
+    }
+    
+    // Check if user is already authenticated
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      navigate('/products');
+      return;
+    }
+    
     const qp = new URLSearchParams(search || '');
     qp.set('from', 'landing_signup');
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
-    // Navigate to /auth instead of /login to match the app routing
-    navigate(`/auth?${qp.toString()}`);
+    
+    // Use environment-driven links
+    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth` : '/auth';
+    const fullUrl = authUrl + `?${qp.toString()}`;
+    
+    if (APP_ORIGIN) {
+      window.location.href = fullUrl;
+    } else {
+      navigate(`/auth?${qp.toString()}`);
+    }
   };
 
-  const goLogin = () => {
+  const goLogin = async () => {
     setIsLoading(true);
+    
+    // Track login click
+    try {
+      await trackInteraction({
+        type: 'store_view',
+        sellerId: 'marketing',
+        metadata: { source: 'cta_click', action: 'login' },
+      });
+    } catch (error) {
+      console.warn('Failed to track login click:', error);
+    }
+    
+    // Check if user is already authenticated
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      navigate('/products');
+      return;
+    }
+    
     try { (window as any).gtag?.('event', 'login_click', { source: 'marketing_landing' }); } catch {}
-    navigate('/auth');
+    
+    // Use environment-driven links
+    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth` : '/auth';
+    
+    if (APP_ORIGIN) {
+      window.location.href = authUrl;
+    } else {
+      navigate('/auth');
+    }
   };
 
 
@@ -73,8 +162,37 @@ export default function MarketLanding() {
     return () => clearInterval(interval);
   }, [testimonials.length]);
 
+  const canonicalUrl = MARKETING_URL;
+  const ogImageUrl = `${MARKETING_URL}/og-cover.png`;
+
   return (
-    <div ref={rootRef} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <>
+      <Helmet>
+        <title>ShopLink - Build Your Online Store | WhatsApp E-commerce</title>
+        <meta name="description" content="Create stunning online storefronts with WhatsApp integration. Start selling in minutes with our easy-to-use e-commerce platform. No technical skills required." />
+        <link rel="canonical" href={canonicalUrl} />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="ShopLink - Build Your Online Store" />
+        <meta property="og:description" content="Create stunning online storefronts with WhatsApp integration. Start selling in minutes with our easy-to-use e-commerce platform." />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="ShopLink" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="ShopLink - Build Your Online Store" />
+        <meta name="twitter:description" content="Create stunning online storefronts with WhatsApp integration. Start selling in minutes." />
+        <meta name="twitter:image" content={ogImageUrl} />
+        
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="ShopLink" />
+        <meta name="keywords" content="ecommerce, online store, whatsapp business, storefront, selling platform" />
+      </Helmet>
+      
+      <div ref={rootRef} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -653,6 +771,7 @@ export default function MarketLanding() {
         </div>
       </footer>
     </div>
+    </>
   );
 }
 
