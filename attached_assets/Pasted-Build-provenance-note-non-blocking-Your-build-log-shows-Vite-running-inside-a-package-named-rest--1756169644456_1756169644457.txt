@@ -1,0 +1,98 @@
+Build provenance note (non-blocking)
+
+Your build log shows Vite running inside a package named rest-express and emitting to ../dist/public/.... That’s fine if your repo intentionally builds the UI into the server’s dist/public.
+
+If you want bulletproof proof the storefront is in that bundle, pick ONE of these tiny add-ons:
+
+Option A — Emit build-info.json (1-file Vite plugin)
+Add to your vite.config.ts:
+
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    {
+      name: 'emit-build-info',
+      apply: 'build',
+      generateBundle() {
+        const { execSync } = require('node:child_process');
+        const { readFileSync } = require('node:fs');
+        const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
+        const commit = execSync('git rev-parse --short HEAD').toString().trim();
+        this.emitFile({
+          type: 'asset',
+          fileName: 'build-info.json',
+          source: JSON.stringify(
+            { package: pkg.name, commit, builtAt: new Date().toISOString() },
+            null, 2
+          )
+        });
+      }
+    }
+  ],
+  build: { outDir: '../dist/public' } // keep your current outDir
+});
+
+
+Result: server/dist/public/build-info.json will include { package, commit, builtAt }.
+
+Option B — Log provenance in the build log (1-liner)
+Change your build script:
+
+// package.json (frontend)
+"scripts": {
+  "build": "echo \"BUILD $npm_package_name @ $(git rev-parse --short HEAD)\" && vite build"
+}
+
+
+Result: the build log clearly ties the UI package name + commit to the emitted assets.
+
+Either option is enough if you want belt-and-suspenders proof.
+
+2) Stale productCount in store_view (easy fix)
+
+Right now you compute productsList, then call setProducts(productsList), then log productCount: products.length. Because products is state, it can lag by one render.
+
+Patch (use the local array you just built):
+
+- setProducts(productsList);
+- await trackInteraction({ type: 'store_view', sellerId, productCount: products.length });
++ setProducts(productsList);
++ await trackInteraction({
++   type: 'store_view',
++   sellerId,
++   productCount: productsList.length
++ });
+
+
+If your logger signature differs, keep the same idea: use productsList.length, not state.
+
+3) Favorites bootstrapping when sellerId changes
+
+Your effect that loads favorites from localStorage runs only once, so navigating between stores won’t rehydrate the right favorites.
+
+Patch (add sellerId + key memoization):
+
+- useEffect(() => {
+-   try {
+-     const saved = localStorage.getItem('shoplink_favorites_' + sellerId);
+-     if (saved) setFavorites(new Set(JSON.parse(saved)));
+-   } catch {}
+- }, []);
++ const favKey = useMemo(() => `shoplink_favorites_${sellerId}`, [sellerId]);
+
++ useEffect(() => {
++   try {
++     const saved = localStorage.getItem(favKey);
++     setFavorites(saved ? new Set(JSON.parse(saved)) : new Set());
++   } catch {
++     setFavorites(new Set());
++   }
++ }, [favKey]);
+
+// When saving after toggle:
+- localStorage.setItem(`shoplink_favorites_${sellerId}`, JSON.stringify([...set]));
++ localStorage.setItem(favKey, JSON.stringify([...set]));
