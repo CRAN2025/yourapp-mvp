@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -32,15 +32,28 @@ const verificationSchema = z.object({
   code: z.string().min(6, 'Please enter the 6-digit code'),
 });
 
+type AuthMode = 'signin' | 'signup';
+
+function useAuthMode(): AuthMode {
+  const [location] = useLocation();
+  return useMemo(() => {
+    const search = location.split('?')[1] || '';
+    const p = new URLSearchParams(search).get('mode');
+    return p === 'signup' ? 'signup' : 'signin';
+  }, [location]);
+}
+
 export default function Auth() {
   const [location, navigate] = useLocation();
+  const initialMode = useAuthMode();
+  const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
   
-  // Parse URL parameters for mode and redirect
-  const urlParams = new URLSearchParams(location.split('?')[1] || '');
-  const initialMode = urlParams.get('mode') === 'signup' ? 'signup' : 'signin';
-  const redirectUrl = urlParams.get('redirect') || '/dashboard';
+  // Keep state in sync if query changes
+  useEffect(() => setAuthMode(initialMode), [initialMode]);
   
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>(initialMode);
+  // Parse redirect parameter - only allow internal paths
+  const redirectRaw = new URLSearchParams(location.split('?')[1] || '').get('redirect') || '/dashboard';
+  const redirectUrl = redirectRaw.startsWith('/') ? redirectRaw : '/dashboard';
   const [phoneStep, setPhoneStep] = useState<'phone' | 'verify'>('phone');
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, sendPhoneVerification, verifyPhoneCode, resetPassword, loading } = useAuthContext();
@@ -74,7 +87,7 @@ export default function Auth() {
   // Redirect authenticated users
   useEffect(() => {
     if (user) {
-      navigate(decodeURIComponent(redirectUrl), { replace: true });
+      navigate(redirectUrl, { replace: true });
     }
   }, [user, navigate, redirectUrl]);
 
