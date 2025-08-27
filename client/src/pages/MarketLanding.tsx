@@ -374,6 +374,17 @@ export default function MarketLanding() {
           .hero-demo { order: 2; max-width: 400px; margin: 0 auto; }
           .mobile-hidden { display: none !important; }
           .nav-mobile { flex-direction: column; gap: 12px; }
+          .header-container { min-height: 70px; } /* Slightly reduced for mobile */
+        }
+
+        /* Tablet specific adjustments */
+        @media (min-width: 769px) and (max-width: 1023px) {
+          .header-container { min-height: 75px; }
+        }
+
+        /* Desktop optimization */
+        @media (min-width: 1024px) {
+          .header-container { min-height: 80px; }
         }
 
         /* Glass morphism */
@@ -566,6 +577,30 @@ export default function MarketLanding() {
           animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Enhanced logo styling for better brand visibility */
+        .logo-enhanced {
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: crisp-edges;
+          backface-visibility: hidden;
+          transform: translateZ(0);
+        }
+        .logo-enhanced:hover {
+          transform: scale(1.02) translateZ(0);
+        }
+        
+        /* Ensure proper logo-nav spacing */
+        .header-container {
+          min-height: 80px;
+          display: flex;
+          align-items: center;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+          .logo-enhanced:hover {
+            transform: none;
+          }
+        }
       `}</style>
 
       {/* Background accents */}
@@ -616,13 +651,19 @@ export default function MarketLanding() {
             paddingRight: 'max(20px, env(safe-area-inset-right))'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display:'flex', alignItems:'center' }}>
             <Link to="/" aria-label="ShopLynk home">
               <img 
                 src={logoUrl} 
-                alt="ShopLynk" 
-                className="h-8 sm:h-9 md:h-10 w-auto cursor-pointer"
+                alt="ShopLynk - Create your WhatsApp storefront" 
+                className="h-12 sm:h-14 md:h-16 w-auto cursor-pointer logo-enhanced"
+                style={{
+                  maxHeight: '64px',
+                  height: 'auto',
+                  filter: 'contrast(1.1)',
+                  transition: 'transform 0.2s ease',
+                }}
               />
             </Link>
           </div>
