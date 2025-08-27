@@ -19,7 +19,7 @@ export default function MarketLanding() {
   // Auth and onboarding state
   const { user } = useAuth();
   const { ready, status, nextStep } = useOnboardingProgress();
-  useRouteDecision(); // Apply route decision logic
+  // Don't apply route decision logic on marketing landing page - let users browse freely
 
   // Extract hash and search from current location
   const [path, search] = location.split('?');
