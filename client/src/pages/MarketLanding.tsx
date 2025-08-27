@@ -230,6 +230,84 @@ export default function MarketLanding() {
     </div>
   );
 
+  // Window dot helper for PreviewDevice
+  const winDot = (color: string) => ({
+    width: 12,
+    height: 12,
+    borderRadius: '50%',
+    background: color
+  });
+
+  // PreviewDevice component with demo products
+  function PreviewDevice() {
+    return (
+      <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)' }}>
+        <div style={{ height: 18, display: 'flex', gap: 6, marginBottom: 12 }}>
+          <div style={winDot('#ff5f57')} />
+          <div style={winDot('#ffbd2e')} />
+          <div style={winDot('#28c840')} />
+        </div>
+        <div className="glass card" style={{ padding: 14, marginBottom: 12 }}>
+          <div style={{ fontWeight: 800, letterSpacing: '-0.01em' }}>Demo Store</div>
+          <div style={{ fontSize: 12, opacity: 0.7 }}>whatsapp orders • no code</div>
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+            gap: 12,
+          }}
+        >
+          {[
+            ['Sunset Earrings', 'GHS 120'],
+            ['Handwoven Basket', 'GHS 240'],
+            ['Shea Body Butter', 'GHS 85'],
+            ['Tie-Dye Tee', 'GHS 150'],
+          ].map(([name, price], i) => (
+            <div
+              key={i}
+              className="glass card"
+              style={{
+                padding: 10,
+                borderRadius: 12,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                height: 200,
+              }}
+            >
+              <div
+                style={{
+                  height: 92,
+                  borderRadius: 12,
+                  background: 'linear-gradient(135deg,#e7ecff,#f6f9ff)',
+                }}
+              />
+              <div style={{ fontWeight: 700, marginTop: 8, letterSpacing: '-0.01em', fontSize: 14 }}>
+                {name}
+              </div>
+              <div style={{ opacity: 0.75, fontSize: 13 }}>{price}</div>
+              <button
+                className="btn btnPrimary"
+                style={{
+                  width: '100%',
+                  marginTop: 8,
+                  borderRadius: 16,
+                  height: 36,
+                  fontSize: 14,
+                  fontWeight: 700,
+                }}
+              >
+                Contact on WhatsApp
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div ref={rootRef} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <style>{`
@@ -500,52 +578,9 @@ export default function MarketLanding() {
               </div>
             </div>
 
-            {/* Right: Demo stores in 2x2 grid */}
+            {/* Right: Preview Device with demo products */}
             <div className="reveal-on-scroll hero-demo">
-              <div style={{ marginBottom: 16 }}>
-                <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, textAlign: 'center' }}>View Demo Stores</h4>
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(4, 1fr)', 
-                  gap: 12,
-                  maxWidth: 600
-                }}>
-                  {demoStores.map((store, index) => (
-                    <div 
-                      key={store.name} 
-                      className="glass card" 
-                      style={{ 
-                        padding: 16, 
-                        textAlign: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        border: '1px solid rgba(90,107,255,0.1)',
-                        minHeight: 140
-                      }}
-                      onClick={goCreate}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 16px 32px rgba(90,107,255,0.2)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'var(--shadow)';
-                      }}
-                    >
-                      <div style={{ fontSize: 32, marginBottom: 8 }}>{store.emoji}</div>
-                      <h5 style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: 'var(--ink)', lineHeight: 1.2 }}>
-                        {store.name}
-                      </h5>
-                      <p style={{ fontSize: 10, opacity: 0.7, marginBottom: 8, lineHeight: 1.2 }}>
-                        {store.description}
-                      </p>
-                      <div style={{ fontSize: 9, color: '#5a6bff', fontWeight: 600 }}>
-                        {store.products.length} products
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <PreviewDevice />
             </div>
             </div>
           </div>
