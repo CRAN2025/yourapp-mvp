@@ -46,8 +46,8 @@ export default function MarketLanding() {
   // UI styling constants for enlarged header logo
   const _ui = {
     header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 32px', gap: '24px' },
-    logoWrap: { display: 'inline-block', width: 'clamp(160px, 14vw, 240px)', height: 'auto', lineHeight: 0 },
-    logoImg: { width: '100%', height: 'auto', display: 'block' },
+    logoWrap: { display: 'inline-block', width: 'clamp(200px, 18vw, 280px)', height: 'auto', lineHeight: 0 },
+    logoImg: { width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.12))' },
     rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }
   };
   
@@ -595,7 +595,7 @@ export default function MarketLanding() {
         /* Responsive logo adjustments */
         @media (max-width: 519px) {
           .site-logo {
-            width: clamp(120px, 20vw, 160px) !important;
+            width: clamp(140px, 22vw, 180px) !important;
           }
         }
         
@@ -667,7 +667,6 @@ export default function MarketLanding() {
               alt="ShopLynk" 
               style={{
                 ..._ui.logoImg,
-                filter: 'contrast(1.1)',
                 transition: 'transform 0.2s ease',
               }}
             />

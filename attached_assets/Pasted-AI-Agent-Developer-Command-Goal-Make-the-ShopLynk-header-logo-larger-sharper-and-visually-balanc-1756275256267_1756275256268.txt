@@ -1,0 +1,47 @@
+AI Agent Developer Command
+
+Goal: Make the ShopLynk header logo larger, sharper, and visually balanced with the “Create Store” button.
+
+{
+  "task": "UI_EDIT/LOGO_ENLARGE",
+  "targetFiles": ["src/MarketLanding.jsx"],
+  "selectors": {
+    "header": "header, .site-header, [data-header]",
+    "logo": "a[aria-label='ShopLynk'], .site-logo, img[alt='ShopLynk']",
+    "rightCluster": ".header-right, .nav-right, [data-right-cluster]"
+  },
+  "editPlan": [
+    "Locate the header logo container using selectors.logo.",
+    "Apply a larger responsive width: width: clamp(200px, 18vw, 280px).",
+    "Ensure the logo image/SVG inside the container uses: width: 100%, height: auto, display: block.",
+    "Apply a subtle drop shadow for contrast: filter: drop-shadow(0 1px 1px rgba(0,0,0,0.12)).",
+    "If logo is raster-based (<img>), confirm high-resolution asset; prefer /logo.svg if available.",
+    "Ensure header layout uses display:flex, align-items:center, justify-content:space-between, gap:24px.",
+    "Ensure the right cluster (FAQ + Create Store) has flexWrap:wrap to prevent overlap.",
+    "Retain all event handlers, hover states, and animations."
+  ],
+  "accessibility": [
+    "Confirm alt='ShopLynk' is present on the logo <img>.",
+    "If using a link wrapper, ensure aria-label='ShopLynk home'.",
+    "Maintain focus ring visibility for keyboard navigation."
+  ],
+  "validationChecks": {
+    "scaling": {
+      "desktopMin": { "viewport": 1024, "expectedWidthMin": 200, "expectedWidthMax": 280 },
+      "mobileMax": { "viewport": 520, "expectedWidthMax": 180 }
+    },
+    "layout": [
+      "At 360px, 768px, 1024px, and 1440px viewports: logo must NOT overlap FAQ or Create Store button.",
+      "Header spacing remains balanced; content aligned centrally."
+    ],
+    "visualQuality": [
+      "Logo must appear sharper and more prominent compared to previous render.",
+      "Drop shadow must improve contrast without altering brand colors."
+    ],
+    "performance": [
+      "Cumulative Layout Shift (CLS) delta must remain ≤ 0.05.",
+      "No new assets >150KB introduced."
+    ]
+  },
+  "expectedOutcome": "The ShopLynk logo appears ~1.5x larger, crisp, and visually balanced with the Create Store button across all breakpoints without layout breaks."
+}
