@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { auth } from '@/lib/firebase';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -85,7 +85,10 @@ export default function MarketLanding() {
     // Check if user is already authenticated
     const currentUser = auth.currentUser;
     if (currentUser) {
-      navigate('/products');
+      // Clear any previous onboarding state and start fresh
+      sessionStorage.removeItem('onboarding_state');
+      sessionStorage.removeItem('onboarding_step1');
+      navigate('/onboarding?step=1');
       return;
     }
     
@@ -93,14 +96,18 @@ export default function MarketLanding() {
     qp.set('from', 'landing_signup');
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
     
-    // Use environment-driven links
-    const appUrl = APP_ORIGIN ? `${APP_ORIGIN}/app` : '/app';
-    const fullUrl = appUrl + `?${qp.toString()}`;
+    // Clear any previous onboarding state for new users
+    sessionStorage.removeItem('onboarding_state');
+    sessionStorage.removeItem('onboarding_step1');
+    
+    // Use environment-driven links - but route to auth first for unauthenticated users
+    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth` : '/auth';
+    const fullUrl = authUrl + `?${qp.toString()}`;
     
     if (APP_ORIGIN) {
       window.location.href = fullUrl;
     } else {
-      navigate(`/app?${qp.toString()}`);
+      navigate(`/auth?${qp.toString()}`);
     }
   };
 
@@ -127,13 +134,13 @@ export default function MarketLanding() {
     
     try { (window as any).gtag?.('event', 'login_click', { source: 'marketing_landing' }); } catch {}
     
-    // Use environment-driven links
-    const appUrl = APP_ORIGIN ? `${APP_ORIGIN}/app` : '/app';
+    // Use environment-driven links - route to auth with signin mode
+    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth?mode=signin` : '/auth?mode=signin';
     
     if (APP_ORIGIN) {
-      window.location.href = appUrl;
+      window.location.href = authUrl;
     } else {
-      navigate('/app');
+      navigate('/auth?mode=signin');
     }
   };
 
@@ -314,11 +321,13 @@ export default function MarketLanding() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display:'flex', alignItems:'center' }}>
-            <img 
-              src={logoUrl} 
-              alt="ShopLynk" 
-              style={{ height: 40, width: 'auto' }}
-            />
+            <Link to="/" aria-label="ShopLynk home">
+              <img 
+                src={logoUrl} 
+                alt="ShopLynk" 
+                style={{ height: 48, width: 'auto', cursor: 'pointer' }}
+              />
+            </Link>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
             <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>

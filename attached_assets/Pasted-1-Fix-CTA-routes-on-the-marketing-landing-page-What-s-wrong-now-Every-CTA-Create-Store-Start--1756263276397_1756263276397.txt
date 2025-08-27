@@ -1,0 +1,71 @@
+1) Fix CTA routes on the marketing/landing page
+
+What’s wrong now
+Every CTA (“Create Store”, “Start free”, any Sign in) drops users on Step 2 of the onboarding flow and it’s hard to get back to the landing page.
+
+What we want
+
+All “Create Store” / “Start free” buttons → /onboarding?step=1
+
+“Sign in” link → /auth?mode=signin (or the existing login route if different)
+
+Clicking the logo anywhere should take users to / (the marketing page)
+
+Implementation hints (search first):
+
+Look for the main marketing page component: try names like
+
+client/src/pages/MarketLanding*.tsx
+
+client/src/pages/Landing*.tsx
+
+client/src/components/Marketing/*
+
+or search for button text: ripgrep -n "Create your free store" client
+
+Ensure CTAs use React Router links or navigate:
+
+// CTA buttons (examples)
+<Link to="/onboarding?step=1" className="btn btn-primary">Create your free store</Link>
+<Link to="/auth?mode=signin" className="text-link">Sign in</Link>
+
+
+Logo in header:
+
+<Link to="/" aria-label="ShopLynk home">
+  <img src={logoSrc} alt="ShopLynk" className="h-8 sm:h-9 md:h-10" />
+</Link>
+
+
+Adjust heights as needed; the current logo is too small.
+
+2) Guard onboarding routing (Step 2 only when Step 1 is complete)
+
+What’s wrong now
+Users can deep-link or be pushed directly to Step 2.
+
+What we want
+
+If a user hits Step 2 without Step 1 data present, redirect to Step 1.
+
+When a user clicks Create store (or any marketing CTA), clear any previous onboarding state so the wizard always starts on Step 1.
+
+Implementation hints:
+
+If you store Step 1 data in a context, Zustand store, or localStorage/sessionStorage, add a simple check in Step 2:
+
+// In Onboarding Step 2 component
+const hasStep1 = useOnboardingStore(s => s.basicInfoComplete); // or equivalent
+
+useEffect(() => {
+  if (!hasStep1) navigate('/onboarding?step=1', { replace: true });
+}, [hasStep1]);
+
+
+When entering from a marketing CTA, reset the wizard:
+
+// in landing CTA click handler or a small hook fired on landing→onboarding transition
+sessionStorage.removeItem('onboarding'); // or call your store.reset()
+
+
+If you’re using query param step, the route /onboarding?step=1 should always render Step 1 and set the guard for step 2+.
