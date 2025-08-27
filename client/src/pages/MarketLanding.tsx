@@ -69,28 +69,30 @@ export default function MarketLanding() {
 
   // Brand wordmark styling
   const _brand = {
-    link: { display: 'inline-block', textDecoration: 'none' as const },
+    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '8px 0' }, // >=44px tap target with header padding
     text: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 800,
-      letterSpacing: '-0.02em',
-      fontSize: 'clamp(20px, 2.4vw, 28px)',
+      fontWeight: 700,                        // was 800; improves fill/legibility
+      letterSpacing: '-0.01em',               // slightly tighter than -0.02
+      fontSize: 'clamp(22px, 2.2vw, 28px)',   // mobile->desktop; avoids wrap
       lineHeight: 1,
       background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
-      color: 'transparent'
+      color: 'transparent',
+      filter: 'contrast(1.1)'                 // subtle contrast boost
     },
     footer: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 800,
-      letterSpacing: '-0.02em',
-      fontSize: 'clamp(18px, 2vw, 24px)',
+      fontWeight: 700,
+      letterSpacing: '-0.01em',
+      fontSize: 'clamp(18px, 1.8vw, 24px)',
       lineHeight: 1,
       background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
-      color: 'transparent'
+      color: 'transparent',
+      textShadow: '0 1px 0 rgba(0,0,0,0.06)'  // subtle lift for footer
     }
   };
 
@@ -728,7 +730,7 @@ export default function MarketLanding() {
         <div className="mx-auto" style={_headerRow}>
           {/* BRAND (left) */}
           <Link to="/" aria-label="ShopLynk home" style={_brand.link}>
-            <span style={_brand.text}>ShopLynk</span>
+            <span className='brandText' style={_brand.text}>ShopLynk</span>
           </Link>
           
           {/* RIGHT CLUSTER (FAQ + CTA) */}
@@ -756,7 +758,7 @@ export default function MarketLanding() {
               data-testid="header-create-store"
               disabled={isLoading}
               aria-label="Create your free store"
-              style={_ui.ctaPrimary}
+              style={{ ..._ui.ctaPrimary, boxShadow: '0 10px 24px rgba(15,23,42,0.08)' }}
             >
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
