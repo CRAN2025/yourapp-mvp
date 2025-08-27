@@ -8,6 +8,20 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes (August 27, 2025)
 
+## Landing Page Freeze Contract - ACTIVE
+- **Date**: August 27, 2025
+- **Status**: 🔒 FROZEN - No visual changes permitted
+- **Scope**: Marketing home page (/) - All visuals, layout, typography, and copy are locked
+- **Restrictions**:
+  - **Header**: Text wordmark alignment, typography (700 weight, clamp sizing), and gradient (#3A49FF to #1873FF) frozen
+  - **Hero Section**: All text, punctuation, capitalization, line breaks, and container grid locked
+  - **CTA Button**: Visual styling, placement, size, gradient, radius, and shadow must remain identical
+  - **Footer**: Text wordmark only, alignment and spacing locked
+  - **Responsiveness**: Breakpoint behavior at 1440/1024/768/390px must render identically
+  - **Performance**: CLS ≤ 0.05, no new network requests, pixel-perfect alignment (≤1px variance)
+- **Permitted Changes**: Only backend routing/authentication logic - zero visual modifications
+- **Quality Gates**: Pixel-diff testing, wordmark single-line validation, CTA visual snapshots required
+
 ## Text Wordmark Implementation - FINAL SHIP READY
 - **Date**: August 27, 2025  
 - **Status**: ✅ Complete and production-ready
@@ -25,6 +39,7 @@ Preferred communication style: Simple, everyday language.
 - **Technical Quality**: Zero TypeScript errors, cross-browser compatible, accessibility preserved
 - **User Preference**: Text wordmark strongly preferred over image logos or phone mockups
 - **Test Coverage**: Comprehensive Playwright tests ensure alignment, accessibility, and visual integrity across all viewports
+- **FREEZE CONTRACT**: Landing page visuals, layout, and copy are now locked - only backend routing/auth logic may change
 
 ## Enhanced Logo Brand Visibility Implementation
 - **Date**: August 27, 2025  

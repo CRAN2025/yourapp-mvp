@@ -1,0 +1,93 @@
+Landing Page — Freeze Contract (Do Not Change)
+
+Scope: / (marketing home). Visuals and layout are now final. Only routing/auth logic elsewhere may change.
+
+1) Header
+
+Structure: 2 siblings inside the header’s inner container:
+
+Left: text wordmark “ShopLynk”
+
+Right: cluster = FAQ + Create Store
+
+Alignment: Header inner container must share the exact same grid as the hero:
+
+max-width: 1200px
+
+Gutters: padding-inline: clamp(16px, 4vw, 28px) and padding-left/right: max(28px, env(safe-area-inset-*))
+
+Outer <header> has vertical padding only (24px 0); no extra horizontal padding.
+
+Wordmark (text, not image):
+
+Single line (white-space: nowrap)
+
+Typography locked: font-weight: 700–725, font-size: clamp(24px, 2.05vw, 30px), letter-spacing: -0.01em, line-height: ~1.05
+
+Gradient locked: deep blue → azure (as currently shipped). Do not swap to a logo image or change colors/size/weight.
+
+No runtime DOM surgery: Do not create/move header nodes in useEffect. Layout is defined in JSX only.
+
+2) Hero Section
+
+H1/Hero copy: All text, punctuation, capitalization, and line breaks are frozen.
+
+Container/grid: Must remain aligned with header (see above). Do not change max-width, gutters, or margins.
+
+Typography scale: Do not change font sizes/weights/letter-spacing for the hero title, subtitle, or badges.
+
+3) Primary CTA (“Create your free store”)
+
+Visuals: Keep current gradient, radius, shadow, and label exactly as shipped.
+
+Placement & size: Do not move, resize, or restyle.
+
+Only allowed change: Routing logic (auth/onboarding) behind the button; no visual change.
+
+4) Footer (brand)
+
+Text wordmark version only (no image), smaller scale; keep alignment and spacing as shipped.
+
+Do not modify links, columns, or copy.
+
+5) Theme & System
+
+Fonts: Keep current stack (Inter/system). No new web-font downloads.
+
+Colors, shadows, radii: Do not alter global tokens, gradients, or drop shadows used on this page.
+
+Assets: Do not add/replace images, SVGs, or animations on this page.
+
+6) Responsiveness & A11y (must remain unchanged)
+
+Breakpoints and behavior at 1440 / 1024 / 768 / 390 px must render identically.
+
+Header/hero left edges must match within ≤ 1px at all breakpoints.
+
+Brand link tap target ≥ 44px height.
+
+No text wrapping of the wordmark at any viewport.
+
+CLS ≤ 0.05 for the page.
+
+7) Engineering Guardrails
+
+Do not change DOM order or class names used by the current CSS on /.
+
+Do not introduce layout JS that mutates widths/padding on resize.
+
+Any analytics or A/B hooks must be non-visual (no style overrides).
+
+Acceptance checks (run on PR)
+
+Pixel-diff (or Playwright) confirms header and hero containers share the same left/right edges (≤ 1px variance).
+
+Wordmark is single line, same font metrics, same gradient.
+
+CTA visual snapshot unchanged.
+
+No new network requests (e.g., fonts/images) on /.
+
+CLS ≤ 0.05.
+
+Bottom line: The landing page’s visuals, layout, and copy are locked. Only behind-the-scenes routing/auth fixes are allowed; the UI must remain byte-for-byte identical in appearance.
