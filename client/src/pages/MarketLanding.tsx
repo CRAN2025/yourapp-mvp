@@ -75,8 +75,8 @@ export default function MarketLanding() {
     }
 
     // base layout for header
-    Object.assign(header.style, { width: '100%', padding: '0', boxSizing: 'border-box' });
-    Object.assign(inner.style, {
+    Object.assign((header as HTMLElement).style, { width: '100%', padding: '0', boxSizing: 'border-box' });
+    Object.assign((inner as HTMLElement).style, {
       boxSizing: 'border-box',
       width: '100%',         // width will be limited by maxWidth + centered with margin:auto
       margin: '0 auto',
@@ -94,7 +94,7 @@ export default function MarketLanding() {
       right.setAttribute('data-right-cluster', 'true');
       inner.appendChild(right);
     }
-    Object.assign(right.style, { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' });
+    Object.assign((right as HTMLElement).style, { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' });
 
     // move FAQ + Create Store into the right cluster (no route/link changes)
     const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
@@ -108,9 +108,9 @@ export default function MarketLanding() {
       inner.querySelector('img[alt="ShopLynk"]')?.closest('a') ||
       inner.querySelector('img[alt="ShopLynk"]');
     if (logo) {
-      Object.assign(logo.style, { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: '0' });
+      Object.assign((logo as HTMLElement).style, { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: '0' });
       const img = logo.querySelector('img,svg') || logo;
-      if (img) Object.assign(img.style, { width: '100%', height: 'auto', display: 'block' });
+      if (img) Object.assign((img as HTMLElement).style, { width: '100%', height: 'auto', display: 'block' });
       const link = logo.closest('a'); if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label', 'ShopLynk home');
     }
 
@@ -122,7 +122,7 @@ export default function MarketLanding() {
         document.querySelector('h1');
       if (!h1) return null;
 
-      const isContentBox = (el) => {
+      const isContentBox = (el: Element) => {
         const cs = getComputedStyle(el);
         const hasMax = cs.maxWidth !== 'none' && parseFloat(cs.maxWidth) > 0;
         const centered = cs.marginLeft === 'auto' && cs.marginRight === 'auto';
@@ -147,18 +147,18 @@ export default function MarketLanding() {
       const padR = parseFloat(cs.paddingRight) || 0;
 
       // Apply EXACT same container model as hero:
-      inner.style.maxWidth     = maxW + 'px';
-      inner.style.margin       = '0 auto';
-      inner.style.paddingLeft  = padL + 'px';
-      inner.style.paddingRight = padR + 'px';
+      (inner as HTMLElement).style.maxWidth     = maxW + 'px';
+      (inner as HTMLElement).style.margin       = '0 auto';
+      (inner as HTMLElement).style.paddingLeft  = padL + 'px';
+      (inner as HTMLElement).style.paddingRight = padR + 'px';
 
       // Fallback guard: if maxWidth < 600 (unlikely for main content), mirror gutters via rects
       if (maxW < 600) {
         const leftInset  = Math.max(0, Math.round(r.left));
         const rightInset = Math.max(0, Math.round(window.innerWidth - (r.left + r.width)));
-        inner.style.maxWidth     = 'none';
-        inner.style.paddingLeft  = leftInset + 'px';
-        inner.style.paddingRight = rightInset + 'px';
+        (inner as HTMLElement).style.maxWidth     = 'none';
+        (inner as HTMLElement).style.paddingLeft  = leftInset + 'px';
+        (inner as HTMLElement).style.paddingRight = rightInset + 'px';
       }
     };
 
@@ -796,7 +796,12 @@ export default function MarketLanding() {
               }}
             />
           </Link>
-          <nav style={_ui.rightCluster} className="nav-mobile">
+          <nav style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 24,
+            flexWrap: 'wrap' as const
+          }} className="nav-mobile">
             <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
             <button 
               onClick={goCreate} 
