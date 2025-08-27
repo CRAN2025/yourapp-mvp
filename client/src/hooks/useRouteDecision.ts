@@ -50,8 +50,12 @@ export function useRouteDecision() {
       return;
     }
 
-    // Anonymous user
+    // Anonymous user - allow marketing landing page
     if (!user) {
+      // Allow anonymous users to view marketing landing page
+      if (path === '/' || path.startsWith('/features') || path.startsWith('/pricing') || path.startsWith('/support') || path.startsWith('/faq') || path.startsWith('/terms') || path.startsWith('/privacy')) {
+        return; // Don't redirect, let them browse
+      }
       if (path !== '/auth') go('/auth', 'Not authenticated');
       return;
     }
