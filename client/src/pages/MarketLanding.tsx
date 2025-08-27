@@ -60,72 +60,79 @@ export default function MarketLanding() {
     }
   }, []);
 
-  // Runtime patch: Fix header alignment and logo prominence
+  // Runtime patch: Fix header alignment with proper inner container
   useEffect(() => {
-    // 1) Find header, logo, FAQ, and Create Store
-    const header =
-      document.querySelector('header, .site-header, [data-header]');
+    // 1) Grab the full-width header
+    const header = document.querySelector('header, .site-header, [data-header]');
     if (!header) return;
 
-    const logoLink =
-      header.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
-      header.querySelector('img[alt="ShopLynk"]')?.closest('a');
+    // 2) Ensure a centered inner container with the SAME gutters as the page
+    //    (keeps right items from drifting outside and pulls logo to the true left edge)
+    let inner = header.querySelector('[data-header-inner]');
+    if (!inner) {
+      inner = document.createElement('div');
+      inner.setAttribute('data-header-inner', 'true');
 
-    const faqLink =
-      header.querySelector('a[href*="faq"]') ||
-      Array.from(header.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
-
-    const createBtn =
-      Array.from(header.querySelectorAll('a, button')).find(
-        el => /create\s*store/i.test(el.textContent || '')
-      );
-
-    // 2) Make header a flex row and stop center alignment
-    Object.assign(header.style, {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-start',     // stop "center" grouping
-      gap: '24px',
-      padding: header.style.padding || '24px 32px',
-      textAlign: 'initial'
-    });
-
-    // 3) Left: logo grows naturally
-    const logoWrap = logoLink || header.firstElementChild;
-    if (logoWrap) {
-      Object.assign(logoWrap.style, {
-        display: 'inline-block',
-        width: 'clamp(220px, 20vw, 280px)',
-        height: 'auto',
-        lineHeight: '0'
-      });
-      const img = logoWrap.querySelector('img, svg') || logoWrap;
-      if (img) Object.assign(img.style, { width: '100%', height: 'auto', display: 'block' });
+      // Move all current header children into the inner container
+      while (header.firstChild) inner.appendChild(header.firstChild);
+      header.appendChild(inner);
     }
 
-    // 4) Right: create a "right cluster" on the fly if none exists
-    let right = header.querySelector('.header-right, .nav-right, [data-right-cluster]');
+    Object.assign(header.style, {
+      // Keep header background full-bleed
+      width: '100%'
+    });
+
+    Object.assign(inner.style, {
+      // Match hero/container width & gutters (tune maxWidth/padding as needed)
+      boxSizing: 'border-box',
+      width: '100%',
+      maxWidth: '1200px',                 // ← same as your main content width
+      margin: '0 auto',
+      padding: '24px 32px',               // ← same horizontal gutter as hero
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      gap: '24px'
+    });
+
+    // 3) Identify/make left logo and right cluster
+    const logo =
+      inner.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
+      inner.querySelector('img[alt="ShopLynk"]')?.closest('a');
+
+    let right = inner.querySelector('.header-right, .nav-right, [data-right-cluster]');
     if (!right) {
       right = document.createElement('div');
       right.setAttribute('data-right-cluster', 'true');
-      header.appendChild(right);
+      inner.appendChild(right);
     }
     Object.assign(right.style, {
-      marginLeft: 'auto',               // pushes cluster to FAR RIGHT
+      marginLeft: 'auto',                 // push to far right within inner container
       display: 'flex',
       alignItems: 'center',
       gap: '24px',
       flexWrap: 'wrap'
     });
 
-    // 5) Move FAQ and Create Store into the right cluster (no route changes)
-    if (faqLink && faqLink.parentElement !== right) right.appendChild(faqLink);
-    if (createBtn && createBtn.parentElement !== right) right.appendChild(createBtn);
+    // Move FAQ/Create Store into the right cluster (no route changes)
+    const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
+    const cta = Array.from(inner.querySelectorAll('a,button')).find(el => /create\s*store/i.test(el.textContent || ''));
+    if (faq && faq.parentElement !== right) right.appendChild(faq);
+    if (cta && cta.parentElement !== right) right.appendChild(cta);
 
-    // 6) Accessibility guards
-    const logoAnchor = logoWrap?.closest('a');
-    if (logoAnchor && !logoAnchor.getAttribute('aria-label')) {
-      logoAnchor.setAttribute('aria-label', 'ShopLynk home');
+    // 4) Logo scaling and left anchor
+    if (logo) {
+      Object.assign(logo.style, {
+        display: 'inline-block',
+        width: 'clamp(220px, 20vw, 280px)',
+        height: 'auto',
+        lineHeight: '0'
+      });
+      const img = logo.querySelector('img, svg') || logo;
+      if (img) Object.assign(img.style, { width: '100%', height: 'auto', display: 'block' });
+      const link = logo.closest('a');
+      if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label', 'ShopLynk home');
     }
   }, []);
 
