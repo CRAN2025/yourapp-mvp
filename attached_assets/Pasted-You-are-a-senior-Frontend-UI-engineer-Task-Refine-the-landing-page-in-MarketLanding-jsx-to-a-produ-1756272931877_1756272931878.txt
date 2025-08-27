@@ -1,0 +1,76 @@
+You are a senior Frontend/UI engineer.
+Task: Refine the landing page in MarketLanding.jsx to a production-ready, responsive, accessible, conversion-focused design—without changing app routes, copy, or analytics hooks. Keep the “glass” aesthetic, but make spacing, alignment, and card sizing consistent.
+
+Hard requirements
+
+Structure & Scope
+
+Modify only MarketLanding.jsx and inline styles it contains. If you must add tiny utilities, define them inside the same file.
+
+Do not add dependencies or change routes/links.
+
+Demo Store Grid (inside PreviewDevice)
+
+Desktop/tablet: 2 columns, gap 12px; Mobile < 520px: 1 column.
+
+Each demo card has fixed height 200px; inner image area 92px tall with 12px radius.
+
+Button (“Contact on WhatsApp”): 36px height, full width, stays pinned to bottom using a flex column container.
+
+Ensure no layout shift between cards; titles wrap max 2 lines then ellipsis.
+
+CTAs (header + hero + mid-page)
+
+Use a single unified style: height 52px, radius 16px, bold label 16px, consistent padding.
+
+Primary gradient = existing brand gradient; Secondary = transparent with 1.5px border.
+
+Typography & Spacing
+
+Heading scale: H1 clamp(40px, 7vw, 64px); section titles 24px; body 16–18px.
+
+Vertical rhythm: 6/8/12/16/20/24 increments; no “odd” gaps.
+
+Accessibility
+
+WCAG 2.2 AA contrast for text on glass backgrounds.
+
+Keyboard focus visible and consistent; :focus-visible outlines on buttons/links.
+
+Respect prefers-reduced-motion: disable transitions/IO observers gracefully.
+
+All interactive elements have clear labels and aria where needed.
+
+Performance
+
+No new fonts or network calls.
+
+Avoid layout trashing (e.g., expensive on scroll). IntersectionObserver OK with cleanup.
+
+Output
+
+Return a complete, drop-in MarketLanding.jsx with only the necessary changes.
+
+Include a short “Changes & Rationale” list at the top as comments.
+
+Acceptance tests
+
+On 390px, 768px, and 1200px screens: CTAs have identical height/shape; demo cards align with equal heights; button pinned bottom; no overflow.
+
+prefers-reduced-motion removes animations but keeps layout intact.
+
+Lighthouse a11y passes color-contrast checks on glass surfaces.
+
+No console warnings; no layout shift when images load (reserve space).
+
+Important: Preserve copy, routes, tracking calls, and class names used by analytics. Do not introduce Tailwind or external CSS files. Keep styles inline as in the original file.
+
+Bonus: Tiny style tokens you/agent can reuse
+
+Radii: card 16px, hero 24px, button 16px, image 12px
+
+Shadows: 0 10px 30px rgba(15, 23, 42, .08) (base), 0 30px 80px rgba(15,23,42,.18) (hover/hero)
+
+Focus: outline: 2px solid #5a6bff; outline-offset: 2px;
+
+Gaps: 6, 8, 12, 16, 20, 24 px only
