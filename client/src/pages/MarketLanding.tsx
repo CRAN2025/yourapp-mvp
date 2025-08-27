@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import { Helmet } from 'react-helmet-async';
 import { auth } from '@/lib/firebase';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -165,34 +164,13 @@ export default function MarketLanding() {
   const canonicalUrl = MARKETING_URL;
   const ogImageUrl = `${MARKETING_URL}/og-cover.png`;
 
+  // Update page title
+  useEffect(() => {
+    document.title = 'ShopLink - Build Your Online Store | WhatsApp E-commerce';
+  }, []);
+
   return (
-    <>
-      <Helmet>
-        <title>ShopLink - Build Your Online Store | WhatsApp E-commerce</title>
-        <meta name="description" content="Create stunning online storefronts with WhatsApp integration. Start selling in minutes with our easy-to-use e-commerce platform. No technical skills required." />
-        <link rel="canonical" href={canonicalUrl} />
-        
-        {/* Open Graph */}
-        <meta property="og:title" content="ShopLink - Build Your Online Store" />
-        <meta property="og:description" content="Create stunning online storefronts with WhatsApp integration. Start selling in minutes with our easy-to-use e-commerce platform." />
-        <meta property="og:image" content={ogImageUrl} />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="ShopLink" />
-        
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="ShopLink - Build Your Online Store" />
-        <meta name="twitter:description" content="Create stunning online storefronts with WhatsApp integration. Start selling in minutes." />
-        <meta name="twitter:image" content={ogImageUrl} />
-        
-        {/* Additional SEO */}
-        <meta name="robots" content="index, follow" />
-        <meta name="author" content="ShopLink" />
-        <meta name="keywords" content="ecommerce, online store, whatsapp business, storefront, selling platform" />
-      </Helmet>
-      
-      <div ref={rootRef} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div ref={rootRef} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -771,7 +749,6 @@ export default function MarketLanding() {
         </div>
       </footer>
     </div>
-    </>
   );
 }
 
