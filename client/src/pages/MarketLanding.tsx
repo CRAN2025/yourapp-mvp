@@ -69,21 +69,20 @@ export default function MarketLanding() {
 
   // Brand wordmark styling
   const _brand = {
-    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // with header padding => >=44px tap target
+    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // with header padding => ≥44px target
     text: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
       fontWeight: 700,
       letterSpacing: '-0.01em',
-      fontSize: 'clamp(24px, 2.2vw, 30px)',
+      fontSize: 'clamp(24px, 2.1vw, 30px)',
       lineHeight: 1.05,
       whiteSpace: 'nowrap' as const,
-      background: 'linear-gradient(90deg, #4454FF 0%, #1E84FF 100%)',  // darker AA gradient
+      background: 'linear-gradient(90deg, #3E4CFF 0%, #1A7BFF 100%)',  // slightly darker for better AA contrast
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text', 
       color: 'transparent',
       textShadow: '0 1px 0 rgba(0,0,0,0.06)'
     },
-    hover: { filter: 'brightness(1.06)' },
     footer: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
       fontWeight: 700,
@@ -91,7 +90,7 @@ export default function MarketLanding() {
       fontSize: 'clamp(20px, 1.9vw, 26px)',
       lineHeight: 1.05,
       whiteSpace: 'nowrap' as const,
-      background: 'linear-gradient(90deg, #4454FF 0%, #1E84FF 100%)',
+      background: 'linear-gradient(90deg, #3E4CFF 0%, #1A7BFF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
       color: 'transparent',
@@ -702,6 +701,12 @@ export default function MarketLanding() {
             transform: none;
           }
         }
+        
+        /* Brand wordmark interactive styles */
+        .brandText:hover{filter:brightness(1.06)} 
+        .brandText:focus-visible{outline:2px solid #3E4CFF; outline-offset:3px} 
+        @media (prefers-contrast: more){ .brandText{background:none!important;color:#172554!important} } 
+        @media (forced-colors: active){ .brandText{background:none!important;color:CanvasText!important} }
       `}</style>
 
       {/* Background accents */}
@@ -751,10 +756,8 @@ export default function MarketLanding() {
             to="/" 
             aria-label="ShopLynk home" 
             style={_brand.link}
-            onMouseEnter={(e) => Object.assign(e.currentTarget.style, _brand.hover)}
-            onMouseLeave={(e) => Object.assign(e.currentTarget.style, { filter: 'none' })}
           >
-            <span className='brandText' style={_brand.text}>ShopLynk</span>
+            <span className='brandText' style={_brand.text} tabIndex={-1}>ShopLynk</span>
           </Link>
           
           {/* RIGHT CLUSTER (FAQ + CTA) */}
@@ -782,7 +785,7 @@ export default function MarketLanding() {
               data-testid="header-create-store"
               disabled={isLoading}
               aria-label="Create your free store"
-              style={{ ..._ui.ctaPrimary, boxShadow: '0 8px 20px rgba(15,23,42,0.06)' }}
+              style={{ ..._ui.ctaPrimary, boxShadow: '0 8px 18px rgba(15,23,42,0.06)' }}
             >
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
