@@ -1,0 +1,154 @@
+1) Make all CTAs go to a single target (pick one)
+
+Decision: Use /app as the canonical destination (change only if you tell them otherwise).
+
+What to change
+
+Update any CTA/link/button that currently points to /auth → /app.
+
+Typical files to touch (don’t rename, don’t restyle):
+
+client/src/pages/**/MarketLanding*.tsx
+
+client/src/components/**/CTA*.tsx
+
+anywhere href="/auth" or router pushes to /auth.
+
+Acceptance
+
+grep -R --line-number -E 'href="/auth"|to="/auth"|push\\("/auth\\)' client/src returns no matches.
+
+grep -R --line-number -E 'href="/app"|to="/app"|push\\("/app\\)' client/src shows the CTA occurrences.
+
+On staging, every CTA lands at /app and refresh on /app works.
+
+Deliverables
+
+A short diff snippet showing the precise changes.
+
+Screenshot/video/GIF of clicking CTAs to /app.
+
+2) Clarify RTDB security result (404 vs 401/403)
+
+What to do
+
+Add a brief note in the proof explaining whether the observed 404 is rules-masking (intentional) or just a missing path.
+
+Include the rules snippet that enforces the denial and the cURL output used to verify.
+
+Acceptance
+
+One of:
+
+“404 due to rules masking existence” with rule and cURL proof, or
+
+“403/401 permission denied” with rule and cURL proof.
+
+Either way, confirm private paths are protected and public paths allowed per spec.
+
+Deliverables
+
+proof/go-live-signoff-20250827/security/README.md updated with 2–3 sentences, the rule snippet, and cURL output.
+
+3) Drive canonical + sitemap base from env
+
+What to do
+
+Use VITE_SITE_URL (e.g., https://shoplynk.app or your final domain) to set:
+
+the <link rel="canonical" href="..."> in the built index.html.
+
+the sitemap base URLs.
+
+Ensure staging uses its own value (e.g., preview URL) and production uses the final domain.
+
+Acceptance
+
+In dist/public/index.html, canonical equals VITE_SITE_URL (not hard-coded).
+
+dist/public/sitemap.xml URLs use VITE_SITE_URL.
+
+Show the vite or build-time code that injects VITE_SITE_URL.
+
+Deliverables
+
+Diff of the code pulling import.meta.env.VITE_SITE_URL (or equivalent).
+
+Copy of the canonical line from the built index.html.
+
+First 5 lines of built sitemap.xml showing correct base.
+
+4) Lighthouse: record scores & quick wins only if needed
+
+What to do
+
+Run Lighthouse (mobile + desktop) on staging.
+
+If mobile Perf < 75, apply low-risk optimizations only:
+
+font-display: swap
+
+preconnect to fonts/CDNs
+
+ensure og-cover.png ≈ 1200×630 and reasonably compressed
+
+no structural/design changes
+
+Acceptance
+
+Add numeric scores to the proof.
+
+If changes were applied, show the delta (before/after) and confirm ≥ 75 on mobile.
+
+Deliverables
+
+proof/.../lighthouse/ JSON or screenshots + a 1-paragraph summary in INDEX.md.
+
+If optimized, show the minimal diffs (e.g., index.html <link rel="preconnect">, CSS font-display).
+
+5) (Optional) Prevent staging indexing
+
+What to do
+
+If we want staging hidden from search, add <meta name="robots" content="noindex"> only on staging (guarded by env like VITE_ENV=staging).
+
+Acceptance
+
+View source on staging shows <meta name="robots" content="noindex">.
+
+Production build does not include that tag.
+
+Deliverables
+
+Diff showing the conditional meta tag and the env guard.
+
+6) Evidence refresh & push
+
+What to do
+
+Update proof/go-live-signoff-20250827/INDEX.md with the confirmations above.
+
+Rebuild and push to staging. Do not change look & feel.
+
+Acceptance
+
+All referenced artifacts exist in the proof folder and match staging output.
+
+Deliverables
+
+Updated INDEX.md, diffs, and links to staging pages tested.
+
+Commands the Agent can use (reference)
+# CTA audit
+grep -R --line-number -E 'href="/auth"|to="/auth"|push\("/auth"\)' client/src || true
+grep -R --line-number -E 'href="/app"|to="/app"|push\("/app"\)' client/src || true
+
+# Build
+npm run build
+
+# Inspect built SEO
+sed -n '1,120p' dist/public/index.html | grep -i canonical
+sed -n '1,50p'  dist/public/sitemap.xml
+
+# Lighthouse (if available locally)
+# npx @lhci/cli autorun  (or a local Lighthouse run with screenshots)

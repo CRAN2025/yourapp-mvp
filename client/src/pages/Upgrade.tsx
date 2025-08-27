@@ -86,12 +86,12 @@ export default function Upgrade() {
               <span className="text-xl font-bold text-primary cursor-pointer">ShopLink</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Link href="/auth">
+              <Link href="/app">
                 <Button variant="outline" data-testid="button-sign-in">
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth">
+              <Link href="/app">
                 <Button data-testid="button-get-started">
                   Get Started
                 </Button>
@@ -323,7 +323,7 @@ export default function Upgrade() {
             Join thousands of sellers already using ShopLink to grow their business.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth">
+            <Link href="/app">
               <Button size="lg" variant="secondary" data-testid="button-start-free">
                 Start Free Today
                 <ArrowRight className="w-4 h-4 ml-2" />
