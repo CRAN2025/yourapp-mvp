@@ -21,6 +21,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ImageUpload from '@/components/ImageUpload';
 import logoUrl from '@/assets/logo.png';
 
 const storeDetailsSchema = z.object({
@@ -30,7 +31,7 @@ const storeDetailsSchema = z.object({
 });
 
 const businessInfoSchema = z.object({
-  businessEmail: z.string().email('Please enter a valid business email').optional().or(z.literal('')),
+  businessEmail: z.string().email('Please enter a valid business email').optional(),
   country: z.string().min(1, 'Please select a country'),
   city: z.string().min(2, 'City is required'),
   businessType: z.enum(['individual', 'business']),
@@ -53,7 +54,7 @@ type ConfirmForm = z.infer<typeof confirmSchema>;
 
 export default function Onboarding() {
   const { user } = useAuth();
-  const { onboardingState, saveStep, completeOnboarding, canAccessStep, getNextStep, loading: onboardingLoading } = useOnboardingProgress();
+  const { onboardingState, saveStep, completeOnboarding, canAccessStep, getNextStep, loading } = useOnboardingProgress();
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
@@ -72,18 +73,18 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(getCurrentStep());
   const [selectedCountry, setSelectedCountry] = useState('US');
   const [phoneHint, setPhoneHint] = useState(getPhoneHint('US'));
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Guard against invalid step access and sync URL
   useEffect(() => {
-    if (onboardingLoading) return;
+    if (loading) return;
     
     const validStep = getCurrentStep();
     if (currentStep !== validStep) {
       setCurrentStep(validStep);
       navigate(`/onboarding?step=${validStep}`);
     }
-  }, [onboardingState, urlStep, navigate, onboardingLoading]);
+  }, [onboardingState, urlStep, navigate, loading]);
 
   // Pre-fill forms with existing data
   useEffect(() => {
@@ -155,7 +156,7 @@ export default function Onboarding() {
 
   // Step handlers with proper state management
   const handleStoreDetails = async (data: StoreDetailsForm) => {
-    setIsSubmitting(true);
+    setIsLoading(true);
     try {
       await saveStep(1, data);
       
@@ -170,19 +171,18 @@ export default function Onboarding() {
         description: 'Your store information has been saved.',
       });
     } catch (error) {
-      console.error('Store details save error:', error);
       toast({
         title: 'Error',
         description: 'Failed to save store details. Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   const handleBusinessInfo = async (data: BusinessInfoForm) => {
-    setIsSubmitting(true);
+    setIsLoading(true);
     try {
       // Validate phone number
       const phoneValidation = validatePhoneNumber(data.whatsappNumber, selectedCountry);
@@ -192,7 +192,7 @@ export default function Onboarding() {
           description: phoneValidation.error,
           variant: 'destructive',
         });
-        setIsSubmitting(false);
+        setIsLoading(false);
         return;
       }
 
@@ -214,19 +214,18 @@ export default function Onboarding() {
         description: 'Your business information has been saved.',
       });
     } catch (error) {
-      console.error('Business info save error:', error);
       toast({
         title: 'Error',
         description: 'Failed to save business info. Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   const handleDeliveryPayment = async (data: DeliveryPaymentForm) => {
-    setIsSubmitting(true);
+    setIsLoading(true);
     try {
       await saveStep(3, data);
       
@@ -241,48 +240,39 @@ export default function Onboarding() {
         description: 'Your delivery and payment options have been saved.',
       });
     } catch (error) {
-      console.error('Delivery payment save error:', error);
       toast({
         title: 'Error',
         description: 'Failed to save delivery options. Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   const handleConfirmation = async (data: ConfirmForm) => {
-    console.log('Starting handleConfirmation with data:', data);
-    setIsSubmitting(true);
-    
+    setIsLoading(true);
     try {
-      console.log('Saving step 4...');
       await saveStep(4, data);
       
-      console.log('Generating store ID...');
       // Generate store ID and complete onboarding
       const storeId = `store_${user?.uid}_${Date.now()}`;
-      
-      console.log('Completing onboarding with storeId:', storeId);
       await completeOnboarding(storeId);
       
-      console.log('Onboarding completed, navigating to /products...');
-      navigate('/products');
+      navigate('/app');
       
       toast({
         title: 'Welcome to ShopLynk!',
         description: 'Your store setup is complete. Start adding products!',
       });
     } catch (error) {
-      console.error('Confirmation error:', error);
       toast({
         title: 'Error',
         description: 'Failed to complete onboarding. Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -294,7 +284,7 @@ export default function Onboarding() {
     }
   };
 
-  if (onboardingLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -402,10 +392,10 @@ export default function Onboarding() {
                   <div className="flex justify-end pt-6">
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isLoading}
                       data-testid="button-continue-store"
                     >
-                      {isSubmitting ? <LoadingSpinner size="sm" /> : 'Continue'}
+                      {isLoading ? <LoadingSpinner size="sm" /> : 'Continue'}
                       <ChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
@@ -556,10 +546,10 @@ export default function Onboarding() {
                     <Button
                       type="submit"
                       className="sm:flex-1"
-                      disabled={isSubmitting}
+                      disabled={isLoading}
                       data-testid="button-continue-business"
                     >
-                      {isSubmitting ? <LoadingSpinner size="sm" /> : 'Continue'}
+                      {isLoading ? <LoadingSpinner size="sm" /> : 'Continue'}
                       <ChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
@@ -653,10 +643,10 @@ export default function Onboarding() {
                     <Button
                       type="submit"
                       className="sm:flex-1"
-                      disabled={isSubmitting}
+                      disabled={isLoading}
                       data-testid="button-continue-delivery"
                     >
-                      {isSubmitting ? <LoadingSpinner size="sm" /> : 'Continue'}
+                      {isLoading ? <LoadingSpinner size="sm" /> : 'Continue'}
                       <ChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
@@ -727,10 +717,10 @@ export default function Onboarding() {
                     <Button
                       type="submit"
                       className="sm:flex-1"
-                      disabled={isSubmitting}
+                      disabled={isLoading}
                       data-testid="button-complete"
                     >
-                      {isSubmitting ? <LoadingSpinner size="sm" /> : 'Complete Setup'}
+                      {isLoading ? <LoadingSpinner size="sm" /> : 'Complete Setup'}
                       <ChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
