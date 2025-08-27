@@ -1,0 +1,55 @@
+{
+  "task": "UI_EDIT/WORDMARK_LOCK_MICROPOLISH",
+  "targetFiles": ["client/src/pages/MarketLanding.tsx", "client/src/components/Footer.tsx"],
+  "editPlan": [
+    "Keep header layout in JSX only (no runtime DOM moves).",
+    "Ensure wordmark has subtle hover/focus feedback, AA contrast, and ≥44px tap target.",
+    "Slightly soften CTA glow for balance.",
+    "Mirror smaller wordmark in footer."
+  ],
+  "patches": [
+    {
+      "type": "insert_or_replace_block",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "anchor": "const _brand",
+      "code": "const _brand = {\n  link:{ display:'inline-block', textDecoration:'none', padding:'10px 0' },\n  text:{\n    fontFamily:\"Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial\",\n    fontWeight:700,\n    letterSpacing:'-0.01em',\n    fontSize:'clamp(24px, 2.05vw, 30px)',\n    lineHeight:1.05,\n    whiteSpace:'nowrap',\n    background:'linear-gradient(90deg,#3A49FF 0%, #1873FF 100%)',\n    WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent'\n  }\n};"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "<span[^>]*style={_brand.text}[^>]*>ShopLynk</span>",
+      "replacement": "<span className='brandText' style={_brand.text}>ShopLynk</span>"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "style={_ui\\.ctaPrimary}",
+      "replacement": "style={{ ..._ui.ctaPrimary, boxShadow:'0 6px 14px rgba(15,23,42,0.06)' }}"
+    }
+  ],
+  "insertions": [
+    {
+      "file": "client/src/pages/MarketLanding.tsx",
+      "anchor": "return (",
+      "position": "before",
+      "code": "<style>{`.brandText:hover{filter:brightness(1.06)} .brandText:focus-visible{outline:2px solid #3A49FF; outline-offset:3px} @media (prefers-contrast: more){ .brandText{background:none!important;color:#172554!important} } @media (forced-colors: active){ .brandText{background:none!important;color:CanvasText!important} }`}</style>"
+    }
+  ],
+  "footerAdjustments": [
+    {
+      "file": "client/src/components/Footer.tsx",
+      "action": "tweak_wordmark",
+      "details": "Reuse _brand.text with fontSize:'clamp(20px, 1.9vw, 26px)'; keep whiteSpace:'nowrap'."
+    }
+  ],
+  "validationChecks": {
+    "viewports": [1440, 1024, 768, 390],
+    "assertions": [
+      "Header .mx-auto left edge equals hero .mx-auto left edge within ±1px.",
+      "Brand link tap target height ≥ 44px.",
+      "Darkest gradient stop vs header background contrast ≥ 4.5:1 (AA).",
+      "No wrap/overlap at 390px; CLS ≤ 0.05."
+    ]
+  },
+  "expectedOutcome": "Wordmark remains perfectly aligned, AA-contrast, and interactive; CTA is balanced; footer mirrors the look at a slightly smaller size."
+}
