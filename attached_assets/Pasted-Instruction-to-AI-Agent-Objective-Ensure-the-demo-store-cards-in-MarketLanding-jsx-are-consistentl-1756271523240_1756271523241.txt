@@ -1,0 +1,133 @@
+Instruction to AI Agent
+
+Objective:
+Ensure the demo store cards in MarketLanding.jsx are consistently sized, evenly spaced, and perfectly aligned in the preview section (PreviewDevice).
+
+Requirements
+1. Card Layout
+
+Arrange the demo store product cards in a two-column responsive grid inside the PreviewDevice mockup.
+
+Maintain equal spacing (gap: 12px) between cards vertically and horizontally.
+
+Cards should remain aligned regardless of screen size.
+
+2. Card Dimensions
+
+Card width: 100% of the column (auto-resizing based on screen size)
+
+Card height: 200px total
+
+Image area: 92px fixed height
+
+Text and buttons fill the remaining space proportionally.
+
+Maintain a consistent aspect ratio for product thumbnails.
+
+3. Font Sizes & Hierarchy
+
+Product name: 14px, bold.
+
+Price: 13px, semi-bold, slightly muted (opacity: 0.75).
+
+WhatsApp button: full width, 14px, bold text.
+
+4. Button Placement & Styling
+
+Place the “Contact on WhatsApp” button at the bottom of each card.
+
+Button height: 36px fixed.
+
+Button border-radius: 16px (matches the rest of the landing page).
+
+Color: use the primary gradient from the global design system (var(--grad)).
+
+5. Visual Alignment
+
+Align all product titles, prices, and buttons to create a clean visual rhythm.
+
+Ensure cards have:
+
+Padding: 10px
+
+Border radius: 12px
+
+Shadow: 0 2px 8px rgba(0, 0, 0, 0.06)
+
+6. Responsive Behavior
+
+On desktop (>1024px) → Maintain 2 columns consistently.
+
+On tablet (768px – 1024px) → Cards resize proportionally, but grid stays 2 columns.
+
+On mobile (<768px) → Stack into 1 column, each card taking full width.
+
+Updated PreviewDevice Snippet
+function PreviewDevice() {
+  return (
+    <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)' }}>
+      <div style={{ height: 18, display: 'flex', gap: 6, marginBottom: 12 }}>
+        <div style={winDot('#ff5f57')} />
+        <div style={winDot('#ffbd2e')} />
+        <div style={winDot('#28c840')} />
+      </div>
+      <div className="glass card" style={{ padding: 14, marginBottom: 12 }}>
+        <div style={{ fontWeight: 800, letterSpacing: '-0.01em' }}>Demo Store</div>
+        <div style={{ fontSize: 12, opacity: 0.7 }}>whatsapp orders • no code</div>
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {[
+          ['Sunset Earrings', 'GHS 120'],
+          ['Handwoven Basket', 'GHS 240'],
+          ['Shea Body Butter', 'GHS 85'],
+          ['Tie-Dye Tee', 'GHS 150'],
+        ].map(([name, price], i) => (
+          <div
+            key={i}
+            className="glass card"
+            style={{
+              padding: 10,
+              borderRadius: 12,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: 200,
+            }}
+          >
+            <div
+              style={{
+                height: 92,
+                borderRadius: 12,
+                background: 'linear-gradient(135deg,#e7ecff,#f6f9ff)',
+              }}
+            />
+            <div style={{ fontWeight: 700, marginTop: 8, letterSpacing: '-0.01em', fontSize: 14 }}>
+              {name}
+            </div>
+            <div style={{ opacity: 0.75, fontSize: 13 }}>{price}</div>
+            <button
+              className="btn btnPrimary"
+              style={{
+                width: '100%',
+                marginTop: 8,
+                borderRadius: 16,
+                height: 36,
+                fontSize: 14,
+                fontWeight: 700,
+              }}
+            >
+              Contact on WhatsApp
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
