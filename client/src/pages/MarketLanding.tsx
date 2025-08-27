@@ -69,31 +69,33 @@ export default function MarketLanding() {
 
   // Brand wordmark styling
   const _brand = {
-    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // with header padding -> ≥44px target
+    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // with header padding => >=44px tap target
     text: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 700,                         // keep readable fill
-      letterSpacing: '-0.0125em',
-      fontSize: 'clamp(24px, 2.2vw, 30px)',    // +2px overall vs prior
+      fontWeight: 700,
+      letterSpacing: '-0.01em',
+      fontSize: 'clamp(24px, 2.2vw, 30px)',
       lineHeight: 1.05,
-      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
+      whiteSpace: 'nowrap' as const,
+      background: 'linear-gradient(90deg, #4454FF 0%, #1E84FF 100%)',  // darker AA gradient
       WebkitBackgroundClip: 'text',
-      backgroundClip: 'text',
+      backgroundClip: 'text', 
       color: 'transparent',
-      filter: 'contrast(1.15) saturate(1.05)'  // stronger contrast & saturation
+      textShadow: '0 1px 0 rgba(0,0,0,0.06)'
     },
+    hover: { filter: 'brightness(1.06)' },
     footer: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
       fontWeight: 700,
-      letterSpacing: '-0.0125em',
-      fontSize: 'clamp(20px, 1.9vw, 26px)',    // larger footer wordmark
+      letterSpacing: '-0.01em',
+      fontSize: 'clamp(20px, 1.9vw, 26px)',
       lineHeight: 1.05,
-      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
+      whiteSpace: 'nowrap' as const,
+      background: 'linear-gradient(90deg, #4454FF 0%, #1E84FF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
       color: 'transparent',
-      textShadow: '0 1px 0 rgba(0,0,0,0.06)',  // subtle lift for footer
-      filter: 'contrast(1.1)'
+      textShadow: '0 1px 0 rgba(0,0,0,0.06)'
     }
   };
 
@@ -745,7 +747,13 @@ export default function MarketLanding() {
       >
         <div className="mx-auto" style={_headerRow}>
           {/* BRAND (left) */}
-          <Link to="/" aria-label="ShopLynk home" style={_brand.link}>
+          <Link 
+            to="/" 
+            aria-label="ShopLynk home" 
+            style={_brand.link}
+            onMouseEnter={(e) => Object.assign(e.currentTarget.style, _brand.hover)}
+            onMouseLeave={(e) => Object.assign(e.currentTarget.style, { filter: 'none' })}
+          >
             <span className='brandText' style={_brand.text}>ShopLynk</span>
           </Link>
           
@@ -774,7 +782,7 @@ export default function MarketLanding() {
               data-testid="header-create-store"
               disabled={isLoading}
               aria-label="Create your free store"
-              style={{ ..._ui.ctaPrimary, boxShadow: '0 10px 24px rgba(15,23,42,0.08)' }}
+              style={{ ..._ui.ctaPrimary, boxShadow: '0 8px 20px rgba(15,23,42,0.06)' }}
             >
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
@@ -1135,7 +1143,7 @@ export default function MarketLanding() {
                   aria-label="ShopLynk home"
                   style={_brand.link}
                 >
-                  <span style={_brand.footer}>ShopLynk</span>
+                  <span className='brandText' style={_brand.footer}>ShopLynk</span>
                 </Link>
               </div>
               <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
