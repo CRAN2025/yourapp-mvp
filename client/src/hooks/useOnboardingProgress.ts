@@ -107,16 +107,22 @@ export function useOnboardingProgress() {
     };
 
     try {
+      console.log('Completing onboarding - current state:', onboardingState);
+      console.log('Completed state to save:', completedState);
+      
       const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, {
+      
+      // Use setDoc with merge instead of updateDoc to ensure document exists
+      await setDoc(userDocRef, {
         onboarding: completedState,
         storeId: storeId
-      });
+      }, { merge: true });
 
+      console.log('Successfully saved completion to Firestore');
       setOnboardingState(completedState);
       
       // Log telemetry
-      console.log('onboarding_completed', { storeId });
+      console.log('onboarding_completed', { storeId, status: 'completed' });
       
     } catch (error) {
       console.error('Failed to complete onboarding:', error);

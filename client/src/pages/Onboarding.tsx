@@ -257,6 +257,16 @@ export default function Onboarding() {
     setIsSubmitting(true);
     
     try {
+      if (!data.confirmed) {
+        toast({
+          title: 'Confirmation required',
+          description: 'Please confirm your details are accurate to continue.',
+          variant: 'destructive',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       console.log('Saving step 4...');
       await saveStep(4, data);
       
@@ -268,7 +278,12 @@ export default function Onboarding() {
       await completeOnboarding(storeId);
       
       console.log('Onboarding completed, navigating to /products...');
-      navigate('/products');
+      
+      // Add a small delay to ensure state is updated before navigation
+      setTimeout(() => {
+        console.log('Navigating to /products after completion');
+        navigate('/products');
+      }, 200);
       
       toast({
         title: 'Welcome to ShopLynk!',
@@ -278,7 +293,7 @@ export default function Onboarding() {
       console.error('Confirmation error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to complete onboarding. Please try again.',
+        description: `Failed to complete onboarding: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: 'destructive',
       });
     } finally {
