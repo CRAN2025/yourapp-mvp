@@ -1,0 +1,117 @@
+Restore full marketing page from MarketLanding-Downloadable.tsx
+Branch
+
+Create PR fix/marketing-landing-restore.
+
+What to do
+
+Move & normalize the component
+
+Source file: ~/workspace/MarketLanding-Downloadable.tsx
+
+Create new page: ~/workspace/client/src/pages/MarketingLanding.tsx
+
+Copy the component into that file and:
+
+Export default MarketingLanding.
+
+Replace any absolute/incorrect imports with project-local imports.
+
+Ensure all assets used (images/icons) exist under client/public or client/src/assets. If they’re outside, move them and update paths.
+
+Wire the home route to the page
+
+File: ~/workspace/client/src/main.tsx or wherever React Router is configured.
+
+Set / route to render <MarketingLanding />.
+
+Keep all existing app routes (/app, /store/:sellerId, etc.) unchanged.
+
+CTA links (do not change behavior)
+
+Confirm all “Create Store”, “Start Free”, “Sign in” buttons link to:
+
+Create/Start → /app (or your current sign-up route if different)
+
+Sign in → /app (or your current sign-in route)
+
+Use <Link to="/app"> (React Router) rather than hardcoding absolute URLs.
+
+Styling + layout
+
+Verify Tailwind (or CSS) classes compile and render correctly.
+
+Remove any dead inline styles/imports that aren’t needed.
+
+Make sure the page is responsive (no horizontal scroll on mobile).
+
+Keep bundling healthy
+
+Ensure no server-only imports are pulled into the page (avoid importing anything from server/**).
+
+No dynamic eval or window.require.
+
+Page should tree-shake down to client-side assets only.
+
+404 fallthrough
+
+Keep /index.html SPA fallback (already covered by hosting rewrites). The landing page is only /.
+
+Build + Deploy (do not change hosting config)
+
+cd ~/workspace/client
+npm ci
+npm run build
+cd ..
+firebase use yourapp-mvp
+firebase deploy --only hosting --project yourapp-mvp
+
+Acceptance criteria
+
+https://yourapp-mvp.web.app/ renders the full marketing page (from the old design), not the minimal placeholder.
+
+CTAs navigate correctly (/app etc.) with the SPA still working after hard refresh.
+
+No red errors in DevTools Console on /.
+
+DevTools Network shows CSS/JS from /assets/* loading with status 200.
+
+Lighthouse on /: Performance ≥ 85, Accessibility ≥ 90 (attach screenshot).
+
+Deep link still works: https://yourapp-mvp.web.app/store/<sellerId> renders (proves rewrites not broken).
+
+Deliverables
+
+PR fix/marketing-landing-restore including:
+
+client/src/pages/MarketingLanding.tsx
+
+Any asset moves under client/public or client/src/assets
+
+Router change to map / → MarketingLanding
+
+PR description:
+
+Before/after screenshots of /
+
+Links to:
+
+/
+
+/app
+
+/store/<sellerId>
+
+One Console screenshot (no errors)
+
+Lighthouse summary for / (Performance + Accessibility)
+
+Rollback
+
+If anything regresses after deploy, revert to the previous release in Firebase Hosting → Release History and ping me on the PR.
+
+If you discover that MarketLanding-Downloadable.tsx contains mixed server/client code or legacy imports, don’t refactor features. Instead:
+
+Extract only the presentational/interactive client parts into MarketingLanding.tsx.
+
+Leave a TODO in the PR for any non-blocking items you parked.
