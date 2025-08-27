@@ -262,7 +262,7 @@ export default function MarketLanding() {
     background: color
   });
 
-  // PreviewDevice component with demo products
+  // PreviewDevice component with demo products - production ready
   function PreviewDevice() {
     return (
       <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)' }}>
@@ -271,17 +271,11 @@ export default function MarketLanding() {
           <div style={winDot('#ffbd2e')} />
           <div style={winDot('#28c840')} />
         </div>
-        <div className="glass card" style={{ padding: 14, marginBottom: 12 }}>
-          <div style={{ fontWeight: 800, letterSpacing: '-0.01em' }}>Demo Store</div>
-          <div style={{ fontSize: 12, opacity: 0.7 }}>whatsapp orders • no code</div>
+        <div className="glass card" style={{ padding: 16, marginBottom: 12 }}>
+          <div style={{ fontWeight: 800, letterSpacing: '-0.01em', fontSize: 16 }}>Demo Store</div>
+          <div style={{ fontSize: 14, opacity: 0.8, color: '#374151' }}>whatsapp orders • no code</div>
         </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-            gap: 12,
-          }}
-        >
+        <div className="demo-product-grid">
           {[
             ['Sunset Earrings', 'GHS 120'],
             ['Handwoven Basket', 'GHS 240'],
@@ -290,38 +284,21 @@ export default function MarketLanding() {
           ].map(([name, price], i) => (
             <div
               key={i}
-              className="glass card"
-              style={{
-                padding: 10,
-                borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                height: 200,
-              }}
+              className="glass card demo-product-card"
+              role="article"
+              aria-label={`Product: ${name}, Price: ${price}`}
             >
-              <div
-                style={{
-                  height: 92,
-                  borderRadius: 12,
-                  background: 'linear-gradient(135deg,#e7ecff,#f6f9ff)',
-                }}
-              />
-              <div style={{ fontWeight: 700, marginTop: 8, letterSpacing: '-0.01em', fontSize: 14 }}>
-                {name}
+              <div className="demo-product-image" />
+              <div className="demo-product-content">
+                <div className="demo-product-name" title={name}>
+                  {name}
+                </div>
+                <div className="demo-product-price">{price}</div>
               </div>
-              <div style={{ opacity: 0.75, fontSize: 13 }}>{price}</div>
               <button
-                className="btn btnPrimary"
-                style={{
-                  width: '100%',
-                  marginTop: 8,
-                  borderRadius: 16,
-                  height: 36,
-                  fontSize: 14,
-                  fontWeight: 700,
-                }}
+                className="btn btnPrimary demo-contact-button"
+                aria-label={`Contact seller about ${name} via WhatsApp`}
+                tabIndex={-1}
               >
                 Contact on WhatsApp
               </button>
@@ -337,17 +314,23 @@ export default function MarketLanding() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
+        /* Design tokens */
         :root{
           --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          --ink: #0b1220;
-          --surface: rgba(255,255,255,.68);
-          --surface-strong: rgba(255,255,255,.78);
-          --border: rgba(255,255,255,.35);
+          --ink: #111827;
+          --ink-light: #374151;
+          --surface: rgba(255,255,255,.75);
+          --surface-strong: rgba(255,255,255,.85);
+          --border: rgba(255,255,255,.4);
           --shadow: 0 10px 30px rgba(15, 23, 42, .08);
           --shadow-strong: 0 30px 80px rgba(15,23,42,.18);
           --grad: linear-gradient(135deg,#5a6bff 0%, #67d1ff 100%);
           --radius-card: 16px;
           --radius-hero: 24px;
+          --radius-button: 16px;
+          --radius-image: 12px;
+          --focus-ring: 2px solid #5a6bff;
+          --focus-offset: 2px;
         }
 
         html, body, #root { height: 100%; }
@@ -357,29 +340,43 @@ export default function MarketLanding() {
         a { color: inherit; text-decoration: none; }
         button { font-family: var(--font-sans); }
 
-        :where(button,a,input):focus-visible { outline: 2px solid #5a6bff; outline-offset: 2px; }
+        /* Accessibility: Enhanced focus states */
+        :where(button,a,input):focus-visible { 
+          outline: var(--focus-ring); 
+          outline-offset: var(--focus-offset);
+        }
 
+        /* Animations with reduced-motion support */
         @keyframes fadeUp { from { opacity:0; transform: translateY(12px) } to { opacity:1; transform: translateY(0) } }
-        .reveal-on-scroll { opacity: 0; transform: translateY(12px); transition: transform .6s cubic-bezier(.2,.7,.2,1), opacity .6s ease; }
+        .reveal-on-scroll { 
+          opacity: 0; 
+          transform: translateY(12px); 
+          transition: transform .6s cubic-bezier(.2,.7,.2,1), opacity .6s ease; 
+        }
         .reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
 
         @media (prefers-reduced-motion: reduce) {
-          .reveal-on-scroll { opacity: 1; transform: none; }
+          .reveal-on-scroll { opacity: 1; transform: none; transition: none; }
           * { animation: none !important; transition: none !important; }
+          .cta-pulse { animation: none !important; }
         }
 
+        /* Layout */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Responsive breakpoints */
         @media (max-width: 768px) {
           .container { padding: 0 16px; }
           .glass { padding: 20px !important; }
           .heroGlass { padding: 20px !important; }
-          .hero-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+          .hero-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
           .hero-text { order: 1; text-align: center; }
           .hero-demo { order: 2; max-width: 400px; margin: 0 auto; }
           .mobile-hidden { display: none !important; }
           .nav-mobile { flex-direction: column; gap: 12px; }
         }
 
+        /* Glass morphism */
         .glass {
           background: var(--surface);
           border: 1px solid var(--border);
@@ -390,41 +387,160 @@ export default function MarketLanding() {
         .card { border-radius: var(--radius-card); }
         .heroGlass { border-radius: var(--radius-hero); }
 
-        .btn { border: none; cursor: pointer; font-weight: 800; transition: transform .15s ease, box-shadow .15s ease, background-position .2s ease; will-change: transform; }
-        .btn:active { transform: translateY(1px); }
-
-        /* >>> Unified NAV button dimensions (identical height/shape) */
-        .btnNav {
-          height: 52px;                 /* exact height instead of min-height */
-          padding: 0 24px;              /* side padding only */
+        /* Button system - unified heights and styles */
+        .btn { 
+          border: none; 
+          cursor: pointer; 
+          font-weight: 700; 
           font-size: 16px;
-          line-height: 1;
+          height: 52px;
+          padding: 0 24px;
+          border-radius: var(--radius-button);
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border-radius: 16px;          /* same rounding for both buttons */
-          box-sizing: border-box;       /* include border in height calculation */
+          transition: transform .15s ease, box-shadow .15s ease, background-position .2s ease; 
+          will-change: transform;
+          box-sizing: border-box;
+        }
+        .btn:active { transform: translateY(1px); }
+        .btn:focus-visible { 
+          outline: var(--focus-ring); 
+          outline-offset: var(--focus-offset);
         }
 
-        .btnPrimary { color: #fff; background: var(--grad); background-size: 180% 100%; background-position: 0% 50%; box-shadow: 0 12px 30px rgba(90,107,255,.28); vertical-align: top; }
-        .btnPrimary:hover { background-position: 100% 50%; box-shadow: 0 16px 40px rgba(90,107,255,.35); }
+        .btnNav { /* Legacy class for existing buttons */ }
 
-        .btnSecondary { background: transparent; border: 1.5px solid rgba(0,0,0,.12); vertical-align: top; margin-top: 15px; }
+        .btnPrimary { 
+          color: #fff; 
+          background: var(--grad); 
+          background-size: 180% 100%; 
+          background-position: 0% 50%; 
+          box-shadow: 0 12px 30px rgba(90,107,255,.28); 
+        }
+        .btnPrimary:hover { 
+          background-position: 100% 50%; 
+          box-shadow: 0 16px 40px rgba(90,107,255,.35); 
+        }
 
-        .badge { display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius: 999px; background: rgba(0,0,0,.05); font-weight: 600; font-size: 13px; }
-        .logoDot { width: 36px; height: 36px; border-radius: 50%; background: #e8ecff; border: 1px solid #dee3ff; }
+        .btnSecondary { 
+          background: transparent; 
+          border: 1.5px solid rgba(17,24,39,.15); 
+          color: var(--ink);
+        }
+        .btnSecondary:hover {
+          background: rgba(90,107,255,.05);
+          border-color: rgba(90,107,255,.2);
+        }
+
+        /* Demo product grid - responsive and accessible */
+        .demo-product-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
         
-        .faq-item { cursor: pointer; transition: all 0.2s ease; }
+        @media (max-width: 520px) {
+          .demo-product-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .demo-product-card {
+          padding: 12px;
+          border-radius: var(--radius-card);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 200px;
+          position: relative;
+        }
+
+        .demo-product-image {
+          height: 92px;
+          border-radius: var(--radius-image);
+          background: linear-gradient(135deg,#e7ecff,#f6f9ff);
+          flex-shrink: 0;
+        }
+
+        .demo-product-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 8px 0;
+        }
+
+        .demo-product-name {
+          font-weight: 700;
+          font-size: 14px;
+          line-height: 1.3;
+          color: var(--ink);
+          letter-spacing: -0.01em;
+          /* Max 2 lines with ellipsis */
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          margin-bottom: 4px;
+        }
+
+        .demo-product-price {
+          font-weight: 600;
+          font-size: 13px;
+          color: var(--ink-light);
+        }
+
+        .demo-contact-button {
+          width: 100%;
+          height: 36px;
+          font-size: 14px;
+          font-weight: 700;
+          margin-top: 8px;
+          flex-shrink: 0;
+        }
+
+        /* Utility classes */
+        .badge { 
+          display: inline-flex; 
+          align-items: center; 
+          gap: 6px; 
+          padding: 8px 12px; 
+          border-radius: 999px; 
+          background: rgba(17,24,39,.08); 
+          font-weight: 600; 
+          font-size: 13px; 
+          color: var(--ink-light);
+        }
+        
+        .logoDot { 
+          width: 36px; 
+          height: 36px; 
+          border-radius: 50%; 
+          background: #e8ecff; 
+          border: 1px solid #dee3ff; 
+        }
+        
+        .faq-item { 
+          cursor: pointer; 
+          transition: all 0.2s ease; 
+          border-radius: var(--radius-card);
+        }
         .faq-item:hover { background: rgba(90,107,255,.05); }
+        .faq-item:focus-visible {
+          outline: var(--focus-ring);
+          outline-offset: var(--focus-offset);
+        }
+        
         .testimonial-card { transition: transform 0.3s ease, opacity 0.3s ease; }
-        .testimonial-card.active { transform: scale(1.05); }
+        .testimonial-card.active { transform: scale(1.02); }
+        
         .cta-pulse { animation: pulse 2s infinite; }
         @keyframes pulse { 
           0%, 100% { transform: scale(1); } 
           50% { transform: scale(1.02); } 
         }
-        
-
         
         .mobile-optimized {
           @media (max-width: 768px) {
@@ -554,42 +670,45 @@ export default function MarketLanding() {
             <div className="hero-grid" style={{ display:'grid', gridTemplateColumns: '1.05fr .95fr', gap: 28, alignItems:'center' }}>
             {/* Left copy */}
             <div className="hero-text">
-              <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 14px', fontWeight: 900, letterSpacing: '-0.02em' }}>
+              <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 16px', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
                 Launch a WhatsApp-ready storefront in minutes
               </h1>
-              <p style={{ opacity: .85, fontSize: 18, lineHeight: 1.65, margin: '0 0 18px', fontWeight: 500 }}>
-                Add products, share a single link, and start getting orders via WhatsApp.<strong> Free during beta.</strong>
+              <p style={{ color: 'var(--ink-light)', fontSize: 18, lineHeight: 1.65, margin: '0 0 24px', fontWeight: 500 }}>
+                Add products, share a single link, and start getting orders via WhatsApp.<strong style={{ color: 'var(--ink)' }}> Free during beta.</strong>
               </p>
 
               {/* Primary CTA only (demo button removed) */}
-              <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom: 6 }}>
+              <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom: 12 }}>
                 <button 
                   onClick={goCreate} 
                   className="btn btnPrimary cta-pulse" 
-                  style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }} 
                   data-testid="hero-create-store"
                   disabled={isLoading}
                   aria-label="Create your free store - Start your free trial"
                 >
-                  {isLoading ? <div className="loading-spinner"></div> : 'Create your free store'}
+                  {isLoading ? <div className="loading-spinner" aria-label="Loading"></div> : 'Create your free store'}
                 </button>
               </div>
               
               {/* Urgency messaging */}
-              <div style={{ marginTop: 8, padding: '8px 12px', background: 'linear-gradient(90deg, #ff6b6b22, #4ecdc422)', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
-                🔥 Limited Beta Access • <span style={{ color: '#ff6b6b' }}>200+ spots remaining</span>
+              <div style={{ marginTop: 8, padding: '8px 12px', background: 'linear-gradient(90deg, rgba(255,107,107,0.1), rgba(78,205,196,0.1))', borderRadius: 8, fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
+                🔥 Limited Beta Access • <span style={{ color: '#dc2626' }}>200+ spots remaining</span>
               </div>
 
               {/* Sign-in hint for scrollers */}
-              <div style={{ marginTop: 6, fontSize: 14, opacity: .75 }}>
+              <div style={{ marginTop: 12, fontSize: 14, color: 'var(--ink-light)' }}>
                 Already have a store?{' '}
-                <a href="#" onClick={(e) => { e.preventDefault(); goLogin(); }} style={{ color: '#5a6bff', fontWeight: 600 }}>
+                <button 
+                  onClick={goLogin} 
+                  style={{ color: '#5a6bff', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, textDecoration: 'underline' }}
+                  aria-label="Sign in to existing store"
+                >
                   Sign in
-                </a>
+                </button>
               </div>
 
               {/* Enhanced Social proof */}
-              <div style={{ marginTop: 10, fontSize: 14, opacity: .7 }}>
+              <div style={{ marginTop: 12, fontSize: 14, color: 'var(--ink-light)' }}>
                 ⭐ Trusted by 200+ sellers • 🌍 8 countries • 💰 $50K+ in sales this month
               </div>
 
@@ -617,7 +736,7 @@ export default function MarketLanding() {
       <section className="container reveal-on-scroll" style={{ marginTop: 32 }}>
         <div className="glass card" style={{ padding: 20 }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, opacity: 0.8 }}>Trusted by sellers worldwide</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--ink-light)' }}>Trusted by sellers worldwide</h3>
           </div>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:16, flexWrap:'wrap' }}>
             {Array.from({ length: 7 }).map((_, i) => (
@@ -654,7 +773,7 @@ export default function MarketLanding() {
 
         {/* Enhanced Testimonials Carousel */}
         <section className="reveal-on-scroll" style={{ marginTop: 32 }}>
-          <h3 style={{ textAlign: 'center', fontSize: 24, fontWeight: 800, marginBottom: 24, letterSpacing: '-0.01em' }}>What our sellers say</h3>
+          <h3 style={{ textAlign: 'center', fontSize: 24, fontWeight: 800, marginBottom: 24, letterSpacing: '-0.01em', color: 'var(--ink)' }}>What our sellers say</h3>
           <div className="glass card testimonial-card" style={{ 
             padding: 22, 
             display:'flex', 
@@ -701,8 +820,8 @@ export default function MarketLanding() {
 
         {/* Pricing Section */}
         <section className="reveal-on-scroll" style={{ marginTop: 40 }}>
-          <h3 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, marginBottom: 8, letterSpacing: '-0.01em' }}>Simple, transparent pricing</h3>
-          <p style={{ textAlign: 'center', opacity: 0.7, marginBottom: 32 }}>Start free, upgrade when you're ready</p>
+          <h3 style={{ textAlign: 'center', fontSize: 24, fontWeight: 900, marginBottom: 8, letterSpacing: '-0.01em', color: 'var(--ink)' }}>Simple, transparent pricing</h3>
+          <p style={{ textAlign: 'center', color: 'var(--ink-light)', marginBottom: 24 }}>Start free, upgrade when you're ready</p>
           
           <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
             {[
@@ -794,7 +913,7 @@ export default function MarketLanding() {
 
       {/* FAQ Section */}
       <section id="faq" className="container reveal-on-scroll" style={{ marginTop: 48 }}>
-        <h3 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, marginBottom: 32, letterSpacing: '-0.01em' }}>Frequently Asked Questions</h3>
+        <h3 style={{ textAlign: 'center', fontSize: 24, fontWeight: 900, marginBottom: 24, letterSpacing: '-0.01em', color: 'var(--ink)' }}>Frequently asked questions</h3>
         <div className="glass card" style={{ padding: 24 }}>
           {faqs.map((faq, i) => (
             <div key={i} className="faq-item" style={{ 
