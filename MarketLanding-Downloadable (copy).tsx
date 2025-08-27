@@ -1,17 +1,3 @@
-/*
-Changes & Rationale:
-- Unified CTA button heights (52px) and radius (16px) across all buttons
-- Fixed demo card layout with consistent 200px height and proper flex column
-- Improved responsive breakpoints: 2-column grid on desktop, 1-column < 520px
-- Enhanced accessibility: proper contrast, focus-visible outlines, aria-labels
-- Consistent spacing using 6/8/12/16/20/24px increments only
-- Typography scale: H1 clamp(40px, 7vw, 64px), sections 24px, body 16-18px
-- Respect prefers-reduced-motion for all animations
-- Fixed image area (92px) with proper border radius (12px)
-- Contact button pinned to bottom with flex layout
-- WCAG 2.2 AA contrast compliance on glass backgrounds
-*/
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { auth } from '@/lib/firebase';
@@ -84,20 +70,10 @@ export default function MarketLanding() {
     }
   }, [hash]);
 
-  // Scroll reveal animations with prefers-reduced-motion support
+  // Scroll reveal animations
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    
-    // Respect prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      // Skip animations, just make elements visible
-      const els = root.querySelectorAll('.reveal-on-scroll') as NodeListOf<HTMLElement>;
-      els.forEach((el: HTMLElement) => el.classList.add('is-visible'));
-      return;
-    }
-    
     const els = root.querySelectorAll('.reveal-on-scroll') as NodeListOf<HTMLElement>;
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible')),
@@ -455,149 +431,75 @@ export default function MarketLanding() {
       {/* Background accents */}
       <div style={{
         position: 'absolute',
-        top: '-10%',
-        left: '-5%',
-        width: '30%',
-        height: '40%',
-        background: 'radial-gradient(circle, rgba(90,107,255,0.08) 0%, transparent 70%)',
-        borderRadius: '50%',
-        filter: 'blur(40px)',
-        zIndex: -1
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '-10%',
-        right: '-5%',
-        width: '25%',
-        height: '35%',
-        background: 'radial-gradient(circle, rgba(103,209,255,0.06) 0%, transparent 70%)',
-        borderRadius: '50%',
-        filter: 'blur(40px)',
-        zIndex: -1
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '100vh',
+        background: 'linear-gradient(180deg, rgba(99,102,241,0.04) 0%, rgba(67,209,255,0.02) 100%)',
+        pointerEvents: 'none',
+        zIndex: 0
       }} />
 
-      {/* Nav - Full Bleed */}
-      <header 
-        className=""
-        style={{ 
-          width: '100vw',
-          position: 'relative',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          zIndex: 2,
-          paddingTop: '20px',
-          paddingBottom: '20px'
-        }}
-      >
-        <div 
-          className="mx-auto"
-          style={{
-            maxWidth: '1200px',
-            paddingInline: 'clamp(16px, 4vw, 20px)',
-            paddingLeft: 'max(20px, env(safe-area-inset-left))',
-            paddingRight: 'max(20px, env(safe-area-inset-right))'
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display:'flex', alignItems:'center' }}>
-            <Link to="/" aria-label="ShopLynk home">
-              <img 
-                src={logoUrl} 
-                alt="ShopLynk" 
-                className="h-8 sm:h-9 md:h-10 w-auto cursor-pointer"
-              />
-            </Link>
-          </div>
-          <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
-            <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
-            <button 
-              onClick={goCreate} 
-              className="btn btnNav btnPrimary cta-pulse" 
-              data-testid="header-create-store"
-              disabled={isLoading}
-              aria-label="Create your free store"
-              style={{ fontSize: 14, padding: '0 20px' }}
-            >
+      {/* Header */}
+      <header className="container reveal-on-scroll" style={{ position: 'relative', zIndex: 10, paddingTop: 24, paddingBottom: 12 }}>
+        <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          {/* Logo - responsive sizing */}
+          <Link href="/" aria-label="ShopLynk Homepage">
+            <img 
+              src={logoUrl} 
+              alt="ShopLynk" 
+              style={{ 
+                height: 'clamp(32px, 4vw, 40px)',
+                width: 'auto',
+                filter: 'drop-shadow(0 2px 8px rgba(90,107,255,0.2))'
+              }} 
+            />
+          </Link>
+
+          {/* Nav buttons */}
+          <div className="nav-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button onClick={goLogin} className="btn btnNav btnSecondary" disabled={isLoading}>
+              {isLoading ? <div className="loading-spinner"></div> : 'Sign In'}
+            </button>
+            <button onClick={goCreate} className="btn btnNav btnPrimary" disabled={isLoading}>
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
-          </nav>
           </div>
-        </div>
+        </nav>
       </header>
 
-      {/* Hero - Full Bleed */}
-      <section 
-        id="signup" 
-        className="reveal-on-scroll is-visible"
-        style={{ 
-          width: '100vw',
-          position: 'relative',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          marginTop: 28
-        }}
-      >
-        <div className="glass heroGlass" style={{ paddingTop: 28, paddingBottom: 28 }}>
-          <div 
-            className="mx-auto"
-            style={{
-              maxWidth: '1200px',
-              paddingInline: 'clamp(16px, 4vw, 28px)',
-              paddingLeft: 'max(28px, env(safe-area-inset-left))',
-              paddingRight: 'max(28px, env(safe-area-inset-right))'
-            }}
-          >
-            <div className="hero-grid" style={{ display:'grid', gridTemplateColumns: '1.05fr .95fr', gap: 28, alignItems:'center' }}>
-            {/* Left copy */}
-            <div className="hero-text">
-              <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 14px', fontWeight: 900, letterSpacing: '-0.02em' }}>
-                Launch a WhatsApp-ready storefront in minutes
-              </h1>
-              <p style={{ opacity: .85, fontSize: 18, lineHeight: 1.65, margin: '0 0 18px', fontWeight: 500 }}>
-                Add products, share a single link, and start getting orders via WhatsApp.<strong> Free during beta.</strong>
-              </p>
-
-              {/* Primary CTA only (demo button removed) */}
-              <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom: 6 }}>
-                <button 
-                  onClick={goCreate} 
-                  className="btn btnPrimary cta-pulse" 
-                  style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }} 
-                  data-testid="hero-create-store"
-                  disabled={isLoading}
-                  aria-label="Create your free store - Start your free trial"
-                >
-                  {isLoading ? <div className="loading-spinner"></div> : 'Create your free store'}
-                </button>
+      {/* Hero Section */}
+      <section className="container" style={{ position: 'relative', zIndex: 2, marginTop: 20 }}>
+        <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 40, alignItems: 'center' }}>
+          <div className="hero-text reveal-on-scroll">
+            <h1 style={{ fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.02em', marginBottom: 16 }}>
+              Launch a WhatsApp-ready storefront in minutes
+            </h1>
+            <p style={{ fontSize: 18, opacity: 0.8, lineHeight: 1.6, marginBottom: 28, maxWidth: 520 }}>
+              Add products, share a single link, and start getting orders via WhatsApp. <strong>Free during beta.</strong>
+            </p>
+            
+            <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+              <button onClick={goCreate} className="btn btnPrimary cta-pulse" style={{ padding: '16px 24px', fontSize: 18, borderRadius: 16 }} disabled={isLoading}>
+                {isLoading ? <div className="loading-spinner"></div> : 'Create your free store'}
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, opacity: 0.7 }}>
+                <span className="badge">🔥 Limited Beta Access</span>
+                <span className="badge" style={{ color: '#e11d48' }}>200+ spots remaining</span>
               </div>
-              
-              {/* Urgency messaging */}
-              <div style={{ marginTop: 8, padding: '8px 12px', background: 'linear-gradient(90deg, #ff6b6b22, #4ecdc422)', borderRadius: 8, fontSize: 13, fontWeight: 600 }}>
-                🔥 Limited Beta Access • <span style={{ color: '#ff6b6b' }}>200+ spots remaining</span>
+            </div>
+            
+            <div style={{ fontSize: 14, opacity: 0.7, lineHeight: 1.4 }}>
+              <div>Already have a store? <button onClick={goLogin} style={{ color: '#5a6bff', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14 }}>Sign in</button></div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, flexWrap: 'wrap' }}>
+                <span>⭐ Trusted by 200+ sellers</span>
+                <span>🌍 8 countries</span> 
+                <span>💰 $50K+ in sales this month</span>
               </div>
-
-              {/* Sign-in hint for scrollers */}
-              <div style={{ marginTop: 6, fontSize: 14, opacity: .75 }}>
-                Already have a store?{' '}
-                <a href="#" onClick={(e) => { e.preventDefault(); goLogin(); }} style={{ color: '#5a6bff', fontWeight: 600 }}>
-                  Sign in
-                </a>
-              </div>
-
-              {/* Enhanced Social proof */}
-              <div style={{ marginTop: 10, fontSize: 14, opacity: .7 }}>
-                ⭐ Trusted by 200+ sellers • 🌍 8 countries • 💰 $50K+ in sales this month
-              </div>
-
-              {/* Badges */}
-              <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginTop:16 }}>
-                <span className="badge">⭐ 4.8/5 from early sellers</span>
-                <span className="badge">🧰 No code required</span>
-                <span className="badge">🔒 Backed by Firebase</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
+                <span>⭐ 4.8/5 from early sellers</span>
+                <span>🚫 No code required</span>
+                <span>⚡ Backed by Firebase</span>
                 <span className="badge">⏱️ Set up in ~5 minutes</span>
               </div>
             </div>
@@ -708,13 +610,13 @@ export default function MarketLanding() {
             {[
               { name: 'Free Beta', price: '$0', period: 'forever', features: ['Up to 50 products', 'WhatsApp integration', 'Basic analytics', 'Community support'], highlight: false, badge: 'Current' },
               { name: 'Pro', price: '$19', period: '/month', features: ['Unlimited products', 'Custom branding', 'Advanced analytics', 'Priority support', 'Custom domain'], highlight: true, badge: 'Coming Soon' },
-              { name: 'Enterprise', price: '$99', period: '/month', features: ['Everything in Pro', 'Multi-store management', 'API access', 'Dedicated support', 'Custom integrations'], highlight: false, badge: 'Coming Soon' }
-            ].map((plan, i) => (
-              <div key={plan.name} className="glass card" style={{ 
-                padding: 24, 
-                position: 'relative',
-                border: plan.highlight ? '2px solid #5a6bff' : '1px solid var(--border)',
-                transform: plan.highlight ? 'scale(1.05)' : 'scale(1)'
+              { name: 'Enterprise', price: 'Custom', period: '', features: ['White-label solution', 'API access', 'Dedicated support', 'Custom integrations', 'SLA guarantee'], highlight: false, badge: 'Contact Us' }
+            ].map((plan) => (
+              <div key={plan.name} className={`glass card ${plan.highlight ? 'cta-pulse' : ''}`} style={{ 
+                padding: 28, 
+                textAlign: 'center', 
+                border: plan.highlight ? '2px solid #5a6bff' : undefined,
+                position: 'relative'
               }}>
                 {plan.badge && (
                   <div style={{ 
@@ -722,301 +624,95 @@ export default function MarketLanding() {
                     top: -12, 
                     left: '50%', 
                     transform: 'translateX(-50%)', 
-                    background: plan.highlight ? '#5a6bff' : '#666', 
+                    background: plan.highlight ? '#5a6bff' : '#22c55e', 
                     color: 'white', 
                     padding: '4px 12px', 
-                    borderRadius: 12, 
+                    borderRadius: 999, 
                     fontSize: 12, 
-                    fontWeight: 600 
+                    fontWeight: 700 
                   }}>
                     {plan.badge}
                   </div>
                 )}
                 <h4 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{plan.name}</h4>
-                <div style={{ fontSize: 32, fontWeight: 900, marginBottom: 16 }}>
-                  {plan.price}<span style={{ fontSize: 16, opacity: 0.7 }}>{plan.period}</span>
+                <div style={{ fontSize: 36, fontWeight: 900, marginBottom: 4, color: plan.highlight ? '#5a6bff' : 'inherit' }}>
+                  {plan.price}<span style={{ fontSize: 16, fontWeight: 600, opacity: 0.7 }}>{plan.period}</span>
                 </div>
-                <ul style={{ listStyle: 'none', padding: 0, marginBottom: 24 }}>
-                  {plan.features.map((feature, j) => (
-                    <li key={j} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                      <span style={{ color: '#4ade80', marginRight: 8 }}>✓</span>
-                      {feature}
+                <ul style={{ listStyle: 'none', padding: 0, margin: '20px 0', textAlign: 'left' }}>
+                  {plan.features.map((feature, i) => (
+                    <li key={i} style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ color: '#22c55e' }}>✓</span> {feature}
                     </li>
                   ))}
                 </ul>
                 <button 
-                  onClick={i === 0 ? goCreate : () => {}} 
-                  className="btn btnPrimary" 
-                  style={{ 
-                    width: '100%', 
-                    padding: '12px', 
-                    borderRadius: 12, 
-                    opacity: i === 0 ? 1 : 0.6,
-                    cursor: i === 0 ? 'pointer' : 'not-allowed'
-                  }}
-                  disabled={i !== 0 || isLoading}
+                  onClick={goCreate} 
+                  className={`btn ${plan.highlight ? 'btnPrimary' : 'btnSecondary'}`} 
+                  style={{ width: '100%', padding: '14px 20px', borderRadius: 16, marginTop: 12 }}
+                  disabled={isLoading}
                 >
-                  {i === 0 ? (isLoading ? <div className="loading-spinner"></div> : 'Start Free') : 'Coming Soon'}
+                  {isLoading ? <div className="loading-spinner"></div> : plan.badge === 'Contact Us' ? 'Contact Sales' : 'Get Started'}
                 </button>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Enhanced Mid-page CTA */}
-        <section className="reveal-on-scroll" style={ctaBand}>
-          <div className="mobile-optimized" style={{ width: '100%' }}>
-            <div style={{ fontWeight: 900, fontSize: 24, marginBottom: 6, letterSpacing: '-0.015em' }}>
-              🚀 Ready to get your first order today?
-            </div>
-            <div style={{ opacity: .8, marginBottom: 16 }}>Join 200+ sellers already making money with WhatsApp integration</div>
-            <div style={{ display:'flex', gap:12, alignItems:'center', flexWrap:'wrap', justifyContent: 'center' }}>
-              <button 
-                onClick={goCreate} 
-                className="btn btnPrimary cta-pulse" 
-                style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }}
-                disabled={isLoading}
-              >
-                {isLoading ? <div className="loading-spinner"></div> : '🎯 Start Selling Now'}
-              </button>
-              <button 
-                onClick={goLogin} 
-                className="btn btnSecondary" 
-                style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }}
-                disabled={isLoading}
-              >
-                Sign in
-              </button>
+        {/* FAQ Section */}
+        <section className="reveal-on-scroll" style={{ marginTop: 40 }}>
+          <h3 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, marginBottom: 32, letterSpacing: '-0.01em' }}>Frequently asked questions</h3>
+          <div style={{ maxWidth: 700, margin: '0 auto' }}>
+            {faqs.map((faq, i) => (
+              <div key={i} className="glass card faq-item" style={{ 
+                padding: 20, 
+                marginBottom: 16, 
+                cursor: 'pointer' 
+              }} onClick={() => setShowFAQ(showFAQ === i ? -1 : i)}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 700, fontSize: 16 }}>
+                  {faq.q}
+                  <span style={{ fontSize: 18, transform: showFAQ === i ? 'rotate(45deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}>+</span>
+                </div>
+                {showFAQ === i && (
+                  <div style={{ marginTop: 12, opacity: 0.8, lineHeight: 1.6, animation: 'fadeUp 0.3s ease' }}>
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Final CTA Section */}
+        <section id="signup" className="reveal-on-scroll" style={{ marginTop: 48, marginBottom: 48 }}>
+          <div className="glass card" style={{ padding: 40, textAlign: 'center', background: 'linear-gradient(135deg, rgba(90,107,255,0.1) 0%, rgba(67,209,255,0.05) 100%)' }}>
+            <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.01em' }}>Ready to launch your store?</h3>
+            <p style={{ fontSize: 18, opacity: 0.8, marginBottom: 28, maxWidth: 500, margin: '0 auto 28px' }}>
+              Join hundreds of sellers who've already started their journey with ShopLynk
+            </p>
+            <button onClick={goCreate} className="btn btnPrimary cta-pulse" style={{ padding: '18px 32px', fontSize: 18, borderRadius: 16 }} disabled={isLoading}>
+              {isLoading ? <div className="loading-spinner"></div> : 'Create your free store now'}
+            </button>
+            <div style={{ marginTop: 16, fontSize: 14, opacity: 0.7 }}>
+              No credit card required • Setup in under 5 minutes
             </div>
           </div>
         </section>
       </main>
 
-      {/* FAQ Section */}
-      <section id="faq" className="container reveal-on-scroll" style={{ marginTop: 48 }}>
-        <h3 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, marginBottom: 32, letterSpacing: '-0.01em' }}>Frequently Asked Questions</h3>
-        <div className="glass card" style={{ padding: 24 }}>
-          {faqs.map((faq, i) => (
-            <div key={i} className="faq-item" style={{ 
-              padding: 16, 
-              borderRadius: 12, 
-              marginBottom: 12,
-              border: '1px solid transparent'
-            }}>
-              <div 
-                style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center', 
-                  fontWeight: 700, 
-                  marginBottom: 8,
-                  cursor: 'pointer'
-                }}
-                onClick={() => setShowFAQ(showFAQ === i ? -1 : i)}
-                onKeyDown={(e) => e.key === 'Enter' && setShowFAQ(showFAQ === i ? -1 : i)}
-                role="button"
-                tabIndex={0}
-                aria-expanded={showFAQ === i}
-              >
-                <span>{faq.q}</span>
-                <span style={{ fontSize: 20, transition: 'transform 0.2s ease', transform: showFAQ === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
-              </div>
-              {showFAQ === i && (
-                <div style={{ opacity: 0.8, lineHeight: 1.6, paddingLeft: 8 }}>
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {/* More FAQs Link */}
-          <div className="text-center mt-8">
-            <a 
-              href="/faq" 
-              className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-              data-testid="button-more-faqs"
-            >
-              View All FAQs →
-            </a>
+      {/* Footer */}
+      <footer className="container" style={{ padding: '24px 20px', borderTop: '1px solid rgba(0,0,0,0.1)', marginTop: 40 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <img src={logoUrl} alt="ShopLynk" style={{ height: 24, opacity: 0.7 }} />
+            <span style={{ fontSize: 14, opacity: 0.7 }}>© 2024 ShopLynk. All rights reserved.</span>
           </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="container reveal-on-scroll" style={{ marginTop: 48, marginBottom: 40 }}>
-        <div className="glass card" style={{ padding: 40, textAlign: 'center', background: 'linear-gradient(135deg, var(--surface), var(--surface-strong))' }}>
-          <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 16 }}>Join the WhatsApp commerce revolution</h3>
-          <p style={{ fontSize: 18, opacity: 0.8, marginBottom: 24, maxWidth: 600, margin: '0 auto 24px' }}>
-            Don't let your competitors get ahead. Start selling through WhatsApp today and watch your business grow.
-          </p>
-          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
-            <button 
-              onClick={goCreate} 
-              className="btn btnPrimary cta-pulse" 
-              style={{ padding: '20px 32px', fontSize: 18, borderRadius: 16 }}
-              disabled={isLoading}
-            >
-              {isLoading ? <div className="loading-spinner"></div> : '🚀 Create Your Store Now'}
-            </button>
-            <div style={{ fontSize: 14, opacity: 0.7 }}>
-              ⚡ Setup in 5 minutes • 💰 Start earning today • 🔒 100% secure
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced Footer */}
-      <footer className="container" style={{ marginTop: 80, paddingBottom: 40, position: 'relative', zIndex: 2 }}>
-        <div className="glass card" style={{ padding: 40 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 40, marginBottom: 40 }}>
-            {/* Company Info */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                <Link to="/" aria-label="ShopLynk home">
-                  <img src={logoUrl} alt="ShopLynk" className="h-8 sm:h-9 md:h-10 w-auto cursor-pointer" />
-                </Link>
-              </div>
-              <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
-                The easiest way to create a WhatsApp-ready online store. Launch your business in minutes, not days.
-              </p>
-              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <a href="mailto:brock1kai@gmail.com" style={{ padding: '8px 16px', backgroundColor: 'rgba(90,107,255,0.1)', borderRadius: '8px', fontSize: 14, fontWeight: 600, color: '#5a6bff', textDecoration: 'none' }}>
-                  Contact us
-                </a>
-              </div>
-            </div>
-
-            {/* Product Links */}
-            <div>
-              <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Product</h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <li><a href="/faq" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-faq">FAQ</a></li>
-                <li><a href="/app" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Create Store</a></li>
-                <li><a href="/features" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-features">Features</a></li>
-                <li><a href="/pricing" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-pricing">Pricing</a></li>
-              </ul>
-            </div>
-
-            {/* Support Links */}
-            <div>
-              <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Support</h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <li><a href="/support" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-support">Help Center</a></li>
-                <li><a href="mailto:brock1kai@gmail.com" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Contact us</a></li>
-                <li><a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>WhatsApp Help</a></li>
-                <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>Live Chat (Coming Soon)</span></li>
-              </ul>
-            </div>
-
-            {/* Legal Links */}
-            <div>
-              <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Legal</h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <li><a href="/terms" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-terms">Terms of Service</a></li>
-                <li><a href="/privacy" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-privacy">Privacy Policy</a></li>
-                <li><a href="/gdpr" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-gdpr">GDPR Compliance</a></li>
-                <li><a href="/cookies" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-cookies">Cookie Policy</a></li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Section */}
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
-              <p style={{ margin: 0, color: 'var(--ink)', opacity: 0.6, fontSize: 14 }}>
-                © 2025 ShopLynk. All rights reserved.
-              </p>
-              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-                <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>
-                  Made with ❤️ for small businesses
-                </span>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <span style={{ fontSize: 20 }}>🌟</span>
-                  <span style={{ fontSize: 20 }}>🚀</span>
-                  <span style={{ fontSize: 20 }}>💼</span>
-                </div>
-              </div>
-            </div>
+          <div style={{ display: 'flex', gap: 20, fontSize: 14 }}>
+            <a href="mailto:brock1kai@gmail.com" style={{ opacity: 0.7, textDecoration: 'none' }}>Contact</a>
+            <a href="#" style={{ opacity: 0.7, textDecoration: 'none' }}>Privacy</a>
+            <a href="#" style={{ opacity: 0.7, textDecoration: 'none' }}>Terms</a>
           </div>
         </div>
       </footer>
     </div>
   );
 }
-
-/* ——— Subcomponents ——— */
-function FeatureCard({ icon, title, body }: { icon: string; title: string; body: string }) {
-  return (
-    <div
-      className="glass card reveal-on-scroll"
-      style={{ padding: 20, transition: 'transform .15s ease, box-shadow .2s ease' }}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-strong)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'var(--shadow)'; }}
-    >
-      <div style={{ fontSize: 28 }}>{icon}</div>
-      <div style={{ fontWeight: 800, marginTop: 8, letterSpacing: '-0.01em' }}>{title}</div>
-      <div style={{ opacity: .8, marginTop: 6 }}>{body}</div>
-    </div>
-  );
-}
-
-function PreviewDevice() {
-  return (
-    <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)', maxWidth: '100%', width: '100%' }}>
-      <div style={{ height: 18, display:'flex', gap:6, marginBottom: 12 }}>
-        <div style={winDot('#ff5f57')} />
-        <div style={winDot('#ffbd2e')} />
-        <div style={winDot('#28c840')} />
-      </div>
-      <div className="glass card" style={{ padding: 14, marginBottom: 12 }}>
-        <div style={{ fontWeight: 800, letterSpacing:'-0.01em' }}>Demo Store</div>
-        <div style={{ fontSize: 12, opacity:.7 }}>whatsapp orders • no code</div>
-      </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, width: '100%' }}>
-        {[
-          ['Sunset Earrings', 'GHS 120'],
-          ['Handwoven Basket', 'GHS 240'],
-          ['Shea Body Butter', 'GHS 85'],
-          ['Tie-Dye Tee', 'GHS 150'],
-        ].map(([name, price], i) => (
-          <div key={i} className="glass card" style={{ padding: 10 }}>
-            <div style={{ height: 92, borderRadius: 12, background: 'linear-gradient(135deg,#e7ecff,#f6f9ff)' }} />
-            <div style={{ fontWeight: 700, marginTop: 8, letterSpacing:'-0.01em' }}>{name}</div>
-            <div style={{ opacity:.75, fontSize: 13 }}>{price}</div>
-            <button className="btn btnPrimary" style={{ width:'100%', marginTop: 8, borderRadius: 16, fontSize: 11, padding: '6px 8px' }}>WhatsApp</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ——— styles (JS objects) ——— */
-const ctaBand: React.CSSProperties = {
-  marginTop: 36,
-  display: 'flex',
-  gap: 20,
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  background: 'var(--surface-strong)',
-  border: '1px solid var(--border)',
-  borderRadius: 'var(--radius-card)',
-  padding: 24,
-  boxShadow: 'var(--shadow)',
-  flexWrap: 'wrap' as const,
-  backdropFilter: 'saturate(160%) blur(10px)',
-  WebkitBackdropFilter: 'saturate(160%) blur(10px)',
-};
-
-const winDot = (bg: string) => ({ width: 12, height: 12, borderRadius: 12, background: bg, border: '1px solid rgba(0,0,0,.08)' });
-
-const blobA: React.CSSProperties = {
-  position:'absolute', top:-160, left:-140, width:420, height:420, borderRadius:'50%',
-  background:'radial-gradient(closest-side, rgba(90,107,255,.22), transparent)',
-  filter:'blur(6px)', zIndex:1
-};
-const blobB: React.CSSProperties = {
-  position:'absolute', bottom:-200, right:-160, width:520, height:520, borderRadius:'50%',
-  background:'radial-gradient(closest-side, rgba(103,209,255,.22), transparent)',
-  filter:'blur(10px)', zIndex:1
-};
