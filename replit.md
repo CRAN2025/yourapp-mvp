@@ -1,6 +1,6 @@
 # Overview
 
-ShopLink is a comprehensive e-commerce platform that enables users to create online storefronts with WhatsApp integration for direct customer communication. The application is built as a React-based frontend with Firebase as the backend service, featuring user authentication, product management, analytics, and public storefront capabilities. The system is designed for small to medium businesses looking to establish an online presence with seamless customer interaction through WhatsApp.
+ShopLynk is a comprehensive e-commerce platform that enables users to create online storefronts with WhatsApp integration for direct customer communication. The application is built as a React-based frontend with Firebase as the backend service, featuring user authentication, product management, analytics, and public storefront capabilities. The system is designed for small to medium businesses looking to establish an online presence with seamless customer interaction through WhatsApp.
 
 # User Preferences
 

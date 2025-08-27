@@ -19,7 +19,7 @@ export default function MarketLanding() {
 
   // Environment variables
   const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN;
-  const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
+  const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplynk.app';
 
   // Anonymous events and auth detection
   useEffect(() => {
@@ -166,7 +166,7 @@ export default function MarketLanding() {
 
   // Update page title
   useEffect(() => {
-    document.title = 'ShopLink - Build Your Online Store | WhatsApp E-commerce';
+    document.title = 'ShopLynk - Build Your Online Store | WhatsApp E-commerce';
   }, []);
 
   return (
@@ -316,10 +316,10 @@ export default function MarketLanding() {
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <img 
               src={logoUrl} 
-              alt="ShoplYnk" 
+              alt="ShopLynk" 
               style={{ width: 32, height: 32 }}
             />
-            <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShoplYnk</div>
+            <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLynk</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
             <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
@@ -732,7 +732,7 @@ export default function MarketLanding() {
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
               <p style={{ margin: 0, color: 'var(--ink)', opacity: 0.6, fontSize: 14 }}>
-                © 2025 ShopLink. All rights reserved.
+                © 2025 ShopLynk. All rights reserved.
               </p>
               <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
                 <span style={{ fontSize: 12, color: 'var(--ink)', opacity: 0.5 }}>
