@@ -4,6 +4,9 @@ import { auth } from '@/lib/firebase';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
 import { trackInteraction } from '@/lib/utils/analytics';
 import { onAuthStateChanged } from 'firebase/auth';
+import { useAuth } from '@/hooks/use-auth';
+import { useOnboardingProgress } from '@/hooks/useOnboardingProgress';
+import { handleCreateStoreCTA, handleSignInCTA } from '@/utils/ctaNavigation';
 import logoUrl from '@/assets/logo.png';
 
 export default function MarketLanding() {
@@ -12,6 +15,10 @@ export default function MarketLanding() {
   const [isLoading, setIsLoading] = useState(false);
   const [showFAQ, setShowFAQ] = useState(-1);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  
+  // Auth and onboarding state
+  const { user } = useAuth();
+  const { onboardingState } = useOnboardingProgress();
 
   // Extract hash and search from current location
   const [path, search] = location.split('?');
@@ -82,33 +89,17 @@ export default function MarketLanding() {
       console.warn('Failed to track CTA click:', error);
     }
     
-    // Check if user is already authenticated
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      // Clear any previous onboarding state and start fresh
-      sessionStorage.removeItem('onboarding_state');
-      sessionStorage.removeItem('onboarding_step1');
-      navigate('/onboarding?step=1');
-      return;
-    }
-    
-    const qp = new URLSearchParams(search || '');
-    qp.set('from', 'landing_signup');
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
     
-    // Clear any previous onboarding state for new users
-    sessionStorage.removeItem('onboarding_state');
-    sessionStorage.removeItem('onboarding_step1');
+    // Use centralized navigation logic
+    handleCreateStoreCTA({
+      user,
+      onboardingStatus: onboardingState.status,
+      lastCompletedStep: onboardingState.lastCompletedStep,
+      navigate,
+    });
     
-    // Use environment-driven links - but route to auth first for unauthenticated users
-    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth` : '/auth';
-    const fullUrl = authUrl + `?${qp.toString()}`;
-    
-    if (APP_ORIGIN) {
-      window.location.href = fullUrl;
-    } else {
-      navigate(`/auth?${qp.toString()}`);
-    }
+    setIsLoading(false);
   };
 
   const goLogin = async () => {
@@ -125,23 +116,12 @@ export default function MarketLanding() {
       console.warn('Failed to track login click:', error);
     }
     
-    // Check if user is already authenticated
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      navigate('/products');
-      return;
-    }
+    try { (window as any).gtag?.('event', 'login_attempt', { source: 'marketing_landing' }); } catch {}
     
-    try { (window as any).gtag?.('event', 'login_click', { source: 'marketing_landing' }); } catch {}
+    // Use centralized navigation logic
+    handleSignInCTA({ navigate });
     
-    // Use environment-driven links - route to auth with signin mode
-    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth?mode=signin` : '/auth?mode=signin';
-    
-    if (APP_ORIGIN) {
-      window.location.href = authUrl;
-    } else {
-      navigate('/auth?mode=signin');
-    }
+    setIsLoading(false);
   };
 
 

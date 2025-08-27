@@ -1,0 +1,264 @@
+Goal
+
+Implement a reliable, state-driven onboarding flow and route guards so sellers always land on the correct next step (or dashboard), with clear redirects from all CTAs.
+
+1) Routes & States (single source of truth)
+Routes
+
+/ → marketing page
+
+/auth → sign in / sign up
+
+/onboarding?step=1..4 → multi-step onboarding
+
+/app → seller dashboard (post-onboarding only)
+
+/signout → signs out and returns to /
+
+Per-user state (Firestore or your server DB)
+
+In users/{uid} (or a dedicated sellers/{uid}):
+
+{
+  onboarding: {
+    status: 'not_started' | 'in_progress' | 'completed',
+    // always keep the highest completed step number
+    lastCompletedStep: 0, // 0..4
+    // optional detail to resume safely:
+    steps: {
+      1?: { name, description, categoryId, savedAt },
+      2?: { email, country, city, businessType, phoneE164, savedAt },
+      3?: { branding... },
+      4?: { confirm: true, savedAt }
+    }
+  },
+  // when onboarding completes:
+  storeId?: string
+}
+
+
+Source of truth = Firestore (or server).
+Do not rely on localStorage for step flow, only for optimistic UI.
+
+2) Redirect Rules (guard everything)
+
+Implement a reusable route guard (<OnboardingGuard/>) and a helper hook (useOnboardingProgress()).
+
+Anonymous (not signed in)
+
+Any CTA Create Store, Start selling, Sign in → /auth
+
+If they hit /onboarding or /app while anonymous → redirect to /auth
+
+Signed in, onboarding not started
+
+Any CTA → /onboarding?step=1
+
+Direct /app → redirect to /onboarding?step=1
+
+Signed in, onboarding in progress
+
+Any CTA → /onboarding?step=${lastCompletedStep + 1}
+
+/app → redirect to /onboarding?step=${lastCompletedStep + 1}
+
+Signed in, onboarding completed
+
+Any CTA → /app
+
+Any /onboarding visit → redirect to /app
+
+3) Step Forms (validation, persistence, advance logic)
+General pattern (all steps)
+
+On Continue:
+
+Validate fields (show errors inline; disable button while saving).
+
+Persist to users/{uid}.onboarding.steps[step].
+
+If this step number > lastCompletedStep, update lastCompletedStep.
+
+Set status='in_progress' unless final step.
+
+Navigate to ?step={current + 1}, or if last step → finalize and go to /app.
+
+On Back:
+
+Navigate to ?step={current - 1} without mutating lastCompletedStep.
+
+On mount of /onboarding:
+
+Read users/{uid}.onboarding. If status='completed' → /app.
+
+If status!='completed' and query step < lastCompletedStep + 1, bump to lastCompletedStep + 1.
+
+Pre-fill form from steps[step] if present.
+
+Step-specific validation (example; match your UI)
+
+Step 1 (Store details):
+
+Required: name (<=80), description (<=500), categoryId
+
+Save to steps[1], set lastCompletedStep >= 1.
+
+Step 2 (Business info):
+
+Required: country, city, businessType (enum), phoneE164
+
+Optional: email (validate if present)
+
+Normalize phone to E.164 (e.g., +16478563451) before save.
+
+Save to steps[2], bump progress.
+
+Step 3 (Branding):
+
+Optional: logo; if missing, still allow continue.
+
+Save to steps[3], bump progress.
+
+Step 4 (Confirm):
+
+Required: checkbox “I confirm these details are accurate”
+
+On Continue:
+
+Create stores/{storeId} if not exists; put minimal seed data.
+
+Attach storeId to users/{uid}.
+
+Set onboarding.status='completed' and lastCompletedStep=4.
+
+Navigate to /app.
+
+Bug you saw (Step 2 ➜ Step 1 loop)
+Likely causes (fix all):
+
+Progress not persisted before navigation (race).
+
+lastCompletedStep not bumped (always 0).
+
+Query param step parsed as string → math error.
+
+Router guard compares step to lastCompletedStep and redirects backward.
+
+Form state lost on remount due to a provider boundary or key mismatch.
+
+Implementation fix:
+
+All saves are awaited (await saveStep(...)) before navigation.
+
+After save, fetch or compute next = Math.max(lastCompletedStep + 1, current + 1) and route to that.
+
+Guard never pushes to a lower step than lastCompletedStep + 1.
+
+4) CTA & Header behaviors
+
+All “Create Store” / “Start selling” buttons:
+
+Anonymous → /auth
+
+Signed-in + status!='completed' → /onboarding?step=${lastCompletedStep+1}
+
+Signed-in + status='completed' → /app
+
+Header logo:
+
+From marketing → stays on /
+
+From onboarding → go to / (marketing)
+
+From app → go to /app
+
+"Sign in" footer link behaves like CTAs.
+
+5) Link ALL “Contact” and email mailto’s to one address
+
+Do not change visible text; just ensure they point to the same email.
+
+Target email: brock1kai@gmail.com (don’t display it if the UI doesn’t already).
+
+Update:
+
+Footer Contact Us
+
+Help/Support links in marketing
+
+Any email references in onboarding/app
+
+Use mailto:brock1kai@gmail.com with proper URL-encoding where needed.
+
+In React, prefer a config-driven mapping (e.g., CONTACT_EMAIL=brock1kai@gmail.com) and replace everywhere.
+
+6) Telemetry & console hygiene
+
+No console errors on /, /auth, /onboarding, /app.
+
+Log onboarding transitions:
+
+onboarding_step_saved {step}
+
+onboarding_advanced {from: step, to: step}
+
+onboarding_completed {storeId}
+
+7) Acceptance Criteria & Test Plan
+A. Anonymous → New signup (happy path)
+
+Visit / ➜ click Create Store ➜ /auth
+
+Sign up ➜ auto-redirects to /onboarding?step=1
+
+Fill Step 1 ➜ Continue ➜ Step 2
+
+Fill Step 2 ➜ Continue ➜ Step 3 (no bounce back)
+
+Fill Step 3 ➜ Continue ➜ Step 4
+
+Check confirm ➜ Continue ➜ /app (store created)
+
+B. Signed-in, in-progress
+
+Sign in, ensure lastCompletedStep=2
+
+Any CTA ➜ /onboarding?step=3 (not Step 2 or Step 1)
+
+C. Signed-in, completed
+
+Set status='completed'
+
+Any CTA ➜ /app
+
+Direct /onboarding ➜ redirect to /app
+
+D. Back button
+
+Step 3 Back ➜ Step 2 (no loss of saved data)
+
+Step 2 Back ➜ Step 1
+
+E. Contact links
+
+Every Contact / email link opens the same mailto:brock1kai@gmail.com
+
+F. No errors
+
+No console errors/warnings on all pages
+
+8) Deliverables from the Agent
+
+Code changes (guards, forms, persistence) with comments.
+
+A short README-ONBOARDING.md explaining the flow, state model, and guard logic.
+
+A Test Evidence note (or images/video) proving the acceptance criteria A–F.
+
+A config snippet showing where the contact email is set and how it’s used.
+
+Bonus (nice-to-have)
+
+Add lastTouchedAt timestamps to each step to support resuming in multi-device scenarios.
+
+Disable Continue until validations pass; show inline errors (no silent loops).
