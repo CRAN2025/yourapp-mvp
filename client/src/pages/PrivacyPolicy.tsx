@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
 
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-gray-800 leading-relaxed">
-                <strong>Controller / Contact.</strong> Unless stated otherwise, <strong>ShopLynk</strong> is a controller of personal information it collects via the Platform. Contact: <strong>[ShopLynk Technologies Inc./Ltd.]</strong>, <strong>[registered address, city, country]</strong>, <strong>legal@shoplynk.app</strong>. If you are in the EEA/UK, we may appoint an EU/UK representative (see regional addendum).
+                <strong>Controller / Contact.</strong> Unless stated otherwise, <strong>ShopLynk</strong> is a controller of personal information it collects via the Platform. Contact: <strong>[ShopLynk Technologies Inc./Ltd.]</strong>, <strong>[registered address, city, country]</strong>, <a href="mailto:brock1kai@gmail.com" className="text-blue-600 hover:text-blue-800 underline">Contact us</a>. If you are in the EEA/UK, we may appoint an EU/UK representative (see regional addendum).
               </p>
               <div className="mt-3 p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
                 <p className="text-blue-800 text-sm italic">
@@ -306,7 +306,7 @@ export default function PrivacyPolicy() {
                 <p className="font-semibold text-gray-900">ShopLynk.app Privacy</p>
                 <p className="text-gray-700"><strong>Company:</strong> [ShopLynk Technologies Inc./Ltd.]</p>
                 <p className="text-gray-700"><strong>Address:</strong> [registered address, city, country]</p>
-                <p className="text-gray-700"><strong>Email:</strong> privacy@shoplynk.app</p>
+                <p className="text-gray-700"><strong>Email:</strong> <a href="mailto:brock1kai@gmail.com" className="text-blue-600 hover:text-blue-800 underline">Contact us</a></p>
               </div>
             </section>
 

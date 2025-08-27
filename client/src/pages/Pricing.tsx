@@ -167,7 +167,7 @@ export default function Pricing() {
                       if (plan.available) {
                         navigate('/auth');
                       } else if (plan.name === 'Enterprise') {
-                        window.location.href = 'mailto:sales@shoplynk.app?subject=Enterprise Plan Inquiry';
+                        window.location.href = 'mailto:brock1kai@gmail.com?subject=Enterprise Plan Inquiry';
                       }
                     }}
                     className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
@@ -240,11 +240,11 @@ export default function Pricing() {
               </p>
               <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
                 <a
-                  href="mailto:sales@shoplynk.app?subject=Custom Plan Inquiry"
+                  href="mailto:brock1kai@gmail.com?subject=Custom Plan Inquiry"
                   className="inline-block w-full sm:w-auto px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                   data-testid="button-contact-sales"
                 >
-                  Contact Sales
+                  Contact us
                 </a>
                 <button
                   onClick={() => navigate('/support')}

@@ -186,7 +186,7 @@ export default function SubprocessorList() {
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact</h2>
               <div className="bg-teal-50 p-6 rounded-lg">
                 <p className="text-teal-800">
-                  <strong>Privacy Team:</strong> <a href="mailto:privacy@shoplynk.app" className="underline hover:text-teal-900">privacy@shoplynk.app</a>
+                  <strong>Privacy Team:</strong> <a href="mailto:brock1kai@gmail.com" className="underline hover:text-teal-900">Contact us</a>
                 </p>
               </div>
             </section>

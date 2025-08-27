@@ -182,7 +182,7 @@ export default function CookiePolicy() {
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact</h2>
               <div className="bg-gray-50 p-6 rounded-lg space-y-2">
                 <p className="font-semibold text-gray-900">ShopLynk.app Privacy Team</p>
-                <p className="text-gray-700"><strong>Email:</strong> privacy@shoplynk.app</p>
+                <p className="text-gray-700"><strong>Email:</strong> <a href="mailto:brock1kai@gmail.com" className="text-blue-600 hover:text-blue-800 underline">Contact us</a></p>
                 <p className="text-gray-700"><strong>Address:</strong> [registered address, city, country]</p>
               </div>
             </section>

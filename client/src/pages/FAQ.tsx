@@ -107,11 +107,11 @@ export default function FAQ() {
                   Contact Support
                 </a>
                 <a 
-                  href="mailto:hello@shoplynk.app" 
+                  href="mailto:brock1kai@gmail.com" 
                   className="inline-flex items-center justify-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
                   data-testid="button-email-support"
                 >
-                  Email Us
+                  Contact us
                 </a>
               </div>
             </div>

@@ -159,7 +159,7 @@ export default function TermsOfService() {
                   <strong>7.3 Feedback.</strong> You assign to us all rights in feedback/suggestions without obligation to you.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
-                  <strong>7.4 IP Complaints.</strong> Send notices to <strong>legal@shoplynk.app</strong> with (a) identification of the protected work; (b) the allegedly infringing material and location; (c) your contact details; (d) a good-faith statement; and (e) a statement, under penalty of perjury, of accuracy and authority to act. We may remove/disable content and suspend repeat infringers.
+                  <strong>7.4 IP Complaints.</strong> Send notices to <a href="mailto:brock1kai@gmail.com" className="text-blue-600 hover:text-blue-800 underline">our legal team</a> with (a) identification of the protected work; (b) the allegedly infringing material and location; (c) your contact details; (d) a good-faith statement; and (e) a statement, under penalty of perjury, of accuracy and authority to act. We may remove/disable content and suspend repeat infringers.
                 </p>
               </div>
             </section>
@@ -306,7 +306,7 @@ export default function TermsOfService() {
                   <strong>18.6 Force Majeure.</strong> We are not liable for delays/failures due to events beyond reasonable control (e.g., outages, strikes, acts of God, war, regulatory actions).
                 </p>
                 <p className="text-gray-700 leading-relaxed">
-                  <strong>18.7 Contact.</strong> <strong>ShopLynk.app Legal</strong> — <strong>legal@shoplynk.app</strong> — <strong>[address]</strong>.
+                  <strong>18.7 Contact.</strong> <strong>ShopLynk.app Legal</strong> — <a href="mailto:brock1kai@gmail.com" className="text-blue-600 hover:text-blue-800 underline">Contact us</a> — <strong>[address]</strong>.
                 </p>
               </div>
             </section>
