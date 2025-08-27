@@ -313,13 +313,12 @@ export default function MarketLanding() {
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ display:'flex', alignItems:'center' }}>
             <img 
               src={logoUrl} 
               alt="ShopLynk" 
-              style={{ width: 32, height: 32 }}
+              style={{ height: 40, width: 'auto' }}
             />
-            <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLynk</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
             <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
@@ -680,15 +679,14 @@ export default function MarketLanding() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 40, marginBottom: 40 }}>
             {/* Company Info */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <div style={{ fontSize: 24 }}>🛍️</div>
-                <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                <img src={logoUrl} alt="ShopLynk" style={{ height: 48, width: 'auto' }} />
               </div>
               <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
                 The easiest way to create a WhatsApp-ready online store. Launch your business in minutes, not days.
               </p>
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <a href="mailto:hello@shoplink.com" style={{ padding: '8px 16px', backgroundColor: 'rgba(90,107,255,0.1)', borderRadius: '8px', fontSize: 14, fontWeight: 600, color: '#5a6bff', textDecoration: 'none' }}>
+                <a href="mailto:hello@shoplynk.com" style={{ padding: '8px 16px', backgroundColor: 'rgba(90,107,255,0.1)', borderRadius: '8px', fontSize: 14, fontWeight: 600, color: '#5a6bff', textDecoration: 'none' }}>
                   Contact Us
                 </a>
               </div>
@@ -710,7 +708,7 @@ export default function MarketLanding() {
               <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Support</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <li><a href="/support" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-support">Help Center</a></li>
-                <li><a href="mailto:support@shoplink.com" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Email Support</a></li>
+                <li><a href="mailto:support@shoplynk.com" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Email Support</a></li>
                 <li><a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>WhatsApp Help</a></li>
                 <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>Live Chat (Coming Soon)</span></li>
               </ul>
