@@ -6,7 +6,7 @@ import { trackInteraction } from '@/lib/utils/analytics';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useAuth } from '@/hooks/use-auth';
 import { useOnboardingProgress } from '@/hooks/useOnboardingProgress';
-import { handleCreateStoreCTA, handleSignInCTA } from '@/utils/ctaNavigation';
+import { useRouteDecision } from '@/hooks/useRouteDecision';
 import logoUrl from '@/assets/logo.png';
 
 export default function MarketLanding() {
@@ -18,7 +18,8 @@ export default function MarketLanding() {
   
   // Auth and onboarding state
   const { user } = useAuth();
-  const { onboardingState } = useOnboardingProgress();
+  const { ready, status, nextStep } = useOnboardingProgress();
+  useRouteDecision(); // Apply route decision logic
 
   // Extract hash and search from current location
   const [path, search] = location.split('?');
@@ -27,6 +28,13 @@ export default function MarketLanding() {
   // Environment variables
   const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN;
   const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplynk.app';
+  
+  // Enable debug mode in development
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      window.__debugOnboarding = true;
+    }
+  }, []);
 
   // Anonymous events and auth detection
   useEffect(() => {
@@ -91,13 +99,20 @@ export default function MarketLanding() {
     
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
     
-    // Use centralized navigation logic
-    handleCreateStoreCTA({
-      user,
-      onboardingStatus: onboardingState.status,
-      lastCompletedStep: onboardingState.lastCompletedStep,
-      navigate,
-    });
+    // Smart CTA routing based on user state
+    if (!ready) {
+      // Still loading, just go to auth
+      navigate('/auth');
+    } else if (!user) {
+      // Anonymous user
+      navigate('/auth');
+    } else if (status === 'completed') {
+      // Completed user
+      navigate('/app');
+    } else {
+      // In progress or not started
+      navigate(`/onboarding?step=${nextStep}`);
+    }
     
     setIsLoading(false);
   };
@@ -118,8 +133,8 @@ export default function MarketLanding() {
     
     try { (window as any).gtag?.('event', 'login_attempt', { source: 'marketing_landing' }); } catch {}
     
-    // Use centralized navigation logic
-    handleSignInCTA({ navigate });
+    // Direct sign-in navigation
+    navigate('/auth');
     
     setIsLoading(false);
   };

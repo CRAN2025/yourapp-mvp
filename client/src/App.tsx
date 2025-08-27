@@ -13,7 +13,7 @@ import { AppGuard } from "@/components/AppGuard";
 // Import all pages
 import MarketLanding from "@/pages/MarketLanding";
 import Auth from "@/pages/Auth";
-import Onboarding from "@/pages/Onboarding";
+import OnboardingNew from "@/pages/OnboardingNew";
 import Products from "@/pages/Products";
 import Analytics from "@/pages/Analytics";
 import Orders from "@/pages/Orders";
@@ -73,17 +73,7 @@ function Router() {
       <Route path="/support" component={ContactSupport} />
 
       {/* Protected routes - require authentication */}
-      <Route path="/onboarding">
-        {(params) => {
-          const urlParams = new URLSearchParams(window.location.search);
-          const requiredStep = parseInt(urlParams.get('step') || '1');
-          return (
-            <OnboardingGuard requiredStep={requiredStep}>
-              <Onboarding />
-            </OnboardingGuard>
-          );
-        }}
-      </Route>
+      <Route path="/onboarding" component={OnboardingNew} />
       <Route path="/products">
         <AppGuard>
           <Products />

@@ -1,0 +1,225 @@
+Fix the “Step 1 flashes” issue on CTA click
+
+Symptom
+
+Clicking any CTA shows /onboarding?step=1 briefly, then either bounces again or loops back.
+
+Looks like a render → redirect → re‐render race (or two different guards fighting).
+
+1) Root-cause checklist (search & fix all)
+A) Redirect race / premature render
+
+Onboarding page renders Step 1 UI before the user doc is loaded, then a guard redirects a moment later.
+
+Fix: Don’t render any step until both auth and userDoc are resolved. Show a neutral loader instead.
+
+B) Dueling guards (double navigation)
+
+One guard on the CTA, another guard in the onboarding page, both navigating.
+
+Fix: Centralize routing decision in one place (resolveNextRoute()), and ensure it fires once.
+
+C) Step math / parse bugs
+
+lastCompletedStep undefined/NaN; step query parsed as a string or empty; step ends up < lastCompletedStep + 1.
+
+Fix: Validate and clamp:
+const parsed = Number.parseInt(step ?? '1', 10)
+const next = clamp((lastCompletedStep ?? 0) + 1, 1, 4)
+
+D) Wrong defaults
+
+Local defaults render Step 1 immediately (e.g., const [onboarding] = useState({ lastCompletedStep: 0 })).
+
+Fix: Initial state must be “unknown/loading”, not Step 1.
+
+E) useEffect loops / unstable deps
+
+useEffect(() => navigate(...)) depends on values that change every render → infinite redirects.
+
+Fix: Use a hasRedirectedRef guard and minimal dependency arrays.
+
+F) Navigate in render phase / StrictMode double run
+
+Calling navigate() inside render or in an effect that runs twice in dev (React 18 StrictMode).
+
+Fix: Only navigate from a guarded effect; gate with hasRedirectedRef.current.
+
+G) CTA links hardcoded to ?step=1
+
+Marketing CTAs might be literal links to /onboarding?step=1.
+
+Fix: Replace CTAs with a handler that resolves next route from profile state (see section 3).
+
+H) Firestore read/permission delays
+
+Rules or errors cause user doc read to fail → app falls back to Step 1.
+
+Fix: Log Firestore errors; require a successful user doc fetch before choosing a route.
+
+I) Hydration mismatch / Suspense fallback
+
+SSR/CSR mismatch or Suspense fallback flashing the step UI.
+
+Fix: Don’t render step components until resolved; keep fallback as a neutral page-level loader.
+
+2) Guard: single source of truth
+
+Create useOnboardingProgress() and a single useRouteDecision() hook.
+
+// useOnboardingProgress.ts
+export function useOnboardingProgress() {
+  const { user, initializing: authLoading } = useAuth(); // or firebase auth hook
+  const { doc, loading: docLoading, error } = useUserDoc(user?.uid); // Firestore
+
+  const ready = !authLoading && (!user || !docLoading);
+  const status = doc?.onboarding?.status ?? 'not_started';
+  const lastCompletedStep = Number(doc?.onboarding?.lastCompletedStep ?? 0);
+  const nextStep = Math.min(Math.max(lastCompletedStep + 1, 1), 4);
+
+  return { user, ready, status, lastCompletedStep, nextStep, error };
+}
+
+// useRouteDecision.ts
+export function useRouteDecision(router: Router) {
+  const { user, ready, status, nextStep } = useOnboardingProgress();
+  const redirected = useRef(false);
+
+  useEffect(() => {
+    if (!ready || redirected.current) return;
+
+    const path = window.location.pathname;
+    const search = new URLSearchParams(window.location.search);
+    const step = Number.parseInt(search.get('step') ?? '1', 10);
+
+    const go = (to: string) => { redirected.current = true; router.replace(to); };
+
+    if (!user) {
+      if (path !== '/auth') go('/auth');          // anonymous → auth
+      return;
+    }
+
+    if (status === 'completed') {
+      if (path !== '/app') go('/app');            // finished → app
+      return;
+    }
+
+    // in-progress
+    const shouldBe = `/onboarding?step=${nextStep}`;
+    if (path !== '/onboarding' || step !== nextStep) go(shouldBe);
+  }, [ready, user, status, nextStep, router]);
+}
+
+
+On /onboarding: render only a neutral loader until ready === true and after useRouteDecision has run. Don’t mount step components until the URL and state match.
+
+3) CTA handler (stop linking directly to ?step=1)
+
+Replace anchor tags with a single CTA util:
+
+export async function handlePrimaryCta(router: Router, getProgress = useOnboardingProgress) {
+  const { user, ready, status, nextStep } = getProgress();
+
+  // if not ready yet, show spinner and re-check after ready
+  if (!ready) return router.push('/auth'); // or open auth; optional
+
+  if (!user) return router.push('/auth');
+  if (status === 'completed') return router.push('/app');
+  return router.push(`/onboarding?step=${nextStep}`);
+}
+
+
+Usage:
+
+<Button onClick={() => handlePrimaryCta(router)}>Create your free store</Button>
+
+
+Never hardcode /onboarding?step=1 in marketing CTAs.
+
+4) Step form save → advance (fix race)
+
+Ensure atomic save then advance:
+
+async function onContinue(step: 1|2|3|4) {
+  setSubmitting(true);
+  try {
+    // Validate…
+    await saveStepToFirestore(step, values); // write steps[step]
+    await bumpProgress(step);                // sets lastCompletedStep=max(old, step), status='in_progress'
+    const next = Math.min(step + 1, 4);
+    if (step < 4) router.replace(`/onboarding?step=${next}`);
+    else {
+      await finalizeStore();                 // create storeId, set status='completed'
+      router.replace('/app');
+    }
+  } finally {
+    setSubmitting(false);
+  }
+}
+
+
+Do not navigate before the writes complete.
+
+5) Protective measures
+
+Add a hasRedirectedRef per page to avoid multiple navigations.
+
+Clamp & sanitize step query; log any mismatch.
+
+Unit guard: never render a Step component unless currentStep === validQueryStep.
+
+Log all redirect decisions to console.debug in dev.
+
+6) What to change right now
+
+Remove any <a href="/onboarding?step=1"> in marketing; use handlePrimaryCta.
+
+Add useRouteDecision() to:
+
+/ (marketing)
+
+/onboarding
+
+/app (optional: redirect completed only)
+
+In /onboarding, render <Loader/> until ready === true and URL step matches.
+
+In each Step’s Continue, await writes before navigating.
+
+Add a temporary debug flag:
+
+window.__debugOnboarding = true
+// print: user?, status, lastCompletedStep, requestedStep, decidedRoute
+
+
+Verify Firestore rules allow reads/writes to users/{uid} for own profile.
+
+7) Acceptance tests to prove fix
+
+Anonymous CTA: / → CTA → /auth (no step flash)
+
+New signup: /auth → Step 1 → Step 2 → … → Step 4 → /app (no flicker)
+
+In-progress: set lastCompletedStep=2 → any CTA → /onboarding?step=3 (no Step 1 flash)
+
+Completed: status='completed' → any CTA → /app
+
+Back: Step 3 back → Step 2 (with previously saved values)
+
+No console errors across /, /auth, /onboarding, /app
+
+8) Evidence to return
+
+Short screen capture showing each acceptance flow (no Step 1 flash).
+
+Console logs of the guard decisions.
+
+Diff/PR links for:
+
+CTA change
+
+Guard hooks
+
+Onboarding page gating
+
+Step form save–advance sequence

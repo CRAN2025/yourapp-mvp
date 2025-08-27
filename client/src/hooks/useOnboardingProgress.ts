@@ -25,50 +25,74 @@ export interface UserProfile {
 }
 
 export function useOnboardingProgress() {
-  const { user } = useAuth();
-  const [onboardingState, setOnboardingState] = useState<OnboardingState>({
-    status: 'not_started',
-    lastCompletedStep: 0,
-    steps: {}
-  });
+  const { user, loading: authLoading } = useAuth();
+  const [onboardingState, setOnboardingState] = useState<OnboardingState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Load onboarding state from Firestore
   useEffect(() => {
+    if (authLoading) return;
+    
     if (!user) {
+      setOnboardingState(null);
       setLoading(false);
+      setError(null);
       return;
     }
 
     const loadOnboardingState = async () => {
       try {
+        setError(null);
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const userData = userDoc.data() as UserProfile;
           if (userData.onboarding) {
             setOnboardingState(userData.onboarding);
+          } else {
+            // Initialize default state for users without onboarding data
+            setOnboardingState({
+              status: 'not_started',
+              lastCompletedStep: 0,
+              steps: {}
+            });
           }
+        } else {
+          // New user - initialize default state
+          setOnboardingState({
+            status: 'not_started',
+            lastCompletedStep: 0,
+            steps: {}
+          });
         }
-      } catch (error) {
-        console.error('Failed to load onboarding state:', error);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load user data';
+        console.error('Failed to load onboarding state:', err);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
     loadOnboardingState();
-  }, [user]);
+  }, [user, authLoading]);
 
   // Save step data and update progress
   const saveStep = async (stepNumber: number, stepData: any) => {
     if (!user) throw new Error('User not authenticated');
+    
+    const currentState = onboardingState || {
+      status: 'not_started' as const,
+      lastCompletedStep: 0,
+      steps: {}
+    };
 
     const updatedState: OnboardingState = {
-      ...onboardingState,
+      ...currentState,
       status: stepNumber === 4 ? 'completed' : 'in_progress',
-      lastCompletedStep: Math.max(onboardingState.lastCompletedStep, stepNumber),
+      lastCompletedStep: Math.max(currentState.lastCompletedStep, stepNumber),
       steps: {
-        ...onboardingState.steps,
+        ...currentState.steps,
         [stepNumber]: {
           ...stepData,
           savedAt: new Date().toISOString()
@@ -99,9 +123,15 @@ export function useOnboardingProgress() {
   // Complete onboarding and create store
   const completeOnboarding = async (storeId: string) => {
     if (!user) throw new Error('User not authenticated');
+    
+    const currentState = onboardingState || {
+      status: 'not_started' as const,
+      lastCompletedStep: 0,
+      steps: {}
+    };
 
     const completedState: OnboardingState = {
-      ...onboardingState,
+      ...currentState,
       status: 'completed',
       lastCompletedStep: 4
     };
@@ -132,23 +162,41 @@ export function useOnboardingProgress() {
 
   // Get the next step user should be on
   const getNextStep = () => {
-    if (onboardingState.status === 'completed') return null;
-    return onboardingState.lastCompletedStep + 1;
+    if (!onboardingState || onboardingState.status === 'completed') return null;
+    return Math.min(onboardingState.lastCompletedStep + 1, 4);
   };
 
   // Check if user can access a specific step
   const canAccessStep = (stepNumber: number) => {
-    if (onboardingState.status === 'completed') return false;
+    if (!onboardingState || onboardingState.status === 'completed') return false;
     return stepNumber <= onboardingState.lastCompletedStep + 1;
   };
 
+  // Computed values for easy access
+  const ready = !authLoading && !loading;
+  const status = onboardingState?.status || 'not_started';
+  const lastCompletedStep = onboardingState?.lastCompletedStep || 0;
+  const nextStep = Math.min(Math.max(lastCompletedStep + 1, 1), 4);
+  const isCompleted = status === 'completed';
+
   return {
-    onboardingState,
+    // Legacy API for existing components
+    onboardingState: onboardingState || {
+      status: 'not_started',
+      lastCompletedStep: 0,
+      steps: {}
+    },
     loading,
     saveStep,
     completeOnboarding,
     getNextStep,
     canAccessStep,
-    isCompleted: onboardingState.status === 'completed'
+    isCompleted,
+    // New API for route decisions
+    user,
+    ready,
+    status,
+    nextStep,
+    error
   };
 }
