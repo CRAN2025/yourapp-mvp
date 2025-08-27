@@ -214,18 +214,17 @@ export default function MarketLanding() {
     
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
     
-    // New onboarding flow logic
-    const destIfNew = '/onboarding/step-1';
-    if (!user) {
-      navigate(`/auth?mode=signup&redirect=${encodeURIComponent(destIfNew)}`);
+    // Use auth redirect helper for unauthenticated users
+    const { ensureUnauthRedirect } = await import('@/lib/authRedirect');
+    if (ensureUnauthRedirect(user, navigate)) {
       setIsLoading(false);
       return;
     }
     
+    // Authenticated path - existing onboarding logic
     try {
-      // Import onboarding utilities dynamically to avoid circular deps
       const { ensureBootstrap, firstIncompleteStep, isOnboardingComplete } = await import('@/lib/onboarding');
-      const { storeId, progress } = await ensureBootstrap(user.uid);
+      const { storeId, progress } = await ensureBootstrap(user!.uid);
       
       // Check if onboarding is complete
       if (isOnboardingComplete(progress?.completed)) {

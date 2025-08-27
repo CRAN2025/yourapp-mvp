@@ -1,8 +1,10 @@
 import { ArrowLeft, Check, Star, Crown, Zap } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Pricing() {
   const [, navigate] = useLocation();
+  const { user } = useAuth();
 
   const plans = [
     {
@@ -163,9 +165,12 @@ export default function Pricing() {
 
                   {/* CTA Button */}
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (plan.available) {
-                        navigate('/auth');
+                        const { ensureUnauthRedirect } = await import('@/lib/authRedirect');
+                        if (ensureUnauthRedirect(user, navigate)) return;
+                        // If authenticated, go to dashboard or onboarding
+                        navigate('/dashboard');
                       } else if (plan.name === 'Enterprise') {
                         window.location.href = 'mailto:brock1kai@gmail.com?subject=Enterprise Plan Inquiry';
                       }

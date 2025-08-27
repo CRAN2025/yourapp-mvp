@@ -1,0 +1,89 @@
+Lock unauthenticated CTA behavior
+Objective
+
+When the user is not authenticated, all “Create Store” CTAs must navigate to the signup page with a redirect to /onboarding/step-1.
+No visual changes anywhere.
+
+Constraints (do NOT change)
+
+Do not modify landing-page visuals, layout, copy, or DOM order.
+
+Do not change Contact Us behavior.
+
+Do not change the authenticated flow (that’s a separate work item).
+
+Implementation
+1) Add a tiny routing helper (single source of truth)
+
+Create: src/lib/authRedirect.ts
+
+// src/lib/authRedirect.ts
+import type { NavigateFunction } from 'react-router-dom';
+import type { Auth } from 'firebase/auth';
+
+const DEFAULT_REDIRECT = '/onboarding/step-1';
+
+export function goToSignup(navigate: NavigateFunction, redirect = DEFAULT_REDIRECT) {
+  const safe = redirect.startsWith('/') ? redirect : DEFAULT_REDIRECT;
+  navigate(`/auth?mode=signup&redirect=${encodeURIComponent(safe)}`);
+}
+
+/** Returns true if it handled the redirect (user unauthenticated). */
+export function ensureUnauthRedirect(auth: Auth, navigate: NavigateFunction, redirect = DEFAULT_REDIRECT) {
+  if (!auth.currentUser) {
+    goToSignup(navigate, redirect);
+    return true;
+  }
+  return false;
+}
+
+2) Wire both CTAs to use the helper
+
+Header CTA (e.g., HeaderCreateStoreButton.tsx or the component that renders the top-right “Create Store”):
+
+import { useNavigate } from 'react-router-dom';
+import { auth } from '@/lib/firebase';
+import { ensureUnauthRedirect } from '@/lib/authRedirect';
+
+export function HeaderCreateStoreButton() {
+  const navigate = useNavigate();
+  const onClick = () => {
+    if (ensureUnauthRedirect(auth, navigate)) return; // unauth → signup
+    // Authenticated path: leave existing behavior unchanged (handled in later work)
+  };
+  return <button onClick={onClick}>Create Store</button>;
+}
+
+
+Hero CTA (e.g., in MarketLanding.tsx or its child):
+
+import { useNavigate } from 'react-router-dom';
+import { auth } from '@/lib/firebase';
+import { ensureUnauthRedirect } from '@/lib/authRedirect';
+
+function HeroCreateStoreButton() {
+  const navigate = useNavigate();
+  const onClick = () => {
+    if (ensureUnauthRedirect(auth, navigate)) return; // unauth → signup
+    // Authenticated path: leave as-is for now
+  };
+  return <button onClick={onClick}>Create your free store</button>;
+}
+
+
+If the CTAs are implemented as <Link>, convert them to buttons with onClick or attach an onClick that calls preventDefault() then the logic above. Do not alter styling.
+
+Acceptance Criteria (for this work item)
+
+Not authenticated
+
+Clicking header “Create Store” navigates to
+/auth?mode=signup&redirect=%2Fonboarding%2Fstep-1
+
+Clicking hero “Create your free store” navigates to the same URL.
+
+Authenticated
+
+Current behavior remains unchanged (no new logic in this item).
+
+No visual diffs on landing page (snapshot/pixel tests pass).
