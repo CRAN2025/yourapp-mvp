@@ -41,6 +41,14 @@ export function firstIncompleteStep(completed: string[] = []): OnboardingStep {
  * Idempotent - safe to call multiple times
  */
 export async function ensureBootstrap(uid: string) {
+  // First, check for existing store outside of transaction
+  const storesQ = query(
+    collection(db, 'stores'), 
+    where('ownerUid', '==', uid), 
+    limit(1)
+  );
+  const storesSnap = await getDocs(storesQ);
+  
   return runTransaction(db, async (tx) => {
     // Create or get profile
     const profileRef = doc(db, 'profiles', uid);
@@ -53,15 +61,8 @@ export async function ensureBootstrap(uid: string) {
       });
     }
 
-    // Find existing store or create new draft store
-    const storesQ = query(
-      collection(db, 'stores'), 
-      where('ownerUid', '==', uid), 
-      limit(1)
-    );
-    const storesSnap = await getDocs(storesQ);
+    // Handle store creation/retrieval
     let storeId: string;
-    
     if (storesSnap.empty) {
       // Create new draft store
       const storeRef = doc(collection(db, 'stores'));

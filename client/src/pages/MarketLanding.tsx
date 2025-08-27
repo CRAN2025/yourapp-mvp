@@ -236,7 +236,8 @@ export default function MarketLanding() {
       }
     } catch (error) {
       console.error('Error handling CTA click:', error);
-      navigate('/auth');
+      // Fallback to direct onboarding step
+      navigate('/onboarding/step-1');
     }
     
     setIsLoading(false);
