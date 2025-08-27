@@ -69,32 +69,48 @@ export default function MarketLanding() {
 
   // Brand wordmark styling
   const _brand = {
-    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '8px 0' }, // >=44px tap target with header padding
+    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // with header padding -> ≥44px target
     text: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 700,                        // was 800; improves fill/legibility
-      letterSpacing: '-0.01em',               // slightly tighter than -0.02
-      fontSize: 'clamp(22px, 2.2vw, 28px)',   // mobile->desktop; avoids wrap
-      lineHeight: 1,
+      fontWeight: 700,                         // keep readable fill
+      letterSpacing: '-0.0125em',
+      fontSize: 'clamp(24px, 2.2vw, 30px)',    // +2px overall vs prior
+      lineHeight: 1.05,
       background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
       color: 'transparent',
-      filter: 'contrast(1.1)'                 // subtle contrast boost
+      filter: 'contrast(1.15) saturate(1.05)'  // stronger contrast & saturation
     },
     footer: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
       fontWeight: 700,
-      letterSpacing: '-0.01em',
-      fontSize: 'clamp(18px, 1.8vw, 24px)',
-      lineHeight: 1,
+      letterSpacing: '-0.0125em',
+      fontSize: 'clamp(20px, 1.9vw, 26px)',    // larger footer wordmark
+      lineHeight: 1.05,
       background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
       color: 'transparent',
-      textShadow: '0 1px 0 rgba(0,0,0,0.06)'  // subtle lift for footer
+      textShadow: '0 1px 0 rgba(0,0,0,0.06)',  // subtle lift for footer
+      filter: 'contrast(1.1)'
     }
   };
+
+  // A11y fallback CSS for brand text
+  const _brandA11yCSS = `
+    .brandText { 
+      position: relative; 
+    }
+    @media (prefers-contrast: high) {
+      .brandText { 
+        color: #3E4AE0 !important; 
+        background: none !important; 
+        -webkit-background-clip: unset !important; 
+        background-clip: unset !important; 
+      }
+    }
+  `;
 
   // Header layout styles
   const _headerRow = {
