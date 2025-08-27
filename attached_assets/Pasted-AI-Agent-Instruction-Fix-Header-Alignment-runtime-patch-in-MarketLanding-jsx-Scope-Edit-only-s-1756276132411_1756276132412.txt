@@ -1,0 +1,79 @@
+AI Agent Instruction — Fix Header Alignment (runtime patch in MarketLanding.jsx)
+
+Scope
+
+Edit only src/MarketLanding.jsx.
+
+No deps, no route/analytics changes.
+
+Idempotent (safe to run repeatedly).
+
+Steps (paste this useEffect inside the component):
+
+useEffect(() => {
+  // 1) Find header, logo, FAQ, and Create Store
+  const header =
+    document.querySelector('header, .site-header, [data-header]');
+  if (!header) return;
+
+  const logoLink =
+    header.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
+    header.querySelector('img[alt="ShopLynk"]')?.closest('a');
+
+  const faqLink =
+    header.querySelector('a[href*="faq" i], a:has(> *:contains("FAQ")), a:contains("FAQ")') ||
+    Array.from(header.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
+
+  const createBtn =
+    Array.from(header.querySelectorAll('a, button')).find(
+      el => /create\s*store/i.test(el.textContent || '')
+    );
+
+  // 2) Make header a flex row and stop center alignment
+  Object.assign(header.style, {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',     // stop "center" grouping
+    gap: '24px',
+    padding: header.style.padding || '24px 32px',
+    textAlign: 'initial'
+  });
+
+  // 3) Left: logo grows naturally
+  const logoWrap = logoLink || header.firstElementChild;
+  if (logoWrap) {
+    Object.assign(logoWrap.style, {
+      display: 'inline-block',
+      width: 'clamp(220px, 20vw, 280px)',
+      height: 'auto',
+      lineHeight: '0'
+    });
+    const img = logoWrap.querySelector('img, svg') || logoWrap;
+    if (img) Object.assign(img.style, { width: '100%', height: 'auto', display: 'block' });
+  }
+
+  // 4) Right: create a “right cluster” on the fly if none exists
+  let right = header.querySelector('.header-right, .nav-right, [data-right-cluster]');
+  if (!right) {
+    right = document.createElement('div');
+    right.setAttribute('data-right-cluster', 'true');
+    header.appendChild(right);
+  }
+  Object.assign(right.style, {
+    marginLeft: 'auto',               // pushes cluster to FAR RIGHT
+    display: 'flex',
+    alignItems: 'center',
+    gap: '24px',
+    flexWrap: 'wrap'
+  });
+
+  // 5) Move FAQ and Create Store into the right cluster (no route changes)
+  if (faqLink && faqLink.parentElement !== right) right.appendChild(faqLink);
+  if (createBtn && createBtn.parentElement !== right) right.appendChild(createBtn);
+
+  // 6) Accessibility guards
+  const logoAnchor = logoWrap?.closest('a');
+  if (logoAnchor && !logoAnchor.getAttribute('aria-label')) {
+    logoAnchor.setAttribute('aria-label', 'ShopLynk home');
+  }
+}, []);
