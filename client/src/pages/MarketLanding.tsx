@@ -325,7 +325,7 @@ export default function MarketLanding() {
               <img 
                 src={logoUrl} 
                 alt="ShopLynk" 
-                style={{ height: 48, width: 'auto', cursor: 'pointer' }}
+                className="h-8 sm:h-9 md:h-10 w-auto cursor-pointer"
               />
             </Link>
           </div>
@@ -689,7 +689,9 @@ export default function MarketLanding() {
             {/* Company Info */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                <img src={logoUrl} alt="ShopLynk" style={{ height: 48, width: 'auto' }} />
+                <Link to="/" aria-label="ShopLynk home">
+                  <img src={logoUrl} alt="ShopLynk" className="h-8 sm:h-9 md:h-10 w-auto cursor-pointer" />
+                </Link>
               </div>
               <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
                 The easiest way to create a WhatsApp-ready online store. Launch your business in minutes, not days.

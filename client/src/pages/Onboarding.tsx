@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 import { validatePhoneNumber, getPhoneHint } from '@/lib/utils/phone';
@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ImageUpload from '@/components/ImageUpload';
+import logoUrl from '@/assets/logo.png';
 
 const storeDetailsSchema = z.object({
   storeName: z.string().min(3, 'Store name must be at least 3 characters'),
@@ -328,6 +329,19 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header with Logo */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <Link to="/" aria-label="ShopLynk home">
+            <img 
+              src={logoUrl} 
+              alt="ShopLynk" 
+              className="h-8 sm:h-9 md:h-10 w-auto cursor-pointer"
+            />
+          </Link>
+        </div>
+      </header>
+      
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Progress Bar */}
         <div className="mb-8">
