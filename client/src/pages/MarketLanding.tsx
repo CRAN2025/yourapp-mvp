@@ -69,7 +69,7 @@ export default function MarketLanding() {
 
   // Brand wordmark styling
   const _brand = {
-    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // with header padding => ≥44px target
+    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // ≥44px hit target with header padding
     text: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
       fontWeight: 700,
@@ -77,7 +77,7 @@ export default function MarketLanding() {
       fontSize: 'clamp(24px, 2.1vw, 30px)',
       lineHeight: 1.05,
       whiteSpace: 'nowrap' as const,
-      background: 'linear-gradient(90deg, #3E4CFF 0%, #1A7BFF 100%)',  // slightly darker for better AA contrast
+      background: 'linear-gradient(90deg,#3E4CFF 0%, #1A7BFF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text', 
       color: 'transparent',
@@ -90,7 +90,7 @@ export default function MarketLanding() {
       fontSize: 'clamp(20px, 1.9vw, 26px)',
       lineHeight: 1.05,
       whiteSpace: 'nowrap' as const,
-      background: 'linear-gradient(90deg, #3E4CFF 0%, #1A7BFF 100%)',
+      background: 'linear-gradient(90deg,#3E4CFF 0%, #1A7BFF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
       color: 'transparent',
@@ -703,10 +703,10 @@ export default function MarketLanding() {
         }
         
         /* Brand wordmark interactive styles */
-        .brandText:hover{filter:brightness(1.06)} 
-        .brandText:focus-visible{outline:2px solid #3E4CFF; outline-offset:3px} 
-        @media (prefers-contrast: more){ .brandText{background:none!important;color:#172554!important} } 
-        @media (forced-colors: active){ .brandText{background:none!important;color:CanvasText!important} }
+        .brandText:hover { filter:brightness(1.06); } 
+        .brandText:focus-visible { outline:2px solid #3E4CFF; outline-offset:3px; } 
+        @media (prefers-contrast: more) { .brandText { background:none!important; color:#172554!important; } } 
+        @media (forced-colors: active) { .brandText { background:none!important; color:CanvasText!important; } }
       `}</style>
 
       {/* Background accents */}
@@ -757,7 +757,7 @@ export default function MarketLanding() {
             aria-label="ShopLynk home" 
             style={_brand.link}
           >
-            <span className='brandText' style={_brand.text} tabIndex={-1}>ShopLynk</span>
+            <span className='brandText' style={_brand.text}>ShopLynk</span>
           </Link>
           
           {/* RIGHT CLUSTER (FAQ + CTA) */}
