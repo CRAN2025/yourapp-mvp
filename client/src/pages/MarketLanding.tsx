@@ -43,6 +43,14 @@ export default function MarketLanding() {
   const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN;
   const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplynk.app';
   
+  // UI styling constants for enlarged header logo
+  const _ui = {
+    header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 32px', gap: '24px' },
+    logoWrap: { display: 'inline-block', width: 'clamp(160px, 14vw, 240px)', height: 'auto', lineHeight: 0 },
+    logoImg: { width: '100%', height: 'auto', display: 'block' },
+    rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }
+  };
+  
   // Enable debug mode in development
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -374,17 +382,6 @@ export default function MarketLanding() {
           .hero-demo { order: 2; max-width: 400px; margin: 0 auto; }
           .mobile-hidden { display: none !important; }
           .nav-mobile { flex-direction: column; gap: 12px; }
-          .header-container { min-height: 70px; } /* Slightly reduced for mobile */
-        }
-
-        /* Tablet specific adjustments */
-        @media (min-width: 769px) and (max-width: 1023px) {
-          .header-container { min-height: 75px; }
-        }
-
-        /* Desktop optimization */
-        @media (min-width: 1024px) {
-          .header-container { min-height: 80px; }
         }
 
         /* Glass morphism */
@@ -579,21 +576,27 @@ export default function MarketLanding() {
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Enhanced logo styling for better brand visibility */
-        .logo-enhanced {
+        .site-logo {
           image-rendering: -webkit-optimize-contrast;
           image-rendering: crisp-edges;
           backface-visibility: hidden;
           transform: translateZ(0);
         }
-        .logo-enhanced:hover {
+        .site-logo:hover {
           transform: scale(1.02) translateZ(0);
         }
         
-        /* Ensure proper logo-nav spacing */
-        .header-container {
-          min-height: 80px;
-          display: flex;
-          align-items: center;
+        /* Override any conflicting logo sizing */
+        .site-logo img {
+          max-width: none !important;
+          max-height: none !important;
+        }
+        
+        /* Responsive logo adjustments */
+        @media (max-width: 519px) {
+          .site-logo {
+            width: clamp(120px, 20vw, 160px) !important;
+          }
         }
         
         @media (prefers-reduced-motion: reduce) {
@@ -629,17 +632,16 @@ export default function MarketLanding() {
 
       {/* Nav - Full Bleed */}
       <header 
-        className=""
+        data-header=""
         style={{ 
+          ..._ui.header,
           width: '100vw',
           position: 'relative',
           left: '50%',
           right: '50%',
           marginLeft: '-50vw',
           marginRight: '-50vw',
-          zIndex: 2,
-          paddingTop: '20px',
-          paddingBottom: '20px'
+          zIndex: 2
         }}
       >
         <div 
@@ -648,26 +650,29 @@ export default function MarketLanding() {
             maxWidth: '1200px',
             paddingInline: 'clamp(16px, 4vw, 20px)',
             paddingLeft: 'max(20px, env(safe-area-inset-left))',
-            paddingRight: 'max(20px, env(safe-area-inset-right))'
+            paddingRight: 'max(20px, env(safe-area-inset-right))',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}
         >
-          <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display:'flex', alignItems:'center' }}>
-            <Link to="/" aria-label="ShopLynk home">
-              <img 
-                src={logoUrl} 
-                alt="ShopLynk - Create your WhatsApp storefront" 
-                className="h-12 sm:h-14 md:h-16 w-auto cursor-pointer logo-enhanced"
-                style={{
-                  maxHeight: '64px',
-                  height: 'auto',
-                  filter: 'contrast(1.1)',
-                  transition: 'transform 0.2s ease',
-                }}
-              />
-            </Link>
-          </div>
-          <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
+          <Link 
+            to="/" 
+            aria-label="ShopLynk home"
+            className="site-logo"
+            style={_ui.logoWrap}
+          >
+            <img 
+              src={logoUrl} 
+              alt="ShopLynk" 
+              style={{
+                ..._ui.logoImg,
+                filter: 'contrast(1.1)',
+                transition: 'transform 0.2s ease',
+              }}
+            />
+          </Link>
+          <nav style={_ui.rightCluster} className="nav-mobile">
             <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
             <button 
               onClick={goCreate} 
@@ -680,7 +685,6 @@ export default function MarketLanding() {
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
           </nav>
-          </div>
         </div>
       </header>
 

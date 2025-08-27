@@ -1,0 +1,109 @@
+Enlarge Header Logo (MarketLanding.jsx only)
+Scope & Constraints
+
+File: src/MarketLanding.jsx (and only this file).
+
+No route/link changes. No new deps. Preserve existing event handlers/animations.
+
+Maintain responsiveness and accessibility.
+
+Selectors to Target
+
+Header container: header, .site-header, [data-header] (first match)
+
+Logo link: a[aria-label="ShopLynk"], .site-logo, img[alt="ShopLynk"]
+
+The logo element is the <a> if present; otherwise its immediate parent.
+
+Edit Plan (deterministic)
+
+Locate header root and logo element using selectors above.
+
+Wrap rule: ensure the logo is inside a container we can style (the logo link itself is fine). Call it logoWrapEl.
+
+Inject inline style objects at top of file (or merge with existing):
+
+const _ui = {
+  header: { display:'flex', alignItems:'center', justifyContent:'space-between', padding:'24px 32px', gap:'24px' },
+  logoWrap: { display:'inline-block', width:'clamp(160px, 14vw, 240px)', height:'auto', lineHeight:0 },
+  logoImg: { width:'100%', height:'auto', display:'block' },
+  rightCluster: { display:'flex', alignItems:'center', gap:24, flexWrap:'wrap' }
+};
+
+
+Apply styles:
+
+Add style={_ui.header} to the header root (merge if header already has style).
+
+Add style={_ui.logoWrap} to logoWrapEl (merge if it already has style).
+
+If the logo is an <img> or <svg>, apply style={_ui.logoImg} to that node.
+
+Guard against shrink constraints:
+
+Remove/override any inline height like height: 16/18/20px on the image/svg.
+
+Ensure no parent sets max-width < 160px; if detected, override by setting logoWrapEl.style.maxWidth = 'none'.
+
+Right cluster (FAQ + Create Store):
+
+Ensure its container uses style={_ui.rightCluster} (merge with existing) to prevent overlap at narrow widths.
+
+Accessibility:
+
+Ensure alt="ShopLynk" remains on the image or aria-label="ShopLynk home" on the link (add if missing).
+
+HiDPI quality:
+
+If the logo is a raster <img> and its naturalWidth < 200, try non-breaking upgrade:
+
+If /logo.svg exists in this file’s imports or public path, switch src to /logo.svg.
+
+Else, leave src unchanged but keep step 3 sizing; do not fetch external assets.
+
+Do not modify routes, link destinations, analytics hooks, or hover/focus classes.
+
+Acceptance Criteria (must auto-verify)
+
+ Logo’s rendered width at 1440px viewport is between 160–240px (target ~1.5× previous width).
+
+ Aspect ratio preserved; no distortion (image/video natural ratio equals rendered ratio within ±1%).
+
+ No overlap with FAQ or Create Store at widths 360, 768, 1024, 1440; right cluster can wrap.
+
+ Mobile (≤519px): logo ≤160px wide; desktop (≥1024px): logo ≥200px when space allows.
+
+ Keyboard focus visible on logo link; alt text present on image (or aria-label on link).
+
+ No layout shift introduced on load (approx CLS delta ≤ 0.05 within this component).
+
+Minimal Patch (example JSX to apply/merge)
+<header style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'24px 32px', gap:'24px' }}>
+  <a href="/" aria-label="ShopLynk home" style={{ display:'inline-block', width:'clamp(160px, 14vw, 240px)', height:'auto', lineHeight:0 }} className="site-logo">
+    <img src="/logo.svg" alt="ShopLynk" style={{ width:'100%', height:'auto', display:'block' }} />
+  </a>
+  <div style={{ display:'flex', alignItems:'center', gap:24, flexWrap:'wrap' }}>
+    {/* existing FAQ + Create Store */}
+  </div>
+</header>
+
+Fallbacks
+
+If logo is text-only (no <img>/<svg>): replace the <img> above with:
+
+<span style={{ display:'block', fontWeight:800, fontSize:'clamp(20px, 3vw, 28px)', letterSpacing:'-0.2px', color:'#5361FF' }}>ShopLynk</span>
+
+
+If existing inline styles conflict: the agent must merge properties, preserving any non-size styles (e.g., transitions/hover) while overriding only width/height/display needed for scaling.
+
+Post-Change Self-Checks (programmatic)
+
+Measure getBoundingClientRect().width of logo at 1440px; assert 160–240px.
+
+At 360/768/1024/1440px, compute rectsOverlap(logoRect, ctaRect || faqRect) === false.
+
+If <img>: assert naturalWidth / naturalHeight ≈ clientWidth / clientHeight (±1%).
+
+Verify presence of alt (img) or aria-label (link).
+
+Record CLS for this component before/after; assert delta ≤ 0.05.
