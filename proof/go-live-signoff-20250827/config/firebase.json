@@ -1,0 +1,32 @@
+{
+  "hosting": {
+    "public": "dist/public",
+    "ignore": ["**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**/*.@(js|css|woff|woff2|svg|png|jpg|jpeg|gif)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=31536000,immutable"
+          }
+        ]
+      },
+      {
+        "source": "index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

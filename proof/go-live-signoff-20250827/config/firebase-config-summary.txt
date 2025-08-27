@@ -1,0 +1,4 @@
+Firebase Hosting Configuration:
+✅ public: dist/public
+✅ cleanUrls: Handled via rewrites
+✅ SPA rewrite: ** -> /index.html

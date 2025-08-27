@@ -1,0 +1,2 @@
+client/src/pages/Products.tsx:81:      newFavorites.add(productId);
+client/src/pages/StorefrontPublic.tsx:369:      newFavorites.add(productId);
