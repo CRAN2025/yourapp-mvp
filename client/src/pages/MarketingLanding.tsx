@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import logoUrl from '@/assets/logo.png';
 
 export default function MarketingLanding() {
   const [location, navigate] = useLocation();
@@ -68,71 +69,6 @@ export default function MarketingLanding() {
     }, 4000);
     return () => clearInterval(interval);
   }, [testimonials.length]);
-
-  // Background blobs styling
-  const blobA = {
-    position: 'absolute' as const, top: -50, right: '10%', width: 300, height: 300,
-    background: 'linear-gradient(135deg, rgba(90,107,255,.2), rgba(103,209,255,.1))',
-    borderRadius: '50%', filter: 'blur(60px)', zIndex: -1
-  };
-
-  const blobB = {
-    position: 'absolute' as const, bottom: -100, left: '15%', width: 400, height: 400,
-    background: 'linear-gradient(225deg, rgba(103,209,255,.15), rgba(90,107,255,.1))',
-    borderRadius: '50%', filter: 'blur(80px)', zIndex: -1
-  };
-
-  // Preview Device Component
-  const PreviewDevice = () => (
-    <div style={{ 
-      maxWidth: 280, 
-      margin: '0 auto',
-      background: '#000',
-      borderRadius: 24,
-      padding: 4,
-      boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
-    }}>
-      <div style={{
-        background: '#fff',
-        borderRadius: 20,
-        overflow: 'hidden',
-        aspectRatio: '9/16'
-      }}>
-        <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
-          MyStore
-        </div>
-        <div style={{ padding: 16 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
-            {[1,2,3,4].map(i => (
-              <div key={i} style={{ 
-                background: '#f5f5f5', 
-                borderRadius: 8, 
-                aspectRatio: '1', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                fontSize: 12,
-                color: '#666'
-              }}>
-                Product {i}
-              </div>
-            ))}
-          </div>
-          <div style={{ 
-            background: '#25D366', 
-            color: 'white', 
-            padding: 12, 
-            borderRadius: 8, 
-            textAlign: 'center', 
-            fontWeight: 'bold',
-            fontSize: 14
-          }}>
-            💬 Contact via WhatsApp
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div ref={rootRef} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -278,20 +214,11 @@ export default function MarketingLanding() {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ 
-              width: 32, 
-              height: 32, 
-              background: 'linear-gradient(135deg, #5a6bff, #67d1ff)', 
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: 16
-            }}>
-              S
-            </div>
+            <img 
+              src={logoUrl} 
+              alt="ShopLink" 
+              style={{ width: 32, height: 32 }}
+            />
             <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
@@ -395,124 +322,349 @@ export default function MarketingLanding() {
         </div>
       </section>
 
+      {/* Enhanced Social Proof Section */}
+      <section className="container reveal-on-scroll" style={{ marginTop: 24 }}>
+        <div className="glass card" style={{ padding: 20 }}>
+          <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, opacity: 0.8 }}>Trusted by sellers worldwide</h3>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:16, flexWrap:'wrap' }}>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="logoDot" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                fontSize: 12, 
+                fontWeight: 700, 
+                color: '#5a6bff'
+              }}>
+                {String.fromCharCode(65 + i)}
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 16, fontSize: 13, opacity: 0.7 }}>
+            <div><strong>95%</strong> satisfaction</div>
+            <div><strong>$2M+</strong> in sales</div>
+            <div><strong>24/7</strong> support</div>
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <main className="container" style={{ position:'relative', zIndex:2 }}>
         <section className="reveal-on-scroll" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:24, marginTop: 28 }}>
           {[
-            ['⚡', 'WhatsApp-ready', 'One-tap contact from every product page'],
-            ['🎨', 'Beautiful storefront', 'Professional design that converts'],
-            ['📱', 'Mobile-first', 'Perfect experience on any device'],
-            ['📊', 'Sales analytics', 'Track performance in real-time'],
-            ['🔒', 'Secure & reliable', 'Your data is safe with us'],
-            ['🚀', '5-min setup', 'Go from zero to selling today']
-          ].map(([icon, title, desc], i) => (
-            <div key={i} className="glass card" style={{ padding: 24, textAlign: 'center' }}>
-              <div style={{ fontSize: 32, marginBottom: 12 }}>{icon}</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 8px' }}>{title}</h3>
-              <p style={{ fontSize: 14, opacity: .75, margin: 0, lineHeight: 1.5 }}>{desc}</p>
-            </div>
-          ))}
+            ['⚡', 'WhatsApp-ready', 'One-tap contact from every product'],
+            ['🧰', 'No code', 'Add products and share your link'],
+            ['📈', 'Simple analytics', 'Views, contacts, orders at a glance'],
+            ['🌐', 'Custom domain', 'Upgrade when you\'re ready'],
+          ].map(([emoji, title, body]) => (<FeatureCard key={title} icon={emoji} title={title} body={body} />))}
         </section>
 
-        {/* Testimonials */}
+        {/* Enhanced Testimonials Carousel */}
         <section className="reveal-on-scroll" style={{ marginTop: 32 }}>
-          <div className="glass card" style={{ padding: 32 }}>
-            <h2 style={{ fontSize: 28, fontWeight: 800, textAlign: 'center', margin: '0 0 24px' }}>
-              Join thousands of successful sellers
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-              {testimonials.map((testimonial, i) => (
-                <div 
-                  key={i} 
-                  className={`testimonial-card ${i === activeTestimonial ? 'active' : ''}`}
-                  style={{ 
-                    opacity: i === activeTestimonial ? 1 : 0.5,
-                    textAlign: 'center',
-                    maxWidth: 600,
-                    transition: 'opacity 0.3s ease'
-                  }}
-                >
-                  <p style={{ fontSize: 18, fontStyle: 'italic', margin: '0 0 12px', lineHeight: 1.6 }}>
-                    "{testimonial.quote}"
-                  </p>
-                  <div style={{ fontWeight: 600, fontSize: 14 }}>
-                    {testimonial.name} • {testimonial.business}
-                  </div>
-                  <div style={{ marginTop: 4 }}>
-                    {'⭐'.repeat(testimonial.rating)}
-                  </div>
-                </div>
-              ))}
+          <h3 style={{ textAlign: 'center', fontSize: 24, fontWeight: 800, marginBottom: 24, letterSpacing: '-0.01em' }}>What our sellers say</h3>
+          <div className="glass card testimonial-card" style={{ 
+            padding: 22, 
+            display:'flex', 
+            alignItems:'center', 
+            gap:16, 
+            flexWrap:'wrap',
+            minHeight: 120
+          }}>
+            <div style={{ width:46, height:46, borderRadius:999, background:'#e8f1ff', display:'grid', placeItems:'center', fontWeight:800 }}>
+              {testimonials[activeTestimonial].name.charAt(0)}
             </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section id="faq" className="reveal-on-scroll" style={{ marginTop: 32 }}>
-          <div className="glass card" style={{ padding: 32 }}>
-            <h2 style={{ fontSize: 28, fontWeight: 800, textAlign: 'center', margin: '0 0 24px' }}>
-              Frequently Asked Questions
-            </h2>
-            <div style={{ maxWidth: 700, margin: '0 auto' }}>
-              {faqs.map((faq, i) => (
-                <div 
-                  key={i} 
-                  className="faq-item"
-                  style={{ 
-                    padding: 16,
-                    borderRadius: 8,
-                    marginBottom: 8,
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setShowFAQ(showFAQ === i ? -1 : i)}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>{faq.q}</h3>
-                    <span style={{ fontSize: 20, fontWeight: 'bold' }}>
-                      {showFAQ === i ? '−' : '+'}
-                    </span>
-                  </div>
-                  {showFAQ === i && (
-                    <p style={{ 
-                      marginTop: 12, 
-                      marginBottom: 0, 
-                      opacity: 0.8, 
-                      lineHeight: 1.6,
-                      fontSize: 14
-                    }}>
-                      {faq.a}
-                    </p>
-                  )}
-                </div>
-              ))}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', marginBottom: 4 }}>
+                {Array.from({ length: testimonials[activeTestimonial].rating }).map((_, i) => (
+                  <span key={i} style={{ color: '#ffd700', fontSize: 16 }}>⭐</span>
+                ))}
+              </div>
+              <div style={{ fontWeight:700, marginBottom:4 }}>"{testimonials[activeTestimonial].quote}"</div>
+              <div style={{ opacity:.7, fontSize:14 }}>{testimonials[activeTestimonial].name} - {testimonials[activeTestimonial].business}</div>
             </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="reveal-on-scroll" style={{ marginTop: 32, marginBottom: 32 }}>
-          <div className="glass card" style={{ padding: 40, textAlign: 'center' }}>
-            <h2 style={{ fontSize: 32, fontWeight: 900, margin: '0 0 16px' }}>
-              Ready to start selling?
-            </h2>
-            <p style={{ fontSize: 18, opacity: .8, margin: '0 0 24px', maxWidth: 500, marginLeft: 'auto', marginRight: 'auto' }}>
-              Join the ShopLink community today and transform your business with WhatsApp commerce.
-            </p>
-            <button 
-              onClick={goCreate} 
-              className="btn btnPrimary cta-pulse" 
-              style={{ padding: '18px 36px', fontSize: 18, borderRadius: 16 }} 
-              data-testid="final-cta-create-store"
-              disabled={isLoading}
-            >
-              {isLoading ? <div className="loading-spinner"></div> : 'Start your free store'}
+            <button onClick={goCreate} className="btn btnPrimary" style={{ padding: '12px 18px', borderRadius: 16 }} disabled={isLoading}>
+              {isLoading ? <div className="loading-spinner"></div> : 'Start free'}
             </button>
-            <div style={{ marginTop: 12, fontSize: 14, opacity: .6 }}>
-              No credit card required • Free during beta
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16 }}>
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveTestimonial(i)}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: i === activeTestimonial ? '#5a6bff' : 'rgba(0,0,0,0.2)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                aria-label={`View testimonial ${i + 1}`}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="reveal-on-scroll" style={{ marginTop: 40 }}>
+          <h3 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, marginBottom: 8, letterSpacing: '-0.01em' }}>Simple, transparent pricing</h3>
+          <p style={{ textAlign: 'center', opacity: 0.7, marginBottom: 32 }}>Start free, upgrade when you're ready</p>
+          
+          <div className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+            {[
+              { name: 'Free Beta', price: '$0', period: 'forever', features: ['Up to 50 products', 'WhatsApp integration', 'Basic analytics', 'Community support'], highlight: false, badge: 'Current' },
+              { name: 'Pro', price: '$19', period: '/month', features: ['Unlimited products', 'Custom branding', 'Advanced analytics', 'Priority support', 'Custom domain'], highlight: true, badge: 'Coming Soon' },
+              { name: 'Enterprise', price: '$99', period: '/month', features: ['Everything in Pro', 'Multi-store management', 'API access', 'Dedicated support', 'Custom integrations'], highlight: false, badge: 'Coming Soon' }
+            ].map((plan, i) => (
+              <div key={plan.name} className="glass card" style={{ 
+                padding: 24, 
+                position: 'relative',
+                border: plan.highlight ? '2px solid #5a6bff' : '1px solid var(--border)',
+                transform: plan.highlight ? 'scale(1.05)' : 'scale(1)'
+              }}>
+                {plan.badge && (
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: -12, 
+                    left: '50%', 
+                    transform: 'translateX(-50%)', 
+                    background: plan.highlight ? '#5a6bff' : '#666', 
+                    color: 'white', 
+                    padding: '4px 12px', 
+                    borderRadius: 12, 
+                    fontSize: 12, 
+                    fontWeight: 600 
+                  }}>
+                    {plan.badge}
+                  </div>
+                )}
+                <h4 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{plan.name}</h4>
+                <div style={{ fontSize: 32, fontWeight: 900, marginBottom: 16 }}>
+                  {plan.price}<span style={{ fontSize: 16, opacity: 0.7 }}>{plan.period}</span>
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, marginBottom: 24 }}>
+                  {plan.features.map((feature, j) => (
+                    <li key={j} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ color: '#4ade80', marginRight: 8 }}>✓</span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button 
+                  onClick={i === 0 ? goCreate : () => {}} 
+                  className="btn btnPrimary" 
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px', 
+                    borderRadius: 12, 
+                    opacity: i === 0 ? 1 : 0.6,
+                    cursor: i === 0 ? 'pointer' : 'not-allowed'
+                  }}
+                  disabled={i !== 0 || isLoading}
+                >
+                  {i === 0 ? (isLoading ? <div className="loading-spinner"></div> : 'Start Free') : 'Coming Soon'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Enhanced Mid-page CTA */}
+        <section className="reveal-on-scroll" style={ctaBand}>
+          <div className="mobile-optimized" style={{ width: '100%' }}>
+            <div style={{ fontWeight: 900, fontSize: 24, marginBottom: 6, letterSpacing: '-0.015em' }}>
+              🚀 Ready to get your first order today?
+            </div>
+            <div style={{ opacity: .8, marginBottom: 16 }}>Join 200+ sellers already making money with WhatsApp integration</div>
+            <div style={{ display:'flex', gap:12, alignItems:'center', flexWrap:'wrap', justifyContent: 'center' }}>
+              <button 
+                onClick={goCreate} 
+                className="btn btnPrimary cta-pulse" 
+                style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }}
+                disabled={isLoading}
+              >
+                {isLoading ? <div className="loading-spinner"></div> : '🎯 Start Selling Now'}
+              </button>
+              <button 
+                onClick={goLogin} 
+                className="btn btnSecondary" 
+                style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }}
+                disabled={isLoading}
+              >
+                Sign in
+              </button>
             </div>
           </div>
         </section>
       </main>
+
+      {/* FAQ Section */}
+      <section id="faq" className="container reveal-on-scroll" style={{ marginTop: 48 }}>
+        <h3 style={{ textAlign: 'center', fontSize: 28, fontWeight: 900, marginBottom: 32, letterSpacing: '-0.01em' }}>
+          Frequently Asked Questions
+        </h3>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+          {faqs.map((faq, i) => (
+            <div key={i} className="glass card faq-item" style={{ marginBottom: 16, overflow: 'hidden' }}>
+              <div
+                style={{ padding: '20px 24px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                onClick={() => setShowFAQ(showFAQ === i ? -1 : i)}
+                role="button"
+                tabIndex={0}
+                aria-expanded={showFAQ === i}
+              >
+                <span style={{ fontWeight: 700, fontSize: 16 }}>{faq.q}</span>
+                <ChevronDown 
+                  size={20} 
+                  style={{ 
+                    transform: showFAQ === i ? 'rotate(180deg)' : 'rotate(0deg)', 
+                    transition: 'transform 0.2s ease',
+                    opacity: 0.6
+                  }} 
+                />
+              </div>
+              {showFAQ === i && (
+                <div style={{ padding: '0 24px 20px', opacity: 0.8, lineHeight: 1.6 }}>
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="container reveal-on-scroll" style={{ marginTop: 48, marginBottom: 48 }}>
+        <div className="glass card" style={{ padding: 40, textAlign: 'center' }}>
+          <h3 style={{ fontSize: 32, fontWeight: 900, marginBottom: 16, letterSpacing: '-0.015em' }}>
+            Ready to start your online business?
+          </h3>
+          <p style={{ fontSize: 18, opacity: 0.8, marginBottom: 24, maxWidth: 520, margin: '0 auto 24px' }}>
+            Join thousands of sellers who are already making money with WhatsApp-integrated storefronts.
+          </p>
+          <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <button 
+              onClick={goCreate} 
+              className="btn btnPrimary cta-pulse" 
+              style={{ 
+                padding: '18px 32px', 
+                fontSize: 18, 
+                borderRadius: 16,
+                marginRight: 'auto',
+                marginLeft: 'auto'
+              }}
+              data-testid="final-cta-create"
+              disabled={isLoading}
+            >
+              {isLoading ? <div className="loading-spinner"></div> : '🎯 Create Your Store Now'}
+            </button>
+          </div>
+          <div style={{ marginTop: 16, fontSize: 14, opacity: 0.6 }}>
+            ✨ Free during beta • No credit card required • Set up in 5 minutes
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced footer */}
+      <footer className="container" style={{ marginTop: 24, marginBottom: 24 }}>
+        <div className="glass card" style={{ padding: 24, textAlign: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+            <img src={logoUrl} alt="ShopLink" style={{ width: 24, height: 24 }} />
+            <span style={{ fontWeight: 800, fontSize: 18 }}>ShopLink</span>
+          </div>
+          <p style={{ fontSize: 14, opacity: 0.7, marginBottom: 16 }}>
+            Empowering sellers worldwide with simple, WhatsApp-ready storefronts
+          </p>
+          <div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', fontSize: 14 }}>
+            <a href="#" style={{ opacity: 0.7, fontWeight: 500 }}>Privacy Policy</a>
+            <a href="#" style={{ opacity: 0.7, fontWeight: 500 }}>Terms of Service</a>
+            <a href="#" style={{ opacity: 0.7, fontWeight: 500 }}>Support</a>
+          </div>
+          <div style={{ marginTop: 16, padding: 12, background: 'rgba(90,107,255,0.05)', borderRadius: 8, fontSize: 13 }}>
+            🌟 Proudly built for entrepreneurs, by entrepreneurs
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
+
+// Background blob styles
+const blobA: React.CSSProperties = {
+  position: 'absolute',
+  top: '10%',
+  left: '5%',
+  width: '400px',
+  height: '400px',
+  background: 'linear-gradient(135deg, rgba(90,107,255,0.1) 0%, rgba(103,209,255,0.05) 100%)',
+  borderRadius: '50%',
+  filter: 'blur(80px)',
+  zIndex: 0,
+};
+
+const blobB: React.CSSProperties = {
+  position: 'absolute',
+  top: '60%',
+  right: '5%',
+  width: '300px',
+  height: '300px',
+  background: 'linear-gradient(135deg, rgba(103,209,255,0.08) 0%, rgba(90,107,255,0.03) 100%)',
+  borderRadius: '50%',
+  filter: 'blur(60px)',
+  zIndex: 0,
+};
+
+const ctaBand: React.CSSProperties = {
+  marginTop: 48,
+  padding: 32,
+  textAlign: 'center',
+  background: 'linear-gradient(135deg, rgba(90,107,255,0.05) 0%, rgba(103,209,255,0.03) 100%)',
+  borderRadius: 'var(--radius-card)',
+  border: '1px solid rgba(90,107,255,0.1)',
+};
+
+// Feature Card Component
+const FeatureCard = ({ icon, title, body }: { icon: string; title: string; body: string }) => (
+  <div className="glass card" style={{ padding: 24 }}>
+    <div style={{ fontSize: 32, marginBottom: 12 }}>{icon}</div>
+    <h4 style={{ fontSize: 18, fontWeight: 800, marginBottom: 8, letterSpacing: '-0.01em' }}>{title}</h4>
+    <p style={{ opacity: 0.8, lineHeight: 1.5, margin: 0 }}>{body}</p>
+  </div>
+);
+
+// Preview Device Component
+const PreviewDevice = () => (
+  <div style={{ 
+    background: '#1a1a1a', 
+    borderRadius: 24, 
+    padding: 8, 
+    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+    transform: 'rotate(-2deg)'
+  }}>
+    <div style={{ 
+      background: '#f8f9fa', 
+      borderRadius: 16, 
+      padding: 20,
+      aspectRatio: '9/16',
+      width: 240,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12
+    }}>
+      <div style={{ background: '#e9ecef', borderRadius: 8, height: 40 }}></div>
+      <div style={{ background: '#e9ecef', borderRadius: 8, height: 120 }}></div>
+      <div style={{ background: '#e9ecef', borderRadius: 8, height: 80 }}></div>
+      <div style={{ background: '#e9ecef', borderRadius: 8, height: 60 }}></div>
+    </div>
+  </div>
+);
+
+// ChevronDown Icon Component
+const ChevronDown = ({ size = 24, style = {} }: { size?: number; style?: React.CSSProperties }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={style}>
+    <polyline points="6,9 12,15 18,9"></polyline>
+  </svg>
+);
