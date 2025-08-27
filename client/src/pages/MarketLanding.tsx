@@ -84,12 +84,16 @@ export default function MarketLanding() {
     });
 
     Object.assign(inner.style, {
-      // Match hero/container width & gutters (tune maxWidth/padding as needed)
+      // Match hero/container width & gutters exactly
       boxSizing: 'border-box',
       width: '100%',
       maxWidth: '1200px',                 // ← same as your main content width
       margin: '0 auto',
-      padding: '24px 32px',               // ← same horizontal gutter as hero
+      paddingTop: '24px',
+      paddingBottom: '24px',
+      paddingInline: 'clamp(16px, 4vw, 28px)',
+      paddingLeft: 'max(28px, env(safe-area-inset-left))',     // ← exact match with hero section
+      paddingRight: 'max(28px, env(safe-area-inset-right))',   // ← exact match with hero section
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'flex-start',
