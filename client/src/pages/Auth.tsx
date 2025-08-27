@@ -39,6 +39,7 @@ function useAuthMode(): AuthMode {
   return useMemo(() => {
     const search = location.split('?')[1] || '';
     const p = new URLSearchParams(search).get('mode');
+    console.log('Auth Mode Debug:', { location, search, mode: p, result: p === 'signup' ? 'signup' : 'signin' });
     return p === 'signup' ? 'signup' : 'signin';
   }, [location]);
 }
