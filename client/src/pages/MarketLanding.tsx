@@ -94,13 +94,13 @@ export default function MarketLanding() {
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
     
     // Use environment-driven links
-    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth` : '/auth';
-    const fullUrl = authUrl + `?${qp.toString()}`;
+    const appUrl = APP_ORIGIN ? `${APP_ORIGIN}/app` : '/app';
+    const fullUrl = appUrl + `?${qp.toString()}`;
     
     if (APP_ORIGIN) {
       window.location.href = fullUrl;
     } else {
-      navigate(`/auth?${qp.toString()}`);
+      navigate(`/app?${qp.toString()}`);
     }
   };
 
@@ -128,12 +128,12 @@ export default function MarketLanding() {
     try { (window as any).gtag?.('event', 'login_click', { source: 'marketing_landing' }); } catch {}
     
     // Use environment-driven links
-    const authUrl = APP_ORIGIN ? `${APP_ORIGIN}/auth` : '/auth';
+    const appUrl = APP_ORIGIN ? `${APP_ORIGIN}/app` : '/app';
     
     if (APP_ORIGIN) {
-      window.location.href = authUrl;
+      window.location.href = appUrl;
     } else {
-      navigate('/auth');
+      navigate('/app');
     }
   };
 
@@ -697,7 +697,7 @@ export default function MarketLanding() {
               <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Product</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <li><a href="/faq" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-faq">FAQ</a></li>
-                <li><a href="/auth" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Create Store</a></li>
+                <li><a href="/app" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Create Store</a></li>
                 <li><a href="/features" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-features">Features</a></li>
                 <li><a href="/pricing" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-pricing">Pricing</a></li>
               </ul>

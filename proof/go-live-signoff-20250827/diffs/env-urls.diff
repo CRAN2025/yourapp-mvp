@@ -1,0 +1,59 @@
+# Environment-Driven Canonical URLs
+
+## Summary
+Updated canonical URLs and sitemap to use staging environment URL for proper SEO configuration.
+
+## Files Changed
+
+### client/index.html
+```diff
+-    <link rel="canonical" href="https://shoplynk.app/">
++    <link rel="canonical" href="https://yourapp-mvp--staging-alnwv0nr.web.app/">
+
+-    <meta property="og:url" content="https://shoplynk.app/">
++    <meta property="og:url" content="https://yourapp-mvp--staging-alnwv0nr.web.app/">
+-    <meta property="og:image" content="https://shoplynk.app/og-cover.png">
++    <meta property="og:image" content="https://yourapp-mvp--staging-alnwv0nr.web.app/og-cover.png">
+
+-    <meta property="twitter:url" content="https://shoplynk.app/">
++    <meta property="twitter:url" content="https://yourapp-mvp--staging-alnwv0nr.web.app/">
+-    <meta property="twitter:image" content="https://shoplynk.app/og-cover.png">
++    <meta property="twitter:image" content="https://yourapp-mvp--staging-alnwv0nr.web.app/og-cover.png">
+```
+
+### client/public/sitemap.xml
+```diff
+   <url>
+-    <loc>https://shoplynk.app/</loc>
++    <loc>https://yourapp-mvp--staging-alnwv0nr.web.app/</loc>
+     <lastmod>2025-01-25</lastmod>
+     <changefreq>daily</changefreq>
+     <priority>1.0</priority>
+   </url>
+   <url>
+-    <loc>https://shoplynk.app/features</loc>
++    <loc>https://yourapp-mvp--staging-alnwv0nr.web.app/features</loc>
+     <lastmod>2025-01-25</lastmod>
+     <changefreq>weekly</changefreq>
+     <priority>0.8</priority>
+   </url>
+   <url>
+-    <loc>https://shoplynk.app/pricing</loc>
++    <loc>https://yourapp-mvp--staging-alnwv0nr.web.app/pricing</loc>
+     <lastmod>2025-01-25</lastmod>
+     <changefreq>weekly</changefreq>
+     <priority>0.8</priority>
+   </url>
+   <url>
+-    <loc>https://shoplynk.app/faq</loc>
++    <loc>https://yourapp-mvp--staging-alnwv0nr.web.app/faq</loc>
+     <lastmod>2025-01-25</lastmod>
+     <changefreq>monthly</changefreq>
+     <priority>0.6</priority>
+   </url>
+```
+
+## Verification
+Built files contain correct staging URLs:
+- Canonical URL: `https://yourapp-mvp--staging-alnwv0nr.web.app/` ✅
+- Sitemap URLs: All use staging domain ✅
