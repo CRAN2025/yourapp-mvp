@@ -1,0 +1,140 @@
+Restore the previous full marketing landing page (only the landing files), keep all other recent changes
+
+Goals
+
+Bring back the comprehensive React landing page (hero, WhatsApp demo card, features, testimonials, pricing, FAQ, footer).
+
+Do not rollback the workspace or touch Firebase config, auth, or /app/* routing.
+
+Keep all recent fixes (storefront, public/private mirroring, hosting deploy setup).
+
+What to do
+
+Work on a short branch
+
+Create a branch restore-landing-only.
+
+When done, open a PR in Replit (or commit with a clear message).
+
+Find the last “good” landing component
+
+Search commit history and agent cards for any of these (case-insensitive):
+
+file names: MarketLanding-Downloadable.tsx, MarketLanding.tsx, MarketingLanding.tsx
+
+strings in code: "Launch a WhatsApp-ready storefront in minutes", "Create your free store", "WhatsApp-ready", "Start Free"
+
+If Git is easier, look for the exact commit with:
+
+git log -S "Create your free store" -- client/src
+
+git log -- client/src/pages | head -n 50
+
+then git show <SHA>:client/src/pages/<the-file>.tsx
+
+Fallback: search the tarballs in repo (e.g., shoplink-final-deliverables.tar.gz, shoplink-evidence-complete.tar.gz) for the landing source. Extract only the landing file and related assets.
+
+Restore the landing page without overwriting other code
+
+If you find MarketLanding-Downloadable.tsx, copy it to:
+
+client/src/pages/MarketingLanding.tsx
+
+If a current landing file exists, back it up first as:
+
+client/src/pages/MarketingLanding_backup_<date>.tsx
+
+Ensure any referenced assets (images, svgs) are in place. If paths changed, update imports (e.g., /attached_assets → /client/src/assets or the current assets path).
+
+Keep styling intact (Tailwind + any local CSS).
+
+Wire the router
+
+Make / use the restored component:
+
+Example:
+
+// client/src/router.tsx (or wherever routes are defined)
+{ path: '/', element: <MarketingLanding /> }
+
+
+Keep all existing /app/* routes unchanged.
+
+All CTAs should go to:
+
+Primary CTA: /app or /app/signup
+
+Secondary “Sign in” link: /app/signin
+
+Do not change firebase.json except ensure the SPA rewrites still include:
+
+"rewrites": [{ "source": "**", "destination": "/index.html" }]
+
+
+Build & quick verify (dev preview)
+
+cd client && npm run build
+
+Open Replit Preview in a new tab so the layout isn’t constrained.
+
+Confirm:
+
+Hero, features, testimonials, pricing, FAQ all render.
+
+Images/icons load (no 404s in Network).
+
+Buttons route to /app/auth pages and don’t break.
+
+Keep hosting setup intact
+
+Do not modify hosting target or project binding.
+
+Do not touch rules or mirroring logic.
+
+Guardrails
+
+Do not rollback or revert unrelated files.
+
+If the old landing imports any deprecated helpers, inline only what’s necessary within the landing component file.
+
+No changes to auth/session logic or seller console.
+
+No changes to store public view logic.
+
+Deliverables
+
+Files added/changed:
+
+client/src/pages/MarketingLanding.tsx
+
+(optional) any new asset files or updated import paths.
+
+router file updated to point / → MarketingLanding
+
+A short summary:
+
+Which commit/tarball the landing was restored from (SHA or archive name).
+
+Exact files touched (1–3 files max).
+
+Screenshot/GIF of the landing top + the CTA flow to /app.
+
+Commit message:
+
+restore: bring back full marketing landing page; keep routing and hosting unchanged
+
+Acceptance criteria
+
+/ shows the full restored marketing page as before (design + copy).
+
+“Create your free store” CTA opens /app (or /app/signup).
+
+“Sign in” opens /app/signin.
+
+No console errors, no broken images, Lighthouse layout looks normal in a full-width tab.
+
+npm run build passes with no type errors.
+
+Nothing else regressed (seller console/public store unaffected).
+
+If you can’t locate the exact file via Git/agent cards, use the tarball fallback method above and restore just that page file + imports.
