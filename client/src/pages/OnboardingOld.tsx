@@ -8,7 +8,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useOnboardingProgress } from '@/hooks/useOnboardingProgress';
 import { validatePhoneNumber, getPhoneHint } from '@/lib/utils/phone';
 import { categories, countries, deliveryOptions, paymentMethods } from '@shared/schema';
-import { ONBOARDING_STEP_NAMES } from '@shared/config';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,8 +24,8 @@ import ImageUpload from '@/components/ImageUpload';
 import logoUrl from '@/assets/logo.png';
 
 const storeDetailsSchema = z.object({
-  storeName: z.string().min(3, 'Store name must be at least 3 characters').max(80, 'Store name too long'),
-  storeDescription: z.string().min(20, 'Description should be at least 20 characters').max(500, 'Description too long'),
+  storeName: z.string().min(3, 'Store name must be at least 3 characters'),
+  storeDescription: z.string().min(20, 'Description should be at least 20 characters'),
   category: z.enum(categories, { required_error: 'Please select a category' }),
 });
 
@@ -43,21 +42,22 @@ const deliveryPaymentSchema = z.object({
   paymentMethods: z.array(z.string()).min(1, 'Select at least one payment method'),
 });
 
-const confirmSchema = z.object({
-  confirmed: z.boolean().refine(val => val === true, 'You must confirm the details are accurate'),
+const brandingSchema = z.object({
+  logoFile: z.instanceof(File).optional(),
+  coverFile: z.instanceof(File).optional(),
 });
 
 type StoreDetailsForm = z.infer<typeof storeDetailsSchema>;
 type BusinessInfoForm = z.infer<typeof businessInfoSchema>;
 type DeliveryPaymentForm = z.infer<typeof deliveryPaymentSchema>;
-type ConfirmForm = z.infer<typeof confirmSchema>;
+type BrandingForm = z.infer<typeof brandingSchema>;
 
 export default function Onboarding() {
   const { user } = useAuth();
-  const { onboardingState, saveStep, completeOnboarding, canAccessStep, getNextStep, loading } = useOnboardingProgress();
+  const { onboardingState, saveStep, completeOnboarding, canAccessStep, getNextStep } = useOnboardingProgress();
   const [, navigate] = useLocation();
   const { toast } = useToast();
-
+  
   // Get step from URL query parameter
   const urlParams = new URLSearchParams(window.location.search);
   const urlStep = parseInt(urlParams.get('step') || '1');
@@ -73,18 +73,15 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(getCurrentStep());
   const [selectedCountry, setSelectedCountry] = useState('US');
   const [phoneHint, setPhoneHint] = useState(getPhoneHint('US'));
-  const [isLoading, setIsLoading] = useState(false);
-
+  
   // Guard against invalid step access and sync URL
   useEffect(() => {
-    if (loading) return;
-    
     const validStep = getCurrentStep();
     if (currentStep !== validStep) {
       setCurrentStep(validStep);
       navigate(`/onboarding?step=${validStep}`);
     }
-  }, [onboardingState, urlStep, navigate, loading]);
+  }, [onboardingState, urlStep, navigate]);
 
   // Pre-fill forms with existing data
   useEffect(() => {
@@ -96,10 +93,10 @@ export default function Onboarding() {
   }, [currentStep, onboardingState]);
 
   const steps = [
-    { id: 1, name: ONBOARDING_STEP_NAMES[1], description: "Let's start with the basics about your store" },
-    { id: 2, name: ONBOARDING_STEP_NAMES[2], description: 'Business information and contact details' },
-    { id: 3, name: ONBOARDING_STEP_NAMES[3], description: 'How customers will pay and receive orders' },
-    { id: 4, name: ONBOARDING_STEP_NAMES[4], description: 'Confirm your store details' },
+    { id: 1, name: 'Store Details', description: "Let's start with the basics about your store" },
+    { id: 2, name: 'Business Info', description: 'Business information and contact details' },
+    { id: 3, name: 'Delivery & Payment', description: 'How customers will pay and receive orders' },
+    { id: 4, name: 'Branding', description: 'Make your store look professional (optional)' },
   ];
 
   const currentStepData = steps.find(step => step.id === currentStep)!;
@@ -136,15 +133,17 @@ export default function Onboarding() {
     },
   });
 
-  // Step 4: Confirmation
-  const confirmForm = useForm<ConfirmForm>({
-    resolver: zodResolver(confirmSchema),
-    defaultValues: {
-      confirmed: false,
-    },
+  // Step 4: Branding
+  const brandingForm = useForm<BrandingForm>({
+    resolver: zodResolver(brandingSchema),
+  });
+  const brandingForm = useForm<BrandingForm>({
+    resolver: zodResolver(brandingSchema),
   });
 
-  // Handle country change for phone validation
+  const [logoFiles, setLogoFiles] = useState<File[]>([]);
+
+  // Handle country change to update currency and phone hint
   const handleCountryChange = (countryCode: string) => {
     const country = countries.find(c => c.code === countryCode);
     if (country) {
@@ -154,18 +153,15 @@ export default function Onboarding() {
     }
   };
 
-  // Step handlers with proper state management
   const handleStoreDetails = async (data: StoreDetailsForm) => {
-    setIsLoading(true);
     try {
-      await saveStep(1, data);
-      
-      const nextStep = Math.max(onboardingState.lastCompletedStep + 1, 2);
-      setCurrentStep(nextStep);
-      navigate(`/onboarding?step=${nextStep}`);
-      
-      console.log('onboarding_advanced', { from: 1, to: nextStep });
-      
+      await updateSellerProfile({
+        storeName: data.storeName,
+        storeDescription: data.storeDescription,
+        category: data.category,
+      });
+
+      setCurrentStep(2);
       toast({
         title: 'Store details saved',
         description: 'Your store information has been saved.',
@@ -176,13 +172,10 @@ export default function Onboarding() {
         description: 'Failed to save store details. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleBusinessInfo = async (data: BusinessInfoForm) => {
-    setIsLoading(true);
     try {
       // Validate phone number
       const phoneValidation = validatePhoneNumber(data.whatsappNumber, selectedCountry);
@@ -192,23 +185,20 @@ export default function Onboarding() {
           description: phoneValidation.error,
           variant: 'destructive',
         });
-        setIsLoading(false);
         return;
       }
 
-      const stepData = {
-        ...data,
+      const country = countries.find(c => c.name === data.country);
+      await updateSellerProfile({
+        businessEmail: data.businessEmail,
+        country: data.country,
+        city: data.city,
+        businessType: data.businessType,
         whatsappNumber: phoneValidation.normalized!,
-      };
+        currency: country?.currency || 'USD',
+      });
 
-      await saveStep(2, stepData);
-      
-      const nextStep = Math.max(onboardingState.lastCompletedStep + 1, 3);
-      setCurrentStep(nextStep);
-      navigate(`/onboarding?step=${nextStep}`);
-      
-      console.log('onboarding_advanced', { from: 2, to: nextStep });
-      
+      setCurrentStep(3);
       toast({
         title: 'Business info saved',
         description: 'Your business information has been saved.',
@@ -219,22 +209,17 @@ export default function Onboarding() {
         description: 'Failed to save business info. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleDeliveryPayment = async (data: DeliveryPaymentForm) => {
-    setIsLoading(true);
     try {
-      await saveStep(3, data);
-      
-      const nextStep = Math.max(onboardingState.lastCompletedStep + 1, 4);
-      setCurrentStep(nextStep);
-      navigate(`/onboarding?step=${nextStep}`);
-      
-      console.log('onboarding_advanced', { from: 3, to: nextStep });
-      
+      await updateSellerProfile({
+        deliveryOptions: data.deliveryOptions,
+        paymentMethods: data.paymentMethods,
+      });
+
+      setCurrentStep(4);
       toast({
         title: 'Delivery & payment saved',
         description: 'Your delivery and payment options have been saved.',
@@ -242,27 +227,23 @@ export default function Onboarding() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to save delivery options. Please try again.',
+        description: 'Failed to save delivery & payment options. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleConfirmation = async (data: ConfirmForm) => {
-    setIsLoading(true);
+  const handleBranding = async (data: BrandingForm) => {
     try {
-      await saveStep(4, data);
+      // Mark onboarding as completed
+      await updateSellerProfile({
+        onboardingCompleted: true,
+        // TODO: Upload logoFile to Firebase Storage and save URL
+      });
       
-      // Generate store ID and complete onboarding
-      const storeId = `store_${user?.uid}_${Date.now()}`;
-      await completeOnboarding(storeId);
-      
-      navigate('/app');
-      
+      navigate('/products');
       toast({
-        title: 'Welcome to ShopLynk!',
+        title: 'Welcome to ShoplYnk!',
         description: 'Your store setup is complete. Start adding products!',
       });
     } catch (error) {
@@ -271,26 +252,40 @@ export default function Onboarding() {
         description: 'Failed to complete onboarding. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
+    }
+  };
+
+
+  const handleSkip = async () => {
+    if (currentStep === 4) {
+      // Mark onboarding as completed when skipping branding
+      try {
+        await updateSellerProfile({
+          onboardingCompleted: true,
+        });
+        
+        navigate('/products');
+        toast({
+          title: 'Welcome to ShoplYnk!',
+          description: 'Your store setup is complete. Start adding products!',
+        });
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to complete onboarding. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      setCurrentStep(currentStep + 1);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
-      const prevStep = currentStep - 1;
-      setCurrentStep(prevStep);
-      navigate(`/onboarding?step=${prevStep}`);
+      setCurrentStep(currentStep - 1);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -353,12 +348,15 @@ export default function Onboarding() {
                         <FormLabel>Store Description *</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Tell customers what makes your store special..."
-                            className="min-h-[100px]"
+                            rows={4}
+                            placeholder="Tell customers about your store and what makes it special... (minimum 20 characters)"
                             {...field}
-                            data-testid="input-store-description"
+                            data-testid="textarea-store-description"
                           />
                         </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          {field.value?.length || 0}/20 characters minimum
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -369,8 +367,8 @@ export default function Onboarding() {
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Category *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormLabel>Store Category *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-category">
                               <SelectValue placeholder="Select a category" />
@@ -389,13 +387,14 @@ export default function Onboarding() {
                     )}
                   />
 
-                  <div className="flex justify-end pt-6">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-6">
                     <Button
                       type="submit"
-                      disabled={isLoading}
-                      data-testid="button-continue-store"
+                      className="sm:flex-1"
+                      disabled={loading}
+                      data-testid="button-continue"
                     >
-                      {isLoading ? <LoadingSpinner size="sm" /> : 'Continue'}
+                      {loading ? <LoadingSpinner size="sm" /> : 'Continue'}
                       <ChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
@@ -425,57 +424,56 @@ export default function Onboarding() {
                     )}
                   />
 
-                  <FormField
-                    control={businessForm.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country *</FormLabel>
-                        <Select 
-                          onValueChange={(value) => {
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={businessForm.control}
+                      name="country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country *</FormLabel>
+                          <Select onValueChange={(value) => {
                             const country = countries.find(c => c.name === value);
                             if (country) {
                               handleCountryChange(country.code);
                               field.onChange(value);
                             }
-                          }} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger data-testid="select-country">
-                              <SelectValue placeholder="Select a country" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem key={country.code} value={country.name}>
-                                {country.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          }} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-country">
+                                <SelectValue placeholder="Select country" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="max-h-[200px]">
+                              {countries.map((country) => (
+                                <SelectItem key={country.code} value={country.name}>
+                                  {country.flag} {country.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={businessForm.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Your city"
-                            {...field}
-                            data-testid="input-city"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={businessForm.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City *</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., New York"
+                              {...field}
+                              data-testid="input-city"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <FormField
                     control={businessForm.control}
@@ -486,18 +484,18 @@ export default function Onboarding() {
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex space-x-4"
+                            value={field.value}
+                            className="grid grid-cols-2 gap-4"
                           >
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 p-4 border rounded-lg">
                               <RadioGroupItem value="individual" id="individual" />
-                              <Label htmlFor="individual">
-                                👤 Individual/Solo
+                              <Label htmlFor="individual" className="font-medium">
+                                👤 Individual Seller
                               </Label>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 p-4 border rounded-lg">
                               <RadioGroupItem value="business" id="business" />
-                              <Label htmlFor="business">
+                              <Label htmlFor="business" className="font-medium">
                                 🏢 Business/Company
                               </Label>
                             </div>
@@ -546,10 +544,10 @@ export default function Onboarding() {
                     <Button
                       type="submit"
                       className="sm:flex-1"
-                      disabled={isLoading}
+                      disabled={loading}
                       data-testid="button-continue-business"
                     >
-                      {isLoading ? <LoadingSpinner size="sm" /> : 'Continue'}
+                      {loading ? <LoadingSpinner size="sm" /> : 'Continue'}
                       <ChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
@@ -643,10 +641,10 @@ export default function Onboarding() {
                     <Button
                       type="submit"
                       className="sm:flex-1"
-                      disabled={isLoading}
+                      disabled={loading}
                       data-testid="button-continue-delivery"
                     >
-                      {isLoading ? <LoadingSpinner size="sm" /> : 'Continue'}
+                      {loading ? <LoadingSpinner size="sm" /> : 'Continue'}
                       <ChevronRight className="ml-2 w-4 h-4" />
                     </Button>
                   </div>
@@ -655,53 +653,31 @@ export default function Onboarding() {
             )}
 
             {currentStep === 4 && (
-              <Form {...confirmForm}>
-                <form onSubmit={confirmForm.handleSubmit(handleConfirmation)} className="space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Review Your Store Details</h3>
-                    
-                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-medium text-gray-700">Store Name:</span>
-                        <span className="ml-2">{onboardingState.steps[1]?.storeName}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Category:</span>
-                        <span className="ml-2">{onboardingState.steps[1]?.category}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">Country:</span>
-                        <span className="ml-2">{onboardingState.steps[2]?.country}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium text-gray-700">WhatsApp:</span>
-                        <span className="ml-2">{onboardingState.steps[2]?.whatsappNumber}</span>
-                      </div>
+              <Form {...brandingForm}>
+                <form onSubmit={brandingForm.handleSubmit(handleBranding)} className="space-y-6">
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-2xl text-white">🎨</span>
                     </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Almost Done!</h3>
+                      <p className="text-muted-foreground">
+                        Add your store logo to make your brand stand out (optional)
+                      </p>
+                    </div>
+                  </div>
 
-                    <FormField
-                      control={confirmForm.control}
-                      name="confirmed"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              data-testid="checkbox-confirm"
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>
-                              I confirm these details are accurate
-                            </FormLabel>
-                            <p className="text-xs text-muted-foreground">
-                              You can update these details later in your store settings
-                            </p>
-                          </div>
-                        </FormItem>
-                      )}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Store Logo (Optional)</label>
+                    <ImageUpload
+                      files={logoFiles}
+                      onChange={setLogoFiles}
+                      maxFiles={1}
+                      maxSize={2 * 1024 * 1024} // 2MB
                     />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Recommended: Square image, minimum 200x200 pixels
+                    </p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 pt-6">
@@ -709,19 +685,27 @@ export default function Onboarding() {
                       type="button"
                       variant="outline"
                       onClick={handleBack}
-                      data-testid="button-back-confirm"
+                      data-testid="button-back-branding"
                     >
                       <ChevronLeft className="mr-2 w-4 h-4" />
                       Back
                     </Button>
                     <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleSkip}
+                      className="sm:flex-1"
+                      data-testid="button-skip-branding"
+                    >
+                      Skip & Complete Setup
+                    </Button>
+                    <Button
                       type="submit"
                       className="sm:flex-1"
-                      disabled={isLoading}
-                      data-testid="button-complete"
+                      disabled={loading}
+                      data-testid="button-complete-onboarding"
                     >
-                      {isLoading ? <LoadingSpinner size="sm" /> : 'Complete Setup'}
-                      <ChevronRight className="ml-2 w-4 h-4" />
+                      {loading ? <LoadingSpinner size="sm" /> : 'Complete Setup'}
                     </Button>
                   </div>
                 </form>
@@ -729,6 +713,10 @@ export default function Onboarding() {
             )}
           </CardContent>
         </Card>
+
+        <div className="text-center text-sm text-muted-foreground mt-6">
+          <p>Need help? Contact our support team anytime.</p>
+        </div>
       </div>
     </div>
   );

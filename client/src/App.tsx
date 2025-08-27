@@ -7,6 +7,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { useAuth } from "@/hooks/use-auth";
 import AuthGuard from "@/components/AuthGuard";
 import SellerAuthGuard from "@/components/auth/AuthGuard";
+import { OnboardingGuard } from "@/components/OnboardingGuard";
+import { AppGuard } from "@/components/AppGuard";
 
 // Import all pages
 import MarketLanding from "@/pages/MarketLanding";
@@ -35,32 +37,9 @@ import NotFound from "@/pages/not-found";
 
 // App Router - handles unified /app destination
 function AppRouter() {
-  const { user, seller, loading } = useAuth();
   const [, navigate] = useLocation();
   
-  // Wait for auth to load
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  
-  // Redirect unauthenticated users to auth
-  if (!user) {
-    navigate('/auth', { replace: true });
-    return null;
-  }
-  
-  // Check if user has completed onboarding
-  const hasCompletedOnboarding = seller?.storeName && seller?.category && seller?.whatsappNumber && seller?.country;
-  
-  if (!hasCompletedOnboarding) {
-    // Clear any previous onboarding state and start fresh
-    sessionStorage.removeItem('onboarding_state');
-    sessionStorage.removeItem('onboarding_step1');
-    navigate('/onboarding?step=1', { replace: true });
-    return null;
-  }
-  
-  // User is authenticated and onboarded, redirect to products
+  // Redirect to products page (AppGuard will handle state validation)
   navigate('/products', { replace: true });
   return null;
 }
@@ -95,34 +74,34 @@ function Router() {
 
       {/* Protected routes - require authentication */}
       <Route path="/onboarding">
-        <AuthGuard>
+        <OnboardingGuard>
           <Onboarding />
-        </AuthGuard>
+        </OnboardingGuard>
       </Route>
       <Route path="/products">
-        <SellerAuthGuard>
+        <AppGuard>
           <Products />
-        </SellerAuthGuard>
+        </AppGuard>
       </Route>
       <Route path="/analytics">
-        <SellerAuthGuard>
+        <AppGuard>
           <Analytics />
-        </SellerAuthGuard>
+        </AppGuard>
       </Route>
       <Route path="/orders">
-        <SellerAuthGuard>
+        <AppGuard>
           <Orders />
-        </SellerAuthGuard>
+        </AppGuard>
       </Route>
       <Route path="/settings">
-        <SellerAuthGuard>
+        <AppGuard>
           <Settings />
-        </SellerAuthGuard>
+        </AppGuard>
       </Route>
       <Route path="/storefront">
-        <SellerAuthGuard>
+        <AppGuard>
           <Storefront />
-        </SellerAuthGuard>
+        </AppGuard>
       </Route>
       <Route path="/upgrade">
         <AuthGuard>
@@ -132,9 +111,9 @@ function Router() {
 
       {/* Admin routes - require admin privileges */}
       <Route path="/admin">
-        <SellerAuthGuard>
+        <AppGuard>
           <Admin />
-        </SellerAuthGuard>
+        </AppGuard>
       </Route>
 
       {/* Fallback to 404 */}
