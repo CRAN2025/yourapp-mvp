@@ -1,0 +1,60 @@
+{
+  "task": "UI_EDIT/LOGO_PROMINENCE_HEADER_AND_FOOTER",
+  "targetFiles": ["src/MarketLanding.jsx", "src/Footer.jsx"],
+  "selectors": {
+    "header": "header, .site-header, [data-header]",
+    "headerLogoWrap": "a[aria-label='ShopLynk'], .site-logo, .header-logo, img[alt='ShopLynk']",
+    "headerRightCluster": ".header-right, .nav-right, [data-right-cluster]",
+    "footerRoot": "footer, .site-footer, [data-footer]",
+    "footerLogoWrap": ".footer-logo, a[aria-label='ShopLynk'], img[alt='ShopLynk']"
+  },
+  "editPlan": [
+    {
+      "file": "src/MarketLanding.jsx",
+      "steps": [
+        "Ensure header root uses flex layout: { display:'flex', alignItems:'center', justifyContent:'space-between', padding:'24px 32px', gap:'24px' } (merge with existing).",
+        "Apply to header logo container (link or wrapper): { display:'inline-block', width:'clamp(220px, 20vw, 280px)', height:'auto', lineHeight:0, marginRight:'auto' }.",
+        "Apply to header logo img/svg: { width:'100%', height:'auto', display:'block', filter:'drop-shadow(0 1px 1px rgba(0,0,0,0.15))' }.",
+        "Remove or override any inline fixed heights like height:16/18/20px on the logo element.",
+        "Ensure right cluster (FAQ + Create Store) container uses: { display:'flex', alignItems:'center', gap:24, flexWrap:'wrap' } to avoid overlap.",
+        "Prefer SVG: if current logo <img> is raster and /logo.svg exists in imports or public path, switch src to '/logo.svg'. Do not add new assets."
+      ]
+    },
+    {
+      "file": "src/Footer.jsx",
+      "steps": [
+        "Ensure footer root remains unchanged structurally; do not modify links or routes.",
+        "Apply to footer logo container: { display:'inline-block', width:'clamp(180px, 14vw, 220px)', height:'auto', lineHeight:0 }.",
+        "Apply to footer logo img/svg: { width:'100%', height:'auto', display:'block', filter:'drop-shadow(0 1px 1px rgba(0,0,0,0.18))' }.",
+        "If footer background is very light and contrast is low, add a subtle frame on the logo container without altering layout: merge { background:'linear-gradient(90deg, rgba(255,255,255,0.7), rgba(255,255,255,0.7))', borderRadius:'8px', padding:'6px 12px' }.",
+        "Prefer SVG as above if available; otherwise keep existing raster source."
+      ]
+    }
+  ],
+  "accessibility": [
+    "Header logo: ensure <a> has aria-label='ShopLynk home' or <img> has alt='ShopLynk'.",
+    "Footer logo: ensure <img> has alt='ShopLynk'.",
+    "Maintain focus-visible outlines and keyboard order."
+  ],
+  "validationChecks": {
+    "viewports": [360, 768, 1024, 1440],
+    "header": [
+      "At 1024px and above: header logo rendered width between 220px and 280px.",
+      "At 520px and below: header logo rendered width <= 180px.",
+      "No overlap between logo and FAQ/Create Store at all listed viewports.",
+      "Aspect ratio preserved (rendered width/height within ±1% of natural ratio)."
+    ],
+    "footer": [
+      "Footer logo rendered width >= 180px at 1024px and above.",
+      "Logo remains crisp (no noticeable pixelation on HiDPI).",
+      "If contrast below WCAG 2.1 AA, frame styles applied (gradient/padding) are present."
+    ],
+    "global": [
+      "No new dependencies added.",
+      "No route or analytics changes.",
+      "CLS delta introduced by these edits <= 0.05.",
+      "No new assets > 150KB."
+    ]
+  },
+  "expectedOutcome": "ShopLynk logo is visually anchored to the top-left in the header and clearly visible in the footer. Both are ~1.5x more prominent, crisp on retina, responsive at all breakpoints, and do not cause layout overlaps or regressions."
+}

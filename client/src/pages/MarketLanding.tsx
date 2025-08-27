@@ -43,12 +43,14 @@ export default function MarketLanding() {
   const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN;
   const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplynk.app';
   
-  // UI styling constants for enlarged header logo
+  // UI styling constants for enhanced logo prominence
   const _ui = {
     header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 32px', gap: '24px' },
-    logoWrap: { display: 'inline-block', width: 'clamp(200px, 18vw, 280px)', height: 'auto', lineHeight: 0 },
-    logoImg: { width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.12))' },
-    rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }
+    logoWrap: { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: 0, marginRight: 'auto' },
+    logoImg: { width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.15))' },
+    rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' },
+    footerLogoWrap: { display: 'inline-block', width: 'clamp(180px, 14vw, 220px)', height: 'auto', lineHeight: 0 },
+    footerLogoImg: { width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.18))' }
   };
   
   // Enable debug mode in development
@@ -595,8 +597,22 @@ export default function MarketLanding() {
         /* Responsive logo adjustments */
         @media (max-width: 519px) {
           .site-logo {
-            width: clamp(140px, 22vw, 180px) !important;
+            width: clamp(160px, 24vw, 180px) !important;
           }
+          .footer-logo {
+            width: clamp(140px, 18vw, 160px) !important;
+          }
+        }
+        
+        /* Footer logo enhancements */
+        .footer-logo {
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: crisp-edges;
+          backface-visibility: hidden;
+          transform: translateZ(0);
+        }
+        .footer-logo:hover {
+          transform: scale(1.02) translateZ(0);
         }
         
         @media (prefers-reduced-motion: reduce) {
@@ -1035,8 +1051,17 @@ export default function MarketLanding() {
             {/* Company Info */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                <Link to="/" aria-label="ShopLynk home">
-                  <img src={logoUrl} alt="ShopLynk" className="h-8 sm:h-9 md:h-10 w-auto cursor-pointer" />
+                <Link 
+                  to="/" 
+                  aria-label="ShopLynk home"
+                  className="footer-logo"
+                  style={_ui.footerLogoWrap}
+                >
+                  <img 
+                    src={logoUrl} 
+                    alt="ShopLynk" 
+                    style={_ui.footerLogoImg}
+                  />
                 </Link>
               </div>
               <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
