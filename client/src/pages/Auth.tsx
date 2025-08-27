@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { useAuthContext } from '@/context/AuthContext';
 import { normalizeToE164, isValidPhoneNumber } from '@/lib/utils/phone';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useAuth } from '@/hooks/use-auth';
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -31,7 +33,14 @@ const verificationSchema = z.object({
 });
 
 export default function Auth() {
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+  const [location, navigate] = useLocation();
+  
+  // Parse URL parameters for mode and redirect
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const initialMode = urlParams.get('mode') === 'signup' ? 'signup' : 'signin';
+  const redirectUrl = urlParams.get('redirect') || '/dashboard';
+  
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>(initialMode);
   const [phoneStep, setPhoneStep] = useState<'phone' | 'verify'>('phone');
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, sendPhoneVerification, verifyPhoneCode, resetPassword, loading } = useAuthContext();
@@ -60,6 +69,15 @@ export default function Auth() {
     },
   });
 
+  const { user } = useAuth();
+
+  // Redirect authenticated users
+  useEffect(() => {
+    if (user) {
+      navigate(decodeURIComponent(redirectUrl), { replace: true });
+    }
+  }, [user, navigate, redirectUrl]);
+
   const handleEmailAuth = async (data: z.infer<typeof emailSchema>) => {
     try {
       if (authMode === 'signin') {
@@ -75,6 +93,7 @@ export default function Auth() {
           description: 'Your account has been created successfully.',
         });
       }
+      // Redirect will happen via useEffect when user state changes
     } catch (error) {
       toast({
         title: 'Authentication failed',
@@ -113,6 +132,7 @@ export default function Auth() {
         title: 'Phone verified!',
         description: 'You have successfully signed in.',
       });
+      // Redirect will happen via useEffect when user state changes
     } catch (error) {
       toast({
         title: 'Verification failed',
@@ -152,10 +172,15 @@ export default function Auth() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <span className="text-3xl font-bold text-primary">ShopLink</span>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome back</h2>
+          <span className="text-3xl font-bold text-primary">ShopLynk</span>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            {authMode === 'signup' ? 'Create your account' : 'Welcome back'}
+          </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Sign in to your account or create a new one
+            {authMode === 'signup' 
+              ? 'Start your journey with ShopLynk' 
+              : 'Sign in to your account or create a new one'
+            }
           </p>
         </div>
 
