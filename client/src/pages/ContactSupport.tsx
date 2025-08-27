@@ -91,7 +91,13 @@ export default function ContactSupport() {
                   <Mail className="w-5 h-5 text-green-600 mt-1" />
                   <div>
                     <h3 className="font-medium text-gray-900">Email Support</h3>
-                    <p className="text-sm text-gray-600">support@shoplink.com</p>
+                    <a 
+                      href="mailto:brock1kai@gmail.com"
+                      aria-label="Contact us by email"
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Contact us
+                    </a>
                     <p className="text-xs text-gray-500">Response within 24 hours</p>
                   </div>
                 </div>

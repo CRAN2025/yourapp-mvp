@@ -695,8 +695,8 @@ export default function MarketLanding() {
                 The easiest way to create a WhatsApp-ready online store. Launch your business in minutes, not days.
               </p>
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <a href="mailto:hello@shoplynk.com" style={{ padding: '8px 16px', backgroundColor: 'rgba(90,107,255,0.1)', borderRadius: '8px', fontSize: 14, fontWeight: 600, color: '#5a6bff', textDecoration: 'none' }}>
-                  Contact Us
+                <a href="mailto:brock1kai@gmail.com" style={{ padding: '8px 16px', backgroundColor: 'rgba(90,107,255,0.1)', borderRadius: '8px', fontSize: 14, fontWeight: 600, color: '#5a6bff', textDecoration: 'none' }}>
+                  Contact us
                 </a>
               </div>
             </div>
@@ -717,7 +717,7 @@ export default function MarketLanding() {
               <h4 style={{ fontWeight: 700, marginBottom: 16, color: 'var(--ink)', margin: '0 0 16px 0' }}>Support</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <li><a href="/support" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }} data-testid="footer-support">Help Center</a></li>
-                <li><a href="mailto:support@shoplynk.com" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Email Support</a></li>
+                <li><a href="mailto:brock1kai@gmail.com" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>Contact us</a></li>
                 <li><a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--ink)', opacity: 0.7, textDecoration: 'none', fontSize: 14 }}>WhatsApp Help</a></li>
                 <li><span style={{ color: 'var(--ink)', opacity: 0.7, fontSize: 14 }}>Live Chat (Coming Soon)</span></li>
               </ul>

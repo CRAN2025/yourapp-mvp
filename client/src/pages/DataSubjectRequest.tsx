@@ -289,7 +289,7 @@ export default function DataSubjectRequest() {
 
             <div className="mt-8 p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600">
-                Need help? Email <a href="mailto:privacy@shoplynk.app" className="text-purple-600 hover:text-purple-800 underline">privacy@shoplynk.app</a>.
+                Need help? <a href="mailto:brock1kai@gmail.com" className="text-purple-600 hover:text-purple-800 underline">Contact us</a>.
               </p>
             </div>
           </div>
