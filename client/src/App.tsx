@@ -72,8 +72,23 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/support" component={ContactSupport} />
 
+      {/* Onboarding routes */}
+      <Route path="/onboarding/step-1">
+        <OnboardingNew step="step-1" />
+      </Route>
+      <Route path="/onboarding/step-2">
+        <OnboardingNew step="step-2" />
+      </Route>
+      <Route path="/onboarding/step-3">
+        <OnboardingNew step="step-3" />
+      </Route>
+
       {/* Protected routes - require authentication */}
-      <Route path="/onboarding" component={OnboardingNew} />
+      <Route path="/dashboard">
+        <AppGuard>
+          <Products />
+        </AppGuard>
+      </Route>
       <Route path="/products">
         <AppGuard>
           <Products />

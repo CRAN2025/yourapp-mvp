@@ -1,0 +1,206 @@
+Onboarding flow (authoritative + complete)
+0) Terms
+
+User == Seller.
+
+Dashboard route: /dashboard (seller dashboard).
+
+Onboarding steps (canonical order):
+const STEPS = ['step-1','step-2','step-3']; // keep in one source of truth only
+
+1) Routing rules (locked)
+
+Create Store CTA (from landing)
+
+Not authed → navigate("/auth?mode=signup&redirect=/onboarding/step-1")
+
+Authed → compute first incomplete step and go there:
+/onboarding/<first-incomplete-step>
+(If onboarding doc missing, bootstrap and default to step-1.)
+
+After successful signup/signin
+
+Run ensureBootstrap(uid) (idempotent).
+
+Redirect to /onboarding/<first-incomplete-step> (ignore any splash).
+
+Inside /onboarding/*
+
+Guard/loader always sends the user to the first incomplete step.
+
+If all steps complete → /dashboard.
+
+Source of truth
+
+Do not infer from currentStep >= n.
+
+Use explicit completion: completed: string[] (e.g., ['step-1','step-2']).
+
+export const STEPS = ['step-1','step-2','step-3'];
+
+export function firstIncompleteStep(completed: string[] = []) {
+  const done = new Set(completed);
+  return STEPS.find(s => !done.has(s)) ?? STEPS[STEPS.length - 1];
+}
+
+2) Data model (Firestore) — explicit schema
+
+profiles/{uid}
+{ uid, email, createdAt }
+
+stores/{storeId}
+{ ownerUid, status: 'draft' | 'active', name: '', createdAt }
+
+onboarding/{uid}
+{ storeId, currentStep: number, completed: string[], updatedAt }
+
+Note: completed MUST initialize to []. currentStep MUST initialize to 1.
+
+3) Bootstrap (single transaction, idempotent)
+import {
+  db, auth
+} from '@/lib/firebase';
+import {
+  doc, collection, serverTimestamp, runTransaction,
+  query, where, getDocs, limit
+} from 'firebase/firestore';
+
+export async function ensureBootstrap(uid: string) {
+  return runTransaction(db, async (tx) => {
+    // profile
+    const profileRef = doc(db, 'profiles', uid);
+    const profileSnap = await tx.get(profileRef);
+    if (!profileSnap.exists()) {
+      tx.set(profileRef, {
+        uid,
+        email: auth.currentUser?.email ?? '',
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    // first store or create draft
+    const storesQ = query(collection(db, 'stores'), where('ownerUid', '==', uid), limit(1));
+    const storesSnap = await getDocs(storesQ);
+    let storeId: string;
+    if (storesSnap.empty) {
+      const storeRef = doc(collection(db, 'stores'));
+      storeId = storeRef.id;
+      tx.set(storeRef, {
+        ownerUid: uid,
+        status: 'draft',
+        name: '',
+        createdAt: serverTimestamp(),
+      });
+    } else {
+      storeId = storesSnap.docs[0].id;
+    }
+
+    // onboarding
+    const obRef = doc(db, 'onboarding', uid);
+    const obSnap = await tx.get(obRef);
+    let progress = obSnap.exists() ? obSnap.data() : null;
+
+    if (!progress) {
+      progress = {
+        storeId,
+        currentStep: 1,
+        completed: [],              // IMPORTANT
+        updatedAt: serverTimestamp(),
+      };
+      tx.set(obRef, progress);
+    }
+
+    return { storeId, progress };
+  });
+}
+
+4) Click handler (landing CTA)
+async function onCreateStoreClick() {
+  const destIfNew = '/onboarding/step-1';
+  if (!auth.currentUser) {
+    navigate(`/auth?mode=signup&redirect=${encodeURIComponent(destIfNew)}`);
+    return;
+  }
+  const { uid } = auth.currentUser!;
+  const { storeId, progress } = await ensureBootstrap(uid);
+  const step = firstIncompleteStep(progress?.completed);
+  navigate(`/onboarding/${step}`.replace(':storeId', storeId ?? ''), { replace: true });
+}
+
+5) Auth completion (signup/signin success)
+const redirect = new URLSearchParams(location.search).get('redirect') || '/onboarding/step-1';
+
+// Prevent open redirects (internal only)
+const safeRedirect = redirect.startsWith('/') ? redirect : '/onboarding/step-1';
+
+const { uid } = auth.currentUser!;
+const { storeId, progress } = await ensureBootstrap(uid);
+const step = firstIncompleteStep(progress?.completed);
+
+const final = safeRedirect.includes('/onboarding')
+  ? `/onboarding/${step}`
+  : safeRedirect;
+
+navigate(final.replace(':storeId', storeId ?? ''), { replace: true });
+
+6) Onboarding route guard (loader)
+// loader for /onboarding/* (or use an element guard)
+export async function onboardingLoader() {
+  const user = auth.currentUser;
+  if (!user) return redirect(`/auth?mode=signup&redirect=${encodeURIComponent('/onboarding/step-1')}`);
+
+  const { storeId, progress } = await ensureBootstrap(user.uid);
+  const step = firstIncompleteStep(progress?.completed);
+
+  // Avoid redirect loop: if already at the correct step, let it render
+  const currentPath = new URL(window.location.href).pathname;
+  const target = `/onboarding/${step}`.replace(':storeId', storeId ?? '');
+  if (currentPath === target) return null;
+
+  return redirect(target);
+}
+
+7) Step completion (example: Step 1)
+await updateDoc(doc(db, 'onboarding', uid), {
+  completed: arrayUnion('step-1'),
+  currentStep: 2,
+  updatedAt: serverTimestamp()
+});
+navigate('/onboarding/step-2', { replace: true });
+
+8) Security & safety (don’t skip)
+
+Open-redirect guard: only honor redirect values that start with /.
+
+Firestore Rules (sketch):
+
+match /profiles/{uid} {
+  allow read, write: if request.auth != null && request.auth.uid == uid;
+}
+match /stores/{storeId} {
+  allow read, write: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+}
+match /onboarding/{uid} {
+  allow read, write: if request.auth != null && request.auth.uid == uid;
+}
+
+
+Idempotency: ensureBootstrap must be safe to call anytime.
+
+Single source of truth: STEPS lives in one module; all code imports it.
+
+9) Acceptance checklist (final)
+
+Authed + incomplete → lands on first incomplete step (usually step-1 for new).
+
+New signup → no splash; goes straight to /onboarding/step-1 form.
+
+Completed user → /dashboard (seller dashboard).
+
+Refresh on step-1 → still shows the form until saved.
+
+Only completed[] marks steps done (never currentStep >= n).
+
+No open redirects (internal paths only).
+
+No redirect loops when already on the right step.
