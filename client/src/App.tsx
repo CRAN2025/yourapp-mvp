@@ -8,6 +8,7 @@ import AuthGuard from "@/components/AuthGuard";
 import SellerAuthGuard from "@/components/auth/AuthGuard";
 
 // Import all pages
+import MarketingLanding from "@/pages/MarketingLanding";
 import MarketLanding from "@/pages/MarketLanding";
 import Auth from "@/pages/Auth";
 import Onboarding from "@/pages/Onboarding";
@@ -36,7 +37,12 @@ function Router() {
   return (
     <Switch>
       {/* Public routes */}
-      <Route path="/" component={MarketLanding} />
+      <Route path="/" component={MarketingLanding} />
+      <Route path="/app">
+        <AuthGuard requireAuth={false}>
+          <Auth />
+        </AuthGuard>
+      </Route>
       <Route path="/auth">
         <AuthGuard requireAuth={false}>
           <Auth />
