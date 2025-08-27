@@ -171,6 +171,15 @@ export default function MarketLanding() {
     document.title = 'ShopLynk - Build Your Online Store | WhatsApp E-commerce';
   }, []);
 
+  // Feature Card Component
+  const FeatureCard = ({ icon, title, body }: { icon: string; title: string; body: string }) => (
+    <div className="glass card" style={{ padding: 24, textAlign: 'center' }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>{icon}</div>
+      <h4 style={{ fontSize: 18, fontWeight: 800, marginBottom: 8, letterSpacing: '-0.01em' }}>{title}</h4>
+      <p style={{ opacity: 0.8, lineHeight: 1.5, margin: 0 }}>{body}</p>
+    </div>
+  );
+
   return (
     <div ref={rootRef} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <style>{`
@@ -191,7 +200,15 @@ export default function MarketLanding() {
 
         html, body, #root { height: 100%; }
         * { box-sizing: border-box; }
-        body { margin: 0; color: var(--ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; background: #f6f8ff; }
+        body { 
+          margin: 0; 
+          color: var(--ink); 
+          font-family: var(--font-sans); 
+          -webkit-font-smoothing: antialiased; 
+          text-rendering: optimizeLegibility; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+        }
 
         a { color: inherit; text-decoration: none; }
         button { font-family: var(--font-sans); }
@@ -220,11 +237,11 @@ export default function MarketLanding() {
         }
 
         .glass {
-          background: var(--surface);
-          border: 1px solid var(--border);
-          backdrop-filter: saturate(160%) blur(14px);
-          -webkit-backdrop-filter: saturate(160%) blur(14px);
-          box-shadow: var(--shadow);
+          background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(255,255,255,.8) 100%);
+          border: 1px solid rgba(255,255,255,.4);
+          backdrop-filter: saturate(160%) blur(20px);
+          -webkit-backdrop-filter: saturate(160%) blur(20px);
+          box-shadow: 0 20px 40px rgba(0,0,0,.15), 0 0 0 1px rgba(255,255,255,.2) inset;
         }
         .card { border-radius: var(--radius-card); }
         .heroGlass { border-radius: var(--radius-hero); }
@@ -245,12 +262,50 @@ export default function MarketLanding() {
           box-sizing: border-box;       /* include border in height calculation */
         }
 
-        .btnPrimary { color: #fff; background: var(--grad); background-size: 180% 100%; background-position: 0% 50%; box-shadow: 0 12px 30px rgba(90,107,255,.28); vertical-align: top; }
-        .btnPrimary:hover { background-position: 100% 50%; box-shadow: 0 16px 40px rgba(90,107,255,.35); }
+        .btnPrimary { 
+          color: #fff; 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); 
+          background-size: 200% 200%; 
+          background-position: 0% 50%; 
+          box-shadow: 0 15px 35px rgba(102,126,234,.4), 0 0 0 1px rgba(255,255,255,.2) inset; 
+          vertical-align: top; 
+          position: relative;
+          overflow: hidden;
+        }
+        .btnPrimary:hover { 
+          background-position: 100% 50%; 
+          box-shadow: 0 20px 45px rgba(102,126,234,.5), 0 0 0 1px rgba(255,255,255,.3) inset; 
+          transform: translateY(-2px);
+        }
+        .btnPrimary:before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+          transition: left 0.5s ease;
+        }
+        .btnPrimary:hover:before {
+          left: 100%;
+        }
 
         .btnSecondary { background: transparent; border: 1.5px solid rgba(0,0,0,.12); vertical-align: top; margin-top: 15px; }
 
-        .badge { display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border-radius: 999px; background: rgba(0,0,0,.05); font-weight: 600; font-size: 13px; }
+        .badge { 
+          display:inline-flex; 
+          align-items:center; 
+          gap:6px; 
+          padding:8px 16px; 
+          border-radius: 999px; 
+          background: linear-gradient(135deg, rgba(255,255,255,.9) 0%, rgba(255,255,255,.7) 100%); 
+          border: 1px solid rgba(255,255,255,.3);
+          backdrop-filter: blur(12px);
+          font-weight: 600; 
+          font-size: 13px; 
+          box-shadow: 0 4px 15px rgba(0,0,0,.1);
+        }
         .logoDot { width: 36px; height: 36px; border-radius: 50%; background: #e8ecff; border: 1px solid #dee3ff; }
         
         .faq-item { cursor: pointer; transition: all 0.2s ease; }
@@ -258,7 +313,38 @@ export default function MarketLanding() {
         .testimonial-card { transition: transform 0.3s ease, opacity 0.3s ease; }
         .testimonial-card.active { transform: scale(1.05); }
         .cta-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes pulse { 
+          0%, 100% { transform: scale(1); } 
+          50% { transform: scale(1.02); } 
+        }
+        
+        /* Additional animations */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeInUp { 
+          animation: fadeInUp 0.6s ease-out forwards; 
+        }
+        
+        /* Glowing effect for CTAs */
+        .glow {
+          position: relative;
+          overflow: visible;
+        }
+        .glow:after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: inherit;
+          filter: blur(20px);
+          opacity: 0.7;
+          z-index: -1;
+        }
         
         .mobile-optimized {
           @media (max-width: 768px) {
@@ -286,9 +372,52 @@ export default function MarketLanding() {
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       `}</style>
 
-      {/* Background accents */}
-      <div style={blobA} />
-      <div style={blobB} />
+      {/* Enhanced Background accents */}
+      <div style={{
+        position: 'fixed',
+        top: '-20%',
+        left: '-10%',
+        width: '50%',
+        height: '60%',
+        background: 'radial-gradient(circle, rgba(102,126,234,0.15) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(40px)',
+        zIndex: -2,
+        animation: 'float 6s ease-in-out infinite'
+      }} />
+      <div style={{
+        position: 'fixed',
+        bottom: '-20%',
+        right: '-10%',
+        width: '40%',
+        height: '50%',
+        background: 'radial-gradient(circle, rgba(118,75,162,0.15) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(40px)',
+        zIndex: -2,
+        animation: 'float 8s ease-in-out infinite reverse'
+      }} />
+      <div style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '30%',
+        height: '40%',
+        background: 'radial-gradient(circle, rgba(240,147,251,0.1) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(60px)',
+        zIndex: -2,
+        animation: 'float 10s ease-in-out infinite'
+      }} />
+      
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          33% { transform: translateY(-20px) rotate(1deg); }
+          66% { transform: translateY(10px) rotate(-1deg); }
+        }
+      `}</style>
 
       {/* Nav - Full Bleed */}
       <header 
@@ -369,23 +498,28 @@ export default function MarketLanding() {
             {/* Left copy */}
             <div className="hero-text">
               <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 14px', fontWeight: 900, letterSpacing: '-0.02em' }}>
-                Launch a WhatsApp-ready storefront in minutes
+                Launch your <span style={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                  WebkitBackgroundClip: 'text', 
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}>dream store</span> in minutes
               </h1>
               <p style={{ opacity: .85, fontSize: 18, lineHeight: 1.65, margin: '0 0 18px', fontWeight: 500 }}>
-                Add products, share a single link, and start getting orders via WhatsApp.<strong> Free during beta.</strong>
+                Create a beautiful storefront, connect with customers instantly through WhatsApp, and start earning today. <strong style={{ color: '#667eea' }}>Zero fees. Forever free.</strong>
               </p>
 
               {/* Primary CTA only (demo button removed) */}
               <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom: 6 }}>
                 <button 
                   onClick={goCreate} 
-                  className="btn btnPrimary cta-pulse" 
-                  style={{ padding: '16px 28px', fontSize: 16, borderRadius: 16 }} 
+                  className="btn btnPrimary cta-pulse glow animate-fadeInUp" 
+                  style={{ padding: '18px 32px', fontSize: 18, borderRadius: 16, fontWeight: 800 }} 
                   data-testid="hero-create-store"
                   disabled={isLoading}
                   aria-label="Create your free store - Start your free trial"
                 >
-                  {isLoading ? <div className="loading-spinner"></div> : 'Create your free store'}
+                  {isLoading ? <div className="loading-spinner"></div> : '✨ Create your free store'}
                 </button>
               </div>
               
@@ -418,7 +552,119 @@ export default function MarketLanding() {
 
             {/* Right: live preview mock */}
             <div className="reveal-on-scroll hero-demo">
-              <PreviewDevice />
+              <div style={{
+                perspective: '1000px',
+                transform: 'rotateY(-15deg) rotateX(10deg)',
+                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,.3))'
+              }}>
+                <div style={{
+                  width: '320px',
+                  height: '640px',
+                  background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
+                  borderRadius: '32px',
+                  padding: '8px',
+                  position: 'relative',
+                  margin: '0 auto'
+                }}>
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    background: '#fff',
+                    borderRadius: '26px',
+                    overflow: 'hidden',
+                    position: 'relative'
+                  }}>
+                    {/* Phone Status Bar */}
+                    <div style={{
+                      height: '44px',
+                      background: '#f8f9ff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0 20px',
+                      fontSize: '14px',
+                      fontWeight: '600'
+                    }}>
+                      <span>9:41</span>
+                      <span>100% ⚡</span>
+                    </div>
+                    
+                    {/* Store Preview */}
+                    <div style={{ padding: '16px' }}>
+                      {/* Store Header */}
+                      <div style={{ 
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                        borderRadius: '16px', 
+                        padding: '16px',
+                        color: 'white',
+                        marginBottom: '16px'
+                      }}>
+                        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>
+                          ✨ Bella's Boutique
+                        </div>
+                        <div style={{ fontSize: '14px', opacity: 0.9 }}>
+                          Handmade jewelry & accessories
+                        </div>
+                      </div>
+                      
+                      {/* Product Grid */}
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(2, 1fr)', 
+                        gap: '12px',
+                        marginBottom: '16px'
+                      }}>
+                        {[
+                          { name: 'Gold Necklace', price: '$89', emoji: '💎' },
+                          { name: 'Silver Ring', price: '$45', emoji: '💍' },
+                          { name: 'Pearl Earrings', price: '$67', emoji: '✨' },
+                          { name: 'Crystal Bracelet', price: '$32', emoji: '🔮' }
+                        ].map((product, i) => (
+                          <div key={i} style={{
+                            background: '#f8f9ff',
+                            borderRadius: '12px',
+                            padding: '12px',
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontSize: '24px', marginBottom: '4px' }}>{product.emoji}</div>
+                            <div style={{ fontSize: '12px', fontWeight: '600', marginBottom: '2px' }}>{product.name}</div>
+                            <div style={{ fontSize: '12px', color: '#667eea', fontWeight: 'bold' }}>{product.price}</div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* WhatsApp CTA */}
+                      <div style={{
+                        background: '#25d366',
+                        borderRadius: '12px',
+                        padding: '12px',
+                        color: 'white',
+                        textAlign: 'center',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}>
+                        📱 Order via WhatsApp
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Phone Home Indicator */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '134px',
+                    height: '5px',
+                    background: '#333',
+                    borderRadius: '3px'
+                  }}></div>
+                </div>
+              </div>
             </div>
             </div>
           </div>
