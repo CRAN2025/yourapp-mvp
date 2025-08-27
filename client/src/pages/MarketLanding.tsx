@@ -43,14 +43,38 @@ export default function MarketLanding() {
   const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN;
   const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplynk.app';
   
-  // UI styling constants for enhanced logo prominence
+  // UI styling constants for text wordmark branding
   const _ui = {
     header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 0', gap: '24px' },
-    logoWrap: { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: 0, marginRight: 'auto' },
-    logoImg: { width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.15))' },
-    rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' },
-    footerLogoWrap: { display: 'inline-block', width: 'clamp(180px, 14vw, 220px)', height: 'auto', lineHeight: 0 },
-    footerLogoImg: { width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.18))' }
+    rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }
+  };
+
+  // Brand wordmark tokens
+  const _uiBrand = { 
+    link: { display: 'inline-block', textDecoration: 'none' }, 
+    text: { 
+      fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial", 
+      fontWeight: 800, 
+      letterSpacing: '-0.02em', 
+      fontSize: 'clamp(20px, 2.4vw, 28px)', 
+      lineHeight: 1, 
+      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)', 
+      WebkitBackgroundClip: 'text', 
+      backgroundClip: 'text', 
+      color: 'transparent' 
+    }, 
+    accent: { color: '#3E4AE0' },
+    footer: {
+      fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial", 
+      fontWeight: 800, 
+      letterSpacing: '-0.02em', 
+      fontSize: 'clamp(18px, 2vw, 24px)', 
+      lineHeight: 1, 
+      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)', 
+      WebkitBackgroundClip: 'text', 
+      backgroundClip: 'text', 
+      color: 'transparent' 
+    }
   };
   
   // Enable debug mode in development
@@ -677,17 +701,9 @@ export default function MarketLanding() {
           <Link 
             to="/" 
             aria-label="ShopLynk home"
-            className="site-logo"
-            style={_ui.logoWrap}
+            style={_uiBrand.link}
           >
-            <img 
-              src={logoUrl} 
-              alt="ShopLynk" 
-              style={{
-                ..._ui.logoImg,
-                transition: 'transform 0.2s ease',
-              }}
-            />
+            <span style={_uiBrand.text}>Shop<span style={_uiBrand.accent}>Lynk</span></span>
           </Link>
           <nav style={{
             display: 'flex',
@@ -1061,14 +1077,9 @@ export default function MarketLanding() {
                 <Link 
                   to="/" 
                   aria-label="ShopLynk home"
-                  className="footer-logo"
-                  style={_ui.footerLogoWrap}
+                  style={_uiBrand.link}
                 >
-                  <img 
-                    src={logoUrl} 
-                    alt="ShopLynk" 
-                    style={_ui.footerLogoImg}
-                  />
+                  <span style={_uiBrand.footer}>Shop<span style={_uiBrand.accent}>Lynk</span></span>
                 </Link>
               </div>
               <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
