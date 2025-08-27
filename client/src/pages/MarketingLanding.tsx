@@ -638,29 +638,32 @@ const FeatureCard = ({ icon, title, body }: { icon: string; title: string; body:
   </div>
 );
 
-// Preview Device Component (placeholder)
+// Preview Device Component with 4 Demo Stores
 const PreviewDevice = () => (
-  <div style={{ 
-    background: '#1a1a1a', 
-    borderRadius: 24, 
-    padding: 8, 
-    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-    transform: 'rotate(-2deg)'
-  }}>
-    <div style={{ 
-      background: '#f8f9fa', 
-      borderRadius: 16, 
-      padding: 20,
-      aspectRatio: '9/16',
-      width: 240,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 12
-    }}>
-      <div style={{ background: '#e9ecef', borderRadius: 8, height: 40 }}></div>
-      <div style={{ background: '#e9ecef', borderRadius: 8, height: 120 }}></div>
-      <div style={{ background: '#e9ecef', borderRadius: 8, height: 80 }}></div>
-      <div style={{ background: '#e9ecef', borderRadius: 8, height: 60 }}></div>
+  <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)' }}>
+    <div style={{ height: 18, display:'flex', gap:6, marginBottom: 12 }}>
+      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} />
+      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ffbd2e' }} />
+      <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
+    </div>
+    <div className="glass card" style={{ padding: 14, marginBottom: 12 }}>
+      <div style={{ fontWeight: 800, letterSpacing:'-0.01em' }}>Demo Store</div>
+      <div style={{ fontSize: 12, opacity:.7 }}>whatsapp orders • no code</div>
+    </div>
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+      {[
+        ['Sunset Earrings', 'GHS 120'],
+        ['Handwoven Basket', 'GHS 240'],
+        ['Shea Body Butter', 'GHS 85'],
+        ['Tie-Dye Tee', 'GHS 150'],
+      ].map(([name, price], i) => (
+        <div key={i} className="glass card" style={{ padding: 10 }}>
+          <div style={{ height: 92, borderRadius: 12, background: 'linear-gradient(135deg,#e7ecff,#f6f9ff)' }} />
+          <div style={{ fontWeight: 700, marginTop: 8, letterSpacing:'-0.01em' }}>{name}</div>
+          <div style={{ opacity:.75, fontSize: 13 }}>{price}</div>
+          <button className="btn btnPrimary" style={{ width:'100%', marginTop: 8, borderRadius: 16, fontSize: 10, padding: '4px 8px' }}>Contact on WhatsApp</button>
+        </div>
+      ))}
     </div>
   </div>
 );
