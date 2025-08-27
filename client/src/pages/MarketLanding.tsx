@@ -60,84 +60,103 @@ export default function MarketLanding() {
     }
   }, []);
 
-  // Runtime patch: Fix header alignment with proper inner container
+  // Runtime patch: Pixel-align header logo to hero text
   useEffect(() => {
-    // 1) Grab the full-width header
+    // Ensure we have a header and an inner container we can control
     const header = document.querySelector('header, .site-header, [data-header]');
     if (!header) return;
 
-    // 2) Ensure a centered inner container with the SAME gutters as the page
-    //    (keeps right items from drifting outside and pulls logo to the true left edge)
     let inner = header.querySelector('[data-header-inner]');
     if (!inner) {
       inner = document.createElement('div');
       inner.setAttribute('data-header-inner', 'true');
-
-      // Move all current header children into the inner container
       while (header.firstChild) inner.appendChild(header.firstChild);
       header.appendChild(inner);
     }
 
-    Object.assign(header.style, {
-      // Keep header background full-bleed
-      width: '100%'
-    });
-
+    // Make header full-bleed; inner will handle alignment
+    Object.assign(header.style, { width: '100%' });
     Object.assign(inner.style, {
-      // Match hero/container width & gutters exactly
       boxSizing: 'border-box',
       width: '100%',
-      maxWidth: '1200px',                 // ← same as your main content width
-      margin: '0 auto',
-      paddingTop: '24px',
-      paddingBottom: '24px',
-      paddingInline: 'clamp(16px, 4vw, 28px)',
-      paddingLeft: 'max(28px, env(safe-area-inset-left))',     // ← exact match with hero section
-      paddingRight: 'max(28px, env(safe-area-inset-right))',   // ← exact match with hero section
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'flex-start',
       gap: '24px'
     });
 
-    // 3) Identify/make left logo and right cluster
-    const logo =
-      inner.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
-      inner.querySelector('img[alt="ShopLynk"]')?.closest('a');
-
-    let right = inner.querySelector('.header-right, .nav-right, [data-right-cluster]');
-    if (!right) {
-      right = document.createElement('div');
-      right.setAttribute('data-right-cluster', 'true');
-      inner.appendChild(right);
-    }
-    Object.assign(right.style, {
-      marginLeft: 'auto',                 // push to far right within inner container
-      display: 'flex',
-      alignItems: 'center',
-      gap: '24px',
-      flexWrap: 'wrap'
-    });
-
-    // Move FAQ/Create Store into the right cluster (no route changes)
-    const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
-    const cta = Array.from(inner.querySelectorAll('a,button')).find(el => /create\s*store/i.test(el.textContent || ''));
-    if (faq && faq.parentElement !== right) right.appendChild(faq);
-    if (cta && cta.parentElement !== right) right.appendChild(cta);
-
-    // 4) Logo scaling and left anchor
-    if (logo) {
-      Object.assign(logo.style, {
-        display: 'inline-block',
-        width: 'clamp(220px, 20vw, 280px)',
-        height: 'auto',
-        lineHeight: '0'
+    // Build / ensure right cluster (FAQ + Create Store)
+    const ensureRightCluster = () => {
+      let right = inner.querySelector('[data-right-cluster]');
+      if (!right) {
+        right = document.createElement('div');
+        right.setAttribute('data-right-cluster', 'true');
+        inner.appendChild(right);
+      }
+      Object.assign(right.style, {
+        marginLeft: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '24px',
+        flexWrap: 'wrap'
       });
+      // Move FAQ + Create Store into right cluster (no route changes)
+      const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
+      const cta = Array.from(inner.querySelectorAll('a,button')).find(el => /create\s*store/i.test(el.textContent || ''));
+      if (faq && faq.parentElement !== right) right.appendChild(faq);
+      if (cta && cta.parentElement !== right) right.appendChild(cta);
+    };
+
+    // Logo sizing (left)
+    const sizeLogo = () => {
+      const logo =
+        inner.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
+        inner.querySelector('img[alt="ShopLynk"]')?.closest('a');
+      if (!logo) return;
+      Object.assign(logo.style, { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: '0' });
       const img = logo.querySelector('img, svg') || logo;
       if (img) Object.assign(img.style, { width: '100%', height: 'auto', display: 'block' });
-      const link = logo.closest('a');
-      if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label', 'ShopLynk home');
-    }
+      const link = logo.closest('a'); if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label','ShopLynk home');
+    };
+
+    // === KEY: sync header padding to hero text left edge ===
+    const findHeroTitle = () => {
+      const candidates = Array.from(document.querySelectorAll('[data-hero-title], h1, [role="heading"]'))
+        .filter(el => /launch|whatsapp/i.test(el.textContent || ''));
+      return candidates[0] || document.querySelector('h1');
+    };
+
+    const syncToHero = () => {
+      const hero = findHeroTitle();
+      if (!hero) return;
+
+      // Left gutter of hero text relative to viewport
+      const heroLeft = Math.round(hero.getBoundingClientRect().left);
+
+      // Apply same left gutter to header inner; mirror to right for even container
+      // (this auto-aligns FAQ/CTA to the same content width)
+      inner.style.paddingLeft  = heroLeft + 'px';
+      inner.style.paddingRight = heroLeft + 'px';
+
+      // Remove any width caps that could fight our padding sync
+      inner.style.maxWidth = 'none';
+      header.style.padding = '0'; // ensure outer header doesn't add extra inset
+
+      ensureRightCluster();
+      sizeLogo();
+    };
+
+    // Initial sync + on resize (debounced)
+    let raf = 0, last = 0;
+    const onResize = () => {
+      const now = Date.now();
+      if (now - last < 50) { cancelAnimationFrame(raf); raf = requestAnimationFrame(syncToHero); return; }
+      last = now; syncToHero();
+    };
+
+    syncToHero();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   // Anonymous events and auth detection
