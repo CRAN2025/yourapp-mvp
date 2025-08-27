@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://shoplink.app/sitemap.xml
+Sitemap: https://shoplynk.app/sitemap.xml
