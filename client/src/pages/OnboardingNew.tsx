@@ -1,140 +1,100 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '@/lib/firebase';
 import { useOnboardingProgress } from '@/hooks/useOnboardingProgress';
-import { useRouteDecision } from '@/hooks/useRouteDecision';
+import { ensureBootstrap, firstIncompleteStep, isOnboardingComplete } from '@/lib/onboarding';
+import OnboardingStep1 from '../components/onboarding/OnboardingStep1';
+import OnboardingStep2 from '../components/onboarding/OnboardingStep2';
+import OnboardingStep3 from '../components/onboarding/OnboardingStep3';
 
-const OnboardingLoader = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">Loading...</p>
-    </div>
-  </div>
-);
+interface OnboardingNewProps {
+  step: string;
+}
 
-export default function OnboardingNew() {
-  const [location] = useLocation();
-  const { ready, error } = useOnboardingProgress();
-  const { redirected } = useRouteDecision();
-  
-  // Extract step from URL
-  const searchParams = new URLSearchParams(location.split('?')[1] || '');
-  const currentStep = Number.parseInt(searchParams.get('step') || '1', 10);
+export default function OnboardingNew({ step }: OnboardingNewProps) {
+  const [, navigate] = useLocation();
+  const [user, authLoading] = useAuthState(auth);
+  const { progress, loading, firstIncompleteStep: nextStep, isComplete } = useOnboardingProgress();
 
-  // Debug logging
+  // Route guard and redirection logic
   useEffect(() => {
-    if (window.__debugOnboarding) {
-      console.debug('OnboardingNew render:', {
-        ready,
-        redirected,
-        currentStep,
-        error,
-        location
-      });
-    }
-  }, [ready, redirected, currentStep, error, location]);
+    if (authLoading || loading) return;
 
-  // Show error state
-  if (error) {
+    // Not authenticated - redirect to auth
+    if (!user) {
+      navigate(`/auth?mode=signup&redirect=${encodeURIComponent('/onboarding/step-1')}`, { replace: true });
+      return;
+    }
+
+    // Ensure bootstrap is complete
+    if (!progress) {
+      ensureBootstrap(user.uid).then(({ progress: newProgress }) => {
+        const correctStep = firstIncompleteStep(newProgress?.completed);
+        if (step !== correctStep) {
+          navigate(`/onboarding/${correctStep}`, { replace: true });
+        }
+      }).catch(console.error);
+      return;
+    }
+
+    // All steps complete - redirect to dashboard
+    if (isComplete) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
+    // Redirect to correct step if not already there
+    if (step !== nextStep) {
+      navigate(`/onboarding/${nextStep}`, { replace: true });
+      return;
+    }
+  }, [user, authLoading, loading, progress, step, nextStep, isComplete, navigate]);
+
+  // Show loading while authenticating or fetching progress
+  if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Error loading onboarding data</p>
-          <p className="text-gray-600">{error}</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your onboarding progress...</p>
         </div>
       </div>
     );
   }
 
-  // Show loader until ready and not redirected
-  if (!ready || redirected) {
-    return <OnboardingLoader />;
+  // Don't render if user not authenticated or redirecting
+  if (!user || !progress) {
+    return null;
   }
 
-  // Simple step components for testing
-  const Step1 = () => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">Step 1: Store Basics</h1>
-        <p className="text-gray-600 text-center mb-4">Let's start by setting up your store basics.</p>
-        <div className="space-y-4">
-          <button 
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-            data-testid="button-continue-step1"
-          >
-            Continue to Step 2
-          </button>
+  // Render the appropriate step component
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        {/* Progress indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">Setup Progress</span>
+            <span className="text-sm text-gray-500">
+              Step {step === 'step-1' ? 1 : step === 'step-2' ? 2 : 3} of 3
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: `${step === 'step-1' ? 33 : step === 'step-2' ? 66 : 100}%` 
+              }}
+            />
+          </div>
         </div>
+
+        {/* Step content */}
+        {step === 'step-1' && <OnboardingStep1 storeId={progress.storeId} />}
+        {step === 'step-2' && <OnboardingStep2 storeId={progress.storeId} />}
+        {step === 'step-3' && <OnboardingStep3 storeId={progress.storeId} />}
       </div>
     </div>
   );
-
-  const Step2 = () => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">Step 2: Business Details</h1>
-        <p className="text-gray-600 text-center mb-4">Tell us about your business.</p>
-        <div className="space-y-4">
-          <button 
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-            data-testid="button-continue-step2"
-          >
-            Continue to Step 3
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const Step3 = () => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">Step 3: Products</h1>
-        <p className="text-gray-600 text-center mb-4">Add your first product.</p>
-        <div className="space-y-4">
-          <button 
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-            data-testid="button-continue-step3"
-          >
-            Continue to Step 4
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const Step4 = () => (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">Step 4: Complete Setup</h1>
-        <p className="text-gray-600 text-center mb-4">Finalize your store setup.</p>
-        <div className="space-y-4">
-          <button 
-            className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
-            data-testid="button-complete-setup"
-          >
-            Complete Setup
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Render the appropriate step
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1 />;
-      case 2:
-        return <Step2 />;
-      case 3:
-        return <Step3 />;
-      case 4:
-        return <Step4 />;
-      default:
-        return <OnboardingLoader />;
-    }
-  };
-
-  return renderStep();
 }

@@ -41,6 +41,24 @@ Preferred communication style: Simple, everyday language.
 - **Test Coverage**: Comprehensive Playwright tests ensure alignment, accessibility, and visual integrity across all viewports
 - **FREEZE CONTRACT**: Landing page visuals, layout, and copy are now locked - only backend routing/auth logic may change
 
+## Authoritative Onboarding Flow Implementation
+- **Date**: August 27, 2025
+- **Status**: ✅ Complete and ready for testing
+- **Description**: Implemented comprehensive onboarding flow with reliable state-driven progression
+- **Key Components**:
+  - **Steps Definition**: Terms → User → Seller → Dashboard progression with explicit completion tracking
+  - **Bootstrap System**: Idempotent `ensureBootstrap()` creates profile, store, and onboarding documents
+  - **Route Guards**: Automatic redirection to first incomplete step with loop prevention
+  - **CTA Integration**: Landing page CTAs now use authoritative onboarding flow
+  - **Form Components**: Step1 (business info), Step2 (contact), Step3 (store setup) with validation
+  - **Progress Tracking**: Visual progress indicator and state management with Firebase hooks
+- **Technical Implementation**:
+  - Single source of truth for steps: `['step-1', 'step-2', 'step-3']`
+  - Completion tracking via explicit `completed: string[]` array (not inferred from currentStep)
+  - Firestore schema: `profiles/{uid}`, `stores/{storeId}`, `onboarding/{uid}`
+  - Route security with open-redirect prevention and authentication guards
+- **User Experience**: Seamless progression from landing page through setup to dashboard with no redirect loops or step skipping
+
 ## Enhanced Logo Brand Visibility Implementation
 - **Date**: August 27, 2025  
 - **Status**: ✅ Complete and evolved to pixel-perfect alignment

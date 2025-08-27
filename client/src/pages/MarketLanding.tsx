@@ -32,7 +32,7 @@ export default function MarketLanding() {
   
   // Auth and onboarding state
   const { user } = useAuth();
-  const { ready, status, nextStep } = useOnboardingProgress();
+  const { loading: onboardingLoading, isComplete, firstIncompleteStep } = useOnboardingProgress();
   // Don't apply route decision logic on marketing landing page - let users browse freely
 
   // Extract hash and search from current location
@@ -214,19 +214,29 @@ export default function MarketLanding() {
     
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
     
-    // Smart CTA routing based on user state
-    if (!ready) {
-      // Still loading, just go to auth
+    // New onboarding flow logic
+    const destIfNew = '/onboarding/step-1';
+    if (!user) {
+      navigate(`/auth?mode=signup&redirect=${encodeURIComponent(destIfNew)}`);
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      // Import onboarding utilities dynamically to avoid circular deps
+      const { ensureBootstrap, firstIncompleteStep, isOnboardingComplete } = await import('@/lib/onboarding');
+      const { storeId, progress } = await ensureBootstrap(user.uid);
+      
+      // Check if onboarding is complete
+      if (isOnboardingComplete(progress?.completed)) {
+        navigate('/dashboard');
+      } else {
+        const step = firstIncompleteStep(progress?.completed);
+        navigate(`/onboarding/${step}`);
+      }
+    } catch (error) {
+      console.error('Error handling CTA click:', error);
       navigate('/auth');
-    } else if (!user) {
-      // Anonymous user
-      navigate('/auth');
-    } else if (status === 'completed') {
-      // Completed user
-      navigate('/app');
-    } else {
-      // In progress or not started
-      navigate(`/onboarding?step=${nextStep}`);
     }
     
     setIsLoading(false);
