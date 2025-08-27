@@ -45,14 +45,11 @@ function useAuthMode(): AuthMode {
 
 export default function Auth() {
   const [location, navigate] = useLocation();
-  const initialMode = useAuthMode();
-  const [authMode, setAuthMode] = useState<AuthMode>(initialMode);
-  
-  // Keep state in sync if query changes
-  useEffect(() => setAuthMode(initialMode), [initialMode]);
+  const authMode = useAuthMode(); // Direct URL control, no local state
   
   // Parse redirect parameter - only allow internal paths
-  const redirectRaw = new URLSearchParams(location.split('?')[1] || '').get('redirect') || '/dashboard';
+  const params = new URLSearchParams(location.split('?')[1] || '');
+  const redirectRaw = params.get('redirect') || '/dashboard';
   const redirectUrl = redirectRaw.startsWith('/') ? redirectRaw : '/dashboard';
   const [phoneStep, setPhoneStep] = useState<'phone' | 'verify'>('phone');
   const [showPassword, setShowPassword] = useState(false);
@@ -311,7 +308,15 @@ export default function Auth() {
                         type="button"
                         variant="outline"
                         className="w-full"
-                        onClick={() => setAuthMode(authMode === 'signin' ? 'signup' : 'signin')}
+                        onClick={() => {
+                          const newMode = authMode === 'signin' ? 'signup' : 'signin';
+                          const params = new URLSearchParams(location.split('?')[1] || '');
+                          params.set('mode', newMode);
+                          if (redirectUrl !== '/dashboard') {
+                            params.set('redirect', redirectUrl);
+                          }
+                          navigate(`/auth?${params.toString()}`, { replace: true });
+                        }}
                         data-testid="button-toggle-mode"
                       >
                         {authMode === 'signin' ? 'Create account' : 'Sign in instead'}
