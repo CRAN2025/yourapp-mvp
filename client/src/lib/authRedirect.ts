@@ -16,3 +16,13 @@ export function ensureUnauthRedirect(user: User | null, navigate: (url: string) 
   }
   return false;
 }
+
+/** Helper to prevent manual navigation to onboarding without auth */
+export function redirectUnauthenticatedFromOnboarding(user: User | null, currentPath: string, navigate: (url: string) => void) {
+  if (!user && currentPath.startsWith('/onboarding')) {
+    const redirect = encodeURIComponent(currentPath);
+    navigate(`/auth?mode=signup&redirect=${redirect}`);
+    return true;
+  }
+  return false;
+}
