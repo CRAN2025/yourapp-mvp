@@ -43,38 +43,74 @@ export default function MarketLanding() {
   const APP_ORIGIN = import.meta.env.VITE_APP_ORIGIN;
   const MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplynk.app';
   
-  // UI styling constants for text wordmark branding
+  // UI styling constants for header alignment
   const _ui = {
     header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 0', gap: '24px' },
-    rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }
+    ctaPrimary: { 
+      display: 'inline-flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      height: '52px',
+      padding: '0 24px',
+      borderRadius: '16px',
+      border: 'none',
+      cursor: 'pointer',
+      fontWeight: 700,
+      fontSize: '16px',
+      color: '#fff',
+      background: 'linear-gradient(135deg,#5a6bff 0%, #67d1ff 100%)',
+      backgroundSize: '180% 100%',
+      backgroundPosition: '0% 50%',
+      boxShadow: '0 12px 30px rgba(90,107,255,.28)',
+      transition: 'background-position .2s ease, box-shadow .15s ease',
+      textDecoration: 'none'
+    }
   };
 
-  // Brand wordmark tokens
-  const _uiBrand = { 
-    link: { display: 'inline-block', textDecoration: 'none' }, 
-    text: { 
-      fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial", 
-      fontWeight: 800, 
-      letterSpacing: '-0.02em', 
-      fontSize: 'clamp(20px, 2.4vw, 28px)', 
-      lineHeight: 1, 
-      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)', 
-      WebkitBackgroundClip: 'text', 
-      backgroundClip: 'text', 
-      color: 'transparent' 
-    }, 
-    accent: { color: '#3E4AE0' },
+  // Brand wordmark styling
+  const _brand = {
+    link: { display: 'inline-block', textDecoration: 'none' as const },
+    text: {
+      fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+      fontWeight: 800,
+      letterSpacing: '-0.02em',
+      fontSize: 'clamp(20px, 2.4vw, 28px)',
+      lineHeight: 1,
+      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
+      WebkitBackgroundClip: 'text',
+      backgroundClip: 'text',
+      color: 'transparent'
+    },
     footer: {
-      fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial", 
-      fontWeight: 800, 
-      letterSpacing: '-0.02em', 
-      fontSize: 'clamp(18px, 2vw, 24px)', 
-      lineHeight: 1, 
-      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)', 
-      WebkitBackgroundClip: 'text', 
-      backgroundClip: 'text', 
-      color: 'transparent' 
+      fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+      fontWeight: 800,
+      letterSpacing: '-0.02em',
+      fontSize: 'clamp(18px, 2vw, 24px)',
+      lineHeight: 1,
+      background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',
+      WebkitBackgroundClip: 'text',
+      backgroundClip: 'text',
+      color: 'transparent'
     }
+  };
+
+  // Header layout styles
+  const _headerRow = {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    paddingInline: 'clamp(16px, 4vw, 28px)',
+    paddingLeft: 'max(28px, env(safe-area-inset-left))',
+    paddingRight: 'max(28px, env(safe-area-inset-right))',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  };
+
+  const _right = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '24px',
+    marginLeft: 'auto'
   };
   
   // Enable debug mode in development
@@ -672,53 +708,55 @@ export default function MarketLanding() {
         zIndex: -1
       }} />
 
-      {/* Nav - Full Bleed */}
+      {/* Header - Full Bleed */}
       <header 
-        data-header=""
+        data-header
         style={{ 
-          ..._ui.header,
           width: '100vw',
           position: 'relative',
           left: '50%',
           right: '50%',
           marginLeft: '-50vw',
           marginRight: '-50vw',
-          zIndex: 2
+          padding: '24px 0',
+          zIndex: 2,
+          backdropFilter: 'blur(12px)',
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
         }}
       >
-        <div 
-          className="mx-auto"
-          style={{
-            maxWidth: '1200px',
-            paddingInline: 'clamp(16px, 4vw, 28px)',
-            paddingLeft: 'max(28px, env(safe-area-inset-left))',
-            paddingRight: 'max(28px, env(safe-area-inset-right))',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <Link 
-            to="/" 
-            aria-label="ShopLynk home"
-            style={_uiBrand.link}
-          >
-            <span style={_uiBrand.text}>Shop<span style={_uiBrand.accent}>Lynk</span></span>
+        <div className="mx-auto" style={_headerRow}>
+          {/* BRAND (left) */}
+          <Link to="/" aria-label="ShopLynk home" style={_brand.link}>
+            <span style={_brand.text}>ShopLynk</span>
           </Link>
-          <nav style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 24,
-            flexWrap: 'wrap' as const
-          }} className="nav-mobile">
-            <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
+          
+          {/* RIGHT CLUSTER (FAQ + CTA) */}
+          <nav aria-label="Primary" style={_right}>
+            <a 
+              href="#faq" 
+              className="mobile-hidden" 
+              style={{ 
+                fontWeight: 600, 
+                color: 'var(--ink)', 
+                opacity: 0.8, 
+                cursor: 'pointer',
+                textDecoration: 'none'
+              }} 
+              onClick={(e) => { 
+                e.preventDefault(); 
+                document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); 
+              }}
+            >
+              FAQ
+            </a>
             <button 
               onClick={goCreate} 
-              className="btn btnNav btnPrimary cta-pulse" 
+              className="cta-pulse" 
               data-testid="header-create-store"
               disabled={isLoading}
               aria-label="Create your free store"
-              style={{ fontSize: 14, padding: '0 20px' }}
+              style={_ui.ctaPrimary}
             >
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
@@ -1077,9 +1115,9 @@ export default function MarketLanding() {
                 <Link 
                   to="/" 
                   aria-label="ShopLynk home"
-                  style={_uiBrand.link}
+                  style={_brand.link}
                 >
-                  <span style={_uiBrand.footer}>Shop<span style={_uiBrand.accent}>Lynk</span></span>
+                  <span style={_brand.footer}>ShopLynk</span>
                 </Link>
               </div>
               <p style={{ color: 'var(--ink)', opacity: 0.7, lineHeight: 1.6, marginBottom: 20, margin: 0 }}>
