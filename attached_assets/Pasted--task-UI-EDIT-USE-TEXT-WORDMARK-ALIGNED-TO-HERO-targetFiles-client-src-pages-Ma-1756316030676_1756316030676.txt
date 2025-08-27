@@ -1,0 +1,49 @@
+{
+  "task": "UI_EDIT/USE_TEXT_WORDMARK_ALIGNED_TO_HERO",
+  "targetFiles": [
+    "client/src/pages/MarketLanding.tsx",
+    "client/src/components/Footer.tsx"
+  ],
+  "selectors": {
+    "headerRoot": "header[data-header]",
+    "headerInner": "header[data-header] > .mx-auto",
+    "heroInner": "section#signup .glass.heroGlass > .mx-auto",
+    "logoLink": "header[data-header] a[aria-label='ShopLynk'], header[data-header] .site-logo, header[data-header] .header-logo",
+    "footerLogo": "footer .footer-logo, footer img[alt='ShopLynk'], footer a[aria-label='ShopLynk']"
+  },
+  "editPlan": [
+    "HEADER CONTAINER: In _ui.header or header style, remove horizontal padding: change padding:'24px 32px' -> '24px 0'.",
+    "HEADER INNER: Ensure the inner .mx-auto uses the SAME gutters as the hero container: set maxWidth:'1200px', margin:'0 auto', paddingInline:'clamp(16px, 4vw, 28px)', paddingLeft:'max(28px, env(safe-area-inset-left))', paddingRight:'max(28px, env(safe-area-inset-right))', display:'flex', alignItems:'center', justifyContent:'space-between', gap:24.",
+    "REPLACE IMAGE LOGO WITH TEXT WORDMARK (HEADER): Replace the image/SVG inside the logo link with a <span> wordmark.",
+    "WORDMARK STYLES: Add ui tokens:\nconst _uiBrand = { link:{display:'inline-block', textDecoration:'none'}, text:{fontFamily:\"Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial\", fontWeight:800, letterSpacing:'-0.02em', fontSize:'clamp(20px, 2.4vw, 28px)', lineHeight:1, background:'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)', WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }, accent:{color:'#14E2CF'} };",
+    "HEADER JSX PATCH (example):\n<Link to=\"/\" aria-label=\"ShopLynk home\" style={_uiBrand.link}>\n  <span style={_uiBrand.text}>Shop<span style={{color:'#3E4AE0'}}>Lynk</span></span>\n</Link>\n// Remove the <img> logo (or keep it hidden: style={{display:'none'}}).",
+    "FOOTER: Do the same replacement for the footer brand: use the same wordmark span, size slightly smaller if desired: fontSize:'clamp(18px, 2vw, 24px)'.",
+    "CLEANUP: Remove any runtime effects that were moving header items; keep the natural flex row: logo on the left, FAQ+Create Store on the right."
+  ],
+  "patchExamples": [
+    {
+      "find": "padding: '24px 32px'",
+      "replace": "padding: '24px 0'"
+    },
+    {
+      "find": "paddingInline: 'clamp(16px, 4vw, 20px)'",
+      "replace": "paddingInline: 'clamp(16px, 4vw, 28px)'"
+    }
+  ],
+  "accessibility": [
+    "Header wordmark remains a link with aria-label='ShopLynk home'.",
+    "Footer wordmark has alt text if wrapped in <img> (not recommended) or is plain text inside a link.",
+    "Focus-visible outline preserved."
+  ],
+  "validationChecks": {
+    "viewports": [1440, 1280, 1024, 768, 390],
+    "assertions": [
+      "header .mx-auto left edge equals hero .mx-auto left edge within ±1px (getBoundingClientRect().left).",
+      "Wordmark left edge equals hero H1 left edge within ±1px.",
+      "Create Store right edge equals hero .mx-auto right edge within ±1px.",
+      "No overlap at 390px; items wrap cleanly; no horizontal scroll.",
+      "CLS delta ≤ 0.05."
+    ]
+  },
+  "expectedOutcome": "The image logo is replaced by a crisp, responsive text wordmark. It aligns exactly with the hero text on the left; FAQ + Create Store align to the same container on the right. Footer uses the same wordmark for better visibility."
+}
