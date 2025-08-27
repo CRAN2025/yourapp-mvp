@@ -1,0 +1,3 @@
+Both .add() calls are on Set objects that are properly initialized:
+1. Products.tsx:81 - newFavorites = new Set(favorites || []) - safely initialized
+2. StorefrontPublic.tsx:369 - newFavorites = new Set(favorites || []) - safely initialized

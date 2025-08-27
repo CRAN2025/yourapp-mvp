@@ -1,0 +1,104 @@
+Title: Go-live Sign-off: run full checks, fix regressions if any, and produce evidence
+Do the following, end-to-end, without changing design/UX (only fix if something breaks):
+
+A. Build & static analysis
+
+npm ci at repo root, then npm run build from /client.
+
+Grep for risky .add( calls and confirm every target is initialised/guarded:
+
+grep -RIn --include=\*.{ts,tsx,js} "\.add(" client server | grep -v "classList\.add"
+
+
+If any place can be undefined, fix with ??= initialisation or null-guards (minimal changes).
+
+Lint/typecheck (npm run lint, npm run typecheck if available).
+
+B. Runtime checks (dev)
+
+npm run dev (in /client), open preview, confirm:
+
+No red Vite overlay, no console errors/warnings in root and /app.
+
+All CTA buttons on the marketing page route to /app and work on refresh.
+
+Basic responsive sanity at 360px, 768px, 1024px, 1440px (no layout blow-ups).
+
+C. Hosting config sanity
+
+Verify firebase.json:
+
+"public": "dist/public"
+
+"cleanUrls": true
+
+Rewrites include { "source": "**", "destination": "/index.html" } (SPA deep-link refresh works).
+
+Do a staging preview deploy (Hosting channels) to avoid touching prod:
+
+firebase use yourapp-mvp
+firebase hosting:channel:deploy staging
+
+
+Post the preview URL.
+
+Confirm root and /app both load without console errors (screenshots).
+
+D. Security basics (quick REST probes)
+
+Upload cURL outputs showing:
+
+GET https://<your-Rtdb-url>/.json is denied (403/401)
+
+GET https://<your-Rtdb-url>/publicStores.json?shallow=true returns OK (or empty)
+(If paths differ in this codebase, adjust accordingly.)
+
+E. SEO, social & sitemap
+
+Confirm <title>, meta description, canonical, OpenGraph (title/description/image) present in built dist/public/index.html.
+
+Confirm robots.txt and sitemap.xml exist in dist/public.
+
+F. Performance & a11y
+
+Run Lighthouse (desktop + mobile) on the staging preview URL. Export JSON + screenshots.
+
+G. Deliverables (evidence)
+
+Put everything under proof/go-live-signoff-<YYYYMMDD>/ in repo:
+
+build/: build log + sizes
+
+runtime/: console logs (root + /app), screenshots, responsive screenshots
+
+config/: firebase.json, dist/public/ listing, grep-add.txt results
+
+security/: cURL outputs (public denied/private denied as appropriate)
+
+seo/: index.html head block copy, robots.txt, sitemap.xml, OG image file path
+
+perf/: Lighthouse JSON + screenshots
+
+Post a short INDEX.md mapping each requirement → evidence file.
+
+H. Don’t change copy/design/flows—only fix things that are clearly breaking (guards/initialisations). Ask before any non-trivial UX change.
+
+2) What I want the agent to send back (exact evidence)
+
+✅ Preview URL from firebase hosting:channel:deploy staging
+
+✅ No-error console screenshots (root & /app) on staging
+
+✅ Grep report of all .add( calls + notes that each is guarded/initialised (file/line)
+
+✅ Built artifacts listing (ls -lah dist/public) showing index.html, robots.txt, sitemap.xml, OG image
+
+✅ firebase.json snippet proving public, cleanUrls, SPA rewrite
+
+✅ cURL outputs showing public vs private RTDB access (denied vs allowed as designed)
+
+✅ Lighthouse JSON and summary screenshots (mobile & desktop)
+
+✅ Responsive screenshots at 360/768/1024/1440
+
+✅ INDEX.md mapping each requirement to the file(s) above
