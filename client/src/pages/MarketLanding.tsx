@@ -506,21 +506,21 @@ export default function MarketLanding() {
                 <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, textAlign: 'center' }}>View Demo Stores</h4>
                 <div style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(2, 1fr)', 
-                  gap: 16,
-                  maxWidth: 400
+                  gridTemplateColumns: 'repeat(4, 1fr)', 
+                  gap: 12,
+                  maxWidth: 600
                 }}>
                   {demoStores.map((store, index) => (
                     <div 
                       key={store.name} 
                       className="glass card" 
                       style={{ 
-                        padding: 20, 
+                        padding: 16, 
                         textAlign: 'center',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         border: '1px solid rgba(90,107,255,0.1)',
-                        minHeight: 160
+                        minHeight: 140
                       }}
                       onClick={goCreate}
                       onMouseEnter={(e) => {
@@ -532,14 +532,14 @@ export default function MarketLanding() {
                         e.currentTarget.style.boxShadow = 'var(--shadow)';
                       }}
                     >
-                      <div style={{ fontSize: 36, marginBottom: 10 }}>{store.emoji}</div>
-                      <h5 style={{ fontSize: 14, fontWeight: 700, marginBottom: 6, color: 'var(--ink)', lineHeight: 1.3 }}>
+                      <div style={{ fontSize: 32, marginBottom: 8 }}>{store.emoji}</div>
+                      <h5 style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: 'var(--ink)', lineHeight: 1.2 }}>
                         {store.name}
                       </h5>
-                      <p style={{ fontSize: 11, opacity: 0.7, marginBottom: 10, lineHeight: 1.3 }}>
+                      <p style={{ fontSize: 10, opacity: 0.7, marginBottom: 8, lineHeight: 1.2 }}>
                         {store.description}
                       </p>
-                      <div style={{ fontSize: 10, color: '#5a6bff', fontWeight: 600 }}>
+                      <div style={{ fontSize: 9, color: '#5a6bff', fontWeight: 600 }}>
                         {store.products.length} products
                       </div>
                     </div>
