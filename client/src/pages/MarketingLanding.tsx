@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import logoUrl from '@/assets/logo.png';
+import logoUrl from '@/assets/shoplynk-logo.png';
 
-export default function MarketingLanding() {
+export default function MarketLanding() {
   const [location, navigate] = useLocation();
   const rootRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +48,7 @@ export default function MarketingLanding() {
     navigate('/app');
   };
 
+
   // Testimonials data
   const testimonials = [
     { name: "Sarah K.", business: "Boutique Owner", quote: "We listed 8 products and got our first 3 WhatsApp orders the same day.", rating: 5 },
@@ -56,6 +57,7 @@ export default function MarketingLanding() {
   ];
 
   // FAQ data
+  // Top 3 most essential FAQs for landing page
   const faqs = [
     { q: "How quickly can I set up my store?", a: "Most users have their store ready in under 5 minutes. Just add your products, customize your storefront, and share your link!" },
     { q: "Is WhatsApp integration really free?", a: "Yes! WhatsApp integration is completely free. We simply provide direct links to start conversations with your customers." },
@@ -131,16 +133,17 @@ export default function MarketingLanding() {
         .btn { border: none; cursor: pointer; font-weight: 800; transition: transform .15s ease, box-shadow .15s ease, background-position .2s ease; will-change: transform; }
         .btn:active { transform: translateY(1px); }
 
+        /* >>> Unified NAV button dimensions (identical height/shape) */
         .btnNav {
-          height: 52px;
-          padding: 0 24px;
+          height: 52px;                 /* exact height instead of min-height */
+          padding: 0 24px;              /* side padding only */
           font-size: 16px;
           line-height: 1;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border-radius: 16px;
-          box-sizing: border-box;
+          border-radius: 16px;          /* same rounding for both buttons */
+          box-sizing: border-box;       /* include border in height calculation */
         }
 
         .btnPrimary { color: #fff; background: var(--grad); background-size: 180% 100%; background-position: 0% 50%; box-shadow: 0 12px 30px rgba(90,107,255,.28); vertical-align: top; }
@@ -216,10 +219,10 @@ export default function MarketingLanding() {
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <img 
               src={logoUrl} 
-              alt="ShopLink" 
+              alt="ShoplYnk" 
               style={{ width: 32, height: 32 }}
             />
-            <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
+            <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShoplYnk</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }} className="nav-mobile">
             <a href="#faq" className="mobile-hidden" style={{ marginRight: 20, fontWeight: 600, color: 'var(--ink)', opacity: 0.8, cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }}>FAQ</a>
@@ -272,7 +275,7 @@ export default function MarketingLanding() {
                 Add products, share a single link, and start getting orders via WhatsApp.<strong> Free during beta.</strong>
               </p>
 
-              {/* Primary CTA only */}
+              {/* Primary CTA only (demo button removed) */}
               <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom: 6 }}>
                 <button 
                   onClick={goCreate} 
@@ -291,7 +294,7 @@ export default function MarketingLanding() {
                 🔥 Limited Beta Access • <span style={{ color: '#ff6b6b' }}>200+ spots remaining</span>
               </div>
 
-              {/* Sign-in hint */}
+              {/* Sign-in hint for scrollers */}
               <div style={{ marginTop: 6, fontSize: 14, opacity: .75 }}>
                 Already have a store?{' '}
                 <a href="#" onClick={(e) => { e.preventDefault(); goLogin(); }} style={{ color: '#5a6bff', fontWeight: 600 }}>
@@ -299,7 +302,7 @@ export default function MarketingLanding() {
                 </a>
               </div>
 
-              {/* Social proof */}
+              {/* Enhanced Social proof */}
               <div style={{ marginTop: 10, fontSize: 14, opacity: .7 }}>
                 ⭐ Trusted by 200+ sellers • 🌍 8 countries • 💰 $50K+ in sales this month
               </div>
@@ -568,12 +571,12 @@ export default function MarketingLanding() {
         </div>
       </section>
 
-      {/* Enhanced footer */}
+      {/* Enhanced footer with ShoplYnk promotion */}
       <footer className="container" style={{ marginTop: 24, marginBottom: 24 }}>
         <div className="glass card" style={{ padding: 24, textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
-            <img src={logoUrl} alt="ShopLink" style={{ width: 24, height: 24 }} />
-            <span style={{ fontWeight: 800, fontSize: 18 }}>ShopLink</span>
+            <img src={logoUrl} alt="ShopLynk" style={{ width: 24, height: 24 }} />
+            <span style={{ fontWeight: 800, fontSize: 18 }}>ShopLynk</span>
           </div>
           <p style={{ fontSize: 14, opacity: 0.7, marginBottom: 16 }}>
             Empowering sellers worldwide with simple, WhatsApp-ready storefronts
@@ -635,7 +638,7 @@ const FeatureCard = ({ icon, title, body }: { icon: string; title: string; body:
   </div>
 );
 
-// Preview Device Component
+// Preview Device Component (placeholder)
 const PreviewDevice = () => (
   <div style={{ 
     background: '#1a1a1a', 
