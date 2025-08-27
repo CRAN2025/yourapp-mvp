@@ -1,0 +1,72 @@
+{
+  "task": "UI_EDIT/FIX_HEADER_DOM_AND_ALIGNMENT",
+  "targetFiles": ["client/src/pages/MarketLanding.tsx"],
+  "intent": "edit",
+  "editPlan": [
+    "1) Normalize header container: remove horizontal padding from the OUTER <header>; apply gutters only to its inner .mx-auto, matching the hero.",
+    "2) Enforce correct DOM structure: the brand (logo/wordmark) must be ONE element, and the right cluster (FAQ + Create Store) must be a SEPARATE sibling <nav>. FAQ must NOT be inside the brand link.",
+    "3) Apply flex row with gap and margin-left:auto on the right cluster so brand pins left and actions pin right.",
+    "4) Use a text wordmark for the brand (no image) to ensure sharp alignment.",
+    "5) Delete any previous runtime header patch/effects (e.g., data-header-inner wrappers, DOM-moving code) from this file."
+  ],
+  "patches": [
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "padding:\\s*'24px\\s*32px'",
+      "replacement": "padding: '24px 0'"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "paddingInline:\\s*'clamp\\(16px,\\s*4vw,\\s*20px\\)'",
+      "replacement": "paddingInline: 'clamp(16px, 4vw, 28px)'"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "paddingLeft:\\s*'max\\(20px,[^)]*\\)'",
+      "replacement": "paddingLeft: 'max(28px, env(safe-area-inset-left))'"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "paddingRight:\\s*'max\\(20px,[^)]*\\)'",
+      "replacement": "paddingRight: 'max(28px, env(safe-area-inset-right))'"
+    }
+  ],
+  "insertions": [
+    {
+      "file": "client/src/pages/MarketLanding.tsx",
+      "anchor": "const _ui",
+      "position": "after",
+      "code": "\nconst _brand = {\n  link: { display: 'inline-block', textDecoration: 'none' as const },\n  text: {\n    fontFamily: \"Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial\",\n    fontWeight: 800,\n    letterSpacing: '-0.02em',\n    fontSize: 'clamp(20px, 2.4vw, 28px)',\n    lineHeight: 1,\n    background: 'linear-gradient(90deg,#6E7CFF 0%,#5BC4FF 100%)',\n    WebkitBackgroundClip: 'text',\n    backgroundClip: 'text',\n    color: 'transparent'\n  }\n};\nconst _headerRow = {\n  maxWidth: '1200px',\n  margin: '0 auto',\n  paddingInline: 'clamp(16px, 4vw, 28px)',\n  paddingLeft: 'max(28px, env(safe-area-inset-left))',\n  paddingRight: 'max(28px, env(safe-area-inset-right))',\n  display: 'flex',\n  alignItems: 'center',\n  justifyContent: 'flex-start',\n  gap: 24 as const\n};\nconst _right = { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 24 as const, flexWrap: 'wrap' as const };\n"
+    }
+  ],
+  "jsxRewrite": {
+    "file": "client/src/pages/MarketLanding.tsx",
+    "rules": [
+      {
+        "description": "Rewrite header row so brand and right cluster are siblings; ensure FAQ is not inside brand.",
+        "find": "<header[\\s\\S]*?</header>",
+        "replaceWith": "<header data-header style={{ ..._ui.header, padding: '24px 0' }}>\n  <div className=\"mx-auto\" style={_headerRow}>\n    {/* BRAND (left) */}\n    <Link to=\"/\" aria-label=\"ShopLynk home\" style={_brand.link}>\n      <span style={_brand.text}>ShopLynk</span>\n    </Link>\n    {/* RIGHT CLUSTER (FAQ + CTA) */}\n    <nav aria-label=\"Primary\" style={_right}>\n      <Link to=\"/faq\">FAQ</Link>\n      <Link to=\"/create\" style={_ui.ctaPrimary}>Create Store</Link>\n    </nav>\n  </div>\n</header>"
+      }
+    ]
+  },
+  "cleanup": [
+    "Remove any useEffect blocks that create data-header-inner wrappers or move FAQ/CTA nodes at runtime.",
+    "Remove any leftover <img alt='ShopLynk'> in the header so only the wordmark remains."
+  ],
+  "validationChecks": {
+    "viewports": [1440, 1280, 1024, 768, 390],
+    "assertions": [
+      "document.querySelector('header[data-header] .mx-auto').getBoundingClientRect().left === document.querySelector('section#signup .glass.heroGlass > .mx-auto').getBoundingClientRect().left ± 1px",
+      "The brand <a>[0] and the <nav>[1] are direct siblings of header .mx-auto (no nesting).",
+      "getComputedStyle(document.querySelector('header[data-header] .mx-auto')).paddingLeft equals '28px' clamp at desktop and mirrors hero gutters.",
+      "There is visual gap between brand and FAQ: the left of FAQ minus right of brand >= 16px.",
+      "Create Store right edge equals hero container right edge within ±1px.",
+      "No horizontal scrollbars; no overlap at 390px; CLS delta ≤ 0.05."
+    ]
+  },
+  "expectedOutcome": "Brand wordmark sits on the exact same left grid line as the hero heading. 'FAQ' and 'Create Store' are in a separate right cluster with real spacing, pinned to the right edge of the same container. The previous 'ShopLynkFAQ' concatenation is impossible because FAQ is not inside the brand link."
+}
