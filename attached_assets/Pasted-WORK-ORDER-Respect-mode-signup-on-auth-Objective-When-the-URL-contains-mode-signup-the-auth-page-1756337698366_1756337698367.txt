@@ -1,0 +1,72 @@
+WORK ORDER: Respect mode=signup on /auth
+Objective
+
+When the URL contains mode=signup, the auth page must:
+
+Default to the Create account view (not Sign in)
+
+Show Create account as the primary button
+
+Update headings/copy accordingly (e.g., “Create your account”)
+
+Still honor redirect after successful signup
+
+Implementation
+
+Read mode from the query string and set the initial auth mode.
+
+// AuthPage.tsx (or equivalent)
+import { useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+
+type AuthMode = 'signin' | 'signup';
+
+function useAuthMode(): AuthMode {
+  const { search } = useLocation();
+  return useMemo(() => {
+    const p = new URLSearchParams(search).get('mode');
+    return p === 'signup' ? 'signup' : 'signin';
+  }, [search]);
+}
+
+export default function AuthPage() {
+  const initialMode = useAuthMode();
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+
+  // keep state in sync if query changes
+  useEffect(() => setMode(initialMode), [initialMode]);
+
+  const title = mode === 'signup' ? 'Create your account' : 'Welcome back';
+  const primaryCtaLabel = mode === 'signup' ? 'Create account' : 'Sign in';
+
+  // render the proper form by mode...
+}
+
+
+Wire primary action to the correct handler:
+
+<button onClick={mode === 'signup' ? handleSignup : handleSignin}>
+  {primaryCtaLabel}
+</button>
+
+
+Preserve and sanitize the redirect (internal paths only) on success:
+
+const redirectRaw = new URLSearchParams(location.search).get('redirect') || '/onboarding/step-1';
+const redirect = redirectRaw.startsWith('/') ? redirectRaw : '/onboarding/step-1';
+// after successful signup/signin:
+navigate(redirect, { replace: true });
+
+Acceptance criteria
+
+Visiting /auth?mode=signup&redirect=/onboarding/step-1 shows:
+
+Heading for signup (“Create your account” or equivalent)
+
+Primary button = Create account
+
+Signup form variant active
+
+After creating an account, user is redirected to /onboarding/step-1.
+
+Visiting /auth without mode still defaults to Sign in.
