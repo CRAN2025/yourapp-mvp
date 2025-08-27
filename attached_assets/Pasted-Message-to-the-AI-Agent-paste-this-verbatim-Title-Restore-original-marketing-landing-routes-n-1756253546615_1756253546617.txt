@@ -1,0 +1,64 @@
+Message to the AI Agent (paste this verbatim)
+
+Title: Restore original marketing landing & routes (no Firebase changes)
+
+Goal: Put the original React marketing page back on /, keep all CTAs pointing to /app, and ensure styles/assets match the “MarketLanding-Downloadable” design. Do not change Firebase config in this task.
+
+Steps:
+
+Find the original landing component
+
+Locate the downloadable/original marketing component (likely one of:
+client/src/pages/MarketLanding-Downloadable.tsx, MarketLanding.tsx, or similar).
+
+Create/restore a canonical page file at client/src/pages/MarketingLanding.tsx that renders the full design (hero with WhatsApp CTA, features, testimonials, pricing, FAQ, footer, etc.).
+
+Ensure all images/icons used by this page live under client/public/assets and are referenced with root-relative paths (e.g. /assets/…) so they work in dev & production.
+
+Route the landing page to /
+
+In the router (e.g., client/src/main.tsx or client/src/router.tsx), set:
+
+{ path: '/', element: <MarketingLanding /> }
+
+
+Make no changes to /app/* routes. All “Create Store”, “Start Free”, and “Sign in” CTAs should navigate to /app (or the correct app entry if it’s /app/auth or /app/login—use the existing target used previously).
+
+Remove the simplified placeholder
+
+If there is a minimal placeholder landing component currently at /, replace it with the restored page.
+
+Keep the app shell and any /app/* routes untouched.
+
+Styling & responsiveness
+
+Confirm Tailwind (or your CSS pipeline) includes all page globs:
+tailwind.config.(js|ts) → content: ['client/index.html','client/src/**/*.{ts,tsx,js,jsx}']
+
+Ensure the landing page wraps main content in a centered container, e.g.:
+className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8".
+
+Verify hero, feature grid, and testimonials look correct ≥1200px width and down to 320px.
+
+Asset paths & SEO
+
+Use root-relative asset paths (/assets/...) so both Vite dev (/) and Firebase hosting (also /) resolve correctly.
+
+Keep index.html SEO tags intact; don’t remove the <div id="root"></div> or Vite’s script injection.
+
+No Firebase changes in this task
+
+Do not touch firebase.json, .firebaserc, or the hosting rewrites we added in the previous step. We’ll re-deploy after you finish.
+
+Acceptance criteria
+
+Opening / in dev shows the full original marketing page (not the simplified version).
+
+All CTAs navigate to /app (or the existing app entry) and do not 404 in dev.
+
+Opening the Replit preview in a new tab shows full-width layout without odd gutters.
+
+Page looks identical (or visually equivalent) to the original “MarketLanding-Downloadable” design.
+
+Please commit as:
+feat(landing): restore original marketing landing and / route
