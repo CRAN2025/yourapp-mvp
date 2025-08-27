@@ -1,0 +1,57 @@
+{
+  "task": "UI_EDIT/WORDMARK_FINAL_POLISH",
+  "targetFiles": ["client/src/pages/MarketLanding.tsx", "client/src/components/Footer.tsx"],
+  "editPlan": [
+    "Strengthen header wordmark weight/size and contrast; ensure 44px tap target.",
+    "Slightly soften CTA glow so it doesn’t overpower the brand.",
+    "Mirror a smaller, high-contrast wordmark in the footer."
+  ],
+  "patches": [
+    {
+      "type": "insert_or_replace_block",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "anchor": "const _brand",
+      "code": "const _brand = {\n  link: { display:'inline-block', textDecoration:'none', padding:'10px 0' }, // with header padding -> ≥44px target\n  text: {\n    fontFamily: \"Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial\",\n    fontWeight: 700,                         // keep readable fill\n    letterSpacing: '-0.0125em',\n    fontSize: 'clamp(24px, 2.2vw, 30px)',    // +2px overall vs prior\n    lineHeight: 1.05,\n    background: 'linear-gradient(90deg, #4A56FF 0%, #208CFF 100%)', // darker -> AA on pale bg\n    WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent',\n    textShadow: '0 1px 0 rgba(0,0,0,0.06)'\n  }\n};\n\n/* Accessibility fallbacks */\nconst _brandA11yCSS = `@media (prefers-contrast: more){ .brandText{ background:none !important; color:#1A2A6D !important; text-shadow:none !important; } }`;"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "style={_ui\\.ctaPrimary}",
+      "replacement": "style={{ ..._ui.ctaPrimary, boxShadow:'0 10px 24px rgba(15,23,42,0.08)' }}"  // slightly softer glow
+    },
+    {
+      "type": "insert_css",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "css": "<style dangerouslySetInnerHTML={{__html:_brandA11yCSS}}/>",
+      "anchor": "return ("
+    }
+  ],
+  "jsxRewrite": {
+    "file": "client/src/pages/MarketLanding.tsx",
+    "rules": [
+      {
+        "description": "Apply class to wordmark span for a11y CSS.",
+        "find": "<span style={_brand.text}>ShopLynk</span>",
+        "replaceWith": "<span className='brandText' style={_brand.text}>ShopLynk</span>"
+      }
+    ]
+  },
+  "footerAdjustments": [
+    {
+      "file": "client/src/components/Footer.tsx",
+      "action": "tweak_wordmark",
+      "details": "Use the same _brand styles but set fontSize:'clamp(20px, 1.9vw, 26px)' and keep textShadow for lift on light footer; ensure link padding yields ≥40px target."
+    }
+  ],
+  "validationChecks": {
+    "viewports": [1440, 1024, 768, 390],
+    "assertions": [
+      "Header brand left edge equals hero container left edge within ±1px.",
+      "Computed role=link tap target for brand ≥ 44px height.",
+      "Contrast of darkest wordmark color vs header bg ≥ 4.5:1 (AA).",
+      "CTA remains prominent but no longer visually heavier than the wordmark (brand font-size ≥24px at ≥1024px).",
+      "No wrap/overlap at 390px; CLS ≤ 0.05."
+    ]
+  },
+  "expectedOutcome": "The wordmark is crisper, larger, and AA-contrast on the pale header, balanced against the CTA, perfectly aligned with the hero left edge, and mirrored cleanly in the footer."
+}
