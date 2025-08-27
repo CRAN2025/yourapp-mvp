@@ -503,43 +503,43 @@ export default function MarketLanding() {
             {/* Right: Demo stores in 2x2 grid */}
             <div className="reveal-on-scroll hero-demo">
               <div style={{ marginBottom: 16 }}>
-                <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, textAlign: 'center' }}>View Demo Stores</h4>
+                <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20, textAlign: 'center' }}>View Demo Stores</h4>
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'repeat(2, 1fr)', 
-                  gap: 12,
-                  maxWidth: 320
+                  gap: 16,
+                  maxWidth: 400
                 }}>
                   {demoStores.map((store, index) => (
                     <div 
                       key={store.name} 
                       className="glass card" 
                       style={{ 
-                        padding: 12, 
+                        padding: 20, 
                         textAlign: 'center',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
                         border: '1px solid rgba(90,107,255,0.1)',
-                        minHeight: 120
+                        minHeight: 160
                       }}
                       onClick={goCreate}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(90,107,255,0.15)';
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.boxShadow = '0 16px 32px rgba(90,107,255,0.2)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'translateY(0)';
                         e.currentTarget.style.boxShadow = 'var(--shadow)';
                       }}
                     >
-                      <div style={{ fontSize: 24, marginBottom: 6 }}>{store.emoji}</div>
-                      <h5 style={{ fontSize: 11, fontWeight: 700, marginBottom: 4, color: 'var(--ink)', lineHeight: 1.2 }}>
+                      <div style={{ fontSize: 36, marginBottom: 10 }}>{store.emoji}</div>
+                      <h5 style={{ fontSize: 14, fontWeight: 700, marginBottom: 6, color: 'var(--ink)', lineHeight: 1.3 }}>
                         {store.name}
                       </h5>
-                      <p style={{ fontSize: 9, opacity: 0.7, marginBottom: 8, lineHeight: 1.2 }}>
+                      <p style={{ fontSize: 11, opacity: 0.7, marginBottom: 10, lineHeight: 1.3 }}>
                         {store.description}
                       </p>
-                      <div style={{ fontSize: 8, color: '#5a6bff', fontWeight: 600 }}>
+                      <div style={{ fontSize: 10, color: '#5a6bff', fontWeight: 600 }}>
                         {store.products.length} products
                       </div>
                     </div>
