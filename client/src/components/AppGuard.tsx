@@ -10,7 +10,7 @@ interface AppGuardProps {
 
 export function AppGuard({ children }: AppGuardProps) {
   const { user, loading: authLoading } = useAuth();
-  const { onboardingState, loading: onboardingLoading, getNextStep } = useOnboardingProgress();
+  const { loading: onboardingLoading, isComplete, firstIncompleteStep } = useOnboardingProgress();
   const [, navigate] = useLocation();
 
   useEffect(() => {
@@ -24,16 +24,11 @@ export function AppGuard({ children }: AppGuardProps) {
     }
 
     // If onboarding is not completed, redirect to next step
-    if (onboardingState.status !== 'completed') {
-      const nextStep = getNextStep();
-      if (nextStep) {
-        navigate(`/onboarding?step=${nextStep}`);
-      } else {
-        navigate('/onboarding?step=1');
-      }
+    if (!isComplete) {
+      navigate(`/onboarding/${firstIncompleteStep}`);
       return;
     }
-  }, [user, onboardingState, authLoading, onboardingLoading, navigate, getNextStep]);
+  }, [user, isComplete, firstIncompleteStep, authLoading, onboardingLoading, navigate]);
 
   // Show loading while checking authentication and onboarding state
   if (authLoading || onboardingLoading) {
@@ -45,7 +40,7 @@ export function AppGuard({ children }: AppGuardProps) {
   }
 
   // Don't render children if user will be redirected
-  if (!user || onboardingState.status !== 'completed') {
+  if (!user || !isComplete) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <LoadingSpinner size="lg" />
