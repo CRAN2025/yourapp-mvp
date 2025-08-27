@@ -1,0 +1,120 @@
+AI Agent Instruction — Pixel-align header logo to hero text (MarketLanding.jsx only)
+
+Scope
+
+Edit only src/MarketLanding.jsx.
+
+No deps, no route/analytics changes.
+
+Idempotent; handles resize.
+
+Steps (add this effect inside the component):
+
+useEffect(() => {
+  // Ensure we have a header and an inner container we can control
+  const header = document.querySelector('header, .site-header, [data-header]');
+  if (!header) return;
+
+  let inner = header.querySelector('[data-header-inner]');
+  if (!inner) {
+    inner = document.createElement('div');
+    inner.setAttribute('data-header-inner', 'true');
+    while (header.firstChild) inner.appendChild(header.firstChild);
+    header.appendChild(inner);
+  }
+
+  // Make header full-bleed; inner will handle alignment
+  Object.assign(header.style, { width: '100%' });
+  Object.assign(inner.style, {
+    boxSizing: 'border-box',
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: '24px'
+  });
+
+  // Build / ensure right cluster (FAQ + Create Store)
+  const ensureRightCluster = () => {
+    let right = inner.querySelector('[data-right-cluster]');
+    if (!right) {
+      right = document.createElement('div');
+      right.setAttribute('data-right-cluster', 'true');
+      inner.appendChild(right);
+    }
+    Object.assign(right.style, {
+      marginLeft: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '24px',
+      flexWrap: 'wrap'
+    });
+    // Move FAQ + Create Store into right cluster (no route changes)
+    const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
+    const cta = Array.from(inner.querySelectorAll('a,button')).find(el => /create\s*store/i.test(el.textContent || ''));
+    if (faq && faq.parentElement !== right) right.appendChild(faq);
+    if (cta && cta.parentElement !== right) right.appendChild(cta);
+  };
+
+  // Logo sizing (left)
+  const sizeLogo = () => {
+    const logo =
+      inner.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
+      inner.querySelector('img[alt="ShopLynk"]')?.closest('a');
+    if (!logo) return;
+    Object.assign(logo.style, { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: '0' });
+    const img = logo.querySelector('img, svg') || logo;
+    if (img) Object.assign(img.style, { width: '100%', height: 'auto', display: 'block' });
+    const link = logo.closest('a'); if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label','ShopLynk home');
+  };
+
+  // === KEY: sync header padding to hero text left edge ===
+  const findHeroTitle = () => {
+    const candidates = Array.from(document.querySelectorAll('[data-hero-title], h1, [role="heading"]'))
+      .filter(el => /launch|whatsapp/i.test(el.textContent || ''));
+    return candidates[0] || document.querySelector('h1');
+  };
+
+  const syncToHero = () => {
+    const hero = findHeroTitle();
+    if (!hero) return;
+
+    // Left gutter of hero text relative to viewport
+    const heroLeft = Math.round(hero.getBoundingClientRect().left);
+
+    // Apply same left gutter to header inner; mirror to right for even container
+    // (this auto-aligns FAQ/CTA to the same content width)
+    inner.style.paddingLeft  = heroLeft + 'px';
+    inner.style.paddingRight = heroLeft + 'px';
+
+    // Remove any width caps that could fight our padding sync
+    inner.style.maxWidth = 'none';
+    header.style.padding = '0'; // ensure outer header doesn’t add extra inset
+
+    ensureRightCluster();
+    sizeLogo();
+  };
+
+  // Initial sync + on resize (debounced)
+  let raf = 0, last = 0;
+  const onResize = () => {
+    const now = Date.now();
+    if (now - last < 50) { cancelAnimationFrame(raf); raf = requestAnimationFrame(syncToHero); return; }
+    last = now; syncToHero();
+  };
+
+  syncToHero();
+  window.addEventListener('resize', onResize);
+  return () => window.removeEventListener('resize', onResize);
+}, []);
+
+
+Acceptance (agent must verify)
+
+At 1440 / 1024 / 768 / 360 px: the left edge of the logo matches the left edge of the hero H1 within ±1px.
+
+FAQ + Create Store sit inside the same content width (no drifting to the viewport edge).
+
+Logo width ≈ 220–280px desktop, ≤180px mobile; no overlap; CLS ≤ 0.05.
+
+Keyboard focus and alt/aria-label preserved.
