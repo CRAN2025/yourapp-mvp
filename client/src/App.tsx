@@ -74,9 +74,15 @@ function Router() {
 
       {/* Protected routes - require authentication */}
       <Route path="/onboarding">
-        <OnboardingGuard>
-          <Onboarding />
-        </OnboardingGuard>
+        {(params) => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const requiredStep = parseInt(urlParams.get('step') || '1');
+          return (
+            <OnboardingGuard requiredStep={requiredStep}>
+              <Onboarding />
+            </OnboardingGuard>
+          );
+        }}
       </Route>
       <Route path="/products">
         <AppGuard>
