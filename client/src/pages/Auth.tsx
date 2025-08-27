@@ -37,7 +37,9 @@ type AuthMode = 'signin' | 'signup';
 function useAuthMode(): AuthMode {
   const [location] = useLocation();
   return useMemo(() => {
-    const search = location.split('?')[1] || '';
+    // Extract query string - wouter provides the full path including search
+    const queryStart = location.indexOf('?');
+    const search = queryStart !== -1 ? location.substring(queryStart + 1) : '';
     const p = new URLSearchParams(search).get('mode');
     console.log('Auth Mode Debug:', { location, search, mode: p, result: p === 'signup' ? 'signup' : 'signin' });
     return p === 'signup' ? 'signup' : 'signin';
@@ -49,7 +51,9 @@ export default function Auth() {
   const authMode = useAuthMode(); // Direct URL control, no local state
   
   // Parse redirect parameter - only allow internal paths
-  const params = new URLSearchParams(location.split('?')[1] || '');
+  const queryStart = location.indexOf('?');
+  const search = queryStart !== -1 ? location.substring(queryStart + 1) : '';
+  const params = new URLSearchParams(search);
   const redirectRaw = params.get('redirect') || '/dashboard';
   const redirectUrl = redirectRaw.startsWith('/') ? redirectRaw : '/dashboard';
   const [phoneStep, setPhoneStep] = useState<'phone' | 'verify'>('phone');
@@ -311,7 +315,9 @@ export default function Auth() {
                         className="w-full"
                         onClick={() => {
                           const newMode = authMode === 'signin' ? 'signup' : 'signin';
-                          const params = new URLSearchParams(location.split('?')[1] || '');
+                          const queryStart = location.indexOf('?');
+                          const search = queryStart !== -1 ? location.substring(queryStart + 1) : '';
+                          const params = new URLSearchParams(search);
                           params.set('mode', newMode);
                           if (redirectUrl !== '/dashboard') {
                             params.set('redirect', redirectUrl);
