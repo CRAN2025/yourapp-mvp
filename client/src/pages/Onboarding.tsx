@@ -61,29 +61,18 @@ export default function Onboarding() {
   const urlParams = new URLSearchParams(window.location.search);
   const urlStep = parseInt(urlParams.get('step') || '1');
   
-  // Determine current step based on URL and access rights
-  const getCurrentStep = () => {
-    if (urlStep >= 1 && urlStep <= 4 && canAccessStep(urlStep)) {
-      return urlStep;
-    }
-    return getNextStep() || 1;
-  };
-  
-  const [currentStep, setCurrentStep] = useState(getCurrentStep());
+  // Simple step state - OnboardingGuard handles validation
+  const [currentStep, setCurrentStep] = useState(urlStep >= 1 && urlStep <= 4 ? urlStep : 1);
   const [selectedCountry, setSelectedCountry] = useState('US');
   const [phoneHint, setPhoneHint] = useState(getPhoneHint('US'));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Guard against invalid step access and sync URL
+  // Sync currentStep with URL parameter changes
   useEffect(() => {
-    if (onboardingLoading) return;
-    
-    const validStep = getCurrentStep();
-    if (currentStep !== validStep) {
-      setCurrentStep(validStep);
-      navigate(`/onboarding?step=${validStep}`);
+    if (urlStep >= 1 && urlStep <= 4) {
+      setCurrentStep(urlStep);
     }
-  }, [onboardingState, urlStep, navigate, onboardingLoading]);
+  }, [urlStep]);
 
   // Pre-fill forms with existing data
   useEffect(() => {
