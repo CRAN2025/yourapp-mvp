@@ -203,16 +203,7 @@ export default function MarketLanding() {
     }
   ];
 
-  // States for demo stores
-  const [activeDemoStore, setActiveDemoStore] = useState(0);
 
-  // Rotate demo stores automatically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveDemoStore((prev) => (prev + 1) % demoStores.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [demoStores.length]);
 
   // Rotate testimonials automatically
   useEffect(() => {
@@ -509,162 +500,88 @@ export default function MarketLanding() {
               </div>
             </div>
 
-            {/* Right: live preview mock with demo stores */}
+            {/* Right: Simple demo button */}
             <div className="reveal-on-scroll hero-demo">
-              <div style={{ position: 'relative' }}>
-                {/* Phone mockup */}
-                <div style={{
-                  width: 300,
-                  height: 500,
-                  background: '#000',
-                  borderRadius: 25,
-                  padding: 4,
-                  position: 'relative',
-                  boxShadow: '0 20px 40px rgba(0,0,0,.25)'
-                }}>
-                  <div style={{
-                    width: '100%',
-                    height: '100%',
-                    background: '#fff',
-                    borderRadius: 20,
-                    overflow: 'hidden',
-                    position: 'relative'
-                  }}>
-                    {/* Phone status bar */}
-                    <div style={{
-                      height: 30,
-                      background: '#f8f9ff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '0 16px',
-                      fontSize: 11,
-                      fontWeight: 600
-                    }}>
-                      <span>9:41</span>
-                      <span>100% ⚡</span>
-                    </div>
-                    
-                    {/* Store preview with transitions */}
-                    <div style={{ padding: 16, height: 'calc(100% - 30px)', overflow: 'hidden' }}>
-                      <div style={{ 
-                        background: 'var(--grad)', 
-                        borderRadius: 12, 
-                        padding: 16, 
-                        color: 'white', 
-                        marginBottom: 16,
-                        transition: 'all 0.5s ease',
-                        transform: `translateY(${activeDemoStore * -2}px)`,
-                        opacity: 1
-                      }}>
-                        <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>{demoStores[activeDemoStore].emoji}</span>
-                          {demoStores[activeDemoStore].name}
-                        </div>
-                        <div style={{ fontSize: 12, opacity: 0.9 }}>
-                          {demoStores[activeDemoStore].description}
-                        </div>
-                      </div>
-                      
-                      <div style={{ 
-                        display: 'grid', 
-                        gridTemplateColumns: 'repeat(2, 1fr)', 
-                        gap: 8,
-                        marginBottom: 16 
-                      }}>
-                        {demoStores[activeDemoStore].products.map((product, i) => (
-                          <div key={`${activeDemoStore}-${i}`} style={{
-                            background: '#f8f9ff',
-                            borderRadius: 8,
-                            padding: 10,
-                            textAlign: 'center',
-                            transition: 'all 0.3s ease',
-                            transform: `scale(${1 + (i * 0.02)})`,
-                            opacity: 1
-                          }}>
-                            <div style={{ fontSize: 20, marginBottom: 4 }}>{product.emoji}</div>
-                            <div style={{ fontSize: 9, fontWeight: 600, marginBottom: 2 }}>{product.name}</div>
-                            <div style={{ fontSize: 9, color: '#5a6bff', fontWeight: 'bold' }}>{product.price}</div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div style={{
-                        background: '#25d366',
-                        borderRadius: 8,
-                        padding: 10,
-                        color: 'white',
-                        textAlign: 'center',
-                        fontSize: 11,
-                        fontWeight: 'bold',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6
-                      }}>
-                        📱 Order via WhatsApp
-                      </div>
-                    </div>
-                    
-                    {/* Phone home indicator */}
-                    <div style={{
-                      position: 'absolute',
-                      bottom: 8,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: 100,
-                      height: 4,
-                      background: '#333',
-                      borderRadius: 2
-                    }}></div>
-                  </div>
-                </div>
-                
-                {/* Store navigation dots */}
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  gap: 8, 
-                  marginTop: 16 
-                }}>
-                  {demoStores.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActiveDemoStore(i)}
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        border: 'none',
-                        background: i === activeDemoStore ? '#5a6bff' : 'rgba(0,0,0,0.2)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      aria-label={`View ${demoStores[i].name} demo store`}
-                    />
-                  ))}
-                </div>
-                
-                {/* Store name indicator */}
-                <div style={{ 
-                  textAlign: 'center', 
-                  marginTop: 8, 
-                  fontSize: 13, 
-                  color: '#666',
-                  fontWeight: 600,
-                  opacity: 0.8
-                }}>
-                  {demoStores[activeDemoStore].name}
-                </div>
-              </div>
+              <button 
+                onClick={goCreate} 
+                className="btn btnSecondary" 
+                style={{ padding: '14px 24px', fontSize: 16, borderRadius: 16, width: '100%', marginBottom: 16 }}
+                disabled={isLoading}
+                data-testid="hero-view-demo"
+                aria-label="View demo store examples"
+              >
+                {isLoading ? <div className="loading-spinner"></div> : 'View Demo Stores →'}
+              </button>
             </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Enhanced Social Proof Section */}
+      {/* Demo Stores Section */}
       <section className="container reveal-on-scroll" style={{ marginTop: 24 }}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <h3 style={{ fontSize: 24, fontWeight: 800, margin: 0, marginBottom: 8 }}>See what's possible with ShopLynk</h3>
+          <p style={{ opacity: 0.7, fontSize: 16 }}>Real examples from our community of sellers</p>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20 }}>
+          {demoStores.map((store, index) => (
+            <div key={store.name} className="glass card" style={{ 
+              padding: 20, 
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              border: '1px solid rgba(90,107,255,0.1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 20px 40px rgba(90,107,255,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'var(--shadow)';
+            }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>{store.emoji}</div>
+              <h4 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: 'var(--ink)' }}>{store.name}</h4>
+              <p style={{ fontSize: 14, opacity: 0.7, marginBottom: 16 }}>{store.description}</p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 16 }}>
+                {store.products.slice(0, 4).map((product, i) => (
+                  <div key={i} style={{
+                    background: '#f8f9ff',
+                    borderRadius: 8,
+                    padding: 8,
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: 16, marginBottom: 2 }}>{product.emoji}</div>
+                    <div style={{ fontSize: 10, fontWeight: 600, lineHeight: 1.2 }}>{product.name}</div>
+                    <div style={{ fontSize: 10, color: '#5a6bff', fontWeight: 'bold' }}>{product.price}</div>
+                  </div>
+                ))}
+              </div>
+              
+              <button 
+                onClick={goCreate}
+                className="btn btnPrimary"
+                style={{ 
+                  width: '100%', 
+                  padding: '8px 16px', 
+                  fontSize: 12, 
+                  borderRadius: 8,
+                  opacity: 0.9
+                }}
+                disabled={isLoading}
+              >
+                {isLoading ? <div className="loading-spinner"></div> : 'Create Similar Store'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Enhanced Social Proof Section */}
+      <section className="container reveal-on-scroll" style={{ marginTop: 32 }}>
         <div className="glass card" style={{ padding: 20 }}>
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, opacity: 0.8 }}>Trusted by sellers worldwide</h3>
