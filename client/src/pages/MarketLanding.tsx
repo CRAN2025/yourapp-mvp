@@ -500,85 +500,59 @@ export default function MarketLanding() {
               </div>
             </div>
 
-            {/* Right: Simple demo button */}
+            {/* Right: Demo stores in 2x2 grid */}
             <div className="reveal-on-scroll hero-demo">
-              <button 
-                onClick={goCreate} 
-                className="btn btnSecondary" 
-                style={{ padding: '14px 24px', fontSize: 16, borderRadius: 16, width: '100%', marginBottom: 16 }}
-                disabled={isLoading}
-                data-testid="hero-view-demo"
-                aria-label="View demo store examples"
-              >
-                {isLoading ? <div className="loading-spinner"></div> : 'View Demo Stores →'}
-              </button>
+              <div style={{ marginBottom: 16 }}>
+                <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, textAlign: 'center' }}>View Demo Stores</h4>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(2, 1fr)', 
+                  gap: 12,
+                  maxWidth: 320
+                }}>
+                  {demoStores.map((store, index) => (
+                    <div 
+                      key={store.name} 
+                      className="glass card" 
+                      style={{ 
+                        padding: 12, 
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        border: '1px solid rgba(90,107,255,0.1)',
+                        minHeight: 120
+                      }}
+                      onClick={goCreate}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(90,107,255,0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow)';
+                      }}
+                    >
+                      <div style={{ fontSize: 24, marginBottom: 6 }}>{store.emoji}</div>
+                      <h5 style={{ fontSize: 11, fontWeight: 700, marginBottom: 4, color: 'var(--ink)', lineHeight: 1.2 }}>
+                        {store.name}
+                      </h5>
+                      <p style={{ fontSize: 9, opacity: 0.7, marginBottom: 8, lineHeight: 1.2 }}>
+                        {store.description}
+                      </p>
+                      <div style={{ fontSize: 8, color: '#5a6bff', fontWeight: 600 }}>
+                        {store.products.length} products
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Demo Stores Section */}
-      <section className="container reveal-on-scroll" style={{ marginTop: 24 }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <h3 style={{ fontSize: 24, fontWeight: 800, margin: 0, marginBottom: 8 }}>See what's possible with ShopLynk</h3>
-          <p style={{ opacity: 0.7, fontSize: 16 }}>Real examples from our community of sellers</p>
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20 }}>
-          {demoStores.map((store, index) => (
-            <div key={store.name} className="glass card" style={{ 
-              padding: 20, 
-              textAlign: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              border: '1px solid rgba(90,107,255,0.1)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 20px 40px rgba(90,107,255,0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow)';
-            }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>{store.emoji}</div>
-              <h4 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: 'var(--ink)' }}>{store.name}</h4>
-              <p style={{ fontSize: 14, opacity: 0.7, marginBottom: 16 }}>{store.description}</p>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 16 }}>
-                {store.products.slice(0, 4).map((product, i) => (
-                  <div key={i} style={{
-                    background: '#f8f9ff',
-                    borderRadius: 8,
-                    padding: 8,
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ fontSize: 16, marginBottom: 2 }}>{product.emoji}</div>
-                    <div style={{ fontSize: 10, fontWeight: 600, lineHeight: 1.2 }}>{product.name}</div>
-                    <div style={{ fontSize: 10, color: '#5a6bff', fontWeight: 'bold' }}>{product.price}</div>
-                  </div>
-                ))}
-              </div>
-              
-              <button 
-                onClick={goCreate}
-                className="btn btnPrimary"
-                style={{ 
-                  width: '100%', 
-                  padding: '8px 16px', 
-                  fontSize: 12, 
-                  borderRadius: 8,
-                  opacity: 0.9
-                }}
-                disabled={isLoading}
-              >
-                {isLoading ? <div className="loading-spinner"></div> : 'Create Similar Store'}
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       {/* Enhanced Social Proof Section */}
       <section className="container reveal-on-scroll" style={{ marginTop: 32 }}>
