@@ -1,0 +1,173 @@
+WORK ORDER: Unauth users must NEVER see onboarding; ALL CTAs force signup
+Objective
+
+If not authenticated:
+
+Every “Create Store / Create your free store” CTA → /auth?mode=signup&redirect=/onboarding/step-1.
+
+Direct visits to /onboarding/* also redirect to the same signup URL (with redirect preserved).
+
+Do NOT change
+
+Landing-page visuals / DOM / copy (frozen).
+
+Contact Us behavior.
+
+Authenticated flow after signup (out of scope for this item).
+
+Implementation
+1) Add a tiny helper used by all CTAs (single source of truth)
+
+Create: src/lib/authRedirect.ts
+
+// src/lib/authRedirect.ts
+import type { NavigateFunction } from 'react-router-dom';
+import type { Auth } from 'firebase/auth';
+
+const DEFAULT_REDIRECT = '/onboarding/step-1';
+
+export function goToSignup(navigate: NavigateFunction, redirect = DEFAULT_REDIRECT) {
+  const safe = redirect.startsWith('/') ? redirect : DEFAULT_REDIRECT;
+  navigate(`/auth?mode=signup&redirect=${encodeURIComponent(safe)}`);
+}
+
+/** Returns true if it handled the redirect (user unauthenticated). */
+export function ensureUnauthRedirect(auth: Auth, navigate: NavigateFunction, redirect = DEFAULT_REDIRECT) {
+  if (!auth.currentUser) {
+    goToSignup(navigate, redirect);
+    return true;
+  }
+  return false;
+}
+
+2) Wire all Create-Store CTAs to use the helper
+
+Header CTA (e.g., HeaderCreateStoreButton.tsx):
+
+import { useNavigate } from 'react-router-dom';
+import { auth } from '@/lib/firebase';
+import { ensureUnauthRedirect } from '@/lib/authRedirect';
+
+export function HeaderCreateStoreButton() {
+  const navigate = useNavigate();
+  const onClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (ensureUnauthRedirect(auth, navigate)) return;   // unauth → signup
+    // auth path: leave as-is (handled in later work item)
+  };
+  return <button onClick={onClick}>Create Store</button>;
+}
+
+
+Hero CTA (e.g., in MarketLanding.tsx):
+
+import { useNavigate } from 'react-router-dom';
+import { auth } from '@/lib/firebase';
+import { ensureUnauthRedirect } from '@/lib/authRedirect';
+
+function HeroCreateStoreButton() {
+  const navigate = useNavigate();
+  const onClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (ensureUnauthRedirect(auth, navigate)) return;   // unauth → signup
+    // auth path: keep current behavior (later work item)
+  };
+  return <button onClick={onClick}>Create your free store</button>;
+}
+
+
+Important: If any CTA is currently <Link to="/onboarding/step-1">, replace it with a button (or add onClick + e.preventDefault()), otherwise unauth users will still navigate directly.
+
+3) Add an auth gate for /onboarding/* (blocks manual access)
+
+So even if someone types the URL, unauth is sent to signup.
+
+Create: src/routes/guards/RequireAuth.tsx
+
+import { Navigate, useLocation } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useEffect, useState } from 'react';
+
+export default function RequireAuth({ children }: { children: JSX.Element }) {
+  const loc = useLocation();
+  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState(() => auth.currentUser);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => { setUser(u); setReady(true); });
+    return () => unsub();
+  }, []);
+
+  if (!ready) return null; // or a tiny spinner
+  if (!user) {
+    const redirect = encodeURIComponent(loc.pathname + loc.search);
+    return <Navigate to={`/auth?mode=signup&redirect=${redirect}`} replace />;
+  }
+  return children;
+}
+
+
+Wrap onboarding routes (in your router definition):
+
+{
+  path: '/onboarding',
+  element: <RequireAuth><OnboardingLayout /></RequireAuth>,
+  children: [
+    { path: 'step-1', element: <Step1 /> },
+    { path: 'step-2', element: <Step2 /> },
+    { path: 'step-3', element: <Step3 /> },
+  ]
+}
+
+
+This guard is required to prevent the behavior you’re seeing (unauth landing on Step 1). It does not alter visuals; it only protects the route.
+
+Acceptance Criteria (lock these)
+
+Unauthenticated
+
+Header “Create Store” → /auth?mode=signup&redirect=%2Fonboarding%2Fstep-1
+
+Hero “Create your free store” → same URL.
+
+Typing /onboarding/step-1 in the address bar → redirects to the same signup URL with redirect=/onboarding/step-1.
+
+Authenticated
+
+Current behavior unchanged (will be handled in the next work item).
+
+No visual changes on the landing page.
+
+Tests (add; must pass)
+
+File: tests/unauth-cta-and-guard.spec.ts
+
+import { test, expect } from '@playwright/test';
+
+test('unauth header CTA → signup with redirect', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /^create store$/i }).click();
+  await expect(page).toHaveURL(/\/auth\?mode=signup&redirect=%2Fonboarding%2Fstep-1$/);
+});
+
+test('unauth hero CTA → signup with redirect', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /create your free store/i }).click();
+  await expect(page).toHaveURL(/\/auth\?mode=signup&redirect=%2Fonboarding%2Fstep-1$/);
+});
+
+test('unauth direct nav to step-1 gets redirected to signup', async ({ page }) => {
+  await page.goto('/onboarding/step-1');
+  await expect(page).toHaveURL(/\/auth\?mode=signup&redirect=%2Fonboarding%2Fstep-1$/);
+});
+
+Definition of Done
+
+Unauth users can’t see any onboarding step, whether via CTA or direct URL.
+
+Both CTAs (header + hero) consistently route unauth users to signup.
+
+No change to landing visuals.
+
+All three tests pass in CI.

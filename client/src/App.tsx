@@ -9,6 +9,7 @@ import AuthGuard from "@/components/AuthGuard";
 import SellerAuthGuard from "@/components/auth/AuthGuard";
 import { OnboardingGuard } from "@/components/OnboardingGuard";
 import { AppGuard } from "@/components/AppGuard";
+import RequireAuth from "@/routes/guards/RequireAuth";
 
 // Import all pages
 import MarketLanding from "@/pages/MarketLanding";
@@ -72,15 +73,21 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/support" component={ContactSupport} />
 
-      {/* Onboarding routes */}
+      {/* Onboarding routes - protected by RequireAuth */}
       <Route path="/onboarding/step-1">
-        <OnboardingNew step="step-1" />
+        <RequireAuth>
+          <OnboardingNew step="step-1" />
+        </RequireAuth>
       </Route>
       <Route path="/onboarding/step-2">
-        <OnboardingNew step="step-2" />
+        <RequireAuth>
+          <OnboardingNew step="step-2" />
+        </RequireAuth>
       </Route>
       <Route path="/onboarding/step-3">
-        <OnboardingNew step="step-3" />
+        <RequireAuth>
+          <OnboardingNew step="step-3" />
+        </RequireAuth>
       </Route>
 
       {/* Protected routes - require authentication */}
