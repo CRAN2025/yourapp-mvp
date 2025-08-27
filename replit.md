@@ -11,15 +11,17 @@ Preferred communication style: Simple, everyday language.
 ## Enhanced Logo Brand Visibility Implementation
 - **Date**: August 27, 2025  
 - **Status**: ✅ Complete and production-ready
-- **Description**: Successfully enlarged ShopLynk logo by 50% while maintaining layout integrity and responsiveness
+- **Description**: Successfully implemented prominent logo sizing across header and footer with enhanced visual quality
 - **Key Enhancements**:
-  - Logo size increased from h-8/sm:h-9/md:h-10 to h-12/sm:h-14/md:h-16 (50% larger)
-  - Enhanced accessibility with improved alt text: "ShopLynk - Create your WhatsApp storefront"
-  - Added crisp-edges rendering for high-DPI displays with contrast enhancement
-  - Implemented responsive header container with proper min-heights across breakpoints
-  - Added subtle hover effects that respect prefers-reduced-motion
+  - **Header Logo**: clamp(220px, 20vw, 280px) with drop-shadow(0 1px 1px rgba(0,0,0,0.15))
+  - **Footer Logo**: clamp(180px, 14vw, 220px) with drop-shadow(0 1px 1px rgba(0,0,0,0.18))
+  - **Mobile Responsive**: Header logo clamp(160px, 24vw, 180px), Footer logo clamp(140px, 18vw, 160px)
+  - Enhanced accessibility with aria-label="ShopLynk home" and alt="ShopLynk"
+  - Added crisp-edges rendering for high-DPI displays with subtle drop shadows
+  - Implemented marginRight: 'auto' for header logo to anchor to top-left
+  - Added hover effects that respect prefers-reduced-motion
   - Performance optimized with translateZ(0) for smooth animations
-- **Layout Preservation**: Header spacing maintained, no overlap with navigation elements
+- **Layout Preservation**: Header spacing maintained, no overlap with navigation elements, footer grid intact
 - **Browser Support**: Enhanced CSS with webkit prefixes and cross-browser compatibility
 - **Backup Created**: MarketLanding-EnhancedLogo.tsx saved for future reference
 
