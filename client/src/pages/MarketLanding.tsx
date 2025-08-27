@@ -72,7 +72,7 @@ export default function MarketLanding() {
     link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // ≥44px hit target with header padding
     text: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 700,
+      fontWeight: 750,
       letterSpacing: '-0.01em',
       fontSize: 'clamp(24px, 2.1vw, 30px)',
       lineHeight: 1.05,
@@ -85,7 +85,7 @@ export default function MarketLanding() {
     },
     footer: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 700,
+      fontWeight: 750,
       letterSpacing: '-0.01em',
       fontSize: 'clamp(20px, 1.9vw, 26px)',
       lineHeight: 1.05,

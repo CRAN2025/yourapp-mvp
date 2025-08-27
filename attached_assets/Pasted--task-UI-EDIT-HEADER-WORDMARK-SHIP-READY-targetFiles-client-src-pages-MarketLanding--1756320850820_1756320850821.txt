@@ -1,0 +1,56 @@
+{
+  "task": "UI_EDIT/HEADER_WORDMARK_SHIP_READY",
+  "targetFiles": ["client/src/pages/MarketLanding.tsx", "client/src/components/Footer.tsx"],
+  "editPlan": [
+    "Keep header layout purely in JSX (no runtime DOM moves).",
+    "Strengthen wordmark contrast/weight slightly; ensure single-line and ≥44px tap target.",
+    "Soften CTA glow a touch for visual balance.",
+    "Mirror a smaller wordmark in the footer."
+  ],
+  "patches": [
+    {
+      "type": "insert_or_replace_block",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "anchor": "const _brand",
+      "code": "const _brand = {\n  link:{ display:'inline-block', textDecoration:'none', padding:'10px 0' }, // with header padding => ≥44px target\n  text:{\n    fontFamily:\"Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial\",\n    fontWeight: 725,                       // +ink, still elegant\n    letterSpacing:'-0.01em',\n    fontSize:'clamp(24px, 2.05vw, 30px)',  // keep single-line\n    lineHeight:1.05,\n    whiteSpace:'nowrap',\n    background:'linear-gradient(90deg,#3546FF 0%, #1975FF 100%)', // slightly darker -> AA on pale header\n    WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent'\n  }\n};"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "<span[^>]*style={_brand.text}[^>]*>ShopLynk</span>",
+      "replacement": "<span className='brandText' style={_brand.text}>ShopLynk</span>"
+    },
+    {
+      "type": "regex_replace",
+      "file": "client/src/pages/MarketLanding.tsx",
+      "pattern": "style={_ui\\.ctaPrimary}",
+      "replacement": "style={{ ..._ui.ctaPrimary, boxShadow:'0 6px 16px rgba(15,23,42,0.06)' }}"
+    }
+  ],
+  "insertions": [
+    {
+      "file": "client/src/pages/MarketLanding.tsx",
+      "anchor": "return (",
+      "position": "before",
+      "code": "<style>{`.brandText:hover{filter:brightness(1.06)} .brandText:focus-visible{outline:2px solid #3546FF; outline-offset:3px} @media (prefers-contrast: more){ .brandText{background:none!important;color:#172554!important} } @media (forced-colors: active){ .brandText{background:none!important;color:CanvasText!important} }`}</style>"
+    }
+  ],
+  "footerAdjustments": [
+    {
+      "file": "client/src/components/Footer.tsx",
+      "action": "tweak_wordmark",
+      "details": "Reuse _brand.text but set fontSize:'clamp(20px, 1.9vw, 26px)'; keep whiteSpace:'nowrap'."
+    }
+  ],
+  "validationChecks": {
+    "viewports": [1440, 1024, 768, 390],
+    "assertions": [
+      "Header .mx-auto left edge equals hero .mx-auto left edge within ±1px.",
+      "Brand link tap target height ≥ 44px.",
+      "Computed contrast of darkest wordmark stop vs header background ≥ 4.5:1 (AA).",
+      "CTA glow reduced (box-shadow matches 0 6px 16px rgba(15,23,42,0.06)).",
+      "No wrapping/overlap at 390px; CLS ≤ 0.05."
+    ]
+  },
+  "expectedOutcome": "Wordmark is perfectly aligned, AA-contrast, and slightly weightier so it leads the header; CTA remains strong but not overpowering. Footer mirrors the brand cleanly at a smaller size."
+}
