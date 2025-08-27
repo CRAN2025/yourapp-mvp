@@ -60,6 +60,89 @@ export default function MarketLanding() {
     }
   }, []);
 
+  // Runtime patch: Force header logo prominence
+  useEffect(() => {
+    // Robust selector list to find the header logo across variants
+    const selectors = [
+      'header a[aria-label="ShopLynk"] img',
+      'header a[aria-label="ShopLynk"] svg',
+      'header .site-logo img',
+      'header .site-logo svg',
+      'header img[alt="ShopLynk"]',
+      'header .header-logo img',
+      'header .header-logo svg'
+    ];
+
+    let logoNode = null;
+    for (const sel of selectors) {
+      const n = document.querySelector(sel);
+      if (n) { logoNode = n; break; }
+    }
+    if (!logoNode) return;
+
+    // Apply styles to the image/SVG and its wrapper
+    const wrap = logoNode.closest('a, .site-logo, .header-logo') || logoNode.parentElement;
+
+    // Left anchor + responsive width (more prominent on desktop)
+    Object.assign(wrap.style, {
+      display: 'inline-block',
+      width: 'clamp(220px, 20vw, 280px)',
+      height: 'auto',
+      lineHeight: '0',
+      marginRight: 'auto' // pushes nav items to the right
+    });
+
+    // Make the graphic fill the wrapper and stay crisp
+    Object.assign(logoNode.style, {
+      width: '100%',
+      height: 'auto',
+      display: 'block',
+      filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.15))'
+    });
+
+    // Remove tiny fixed heights that might cap size
+    if (logoNode.style.height && parseInt(logoNode.style.height, 10) < 24) {
+      logoNode.style.height = 'auto';
+    }
+
+    // Guard: ensure header uses flex so marginRight:auto works
+    const headerEl = logoNode.closest('header');
+    if (headerEl) {
+      const s = window.getComputedStyle(headerEl);
+      if (s.display !== 'flex') {
+        Object.assign(headerEl.style, {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '24px 32px',
+          gap: '24px'
+        });
+      }
+    }
+
+    // Prevent overlap on narrow widths (FAQ + Create Store cluster)
+    const rightCluster =
+      document.querySelector('.header-right, .nav-right, [data-right-cluster]') ||
+      (headerEl ? headerEl.querySelector(':scope > *:not(a):not(.site-logo):not(.header-logo)') : null);
+    if (rightCluster) {
+      Object.assign(rightCluster.style, {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '24px',
+        flexWrap: 'wrap'
+      });
+    }
+
+    // Accessibility guards
+    const link = wrap.closest('a');
+    if (link && !link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'ShopLynk home');
+    }
+    if (logoNode.tagName.toLowerCase() === 'img' && !logoNode.getAttribute('alt')) {
+      logoNode.setAttribute('alt', 'ShopLynk');
+    }
+  }, []);
+
   // Anonymous events and auth detection
   useEffect(() => {
     // Track marketing page view
