@@ -1,0 +1,81 @@
+Enlarge Logo for Better Brand Visibility
+
+Objective:
+Increase the size of the ShopLynk logo element (top-left of the header) by 40–60% while preserving layout integrity, responsiveness, and accessibility.
+
+Implementation Requirements
+
+Locate the Logo Element
+
+Identify the <img> or <svg> element representing the site logo.
+
+Confirm it is the combined logo + title element.
+
+Resize the Logo
+
+Increase size by exactly 50% (midpoint of the 40–60% range) relative to its current rendered dimensions.
+
+Maintain aspect ratio to avoid stretching or pixelation.
+
+Ensure visual quality at 2x resolution for Retina/HiDPI screens.
+
+Maintain Alignment
+
+Keep logo vertically and horizontally aligned within the header.
+
+Do not shift the adjacent “FAQ” and Create Store button positions.
+
+Responsive Scaling
+
+Test breakpoints:
+
+Desktop: ≥1024px
+
+Tablet: 768px–1023px
+
+Mobile: ≤767px
+
+Ensure the logo resizes proportionally at each breakpoint without overflowing or clipping.
+
+Preserve Layout & Interactions
+
+Verify the enlarged logo does not overlap navigation, buttons, or the “Create your free store” CTA.
+
+Maintain existing hover effects, click events, and animations.
+
+Accessibility Requirements
+
+Confirm alt text is preserved or added if missing.
+
+Validate text/logo contrast against WCAG 2.1 AA compliance.
+
+If the logo includes text, confirm sharpness and readability on all devices.
+
+Cross-Browser Compatibility
+
+Test on latest stable versions of:
+Chrome, Safari, Firefox, and Edge.
+
+Performance Check
+
+Ensure no layout shifts (CLS score ≤ 0.05).
+
+Verify logo asset size is optimized; do not exceed 150KB.
+
+Acceptance Criteria
+
+ Logo enlarged by 50% without distortion.
+
+ Layout remains intact across desktop, tablet, and mobile.
+
+ No overlap with “FAQ” or “Create Store” button.
+
+ alt text confirmed or added.
+
+ Contrast ratio ≥ 4.5:1 for any embedded text.
+
+ Logo sharpness validated on Retina and non-Retina displays.
+
+ No layout shifts introduced (CLS ≤ 0.05).
+
+ All tests pass on Chrome, Safari, Firefox, and Edge.
