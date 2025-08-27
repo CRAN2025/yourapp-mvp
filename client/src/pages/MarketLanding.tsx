@@ -155,6 +155,65 @@ export default function MarketLanding() {
     { q: "Do I need technical skills?", a: "Not at all! Our platform is designed for everyone. If you can send a text message, you can create a store." }
   ];
 
+  // Demo stores data
+  const demoStores = [
+    {
+      name: "Bella's Boutique",
+      description: "Handmade jewelry & accessories",
+      emoji: "💎",
+      products: [
+        { name: 'Gold Necklace', price: '$89', emoji: '💎' },
+        { name: 'Silver Ring', price: '$45', emoji: '💍' },
+        { name: 'Pearl Earrings', price: '$67', emoji: '✨' },
+        { name: 'Crystal Bracelet', price: '$32', emoji: '🔮' }
+      ]
+    },
+    {
+      name: "Urban Threads",
+      description: "Trendy streetwear collection",
+      emoji: "👕",
+      products: [
+        { name: 'Hoodie', price: '$55', emoji: '👕' },
+        { name: 'Sneakers', price: '$120', emoji: '👟' },
+        { name: 'Cap', price: '$25', emoji: '🧢' },
+        { name: 'Backpack', price: '$45', emoji: '🎒' }
+      ]
+    },
+    {
+      name: "Taste Makers",
+      description: "Gourmet food & snacks",
+      emoji: "🍯",
+      products: [
+        { name: 'Honey Jar', price: '$18', emoji: '🍯' },
+        { name: 'Artisan Bread', price: '$8', emoji: '🍞' },
+        { name: 'Olive Oil', price: '$22', emoji: '🫒' },
+        { name: 'Cheese Box', price: '$35', emoji: '🧀' }
+      ]
+    },
+    {
+      name: "Plant Paradise",
+      description: "Indoor plants & care supplies",
+      emoji: "🌱",
+      products: [
+        { name: 'Monstera Plant', price: '$28', emoji: '🌱' },
+        { name: 'Plant Pot', price: '$15', emoji: '🪴' },
+        { name: 'Fertilizer', price: '$12', emoji: '🌿' },
+        { name: 'Watering Can', price: '$20', emoji: '💧' }
+      ]
+    }
+  ];
+
+  // States for demo stores
+  const [activeDemoStore, setActiveDemoStore] = useState(0);
+
+  // Rotate demo stores automatically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveDemoStore((prev) => (prev + 1) % demoStores.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [demoStores.length]);
+
   // Rotate testimonials automatically
   useEffect(() => {
     const interval = setInterval(() => {
@@ -450,56 +509,152 @@ export default function MarketLanding() {
               </div>
             </div>
 
-            {/* Right: live preview mock */}
+            {/* Right: live preview mock with demo stores */}
             <div className="reveal-on-scroll hero-demo">
-              <div style={{
-                width: 300,
-                height: 500,
-                background: '#fff',
-                borderRadius: 20,
-                border: '8px solid #222',
-                overflow: 'hidden',
-                position: 'relative',
-                boxShadow: '0 20px 40px rgba(0,0,0,.15)'
-              }}>
-                {/* Simple store preview */}
-                <div style={{ padding: 16 }}>
-                  <div style={{ 
-                    background: 'var(--grad)', 
-                    borderRadius: 12, 
-                    padding: 16, 
-                    color: 'white', 
-                    marginBottom: 16 
-                  }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: 4 }}>My Store</div>
-                    <div style={{ fontSize: 12, opacity: 0.9 }}>Beautiful products</div>
-                  </div>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-                    {['🎨', '👕', '💍', '🎯'].map((emoji, i) => (
-                      <div key={i} style={{
-                        background: '#f8f9ff',
-                        borderRadius: 8,
-                        padding: 12,
-                        textAlign: 'center'
-                      }}>
-                        <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
-                        <div style={{ fontSize: 10, color: '#5a6bff' }}>$29</div>
-                      </div>
-                    ))}
-                  </div>
-                  
+              <div style={{ position: 'relative' }}>
+                {/* Phone mockup */}
+                <div style={{
+                  width: 300,
+                  height: 500,
+                  background: '#000',
+                  borderRadius: 25,
+                  padding: 4,
+                  position: 'relative',
+                  boxShadow: '0 20px 40px rgba(0,0,0,.25)'
+                }}>
                   <div style={{
-                    marginTop: 16,
-                    background: '#25d366',
-                    borderRadius: 8,
-                    padding: 8,
-                    color: 'white',
-                    textAlign: 'center',
-                    fontSize: 12
+                    width: '100%',
+                    height: '100%',
+                    background: '#fff',
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    position: 'relative'
                   }}>
-                    📱 Order via WhatsApp
+                    {/* Phone status bar */}
+                    <div style={{
+                      height: 30,
+                      background: '#f8f9ff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0 16px',
+                      fontSize: 11,
+                      fontWeight: 600
+                    }}>
+                      <span>9:41</span>
+                      <span>100% ⚡</span>
+                    </div>
+                    
+                    {/* Store preview with transitions */}
+                    <div style={{ padding: 16, height: 'calc(100% - 30px)', overflow: 'hidden' }}>
+                      <div style={{ 
+                        background: 'var(--grad)', 
+                        borderRadius: 12, 
+                        padding: 16, 
+                        color: 'white', 
+                        marginBottom: 16,
+                        transition: 'all 0.5s ease',
+                        transform: `translateY(${activeDemoStore * -2}px)`,
+                        opacity: 1
+                      }}>
+                        <div style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span>{demoStores[activeDemoStore].emoji}</span>
+                          {demoStores[activeDemoStore].name}
+                        </div>
+                        <div style={{ fontSize: 12, opacity: 0.9 }}>
+                          {demoStores[activeDemoStore].description}
+                        </div>
+                      </div>
+                      
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(2, 1fr)', 
+                        gap: 8,
+                        marginBottom: 16 
+                      }}>
+                        {demoStores[activeDemoStore].products.map((product, i) => (
+                          <div key={`${activeDemoStore}-${i}`} style={{
+                            background: '#f8f9ff',
+                            borderRadius: 8,
+                            padding: 10,
+                            textAlign: 'center',
+                            transition: 'all 0.3s ease',
+                            transform: `scale(${1 + (i * 0.02)})`,
+                            opacity: 1
+                          }}>
+                            <div style={{ fontSize: 20, marginBottom: 4 }}>{product.emoji}</div>
+                            <div style={{ fontSize: 9, fontWeight: 600, marginBottom: 2 }}>{product.name}</div>
+                            <div style={{ fontSize: 9, color: '#5a6bff', fontWeight: 'bold' }}>{product.price}</div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div style={{
+                        background: '#25d366',
+                        borderRadius: 8,
+                        padding: 10,
+                        color: 'white',
+                        textAlign: 'center',
+                        fontSize: 11,
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6
+                      }}>
+                        📱 Order via WhatsApp
+                      </div>
+                    </div>
+                    
+                    {/* Phone home indicator */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 8,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: 100,
+                      height: 4,
+                      background: '#333',
+                      borderRadius: 2
+                    }}></div>
                   </div>
+                </div>
+                
+                {/* Store navigation dots */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  gap: 8, 
+                  marginTop: 16 
+                }}>
+                  {demoStores.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveDemoStore(i)}
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: i === activeDemoStore ? '#5a6bff' : 'rgba(0,0,0,0.2)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      aria-label={`View ${demoStores[i].name} demo store`}
+                    />
+                  ))}
+                </div>
+                
+                {/* Store name indicator */}
+                <div style={{ 
+                  textAlign: 'center', 
+                  marginTop: 8, 
+                  fontSize: 13, 
+                  color: '#666',
+                  fontWeight: 600,
+                  opacity: 0.8
+                }}>
+                  {demoStores[activeDemoStore].name}
                 </div>
               </div>
             </div>
