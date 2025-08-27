@@ -69,28 +69,28 @@ export default function MarketLanding() {
 
   // Brand wordmark styling
   const _brand = {
-    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' }, // ≥44px hit target with header padding
+    link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' },
     text: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 750,
+      fontWeight: 700,
       letterSpacing: '-0.01em',
-      fontSize: 'clamp(24px, 2.1vw, 30px)',
+      fontSize: 'clamp(24px, 2.05vw, 30px)',
       lineHeight: 1.05,
       whiteSpace: 'nowrap' as const,
-      background: 'linear-gradient(90deg,#3E4CFF 0%, #1A7BFF 100%)',
-      WebkitBackgroundClip: 'text',
+      background: 'linear-gradient(90deg,#3A49FF 0%, #1873FF 100%)',
+      WebkitBackgroundClip: 'text', 
       backgroundClip: 'text', 
       color: 'transparent',
       textShadow: '0 1px 0 rgba(0,0,0,0.06)'
     },
     footer: {
       fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-      fontWeight: 750,
+      fontWeight: 700,
       letterSpacing: '-0.01em',
       fontSize: 'clamp(20px, 1.9vw, 26px)',
       lineHeight: 1.05,
       whiteSpace: 'nowrap' as const,
-      background: 'linear-gradient(90deg,#3E4CFF 0%, #1A7BFF 100%)',
+      background: 'linear-gradient(90deg,#3A49FF 0%, #1873FF 100%)',
       WebkitBackgroundClip: 'text',
       backgroundClip: 'text',
       color: 'transparent',
@@ -704,7 +704,7 @@ export default function MarketLanding() {
         
         /* Brand wordmark interactive styles */
         .brandText:hover { filter:brightness(1.06); } 
-        .brandText:focus-visible { outline:2px solid #3E4CFF; outline-offset:3px; } 
+        .brandText:focus-visible { outline:2px solid #3A49FF; outline-offset:3px; } 
         @media (prefers-contrast: more) { .brandText { background:none!important; color:#172554!important; } } 
         @media (forced-colors: active) { .brandText { background:none!important; color:CanvasText!important; } }
       `}</style>
@@ -785,7 +785,7 @@ export default function MarketLanding() {
               data-testid="header-create-store"
               disabled={isLoading}
               aria-label="Create your free store"
-              style={{ ..._ui.ctaPrimary, boxShadow: '0 8px 18px rgba(15,23,42,0.06)' }}
+              style={{ ..._ui.ctaPrimary, boxShadow: '0 6px 14px rgba(15,23,42,0.06)' }}
             >
               {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
             </button>
