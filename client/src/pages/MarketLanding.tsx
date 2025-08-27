@@ -45,7 +45,7 @@ export default function MarketLanding() {
   
   // UI styling constants for enhanced logo prominence
   const _ui = {
-    header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 32px', gap: '24px' },
+    header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 0', gap: '24px' },
     logoWrap: { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: 0, marginRight: 'auto' },
     logoImg: { width: '100%', height: 'auto', display: 'block', filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.15))' },
     rightCluster: { display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' },
@@ -60,114 +60,7 @@ export default function MarketLanding() {
     }
   }, []);
 
-  // Runtime patch: Pixel-align header logo with hero text
-  useEffect(() => {
-    // 1) Grab header and build a controllable inner container
-    const header = document.querySelector('header, .site-header, [data-header]');
-    if (!header) return;
 
-    let inner = header.querySelector('[data-header-inner]');
-    if (!inner) {
-      inner = document.createElement('div');
-      inner.setAttribute('data-header-inner', 'true');
-      while (header.firstChild) inner.appendChild(header.firstChild);
-      header.appendChild(inner);
-    }
-
-    // base layout for header
-    Object.assign((header as HTMLElement).style, { width: '100%', padding: '0', boxSizing: 'border-box' });
-    Object.assign((inner as HTMLElement).style, {
-      boxSizing: 'border-box',
-      width: '100%',         // width will be limited by maxWidth + centered with margin:auto
-      margin: '0 auto',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      gap: '24px',
-      padding: '0'
-    });
-
-    // ensure a right cluster exists and sits on the far right
-    let right = inner.querySelector('[data-right-cluster]');
-    if (!right) {
-      right = document.createElement('div');
-      right.setAttribute('data-right-cluster', 'true');
-      inner.appendChild(right);
-    }
-    Object.assign((right as HTMLElement).style, { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' });
-
-    // move FAQ + Create Store into the right cluster (no route/link changes)
-    const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
-    const cta = Array.from(inner.querySelectorAll('a,button')).find(el => /create\s*store/i.test(el.textContent || ''));
-    if (faq && faq.parentElement !== right) right.appendChild(faq);
-    if (cta && cta.parentElement !== right) right.appendChild(cta);
-
-    // logo sizing on the left
-    const logo =
-      inner.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
-      inner.querySelector('img[alt="ShopLynk"]')?.closest('a') ||
-      inner.querySelector('img[alt="ShopLynk"]');
-    if (logo) {
-      Object.assign((logo as HTMLElement).style, { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: '0' });
-      const img = logo.querySelector('img,svg') || logo;
-      if (img) Object.assign((img as HTMLElement).style, { width: '100%', height: 'auto', display: 'block' });
-      const link = logo.closest('a'); if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label', 'ShopLynk home');
-    }
-
-    // 2) Find the real hero content container (source of truth for alignment)
-    const findHeroContainer = () => {
-      const h1 =
-        document.querySelector('[data-hero-title]') ||
-        Array.from(document.querySelectorAll('h1,[role="heading"]')).find(el => /whatsapp/i.test(el.textContent || '')) ||
-        document.querySelector('h1');
-      if (!h1) return null;
-
-      const isContentBox = (el: Element) => {
-        const cs = getComputedStyle(el);
-        const hasMax = cs.maxWidth !== 'none' && parseFloat(cs.maxWidth) > 0;
-        const centered = cs.marginLeft === 'auto' && cs.marginRight === 'auto';
-        return hasMax || centered;
-      };
-
-      let node = h1;
-      while (node.parentElement && node !== document.body && !isContentBox(node)) node = node.parentElement;
-      return node;
-    };
-
-    const syncFromHero = () => {
-      const heroBox = findHeroContainer();
-      if (!heroBox) return;
-
-      const r = heroBox.getBoundingClientRect();
-      const cs = getComputedStyle(heroBox);
-
-      // Prefer explicit container numbers; otherwise fall back to rects
-      const maxW = parseFloat(cs.maxWidth) || Math.round(r.width);
-      const padL = parseFloat(cs.paddingLeft)  || 0;
-      const padR = parseFloat(cs.paddingRight) || 0;
-
-      // Apply EXACT same container model as hero:
-      (inner as HTMLElement).style.maxWidth     = maxW + 'px';
-      (inner as HTMLElement).style.margin       = '0 auto';
-      (inner as HTMLElement).style.paddingLeft  = padL + 'px';
-      (inner as HTMLElement).style.paddingRight = padR + 'px';
-
-      // Fallback guard: if maxWidth < 600 (unlikely for main content), mirror gutters via rects
-      if (maxW < 600) {
-        const leftInset  = Math.max(0, Math.round(r.left));
-        const rightInset = Math.max(0, Math.round(window.innerWidth - (r.left + r.width)));
-        (inner as HTMLElement).style.maxWidth     = 'none';
-        (inner as HTMLElement).style.paddingLeft  = leftInset + 'px';
-        (inner as HTMLElement).style.paddingRight = rightInset + 'px';
-      }
-    };
-
-    // initial + resize
-    const onResize = () => syncFromHero();
-    syncFromHero();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
 
   // Anonymous events and auth detection
   useEffect(() => {
@@ -773,9 +666,9 @@ export default function MarketLanding() {
           className="mx-auto"
           style={{
             maxWidth: '1200px',
-            paddingInline: 'clamp(16px, 4vw, 20px)',
-            paddingLeft: 'max(20px, env(safe-area-inset-left))',
-            paddingRight: 'max(20px, env(safe-area-inset-right))',
+            paddingInline: 'clamp(16px, 4vw, 28px)',
+            paddingLeft: 'max(28px, env(safe-area-inset-left))',
+            paddingRight: 'max(28px, env(safe-area-inset-right))',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'

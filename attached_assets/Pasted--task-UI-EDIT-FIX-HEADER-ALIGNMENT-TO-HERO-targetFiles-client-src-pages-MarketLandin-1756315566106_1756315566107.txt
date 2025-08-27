@@ -1,0 +1,41 @@
+{
+  "task": "UI_EDIT/FIX_HEADER_ALIGNMENT_TO_HERO",
+  "targetFiles": ["client/src/pages/MarketLanding.tsx"],
+  "selectors": {
+    "headerRoot": "header[data-header]",
+    "headerInner": "header[data-header] > .mx-auto",
+    "heroInner": "section#signup .glass.heroGlass > .mx-auto"
+  },
+  "editPlan": [
+    "In the _ui.header object, change padding from '24px 32px' to '24px 0' (vertical only).",
+    "In the <header data-header> style prop, keep full-bleed logic (100vw + negative margins) but ensure no horizontal padding is reintroduced.",
+    "In the header's inner .mx-auto style, set gutters to MATCH the hero: paddingInline: 'clamp(16px, 4vw, 28px)', paddingLeft: 'max(28px, env(safe-area-inset-left))', paddingRight: 'max(28px, env(safe-area-inset-right))', and keep maxWidth: '1200px', margin: '0 auto', display:'flex', justifyContent:'space-between', alignItems:'center'.",
+    "Do NOT append any extra wrappers (remove any previous 'data-header-inner' runtime logic if present).",
+    "Ensure the site logo Link keeps style={_ui.logoWrap} and the right cluster (FAQ + Create Store) remains in the same .mx-auto flex row.",
+    "Confirm _ui.logoWrap remains width: 'clamp(220px, 20vw, 280px)' and height:auto."
+  ],
+  "patchExamples": [
+    {
+      "find": "header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 32px', gap: '24px' }",
+      "replace": "header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 0', gap: '24px' }"
+    },
+    {
+      "find": "paddingInline: 'clamp(16px, 4vw, 20px)',\n            paddingLeft: 'max(20px, env(safe-area-inset-left))',\n            paddingRight: 'max(20px, env(safe-area-inset-right))',",
+      "replace": "paddingInline: 'clamp(16px, 4vw, 28px)',\n            paddingLeft: 'max(28px, env(safe-area-inset-left))',\n            paddingRight: 'max(28px, env(safe-area-inset-right))',"
+    }
+  ],
+  "accessibility": [
+    "Keep alt='ShopLynk' on the logo image and aria-label='ShopLynk home' on the logo link."
+  ],
+  "validationChecks": {
+    "viewports": [1440, 1280, 1024, 768, 390],
+    "assertions": [
+      "The left edge of header .mx-auto (getBoundingClientRect().left) equals the left edge of hero .mx-auto within ±1px.",
+      "Logo link left edge equals hero H1 left edge within ±1px.",
+      "Create Store button right edge equals hero .mx-auto right edge within ±1px.",
+      "No new horizontal scrollbars in the header; no element overlaps at 390px.",
+      "CLS delta introduced by this change ≤ 0.05."
+    ]
+  },
+  "expectedOutcome": "Header content (logo on the left, FAQ + Create Store on the right) sits on the exact same content grid as the hero. The logo perfectly aligns with the left edge of the 'Launch a WhatsApp-ready…' heading."
+}
