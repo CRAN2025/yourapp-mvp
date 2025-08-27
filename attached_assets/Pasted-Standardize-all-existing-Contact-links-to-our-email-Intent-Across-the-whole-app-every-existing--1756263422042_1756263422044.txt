@@ -1,0 +1,78 @@
+Standardize all existing “Contact” links to our email
+
+Intent
+Across the whole app, every existing “Contact”, “Contact us”, “Email us”, or “Support” link should open a compose window to brock1kai@gmail.com
+. Do not show the raw address in visible page text. Keep labels like “Contact us” as-is.
+
+What to do
+
+Locate all existing contact links or email references
+
+Search codebase for likely tokens (use whichever tool you have):
+
+rg -n "Contact us|Contact|Email us|support|mailto:|@.*\.(com|org|net)" client server shared
+
+
+Include headers, footers, help/faq, onboarding, marketing, and any component using a support link.
+
+Make each one use mailto:brock1kai@gmail.com
+
+Keep the visible text (e.g., “Contact us”) — do not print the email.
+
+Example pattern:
+
+// BEFORE (examples vary)
+<a href="/contact">Contact us</a>
+<a href="mailto:support@oldmail.com">support@oldmail.com</a>
+
+// AFTER
+<a
+  href="mailto:brock1kai@gmail.com"
+  aria-label="Contact us by email"
+  className="text-sm text-gray-500 hover:text-gray-800 underline"
+>
+  Contact us
+</a>
+
+
+If a page currently displays an email address as visible text, change the visible text to “Contact us” (or original label) and only keep the email inside href.
+
+Optional (nice-to-have): centralize the email
+
+Create or reuse a small config (e.g., shared/config.ts) and export:
+
+export const CONTACT_EMAIL = "brock1kai@gmail.com";
+export const CONTACT_MAILTO = `mailto:${CONTACT_EMAIL}`;
+
+
+Then reference CONTACT_MAILTO everywhere to avoid future drift.
+
+Don’t remove help center or non-email support links
+
+If there are help-center docs or chat links, leave them intact in addition to the standardized email link. Only replace email destinations.
+
+Acceptance criteria
+
+ Every existing “Contact/Contact us/Email us/Support” link opens a new email to brock1kai@gmail.com.
+
+ The raw email address is not shown as visible text anywhere (labels like “Contact us” are fine).
+
+ No console errors introduced on pages where changes were made.
+
+ Build passes (npm run build).
+
+Evidence to return
+
+A proof folder at proof/contact-standardization/ with:
+
+A CSV or markdown table listing each file you changed (path + line) and the old → new href.
+
+Screenshots of each updated page/section showing the link label (no visible email) and a browser compose window opening to brock1kai@gmail.com.
+
+A one-liner grep showing there are no visible email occurrences in rendered markup (e.g., confirm we don’t print the address in text), and a rg -n "mailto:" snapshot listing the final set of mailto links.
+
+npm run build output excerpt proving a clean production build.
+
+Commit message
+
+chore(contact): standardize all Contact links to mailto:brock1kai@gmail.com without exposing address in UI

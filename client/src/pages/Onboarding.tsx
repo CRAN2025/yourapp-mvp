@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -51,10 +51,42 @@ type DeliveryPaymentForm = z.infer<typeof deliveryPaymentSchema>;
 type BrandingForm = z.infer<typeof brandingSchema>;
 
 export default function Onboarding() {
-  // Determine starting step based on existing data
+  // Determine starting step based on existing data and URL
   const { seller, updateSellerProfile, loading } = useAuthContext();
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
+  
+  // Get step from URL query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlStep = parseInt(urlParams.get('step') || '1');
   
   const getInitialStep = () => {
+    // Always start from step 1 if coming from marketing CTAs
+    const fromLanding = urlParams.get('from') === 'landing_signup';
+    if (fromLanding) {
+      // Clear any previous onboarding state
+      sessionStorage.removeItem('onboarding_state');
+      sessionStorage.removeItem('onboarding_step1');
+      return 1;
+    }
+    
+    // Check if URL step is valid based on completed data
+    if (urlStep === 2 && (!seller?.storeName || !seller?.category)) {
+      return 1; // Force back to step 1
+    }
+    if (urlStep === 3 && (!seller?.whatsappNumber || !seller?.country)) {
+      return 1; // Force back to step 1
+    }
+    if (urlStep === 4 && (!seller?.deliveryOptions || !seller?.paymentMethods)) {
+      return 1; // Force back to step 1
+    }
+    
+    // Use URL step if valid, otherwise determine from data
+    if (urlStep >= 1 && urlStep <= 4) {
+      return urlStep;
+    }
+    
+    // Fallback to data-based step determination
     if (!seller) return 1;
     if (seller.storeName && seller.category) {
       if (seller.whatsappNumber && seller.country) {
@@ -69,10 +101,38 @@ export default function Onboarding() {
   };
   
   const [currentStep, setCurrentStep] = useState(getInitialStep());
-  const [, navigate] = useLocation();
-  const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState(seller?.country || 'US');
   const [phoneHint, setPhoneHint] = useState(getPhoneHint(seller?.country || 'US'));
+  
+  // Guard against invalid step access
+  useEffect(() => {
+    const hasStep1Data = seller?.storeName && seller?.category;
+    const hasStep2Data = seller?.whatsappNumber && seller?.country;
+    const hasStep3Data = seller?.deliveryOptions && seller?.paymentMethods;
+    
+    // Redirect to step 1 if accessing later steps without prerequisite data
+    if (currentStep === 2 && !hasStep1Data) {
+      navigate('/onboarding?step=1', { replace: true });
+      setCurrentStep(1);
+      return;
+    }
+    if (currentStep === 3 && (!hasStep1Data || !hasStep2Data)) {
+      navigate('/onboarding?step=1', { replace: true });
+      setCurrentStep(1);
+      return;
+    }
+    if (currentStep === 4 && (!hasStep1Data || !hasStep2Data || !hasStep3Data)) {
+      navigate('/onboarding?step=1', { replace: true });
+      setCurrentStep(1);
+      return;
+    }
+    
+    // Update URL to match current step
+    const newUrl = `/onboarding?step=${currentStep}`;
+    if (window.location.pathname + window.location.search !== newUrl) {
+      navigate(newUrl, { replace: true });
+    }
+  }, [currentStep, seller, navigate]);
 
   const steps = [
     { id: 1, name: 'Store Details', description: "Let's start with the basics about your store" },

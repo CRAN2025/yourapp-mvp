@@ -1,9 +1,10 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import AuthGuard from "@/components/AuthGuard";
 import SellerAuthGuard from "@/components/auth/AuthGuard";
 
@@ -32,6 +33,38 @@ import Pricing from "@/pages/Pricing";
 import ContactSupport from "@/pages/ContactSupport";
 import NotFound from "@/pages/not-found";
 
+// App Router - handles unified /app destination
+function AppRouter() {
+  const { user, seller, loading } = useAuth();
+  const [, navigate] = useLocation();
+  
+  // Wait for auth to load
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  
+  // Redirect unauthenticated users to auth
+  if (!user) {
+    navigate('/auth', { replace: true });
+    return null;
+  }
+  
+  // Check if user has completed onboarding
+  const hasCompletedOnboarding = seller?.storeName && seller?.category && seller?.whatsappNumber && seller?.country;
+  
+  if (!hasCompletedOnboarding) {
+    // Clear any previous onboarding state and start fresh
+    sessionStorage.removeItem('onboarding_state');
+    sessionStorage.removeItem('onboarding_step1');
+    navigate('/onboarding?step=1', { replace: true });
+    return null;
+  }
+  
+  // User is authenticated and onboarded, redirect to products
+  navigate('/products', { replace: true });
+  return null;
+}
+
 function Router() {
   return (
     <Switch>
@@ -41,6 +74,9 @@ function Router() {
         <AuthGuard requireAuth={false}>
           <Auth />
         </AuthGuard>
+      </Route>
+      <Route path="/app">
+        <AppRouter />
       </Route>
       <Route path="/store/:sellerId" component={StorefrontPublic} />
       
