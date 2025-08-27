@@ -60,9 +60,9 @@ export default function MarketLanding() {
     }
   }, []);
 
-  // Runtime patch: Pixel-align header logo to hero text
+  // Runtime patch: Pixel-align header logo with hero text
   useEffect(() => {
-    // Ensure we have a header and an inner container we can control
+    // 1) Grab header and build a controllable inner container
     const header = document.querySelector('header, .site-header, [data-header]');
     if (!header) return;
 
@@ -74,87 +74,97 @@ export default function MarketLanding() {
       header.appendChild(inner);
     }
 
-    // Make header full-bleed; inner will handle alignment
-    Object.assign(header.style, { width: '100%' });
+    // base layout for header
+    Object.assign(header.style, { width: '100%', padding: '0', boxSizing: 'border-box' });
     Object.assign(inner.style, {
       boxSizing: 'border-box',
-      width: '100%',
+      width: '100%',         // width will be limited by maxWidth + centered with margin:auto
+      margin: '0 auto',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      gap: '24px'
+      gap: '24px',
+      padding: '0'
     });
 
-    // Build / ensure right cluster (FAQ + Create Store)
-    const ensureRightCluster = () => {
-      let right = inner.querySelector('[data-right-cluster]');
-      if (!right) {
-        right = document.createElement('div');
-        right.setAttribute('data-right-cluster', 'true');
-        inner.appendChild(right);
-      }
-      Object.assign(right.style, {
-        marginLeft: 'auto',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '24px',
-        flexWrap: 'wrap'
-      });
-      // Move FAQ + Create Store into right cluster (no route changes)
-      const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
-      const cta = Array.from(inner.querySelectorAll('a,button')).find(el => /create\s*store/i.test(el.textContent || ''));
-      if (faq && faq.parentElement !== right) right.appendChild(faq);
-      if (cta && cta.parentElement !== right) right.appendChild(cta);
-    };
+    // ensure a right cluster exists and sits on the far right
+    let right = inner.querySelector('[data-right-cluster]');
+    if (!right) {
+      right = document.createElement('div');
+      right.setAttribute('data-right-cluster', 'true');
+      inner.appendChild(right);
+    }
+    Object.assign(right.style, { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' });
 
-    // Logo sizing (left)
-    const sizeLogo = () => {
-      const logo =
-        inner.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
-        inner.querySelector('img[alt="ShopLynk"]')?.closest('a');
-      if (!logo) return;
+    // move FAQ + Create Store into the right cluster (no route/link changes)
+    const faq = Array.from(inner.querySelectorAll('a')).find(a => /faq/i.test(a.textContent || ''));
+    const cta = Array.from(inner.querySelectorAll('a,button')).find(el => /create\s*store/i.test(el.textContent || ''));
+    if (faq && faq.parentElement !== right) right.appendChild(faq);
+    if (cta && cta.parentElement !== right) right.appendChild(cta);
+
+    // logo sizing on the left
+    const logo =
+      inner.querySelector('a[aria-label="ShopLynk"], .site-logo, .header-logo') ||
+      inner.querySelector('img[alt="ShopLynk"]')?.closest('a') ||
+      inner.querySelector('img[alt="ShopLynk"]');
+    if (logo) {
       Object.assign(logo.style, { display: 'inline-block', width: 'clamp(220px, 20vw, 280px)', height: 'auto', lineHeight: '0' });
-      const img = logo.querySelector('img, svg') || logo;
+      const img = logo.querySelector('img,svg') || logo;
       if (img) Object.assign(img.style, { width: '100%', height: 'auto', display: 'block' });
-      const link = logo.closest('a'); if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label','ShopLynk home');
+      const link = logo.closest('a'); if (link && !link.getAttribute('aria-label')) link.setAttribute('aria-label', 'ShopLynk home');
+    }
+
+    // 2) Find the real hero content container (source of truth for alignment)
+    const findHeroContainer = () => {
+      const h1 =
+        document.querySelector('[data-hero-title]') ||
+        Array.from(document.querySelectorAll('h1,[role="heading"]')).find(el => /whatsapp/i.test(el.textContent || '')) ||
+        document.querySelector('h1');
+      if (!h1) return null;
+
+      const isContentBox = (el) => {
+        const cs = getComputedStyle(el);
+        const hasMax = cs.maxWidth !== 'none' && parseFloat(cs.maxWidth) > 0;
+        const centered = cs.marginLeft === 'auto' && cs.marginRight === 'auto';
+        return hasMax || centered;
+      };
+
+      let node = h1;
+      while (node.parentElement && node !== document.body && !isContentBox(node)) node = node.parentElement;
+      return node;
     };
 
-    // === KEY: sync header padding to hero text left edge ===
-    const findHeroTitle = () => {
-      const candidates = Array.from(document.querySelectorAll('[data-hero-title], h1, [role="heading"]'))
-        .filter(el => /launch|whatsapp/i.test(el.textContent || ''));
-      return candidates[0] || document.querySelector('h1');
+    const syncFromHero = () => {
+      const heroBox = findHeroContainer();
+      if (!heroBox) return;
+
+      const r = heroBox.getBoundingClientRect();
+      const cs = getComputedStyle(heroBox);
+
+      // Prefer explicit container numbers; otherwise fall back to rects
+      const maxW = parseFloat(cs.maxWidth) || Math.round(r.width);
+      const padL = parseFloat(cs.paddingLeft)  || 0;
+      const padR = parseFloat(cs.paddingRight) || 0;
+
+      // Apply EXACT same container model as hero:
+      inner.style.maxWidth     = maxW + 'px';
+      inner.style.margin       = '0 auto';
+      inner.style.paddingLeft  = padL + 'px';
+      inner.style.paddingRight = padR + 'px';
+
+      // Fallback guard: if maxWidth < 600 (unlikely for main content), mirror gutters via rects
+      if (maxW < 600) {
+        const leftInset  = Math.max(0, Math.round(r.left));
+        const rightInset = Math.max(0, Math.round(window.innerWidth - (r.left + r.width)));
+        inner.style.maxWidth     = 'none';
+        inner.style.paddingLeft  = leftInset + 'px';
+        inner.style.paddingRight = rightInset + 'px';
+      }
     };
 
-    const syncToHero = () => {
-      const hero = findHeroTitle();
-      if (!hero) return;
-
-      // Left gutter of hero text relative to viewport
-      const heroLeft = Math.round(hero.getBoundingClientRect().left);
-
-      // Apply same left gutter to header inner; mirror to right for even container
-      // (this auto-aligns FAQ/CTA to the same content width)
-      inner.style.paddingLeft  = heroLeft + 'px';
-      inner.style.paddingRight = heroLeft + 'px';
-
-      // Remove any width caps that could fight our padding sync
-      inner.style.maxWidth = 'none';
-      header.style.padding = '0'; // ensure outer header doesn't add extra inset
-
-      ensureRightCluster();
-      sizeLogo();
-    };
-
-    // Initial sync + on resize (debounced)
-    let raf = 0, last = 0;
-    const onResize = () => {
-      const now = Date.now();
-      if (now - last < 50) { cancelAnimationFrame(raf); raf = requestAnimationFrame(syncToHero); return; }
-      last = now; syncToHero();
-    };
-
-    syncToHero();
+    // initial + resize
+    const onResize = () => syncFromHero();
+    syncFromHero();
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
