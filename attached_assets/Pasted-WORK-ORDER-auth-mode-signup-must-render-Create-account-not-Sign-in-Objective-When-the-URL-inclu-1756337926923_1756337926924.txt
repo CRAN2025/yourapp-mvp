@@ -1,0 +1,101 @@
+WORK ORDER: /auth?mode=signup must render Create account (not Sign in)
+Objective
+
+When the URL includes mode=signup, the auth screen must default to the Create account variant (heading, primary button, and form). Your screenshot shows it still renders Sign in (“Welcome back”) — that’s incorrect.
+
+Do not change
+
+Landing page visuals/DOM/copy.
+
+CTA wiring you already added (unauth → /auth?mode=signup&redirect=/onboarding/step-1).
+
+Post-auth redirect logic (use existing redirect param).
+
+Implementation (make the view URL-controlled)
+
+File: src/pages/AuthPage.tsx (or equivalent)
+
+Derive mode directly from the URL (no local default to signin).
+
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+
+type AuthMode = 'signin' | 'signup';
+
+function useAuthMode(): AuthMode {
+  const { search } = useLocation();
+  return useMemo(() => {
+    const p = new URLSearchParams(search).get('mode');
+    return p === 'signup' ? 'signup' : 'signin';
+  }, [search]);
+}
+
+
+Render based on mode only; do not keep a separate useState defaulting to signin.
+
+export default function AuthPage() {
+  const navigate = useNavigate();
+  const mode = useAuthMode();
+
+  const params = new URLSearchParams(location.search);
+  const redirectRaw = params.get('redirect') || '/onboarding/step-1';
+  const redirect = redirectRaw.startsWith('/') ? redirectRaw : '/onboarding/step-1';
+
+  const title = mode === 'signup' ? 'Create your account' : 'Welcome back';
+  const primaryLabel = mode === 'signup' ? 'Create account' : 'Sign in';
+
+  // Optional: toggle links update the URL param instead of local state
+  const switchTo = (m: AuthMode) => {
+    params.set('mode', m);
+    params.set('redirect', redirect); // preserve
+    navigate({ pathname: '/auth', search: `?${params.toString()}` }, { replace: true });
+  };
+
+  return (
+    <>
+      <h1>{title}</h1>
+      {/* your tabs etc. */}
+      <button onClick={mode === 'signup' ? handleSignup : handleSignin}>
+        {primaryLabel}
+      </button>
+
+      {/* Example switchers */}
+      {mode === 'signin' && <button onClick={() => switchTo('signup')}>Create account</button>}
+      {mode === 'signup' && <button onClick={() => switchTo('signin')}>Have an account? Sign in</button>}
+    </>
+  );
+}
+
+
+Key change: No internal state that defaults to “signin”. The component is controlled by the URL. If mode=signup is present, the “Create account” UI must render.
+
+Keep post-auth redirect as is, but sanitize:
+
+// after successful signup/signin
+navigate(redirect, { replace: true });
+
+Acceptance criteria (lock this)
+
+Visiting /auth?mode=signup&redirect=/onboarding/step-1 shows:
+
+Heading = Create your account
+
+Primary button = Create account
+
+Signup form variant (not sign-in)
+
+Visiting /auth (no mode) shows Sign in as before.
+
+Redirect on success still uses redirect param.
+
+Test (add; must pass)
+
+File: tests/auth.signup-mode.spec.ts
+
+import { test, expect } from '@playwright/test';
+
+test('auth honors mode=signup', async ({ page }) => {
+  await page.goto('/auth?mode=signup&redirect=%2Fonboarding%2Fstep-1');
+  await expect(page.getByRole('heading', { name: /create your account/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /create account/i })).toBeVisible();
+});
