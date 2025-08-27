@@ -37,11 +37,9 @@ type AuthMode = 'signin' | 'signup';
 function useAuthMode(): AuthMode {
   const [location] = useLocation();
   return useMemo(() => {
-    // Extract query string - wouter provides the full path including search
-    const queryStart = location.indexOf('?');
-    const search = queryStart !== -1 ? location.substring(queryStart + 1) : '';
+    // Use window.location.search to get query params since wouter strips them
+    const search = window.location.search.substring(1);
     const p = new URLSearchParams(search).get('mode');
-    console.log('Auth Mode Debug:', { location, search, mode: p, result: p === 'signup' ? 'signup' : 'signin' });
     return p === 'signup' ? 'signup' : 'signin';
   }, [location]);
 }
@@ -50,9 +48,8 @@ export default function Auth() {
   const [location, navigate] = useLocation();
   const authMode = useAuthMode(); // Direct URL control, no local state
   
-  // Parse redirect parameter - only allow internal paths
-  const queryStart = location.indexOf('?');
-  const search = queryStart !== -1 ? location.substring(queryStart + 1) : '';
+  // Parse redirect parameter - only allow internal paths - use window.location.search
+  const search = window.location.search.substring(1);
   const params = new URLSearchParams(search);
   const redirectRaw = params.get('redirect') || '/dashboard';
   const redirectUrl = redirectRaw.startsWith('/') ? redirectRaw : '/dashboard';
@@ -315,14 +312,16 @@ export default function Auth() {
                         className="w-full"
                         onClick={() => {
                           const newMode = authMode === 'signin' ? 'signup' : 'signin';
-                          const queryStart = location.indexOf('?');
-                          const search = queryStart !== -1 ? location.substring(queryStart + 1) : '';
+                          const search = window.location.search.substring(1);
                           const params = new URLSearchParams(search);
                           params.set('mode', newMode);
                           if (redirectUrl !== '/dashboard') {
                             params.set('redirect', redirectUrl);
                           }
-                          navigate(`/auth?${params.toString()}`, { replace: true });
+                          // Use window.location to preserve query params
+                          window.history.replaceState(null, '', `/auth?${params.toString()}`);
+                          // Trigger a re-render by navigating
+                          navigate('/auth', { replace: true });
                         }}
                         data-testid="button-toggle-mode"
                       >
