@@ -66,6 +66,9 @@ export default function Auth() {
     window.history.replaceState(null, '', `/auth?${p.toString()}`);
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
+
+  const title = authMode === 'signup' ? 'Create your account' : 'Welcome back';
+  const primaryLabel = authMode === 'signup' ? 'Create account' : 'Sign in';
   const [phoneStep, setPhoneStep] = useState<'phone' | 'verify'>('phone');
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, sendPhoneVerification, verifyPhoneCode, resetPassword, loading } = useAuthContext();
@@ -127,6 +130,9 @@ export default function Auth() {
       });
     }
   };
+
+  const handleSignup = handleEmailAuth;
+  const handleSignin = handleEmailAuth;
 
   const handlePhoneVerification = async (data: z.infer<typeof phoneSchema>) => {
     try {
@@ -199,7 +205,7 @@ export default function Auth() {
         <div className="text-center">
           <span className="text-3xl font-bold text-primary">ShopLynk</span>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            {authMode === 'signup' ? 'Create your account' : 'Welcome back'}
+            {title}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             {authMode === 'signup' 
@@ -316,8 +322,9 @@ export default function Auth() {
                         className="w-full"
                         disabled={loading}
                         data-testid="button-sign-in"
+
                       >
-                        {loading ? <LoadingSpinner size="sm" /> : authMode === 'signin' ? 'Sign in' : 'Create account'}
+                        {loading ? <LoadingSpinner size="sm" /> : primaryLabel}
                       </Button>
                       <Button
                         type="button"
