@@ -10,9 +10,10 @@ declare global {
 }
 
 export function useRouteDecision() {
-  const { user, ready, status, nextStep, error } = useOnboardingProgress();
+  const { loading, error, firstIncompleteStep, isComplete } = useOnboardingProgress();
   const [, navigate] = useLocation();
   const redirected = useRef(false);
+  const ready = !loading;
 
   useEffect(() => {
     // Don't redirect if not ready or already redirected
@@ -27,9 +28,9 @@ export function useRouteDecision() {
     if (debug) {
       console.debug('RouteDecision:', {
         path,
-        user: !!user,
-        status,
-        nextStep,
+        ready,
+        isComplete,
+        firstIncompleteStep,
         requestedStep,
         error
       });
@@ -50,14 +51,9 @@ export function useRouteDecision() {
       return;
     }
 
-    // Anonymous user - allow marketing landing page
-    if (!user) {
-      // Allow anonymous users to view marketing landing page
-      if (path === '/' || path.startsWith('/features') || path.startsWith('/pricing') || path.startsWith('/support') || path.startsWith('/faq') || path.startsWith('/terms') || path.startsWith('/privacy')) {
-        return; // Don't redirect, let them browse
-      }
-      if (path !== '/auth') go('/auth', 'Not authenticated');
-      return;
+    // Allow marketing landing page and public routes for all users
+    if (path === '/' || path.startsWith('/features') || path.startsWith('/pricing') || path.startsWith('/support') || path.startsWith('/faq') || path.startsWith('/terms') || path.startsWith('/privacy')) {
+      return; // Don't redirect, let them browse
     }
 
     // Completed onboarding
