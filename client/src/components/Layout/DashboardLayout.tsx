@@ -92,7 +92,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={seller?.logoUrl} alt={seller?.storeName} />
                       <AvatarFallback>
-                        {seller?.storeName?.[0]?.toUpperCase() || 'U'}
+                        {seller?.storeName?.[0]?.toUpperCase() || seller?.fullName?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
