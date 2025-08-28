@@ -116,10 +116,14 @@ export default function Settings() {
       contactVisibilityForm.reset({
         whatsappNumber: seller.whatsappNumber || '',
         email: seller.email || '',
-        socialMedia: {
-          instagram: seller.socialMedia?.instagram || '',
-          tiktok: seller.socialMedia?.tiktok || '',
-          facebook: seller.socialMedia?.facebook || '',
+        socialMedia: seller.socialMedia ? {
+          instagram: seller.socialMedia.instagram || '',
+          tiktok: seller.socialMedia.tiktok || '',
+          facebook: seller.socialMedia.facebook || '',
+        } : {
+          instagram: '',
+          tiktok: '',
+          facebook: '',
         },
         preferredLanguage: seller.preferredLanguage || '',
       });

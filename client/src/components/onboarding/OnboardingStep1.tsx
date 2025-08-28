@@ -109,7 +109,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
     };
 
     // Debounce auto-save to avoid too many requests
-    const timeoutId = setTimeout(saveData, 1000);
+    const timeoutId = setTimeout(saveData, 2000);
     return () => clearTimeout(timeoutId);
   }, [watchedValues, user, isLoading]);
 

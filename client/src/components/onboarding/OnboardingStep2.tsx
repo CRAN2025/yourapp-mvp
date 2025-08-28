@@ -111,7 +111,11 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
           logoUrl: watchedValues.storeLogo || '',
           bannerUrl: watchedValues.storeBanner || '',
           storeDescription: watchedValues.storeBio || '',
-          socialMedia: watchedValues.socialMedia,
+          socialMedia: {
+            instagram: watchedValues.socialMedia?.instagram || '',
+            tiktok: watchedValues.socialMedia?.tiktok || '',
+            facebook: watchedValues.socialMedia?.facebook || '',
+          },
           preferredLanguage: watchedValues.preferredLanguage || '',
           returnPolicy: watchedValues.returnPolicy || '',
           operatingHours: watchedValues.operatingHours || '',
@@ -124,7 +128,7 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
     };
 
     // Debounce auto-save to avoid too many requests
-    const timeoutId = setTimeout(saveData, 1000);
+    const timeoutId = setTimeout(saveData, 2000);
     return () => clearTimeout(timeoutId);
   }, [watchedValues, user, isLoading]);
 
@@ -139,13 +143,17 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
       
       const sellerRef = doc(db, 'sellers', user.uid);
       await updateDoc(sellerRef, {
-        logoUrl: data.storeLogo,
-        bannerUrl: data.storeBanner,
-        storeDescription: data.storeBio,
-        socialMedia: data.socialMedia,
-        preferredLanguage: data.preferredLanguage,
-        returnPolicy: data.returnPolicy,
-        operatingHours: data.operatingHours,
+        logoUrl: data.storeLogo || '',
+        bannerUrl: data.storeBanner || '',
+        storeDescription: data.storeBio || '',
+        socialMedia: {
+          instagram: data.socialMedia?.instagram || '',
+          tiktok: data.socialMedia?.tiktok || '',
+          facebook: data.socialMedia?.facebook || '',
+        },
+        preferredLanguage: data.preferredLanguage || '',
+        returnPolicy: data.returnPolicy || '',
+        operatingHours: data.operatingHours || '',
         tags: data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
         updatedAt: Date.now(),
       });
