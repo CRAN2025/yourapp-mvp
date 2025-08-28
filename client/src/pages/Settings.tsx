@@ -97,6 +97,9 @@ export default function Settings() {
     console.log('🔍 Settings: Loading state:', loading);
     console.log('🔍 Settings: Seller storeName:', seller?.storeName);
     console.log('🔍 Settings: Seller fullName:', seller?.fullName);
+    console.log('🔍 Settings: Seller preferredLanguage:', seller?.preferredLanguage);
+    console.log('🔍 Settings: Seller paymentMethods:', seller?.paymentMethods);
+    console.log('🔍 Settings: Seller deliveryOptions:', seller?.deliveryOptions);
     console.log('🔍 Settings: Seller id:', seller?.id);
     console.log('🔍 Settings: Seller onboardingCompleted:', seller?.onboardingCompleted);
   }, [seller, loading]);
@@ -657,11 +660,14 @@ export default function Settings() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {preferredLanguages.map((language) => (
-                                    <SelectItem key={language} value={language}>
-                                      {language}
-                                    </SelectItem>
-                                  ))}
+                                  <SelectItem value="english">English</SelectItem>
+                                  <SelectItem value="swahili">Swahili</SelectItem>
+                                  <SelectItem value="french">French</SelectItem>
+                                  <SelectItem value="arabic">Arabic</SelectItem>
+                                  <SelectItem value="hausa">Hausa</SelectItem>
+                                  <SelectItem value="yoruba">Yoruba</SelectItem>
+                                  <SelectItem value="igbo">Igbo</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                               </Select>
                               <FormMessage />

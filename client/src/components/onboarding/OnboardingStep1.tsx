@@ -57,7 +57,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
       businessName: '',
       whatsappNumber: '',
       country: '',
-      category: '🎨 Arts & Crafts' as const, // Set valid category as default
+      category: undefined, // No default - user must select
       subscriptionPlan: 'beta-free',
     },
   });
@@ -81,7 +81,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
             businessName: data.storeName || '',
             whatsappNumber: data.whatsappNumber || '',
             country: data.country || '',
-            category: data.category || '🎨 Arts & Crafts',
+            category: data.category, // Load existing or undefined (no default)
             subscriptionPlan: data.subscriptionPlan || 'beta-free',
           });
           // Set selected country state for form interactions
