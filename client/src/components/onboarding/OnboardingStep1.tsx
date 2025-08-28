@@ -78,59 +78,21 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
     loadExistingData();
   }, [user, form]);
 
-  // Auto-save form data when fields change
-  const watchedValues = form.watch();
-  useEffect(() => {
-    if (!user || isLoading) return;
-    
-    const saveData = async () => {
-      try {
-        const { doc, setDoc } = await import('firebase/firestore');
-        const { db } = await import('@/lib/firebase');
-        
-        const sellerRef = doc(db, 'sellers', user.uid);
-        await setDoc(sellerRef, {
-          id: user.uid,
-          email: user.email || '',
-          fullName: watchedValues.fullName || '',
-          storeName: watchedValues.businessName || '',
-          whatsappNumber: watchedValues.whatsappNumber || '',
-          country: watchedValues.country || '',
-          category: watchedValues.category || '',
-          subscriptionPlan: watchedValues.subscriptionPlan || 'beta-free',
-          onboardingCompleted: false,
-          isAdmin: false,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        }, { merge: true });
-      } catch (error) {
-        console.error('❌ Error auto-saving Step 1 data:', error);
-        console.error('❌ Attempted to save:', {
-          fullName: watchedValues.fullName,
-          storeName: watchedValues.businessName,
-          whatsappNumber: watchedValues.whatsappNumber,
-          country: watchedValues.country,
-          category: watchedValues.category
-        });
-      }
-    };
-
-    // Debounce auto-save to avoid too many requests
-    const timeoutId = setTimeout(saveData, 2000);
-    return () => clearTimeout(timeoutId);
-  }, [watchedValues, user, isLoading]);
+  // Remove auto-save - using explicit save buttons instead
 
   const onSubmit = async (data: Step1FormData) => {
     if (!user) return;
     
     setIsSubmitting(true);
     try {
+      console.log('✅ Step 1: Starting save with data:', data);
+      
       // Save the form data to Firestore sellers collection
       const { doc, setDoc, serverTimestamp } = await import('firebase/firestore');
       const { db } = await import('@/lib/firebase');
       
       const sellerRef = doc(db, 'sellers', user.uid);
-      await setDoc(sellerRef, {
+      const saveData = {
         id: user.uid,
         email: user.email || '',
         fullName: data.fullName,
@@ -143,7 +105,11 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
         isAdmin: false,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-      }, { merge: true });
+      };
+      
+      console.log('✅ Step 1: Saving to Firestore:', saveData);
+      await setDoc(sellerRef, saveData, { merge: true });
+      console.log('✅ Step 1: Save completed successfully');
       
       await completeStep(user.uid, 'step-1');
       navigate('/onboarding/step-2', { replace: true });
@@ -297,8 +263,8 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                data-testid="button-continue"
-                className="min-w-[120px]"
+                data-testid="button-save-continue"
+                className="min-w-[140px]"
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
@@ -306,7 +272,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
                     Saving...
                   </div>
                 ) : (
-                  'Continue'
+                  'Save & Continue'
                 )}
               </Button>
             </div>

@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import ImageUpload from '@/components/ImageUpload';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -634,82 +635,94 @@ export default function Settings() {
                 <Form {...paymentsDeliveryForm}>
                   <form onSubmit={paymentsDeliveryForm.handleSubmit(handlePaymentsDeliveryUpdate)} className="space-y-6">
                     {/* Payment Methods */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Payment Methods</h3>
-                      <div className="space-y-2">
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="payment-cash"
-                          />
-                          <span>Cash on Delivery</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="payment-mobile-money"
-                          />
-                          <span>Mobile Money (M-Pesa, MTN, etc.)</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="payment-bank-transfer"
-                          />
-                          <span>Bank Transfer</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="payment-card"
-                          />
-                          <span>Credit/Debit Card (Coming Soon)</span>
-                        </label>
-                      </div>
-                    </div>
+                    <FormField
+                      control={paymentsDeliveryForm.control}
+                      name="paymentMethods"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel className="text-lg font-medium">Payment Methods</FormLabel>
+                          <div className="space-y-2">
+                            {[
+                              { id: 'cash', label: 'Cash on Delivery' },
+                              { id: 'mobile-money', label: 'Mobile Money (M-Pesa, MTN, etc.)' },
+                              { id: 'bank-transfer', label: 'Bank Transfer' },
+                              { id: 'card', label: 'Credit/Debit Card (Coming Soon)' },
+                            ].map((option) => (
+                              <FormField
+                                key={option.id}
+                                control={paymentsDeliveryForm.control}
+                                name="paymentMethods"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(option.id)}
+                                        onCheckedChange={(checked) => {
+                                          const updatedValue = checked
+                                            ? [...(field.value || []), option.id]
+                                            : (field.value || []).filter((value) => value !== option.id);
+                                          field.onChange(updatedValue);
+                                        }}
+                                        data-testid={`payment-${option.id}`}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal cursor-pointer">
+                                      {option.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     {/* Delivery Options */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Delivery Options</h3>
-                      <div className="space-y-2">
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="delivery-pickup"
-                          />
-                          <span>Customer Pickup</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="delivery-local"
-                          />
-                          <span>Local Delivery</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="delivery-nationwide"
-                          />
-                          <span>Nationwide Shipping</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                            data-testid="delivery-international"
-                          />
-                          <span>International Shipping</span>
-                        </label>
-                      </div>
-                    </div>
+                    <FormField
+                      control={paymentsDeliveryForm.control}
+                      name="deliveryOptions"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel className="text-lg font-medium">Delivery Options</FormLabel>
+                          <div className="space-y-2">
+                            {[
+                              { id: 'pickup', label: 'Customer Pickup' },
+                              { id: 'local', label: 'Local Delivery' },
+                              { id: 'nationwide', label: 'Nationwide Shipping' },
+                              { id: 'international', label: 'International Shipping' },
+                            ].map((option) => (
+                              <FormField
+                                key={option.id}
+                                control={paymentsDeliveryForm.control}
+                                name="deliveryOptions"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(option.id)}
+                                        onCheckedChange={(checked) => {
+                                          const updatedValue = checked
+                                            ? [...(field.value || []), option.id]
+                                            : (field.value || []).filter((value) => value !== option.id);
+                                          field.onChange(updatedValue);
+                                        }}
+                                        data-testid={`delivery-${option.id}`}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal cursor-pointer">
+                                      {option.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                     <Alert>
                       <AlertDescription>
