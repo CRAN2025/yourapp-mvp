@@ -1,6 +1,7 @@
 // src/lib/authRedirect.ts
-import type { Navigate } from 'wouter';
 import type { Auth, User } from 'firebase/auth';
+
+type Navigate = (to: string, options?: { replace?: boolean }) => void;
 
 const DEFAULT_REDIRECT = '/onboarding/step-1';
 

@@ -18,8 +18,8 @@ export default function RequireAuth({ children }: { children: JSX.Element }) {
 
   useEffect(() => {
     if (ready && !user) {
-      const redirect = encodeURIComponent(location);
-      navigate(`/auth?mode=signup&redirect=${redirect}`, { replace: true });
+      const fullPath = location + (window.location.search || '');
+      navigate(`/auth?mode=signup&redirect=${encodeURIComponent(fullPath)}`, { replace: true });
     }
   }, [ready, user, location, navigate]);
 
