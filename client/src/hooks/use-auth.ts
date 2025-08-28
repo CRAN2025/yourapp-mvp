@@ -292,8 +292,11 @@ export function useAuth() {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       
+      console.log('🔄 updateSellerProfile: Starting update for seller:', state.user.uid);
+      console.log('🔄 updateSellerProfile: Updates:', updates);
+      
       // Import Firebase Firestore functions
-      const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
+      const { doc, updateDoc, serverTimestamp, getDoc } = await import('firebase/firestore');
       const { db } = await import('@/lib/firebase');
       
       // Update the seller document in Firestore
@@ -303,12 +306,27 @@ export function useAuth() {
         updatedAt: serverTimestamp(),
       });
       
+      console.log('✅ updateSellerProfile: Firestore update completed');
+      
+      // Get the updated seller data to mirror to RTDB
+      const updatedSellerSnap = await getDoc(sellerRef);
+      const updatedSellerData = updatedSellerSnap.data();
+      
+      if (updatedSellerData) {
+        // Mirror the updated seller profile to Firebase Realtime Database
+        const { mirrorSellerProfile } = await import('@/lib/utils/dataMirror');
+        await mirrorSellerProfile(state.user.uid, updatedSellerData);
+        console.log('✅ updateSellerProfile: RTDB mirroring completed');
+      }
+      
       // Update local state with the new values
       setState(prev => ({
         ...prev,
         seller: prev.seller ? { ...prev.seller, ...updates } : null,
         loading: false,
       }));
+      
+      console.log('✅ updateSellerProfile: Local state updated');
     } catch (error) {
       console.error('❌ Update seller profile error:', error);
       console.error('❌ Attempted updates:', updates);

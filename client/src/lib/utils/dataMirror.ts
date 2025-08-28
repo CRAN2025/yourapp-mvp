@@ -6,10 +6,23 @@ import { database } from '../firebase';
  */
 export async function mirrorSellerProfile(uid: string, profileData: any) {
   try {
+    console.log('🔄 RTDB: Mirroring seller profile for UID:', uid);
+    console.log('🔄 RTDB: Profile data:', profileData);
+    
     const publicProfileRef = ref(database, `publicStores/${uid}/profile`);
     await set(publicProfileRef, profileData);
+    
+    console.log('✅ RTDB: Seller profile mirrored successfully to publicStores/' + uid + '/profile');
+    
+    // Also mirror to the main sellers path for Settings page access
+    const sellerProfileRef = ref(database, `sellers/${uid}/profile`);
+    await set(sellerProfileRef, profileData);
+    
+    console.log('✅ RTDB: Seller profile mirrored successfully to sellers/' + uid + '/profile');
   } catch (error) {
-    console.error('Failed to mirror seller profile:', error);
+    console.error('❌ RTDB: Failed to mirror seller profile:', error);
+    console.error('❌ RTDB: UID:', uid);
+    console.error('❌ RTDB: Profile data:', profileData);
     throw error;
   }
 }
