@@ -1,0 +1,169 @@
+AI Agent Governance Protocol (Full Technical Instructions)
+
+Audience: The AI agent / developer team
+
+Objective: Maintain absolute control over onboarding and settings flows using strict versioning and rollback procedures.
+
+1. Scope (Protected Modules)
+
+Landing → Onboarding → Seller Console routing
+
+All onboarding steps, validations, and data saving
+
+Settings page categories, store preferences, currency, language, phone validation
+
+Firebase reads/writes linked to onboarding/settings
+
+UI/UX tied to these flows
+
+2. Versioning Rules
+
+Always start a new version before making any change.
+
+Naming convention:
+
+ShopLynk_Onboarding_Settings_v<MAJOR>.<MINOR>_<TAG>
+
+
+Examples:
+
+v1.0_LOCKED → Stable baseline
+
+v1.1_FIX → Bug fix
+
+v1.2_UI → Small visual update
+
+v2.0_FEATURE → New onboarding step
+
+3. Change Workflow
+Step 1 — Confirm Lock
+
+If Senait requests a change, pause and confirm:
+
+“Flows are locked. Starting vX.Y_TAG. Confirm unlock?”
+
+Do not start unless explicitly approved.
+
+Step 2 — Create New Version
+
+Clone the last stable version
+
+Name it appropriately using the convention
+
+Work only within the new version branch
+
+Step 3 — Implement & Test
+
+Apply changes in isolation
+
+Validate:
+
+Onboarding transitions
+
+Data-saving correctness
+
+Settings sync
+
+Routing behavior
+
+UI consistency
+
+Step 4 — Lock the New Version
+
+If stable, tag the new version as locked:
+
+ShopLynk_Onboarding_Settings_vX.Y_TAG_LOCKED
+
+
+Update the Master Change Log.
+
+Step 5 — Rollback Protocol
+
+If any regression occurs:
+
+Restore → ShopLynk_Onboarding_Settings_v(last_stable)_LOCKED
+
+
+Log rollback details immediately.
+
+4. Master Change Log
+
+Maintain ShopLynk_Onboarding_Settings_ChangeLog.xlsx with:
+
+Date
+
+Version
+
+Type (Fix/UI/Feature)
+
+Change Summary
+
+Requested By
+
+Unlock Approved? (Y/N)
+
+Developer
+
+Status
+
+Rollback Info
+
+5. Communication Protocol
+
+For every change request:
+
+Confirm lock → request explicit unlock → start new version
+
+Always send version ID back to Senait when done
+
+If rollback occurs, notify Senait immediately
+
+6. Quality Gates
+
+Before merging or locking any new version:
+
+Smoke test:
+
+Landing → Onboarding step 1 → Seller Console
+
+Check settings sync
+
+Validate currency & phone formats
+
+Ensure no loops, blank pages, or broken states
+
+7. Rollback Policy
+
+Always keep the last stable version tagged:
+
+ShopLynk_Onboarding_Settings_vX.Y_LOCKED
+
+
+Rollback immediately on regression
+
+Document rollback in the log
+
+Agent Checklist
+
+ Confirm lock status
+
+ Get explicit unlock approval
+
+ Create new version before edits
+
+ Implement, test, and lock
+
+ Update the change log
+
+ Provide version ID + PR link
+
+ Roll back instantly if needed
+
+Final Setup
+
+Current Baseline:
+
+ShopLynk_Onboarding_Settings_v1.0_LOCKED
+
+
+All work must branch/tag from this or the latest locked version.

@@ -13,10 +13,10 @@
 
 ## Change Log Entries
 
-| Date | Requested Change | Requester | Unlock Approved? | Version # | Developer | Status |
-|------|------------------|-----------|------------------|-----------|-----------|---------|
-| 2025-08-28 | **BASELINE CREATION** | Senait | N/A | v1.0 | Agent | ✅ Completed |
-| 2025-08-28 | **GOVERNANCE PROTOCOL IMPLEMENTATION** | Senait | N/A | v1.0 | Agent | ✅ Completed |
+| Date | Version | Type | Change Summary | Requested By | Unlock Approved? | Developer | Status | Rollback Info |
+|------|---------|------|----------------|--------------|------------------|-----------|--------|---------------|
+| 2025-08-28 | v1.0_LOCKED | BASELINE | **BASELINE CREATION** - Initial locked state | Senait | N/A | Agent | ✅ Completed | N/A - Baseline |
+| 2025-08-28 | v1.0_LOCKED | PROTOCOL | **GOVERNANCE PROTOCOL IMPLEMENTATION** | Senait | N/A | Agent | ✅ Completed | N/A - Protocol Setup |
 
 ---
 
@@ -48,29 +48,53 @@
 
 ---
 
-## Change Request Process
+## Enhanced Change Workflow (Technical Instructions)
 
-### Step 1: Request Submission
-When a change is requested to onboarding/settings flows:
+### Step 1: Confirm Lock Status
+When any change is requested to onboarding/settings flows:
 
-1. **PAUSE** all implementation work
-2. **LOG** the request in this change log
-3. **REMIND** requester that flows are locked
-4. **WAIT** for explicit unlock approval from Senait
+**REQUIRED RESPONSE**: 
+> "Onboarding/Settings flows are LOCKED per governance protocol. Starting v[X.Y]_[TAG]. **Confirm explicit unlock approval?**"
 
-### Step 2: Approval Required
-For any change to proceed, Senait must provide:
-- ✅ Explicit "UNLOCK APPROVED" confirmation  
-- 📝 Scope of changes allowed
-- 🎯 Specific components that can be modified
-- ⏰ Time limit for changes (if applicable)
+**DO NOT START** unless Senait explicitly approves with "UNLOCK APPROVED"
 
-### Step 3: Implementation & Documentation
-Only after approval:
-1. Create new version number (v1.1, v1.2, etc.)
-2. Document all changes made
-3. Update baseline if changes are permanent
-4. Test thoroughly before marking complete
+### Step 2: Versioning Rules
+**Naming Convention**: `ShopLynk_Onboarding_Settings_v<MAJOR>.<MINOR>_<TAG>`
+
+**Version Types**:
+- `v1.1_FIX` - Bug fixes and corrections
+- `v1.2_UI` - Visual/UX improvements only  
+- `v1.3_UPDATE` - Minor feature updates
+- `v2.0_FEATURE` - New functionality or major changes
+- `v[X.Y]_LOCKED` - Stable, tested, approved version
+
+### Step 3: Create New Version Branch
+Before any modifications:
+1. Clone the last stable version (`v1.0_LOCKED`)
+2. Name the new working version appropriately 
+3. Work only within the new version scope
+4. Document all changes in this log
+
+### Step 4: Implementation & Quality Gates
+**Required Testing Before Lock**:
+- ✅ Smoke test: Landing → Onboarding Step 1 → Seller Console
+- ✅ Settings sync validation
+- ✅ Currency & phone format validation
+- ✅ No loops, blank pages, or broken states
+- ✅ Firebase data persistence verification
+- ✅ Route guard behavior testing
+
+### Step 5: Version Locking
+If stable and approved:
+1. Tag as: `ShopLynk_Onboarding_Settings_v[X.Y]_[TAG]_LOCKED`
+2. Update Master Change Log with completion
+3. Provide version ID back to Senait
+4. Archive working version, maintain locked baseline
+
+### Step 6: Rollback Protocol (IMMEDIATE)
+**Triggers**: Any regression in core functionality
+**Action**: Restore → `ShopLynk_Onboarding_Settings_v(last_stable)_LOCKED`
+**Required**: Log rollback details immediately, notify Senait
 
 ---
 
@@ -138,14 +162,44 @@ When approval granted:
 
 ---
 
+## Agent Checklist (MANDATORY)
+
+For every onboarding/settings change request:
+- [ ] ✅ Confirm lock status - PAUSE first
+- [ ] 🔓 Get explicit unlock approval from Senait  
+- [ ] 📋 Create new version before any edits
+- [ ] 🔧 Implement, test using quality gates
+- [ ] 🔒 Lock stable version with proper naming
+- [ ] 📝 Update change log with completion
+- [ ] 📤 Provide version ID + status back to Senait
+- [ ] 🚨 Roll back instantly if regression detected
+
+## Communication Protocol
+
+**For Every Change Request**:
+1. **Immediate Response**: "Onboarding/Settings flows are LOCKED per governance protocol. Starting v[X.Y]_[TAG]. **Confirm explicit unlock approval?**"
+2. **Wait for Approval**: Do not proceed without explicit "UNLOCK APPROVED"  
+3. **Version Reporting**: Always send version ID back to Senait when complete
+4. **Rollback Notification**: Notify Senait immediately if rollback occurs
+
+## Current Baseline Status
+
+**Locked Version**: `ShopLynk_Onboarding_Settings_v1.0_LOCKED`  
+**Status**: Production-ready and stable  
+**Last Stable Test**: August 28, 2025  
+**Components**: All onboarding steps, settings management, Firebase integration  
+
+---
+
 ## Contact Information
 
-**For Unlock Requests**: Contact Senait directly  
+**For Unlock Requests**: Contact Senait directly with business justification  
 **For Technical Questions**: Review baseline documentation first  
-**For Emergencies**: Implement rollback procedure immediately
+**For Emergencies**: Implement rollback procedure immediately, then notify
 
 ---
 
 **Change Log Maintained by**: Development Agent  
 **Last Updated**: August 28, 2025  
-**Next Review**: Upon change request or quarterly review
+**Next Review**: Upon change request or quarterly assessment  
+**Protocol Version**: Enhanced Technical v1.1
