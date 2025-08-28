@@ -9,14 +9,22 @@ import { completeStep } from '@/lib/onboarding';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const step2Schema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
-  address: z.string().min(5, 'Please enter your business address'),
-  city: z.string().min(2, 'City is required'),
-  country: z.string().min(2, 'Country is required'),
+  storeLogo: z.string().optional(),
+  storeBanner: z.string().optional(),
+  storeBio: z.string().optional(),
+  socialMedia: z.object({
+    instagram: z.string().optional(),
+    tiktok: z.string().optional(),
+    facebook: z.string().optional(),
+  }).optional(),
+  preferredLanguage: z.string().optional(),
+  returnPolicy: z.string().optional(),
+  operatingHours: z.string().optional(),
+  tags: z.string().optional(),
 });
 
 type Step2FormData = z.infer<typeof step2Schema>;
@@ -33,11 +41,18 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
   const form = useForm<Step2FormData>({
     resolver: zodResolver(step2Schema),
     defaultValues: {
-      fullName: '',
-      phone: '',
-      address: '',
-      city: '',
-      country: '',
+      storeLogo: '',
+      storeBanner: '',
+      storeBio: '',
+      socialMedia: {
+        instagram: '',
+        tiktok: '',
+        facebook: '',
+      },
+      preferredLanguage: '',
+      returnPolicy: '',
+      operatingHours: '',
+      tags: '',
     },
   });
 
@@ -65,9 +80,9 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Contact Information</CardTitle>
+        <CardTitle>Enhance Your Store</CardTitle>
         <CardDescription>
-          Provide your contact details so customers can reach you and for business verification.
+          Optional: Add branding and details to make your store more attractive to customers.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -75,15 +90,16 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="fullName"
+              name="storeBio"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Store Bio (Optional)</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Enter your full name" 
+                    <Textarea 
+                      placeholder="Brief description about your store and what makes it special..." 
+                      className="min-h-[80px]"
                       {...field}
-                      data-testid="input-full-name"
+                      data-testid="textarea-store-bio"
                     />
                   </FormControl>
                   <FormMessage />
@@ -91,55 +107,19 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter your phone number" 
-                      type="tel"
-                      {...field}
-                      data-testid="input-phone"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Address</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter your business address" 
-                      {...field}
-                      data-testid="input-address"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Social Media Links (Optional)</h3>
               <FormField
                 control={form.control}
-                name="city"
+                name="socialMedia.instagram"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>City</FormLabel>
+                    <FormLabel>Instagram</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="City" 
+                        placeholder="https://instagram.com/your-handle" 
                         {...field}
-                        data-testid="input-city"
+                        data-testid="input-instagram"
                       />
                     </FormControl>
                     <FormMessage />
@@ -149,15 +129,33 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
 
               <FormField
                 control={form.control}
-                name="country"
+                name="socialMedia.tiktok"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>TikTok</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="Country" 
+                        placeholder="https://tiktok.com/@your-handle" 
                         {...field}
-                        data-testid="input-country"
+                        data-testid="input-tiktok"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="socialMedia.facebook"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Facebook</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="https://facebook.com/your-page" 
+                        {...field}
+                        data-testid="input-facebook"
                       />
                     </FormControl>
                     <FormMessage />
@@ -165,6 +163,71 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="preferredLanguage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Preferred Language (Optional)</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      {...field}
+                      data-testid="select-language"
+                    >
+                      <option value="">Select language</option>
+                      <option value="english">English</option>
+                      <option value="swahili">Swahili</option>
+                      <option value="french">French</option>
+                      <option value="arabic">Arabic</option>
+                      <option value="hausa">Hausa</option>
+                      <option value="yoruba">Yoruba</option>
+                      <option value="igbo">Igbo</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="operatingHours"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Operating Hours (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="e.g., Mon-Fri 9AM-6PM, Sat 10AM-4PM" 
+                      {...field}
+                      data-testid="input-hours"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags/Keywords (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="e.g., organic, handmade, local, affordable" 
+                      {...field}
+                      data-testid="input-tags"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-sm text-gray-600">Comma-separated keywords to help customers find you</p>
+                </FormItem>
+              )}
+            />
 
             <div className="flex justify-between">
               <Button 
