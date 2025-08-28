@@ -93,13 +93,13 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
               name="storeBio"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Store Bio (Optional)</FormLabel>
+                  <FormLabel>Store Description (Optional)</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Brief description about your store and what makes it special..." 
                       className="min-h-[80px]"
                       {...field}
-                      data-testid="textarea-store-bio"
+                      data-testid="textarea-store-description"
                     />
                   </FormControl>
                   <FormMessage />

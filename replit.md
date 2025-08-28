@@ -8,8 +8,9 @@ Preferred communication style: Simple, everyday language.
 
 ## Running List of Protected Components (DO NOT CHANGE)
 1. **Landing Page**: Marketing home page (/) - All visuals, layout, and copy frozen
-2. **Onboarding Flow for New Users**: Complete onboarding process when user is new - All functionality locked
+2. **Onboarding Flow for New Users**: Complete onboarding process when user is new - All functionality locked, field specifications implemented
 3. **CTA Routing Logic**: Landing page CTA behavior and authentication flow - Logic is working correctly, do not modify
+4. **Field Specification Implementation**: Step 1 (mandatory: Full Name, Store Name, WhatsApp, Email, Country, Category, Subscription), Step 2 (optional: Store Description, Social Media, Language, Hours, Tags), Step 3 (display-only: Payment/Delivery options) - Locked as backup state
 
 # System Architecture
 
