@@ -96,53 +96,21 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
     loadExistingData();
   }, [user, form]);
 
-  // Auto-save form data when fields change
-  const watchedValues = form.watch();
-  useEffect(() => {
-    if (!user || isLoading) return;
-    
-    const saveData = async () => {
-      try {
-        const { doc, setDoc } = await import('firebase/firestore');
-        const { db } = await import('@/lib/firebase');
-        
-        const sellerRef = doc(db, 'sellers', user.uid);
-        await setDoc(sellerRef, {
-          logoUrl: watchedValues.storeLogo || '',
-          bannerUrl: watchedValues.storeBanner || '',
-          storeDescription: watchedValues.storeBio || '',
-          socialMedia: {
-            instagram: watchedValues.socialMedia?.instagram || '',
-            tiktok: watchedValues.socialMedia?.tiktok || '',
-            facebook: watchedValues.socialMedia?.facebook || '',
-          },
-          preferredLanguage: watchedValues.preferredLanguage || '',
-          returnPolicy: watchedValues.returnPolicy || '',
-          operatingHours: watchedValues.operatingHours || '',
-          tags: watchedValues.tags ? watchedValues.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
-          updatedAt: Date.now(),
-        }, { merge: true });
-      } catch (error) {
-        console.error('Error auto-saving data:', error);
-      }
-    };
-
-    // Debounce auto-save to avoid too many requests
-    const timeoutId = setTimeout(saveData, 2000);
-    return () => clearTimeout(timeoutId);
-  }, [watchedValues, user, isLoading]);
+  // Remove auto-save - using explicit save buttons instead
 
   const onSubmit = async (data: Step2FormData) => {
     if (!user) return;
     
     setIsSubmitting(true);
     try {
+      console.log('✅ Step 2: Starting save with data:', data);
+      
       // Save the form data to Firestore sellers collection
       const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
       const { db } = await import('@/lib/firebase');
       
       const sellerRef = doc(db, 'sellers', user.uid);
-      await updateDoc(sellerRef, {
+      const saveData = {
         logoUrl: data.storeLogo || '',
         bannerUrl: data.storeBanner || '',
         storeDescription: data.storeBio || '',
@@ -156,12 +124,17 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
         operatingHours: data.operatingHours || '',
         tags: data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
         updatedAt: Date.now(),
-      });
+      };
+      
+      console.log('✅ Step 2: Saving to Firestore:', saveData);
+      await updateDoc(sellerRef, saveData);
+      console.log('✅ Step 2: Save completed successfully');
       
       await completeStep(user.uid, 'step-2');
       navigate('/onboarding/step-3', { replace: true });
     } catch (error) {
-      console.error('Error completing step 2:', error);
+      console.error('❌ Error completing step 2:', error);
+      console.error('❌ Attempted to save on submit:', data);
     } finally {
       setIsSubmitting(false);
     }

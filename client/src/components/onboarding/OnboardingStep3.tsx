@@ -67,31 +67,7 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
     loadExistingData();
   }, [user, form]);
 
-  // Auto-save form data when fields change
-  const watchedValues = form.watch();
-  useEffect(() => {
-    if (!user || isLoading) return;
-    
-    const saveData = async () => {
-      try {
-        const { doc, setDoc } = await import('firebase/firestore');
-        const { db } = await import('@/lib/firebase');
-        
-        const sellerRef = doc(db, 'sellers', user.uid);
-        await setDoc(sellerRef, {
-          paymentMethods: watchedValues.paymentMethods || [],
-          deliveryOptions: watchedValues.deliveryOptions || [],
-          updatedAt: Date.now(),
-        }, { merge: true });
-      } catch (error) {
-        console.error('Error auto-saving data:', error);
-      }
-    };
-
-    // Debounce auto-save to avoid too many requests
-    const timeoutId = setTimeout(saveData, 2000);
-    return () => clearTimeout(timeoutId);
-  }, [watchedValues, user, isLoading]);
+  // Remove auto-save - using explicit save buttons instead
 
   const onSubmit = async (data: Step3FormData) => {
     if (!user) return;
