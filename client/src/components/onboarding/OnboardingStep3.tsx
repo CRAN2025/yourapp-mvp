@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useForm } from 'react-hook-form';
@@ -28,6 +28,7 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
   const [, navigate] = useLocation();
   const [user] = useAuthState(auth);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<Step3FormData>({
     resolver: zodResolver(step3Schema),
@@ -36,6 +37,61 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
       deliveryOptions: [],
     },
   });
+
+  // Load existing data on component mount
+  useEffect(() => {
+    const loadExistingData = async () => {
+      if (!user) return;
+      
+      try {
+        const { doc, getDoc } = await import('firebase/firestore');
+        const { db } = await import('@/lib/firebase');
+        
+        const sellerRef = doc(db, 'sellers', user.uid);
+        const sellerSnap = await getDoc(sellerRef);
+        
+        if (sellerSnap.exists()) {
+          const data = sellerSnap.data();
+          form.reset({
+            paymentMethods: data.paymentMethods || [],
+            deliveryOptions: data.deliveryOptions || [],
+          });
+        }
+      } catch (error) {
+        console.error('Error loading existing data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadExistingData();
+  }, [user, form]);
+
+  // Auto-save form data when fields change
+  const watchedValues = form.watch();
+  useEffect(() => {
+    if (!user || isLoading) return;
+    
+    const saveData = async () => {
+      try {
+        const { doc, setDoc } = await import('firebase/firestore');
+        const { db } = await import('@/lib/firebase');
+        
+        const sellerRef = doc(db, 'sellers', user.uid);
+        await setDoc(sellerRef, {
+          paymentMethods: watchedValues.paymentMethods || [],
+          deliveryOptions: watchedValues.deliveryOptions || [],
+          updatedAt: Date.now(),
+        }, { merge: true });
+      } catch (error) {
+        console.error('Error auto-saving data:', error);
+      }
+    };
+
+    // Debounce auto-save to avoid too many requests
+    const timeoutId = setTimeout(saveData, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [watchedValues, user, isLoading]);
 
   const onSubmit = async (data: Step3FormData) => {
     if (!user) return;
