@@ -11,7 +11,7 @@ interface OnboardingGuardProps {
 
 export function OnboardingGuard({ children, requiredStep }: OnboardingGuardProps) {
   const { user, loading: authLoading } = useAuth();
-  const { onboardingState, loading: onboardingLoading, canAccessStep, getNextStep } = useOnboardingProgress();
+  const { loading: onboardingLoading, isComplete, firstIncompleteStep } = useOnboardingProgress();
   const [, navigate] = useLocation();
 
   useEffect(() => {
@@ -24,25 +24,19 @@ export function OnboardingGuard({ children, requiredStep }: OnboardingGuardProps
       return;
     }
 
-    // If onboarding is completed, redirect to app
-    if (onboardingState.status === 'completed') {
-      navigate('/app');
+    // If onboarding is completed, redirect to dashboard
+    if (isComplete) {
+      navigate('/dashboard');
       return;
     }
 
-    // If a specific step is required, check access
+    // If a specific step is required, ensure it's accessible
     if (requiredStep !== undefined) {
-      if (!canAccessStep(requiredStep)) {
-        const nextStep = getNextStep();
-        if (nextStep) {
-          navigate(`/onboarding?step=${nextStep}`);
-        } else {
-          navigate('/app');
-        }
-        return;
-      }
+      // Redirect to first incomplete step if trying to access later step
+      navigate(`/onboarding/${firstIncompleteStep}`);
+      return;
     }
-  }, [user, onboardingState, authLoading, onboardingLoading, requiredStep, navigate, canAccessStep, getNextStep]);
+  }, [user, isComplete, firstIncompleteStep, authLoading, onboardingLoading, requiredStep, navigate]);
 
   // Show loading while checking authentication and onboarding state
   if (authLoading || onboardingLoading) {
