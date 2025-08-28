@@ -79,12 +79,27 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
       const { db } = await import('@/lib/firebase');
       
       const sellerRef = doc(db, 'sellers', user.uid);
-      await updateDoc(sellerRef, {
-        paymentMethods: data.paymentMethods,
-        deliveryOptions: data.deliveryOptions,
+      const saveData = {
+        paymentMethods: data.paymentMethods || [],
+        deliveryOptions: data.deliveryOptions || [],
         onboardingCompleted: true,
         updatedAt: Date.now(),
-      });
+      };
+      
+      console.log('✅ Step 3: Saving to Firestore:', saveData);
+      await updateDoc(sellerRef, saveData);
+      console.log('✅ Step 3: Firestore save completed');
+      
+      // Get the updated seller data to mirror to RTDB
+      const { getDoc } = await import('firebase/firestore');
+      const updatedSellerSnap = await getDoc(sellerRef);
+      const updatedSellerData = updatedSellerSnap.data();
+      
+      if (updatedSellerData) {
+        const { mirrorSellerProfile } = await import('@/lib/utils/dataMirror');
+        await mirrorSellerProfile(user.uid, updatedSellerData);
+        console.log('✅ Step 3: RTDB mirroring completed');
+      }
       
       await completeStep(user.uid, 'step-3');
       navigate('/dashboard', { replace: true });

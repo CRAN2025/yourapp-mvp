@@ -109,7 +109,12 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
       
       console.log('✅ Step 1: Saving to Firestore:', saveData);
       await setDoc(sellerRef, saveData, { merge: true });
-      console.log('✅ Step 1: Save completed successfully');
+      console.log('✅ Step 1: Firestore save completed');
+      
+      // Mirror seller profile to Firebase Realtime Database
+      const { mirrorSellerProfile } = await import('@/lib/utils/dataMirror');
+      await mirrorSellerProfile(user.uid, saveData);
+      console.log('✅ Step 1: RTDB mirroring completed');
       
       await completeStep(user.uid, 'step-1');
       navigate('/onboarding/step-2', { replace: true });

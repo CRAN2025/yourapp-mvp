@@ -6,7 +6,7 @@ interface AuthContextType extends AuthState {
   signInWithEmail: (email: string, password: string) => Promise<any>;
   signUpWithEmail: (email: string, password: string) => Promise<any>;
   sendPhoneVerification: (phoneNumber: string, recaptchaContainer: string) => Promise<any>;
-  verifyPhoneCode: (code: string) => Promise<void>;
+  verifyPhoneCode: (code: string) => Promise<any>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateSellerProfile: (updates: any) => Promise<void>;

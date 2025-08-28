@@ -128,7 +128,18 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
       
       console.log('✅ Step 2: Saving to Firestore:', saveData);
       await updateDoc(sellerRef, saveData);
-      console.log('✅ Step 2: Save completed successfully');
+      console.log('✅ Step 2: Firestore save completed');
+      
+      // Get the updated seller data to mirror to RTDB
+      const { getDoc } = await import('firebase/firestore');
+      const updatedSellerSnap = await getDoc(sellerRef);
+      const updatedSellerData = updatedSellerSnap.data();
+      
+      if (updatedSellerData) {
+        const { mirrorSellerProfile } = await import('@/lib/utils/dataMirror');
+        await mirrorSellerProfile(user.uid, updatedSellerData);
+        console.log('✅ Step 2: RTDB mirroring completed');
+      }
       
       await completeStep(user.uid, 'step-2');
       navigate('/onboarding/step-3', { replace: true });
