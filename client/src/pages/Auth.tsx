@@ -57,6 +57,15 @@ export default function Auth() {
   const params = new URLSearchParams(window.location.search);
   const redirectRaw = params.get('redirect') || (authMode === 'signup' ? '/onboarding/step-1' : '/dashboard');
   const redirectUrl = redirectRaw.startsWith('/') ? redirectRaw : (authMode === 'signup' ? '/onboarding/step-1' : '/dashboard');
+
+  const toggleMode = () => {
+    const next = authMode === 'signin' ? 'signup' : 'signin';
+    const p = new URLSearchParams(window.location.search);
+    p.set('mode', next);
+    if (!p.get('redirect')) p.set('redirect', redirectUrl);
+    window.history.replaceState(null, '', `/auth?${p.toString()}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
   const [phoneStep, setPhoneStep] = useState<'phone' | 'verify'>('phone');
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, sendPhoneVerification, verifyPhoneCode, resetPassword, loading } = useAuthContext();
@@ -314,19 +323,7 @@ export default function Auth() {
                         type="button"
                         variant="outline"
                         className="w-full"
-                        onClick={() => {
-                          const newMode = authMode === 'signin' ? 'signup' : 'signin';
-                          const params = new URLSearchParams(window.location.search);
-                          params.set('mode', newMode);
-                          // Set appropriate default redirect for the new mode
-                          if (!params.get('redirect')) {
-                            params.set('redirect', newMode === 'signup' ? '/onboarding/step-1' : '/dashboard');
-                          }
-                          // Use pushState to update URL and trigger popstate listener
-                          window.history.pushState(null, '', `/auth?${params.toString()}`);
-                          // Trigger the popstate event manually to update our state
-                          window.dispatchEvent(new PopStateEvent('popstate'));
-                        }}
+                        onClick={toggleMode}
                         data-testid="button-toggle-mode"
                       >
                         {authMode === 'signin' ? 'Create account' : 'Sign in instead'}
