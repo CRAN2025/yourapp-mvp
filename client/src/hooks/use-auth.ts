@@ -50,6 +50,8 @@ export function useAuth() {
             
             const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
             
+            console.log('✅ Auth: Loaded seller data:', sellerData);
+            
             setState({
               user,
               seller: sellerData,
@@ -308,7 +310,8 @@ export function useAuth() {
         loading: false,
       }));
     } catch (error) {
-      console.error('Update seller profile error:', error);
+      console.error('❌ Update seller profile error:', error);
+      console.error('❌ Attempted updates:', updates);
       setState(prev => ({
         ...prev,
         loading: false,

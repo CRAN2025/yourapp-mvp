@@ -1,0 +1,73 @@
+1. Check Onboarding Form → API Integration
+
+Confirm all field names in the onboarding form match the API contract exactly (e.g., storeName vs. store_name).
+
+Validate that the onboarding form sends the complete payload with all fields in the request body.
+
+Check that the correct API endpoint is being used for saving seller profile data.
+
+Verify the HTTP method used for saving is correct (POST, PUT, or PATCH as defined).
+
+2. Check API Save Logic
+
+Confirm the API accepts all the submitted fields and is not dropping any due to schema or whitelist restrictions.
+
+Verify the API returns a success response (200/201) and persists the data in the database.
+
+Log any validation errors or constraint failures (e.g., uniqueness on store name, invalid phone number).
+
+Ensure the correct seller ID is used when saving data.
+
+3. Check Database Layer
+
+Confirm data is actually written to the correct seller record after onboarding submission.
+
+Check for missing columns or mismatches between form fields and database schema.
+
+Ensure there are no NOT NULL or length constraint errors preventing fields from saving.
+
+4. Check Settings Page Data Fetch
+
+Confirm the Settings page calls the correct GET endpoint for fetching seller profile data.
+
+Make sure the Settings page maps API response fields correctly to the UI fields.
+
+Check that the latest saved data appears after a hard refresh (clear any cached or stale state).
+
+5. Media Fields (Logos/Banners)
+
+If images are not displaying:
+
+Verify the upload flow works and files reach storage successfully.
+
+Confirm the image URLs are being saved in the database.
+
+Ensure the Settings page renders the saved URLs properly.
+
+6. Security & Authorization
+
+Confirm that the auth token is included in save and fetch requests.
+
+Verify that the signed-in seller has permission to update and fetch their own profile.
+
+Check for any row-level security or tenant restrictions that may block updates or reads.
+
+7. Common Causes to Check
+
+Field name mismatches between form, API, and database.
+
+API silently rejecting fields due to schema/validation rules.
+
+Data being saved under the wrong seller ID or tenant.
+
+Old or incorrect endpoint used by the Settings page.
+
+Browser or app caching old data instead of fetching updated records.
+
+Image uploads not persisting URLs to the DB.
+
+Expected Outcome
+
+After fixing, all fields saved during onboarding should display correctly on the Settings page immediately after refresh.
+
+If a field fails to save, the system should show a clear error message instead of silently failing.

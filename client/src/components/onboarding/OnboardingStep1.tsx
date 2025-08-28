@@ -69,7 +69,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
           });
         }
       } catch (error) {
-        console.error('Error loading existing data:', error);
+        console.error('❌ Error loading Step 1 existing data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -104,7 +104,14 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
           updatedAt: Date.now(),
         }, { merge: true });
       } catch (error) {
-        console.error('Error auto-saving data:', error);
+        console.error('❌ Error auto-saving Step 1 data:', error);
+        console.error('❌ Attempted to save:', {
+          fullName: watchedValues.fullName,
+          storeName: watchedValues.businessName,
+          whatsappNumber: watchedValues.whatsappNumber,
+          country: watchedValues.country,
+          category: watchedValues.category
+        });
       }
     };
 
@@ -141,7 +148,8 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
       await completeStep(user.uid, 'step-1');
       navigate('/onboarding/step-2', { replace: true });
     } catch (error) {
-      console.error('Error completing step 1:', error);
+      console.error('❌ Error completing step 1:', error);
+      console.error('❌ Attempted to save on submit:', data);
     } finally {
       setIsSubmitting(false);
     }
