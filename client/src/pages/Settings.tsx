@@ -27,11 +27,14 @@ const storeProfileSchema = z.object({
   storeDescription: z.string().optional(),
   category: z.enum(categories),
   tags: z.string().optional(),
+  returnPolicy: z.string().optional(),
+  operatingHours: z.string().optional(),
   logoFile: z.instanceof(File).optional(),
   bannerFile: z.instanceof(File).optional(),
 });
 
 const contactVisibilitySchema = z.object({
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   whatsappNumber: z.string().refine((phone) => isValidPhoneNumber(phone), {
     message: 'Please enter a valid WhatsApp number',
   }),
@@ -111,12 +114,15 @@ export default function Settings() {
       storeDescription: seller?.storeDescription || '',
       category: seller?.category as any || 'other',
       tags: seller?.tags?.join(', ') || '',
+      returnPolicy: seller?.returnPolicy || '',
+      operatingHours: seller?.operatingHours || '',
     },
   });
 
   const contactVisibilityForm = useForm<ContactVisibilityForm>({
     resolver: zodResolver(contactVisibilitySchema),
     defaultValues: {
+      fullName: seller?.fullName || '',
       whatsappNumber: seller?.whatsappNumber || '',
       email: seller?.email || '',
       country: seller?.country || '',
@@ -153,9 +159,12 @@ export default function Settings() {
         storeDescription: seller.storeDescription || '',
         category: seller.category as any || 'other',
         tags: seller.tags?.join(', ') || '',
+        returnPolicy: seller.returnPolicy || '',
+        operatingHours: seller.operatingHours || '',
       });
 
       contactVisibilityForm.reset({
+        fullName: seller.fullName || '',
         whatsappNumber: seller.whatsappNumber || '',
         email: seller.email || '',
         country: seller.country || '',
@@ -192,6 +201,8 @@ export default function Settings() {
         storeDescription: data.storeDescription,
         category: data.category,
         tags: tags,
+        returnPolicy: data.returnPolicy,
+        operatingHours: data.operatingHours,
       });
 
       toast({
@@ -215,6 +226,7 @@ export default function Settings() {
       }
 
       await updateSellerProfile({
+        fullName: data.fullName,
         whatsappNumber: e164Number,
         email: data.email,
         country: data.country,
@@ -469,6 +481,47 @@ export default function Settings() {
                       />
                     </div>
 
+                    {/* Return Policy & Operating Hours */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <FormField
+                        control={storeProfileForm.control}
+                        name="returnPolicy"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Return Policy</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                rows={3}
+                                placeholder="e.g., 7-day return policy, no questions asked"
+                                {...field}
+                                data-testid="textarea-return-policy"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={storeProfileForm.control}
+                        name="operatingHours"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Operating Hours</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                rows={3}
+                                placeholder="e.g., Mon-Fri: 9AM-6PM, Sat: 10AM-4PM"
+                                {...field}
+                                data-testid="textarea-operating-hours"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     <Button
                       type="submit"
                       disabled={loading}
@@ -497,6 +550,32 @@ export default function Settings() {
               <CardContent>
                 <Form {...contactVisibilityForm}>
                   <form onSubmit={contactVisibilityForm.handleSubmit(handleContactVisibilityUpdate)} className="space-y-6">
+                    {/* Personal Information */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium flex items-center gap-2">
+                        <User className="w-5 h-5" />
+                        Personal Information
+                      </h3>
+                      
+                      <FormField
+                        control={contactVisibilityForm.control}
+                        name="fullName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Full Name *</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Your full name"
+                                {...field}
+                                data-testid="input-full-name"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
                     {/* Primary Contact */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-medium flex items-center gap-2">
