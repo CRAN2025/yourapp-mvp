@@ -8,6 +8,20 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes (August 27, 2025)
 
+## Auth Redirect Utility Implementation
+- **Date**: August 27, 2025
+- **Status**: ✅ Complete
+- **Description**: Implemented clean auth redirect utility with type-safe user detection and automatic signup mode routing
+- **Key Features**:
+  - **Type-Safe User Detection**: `asUser()` helper handles both User and Auth objects safely
+  - **Automatic Signup Routing**: Unauthenticated users redirect to `/auth?mode=signup&redirect=...`
+  - **Default Onboarding Flow**: Uses `/onboarding/step-1` as default redirect destination
+  - **Path Validation**: Ensures redirect paths start with '/' for security
+  - **Clean Return Pattern**: Returns boolean to indicate if redirect occurred
+  - **Wouter Integration**: Designed specifically for wouter navigation patterns
+- **Usage**: `ensureUnauthRedirect(user, navigate, '/custom/path')` for protecting routes
+- **Security**: Validates redirect paths to prevent open redirect vulnerabilities
+
 ## Landing Page Freeze Contract - ACTIVE
 - **Date**: August 27, 2025
 - **Status**: 🔒 FROZEN - No visual changes permitted
