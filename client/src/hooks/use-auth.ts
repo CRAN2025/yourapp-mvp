@@ -40,12 +40,31 @@ export function useAuth() {
         setState(prev => ({ ...prev, loading: true, error: null }));
         
         if (user) {
-          setState({
-            user,
-            seller: null, // Will be populated by Firestore via useOnboardingProgress
-            loading: false,
-            error: null,
-          });
+          // Load seller data from Firestore
+          const { doc, getDoc } = await import('firebase/firestore');
+          const { db } = await import('@/lib/firebase');
+          
+          try {
+            const sellerRef = doc(db, 'sellers', user.uid);
+            const sellerSnap = await getDoc(sellerRef);
+            
+            const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
+            
+            setState({
+              user,
+              seller: sellerData,
+              loading: false,
+              error: null,
+            });
+          } catch (error) {
+            console.error('Error loading seller data:', error);
+            setState({
+              user,
+              seller: null,
+              loading: false,
+              error: null,
+            });
+          }
         } else {
           setState({
             user: null,
@@ -264,21 +283,32 @@ export function useAuth() {
     }
   };
 
-  // Update seller profile (placeholder for compatibility)
+  // Update seller profile
   const updateSellerProfile = async (updates: Partial<Seller>) => {
     if (!state.user) throw new Error('No authenticated user');
     
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       
-      // Profile updates will be handled via Firestore in the onboarding system
-      // This is a placeholder for backward compatibility
+      // Import Firebase Firestore functions
+      const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
       
+      // Update the seller document in Firestore
+      const sellerRef = doc(db, 'sellers', state.user.uid);
+      await updateDoc(sellerRef, {
+        ...updates,
+        updatedAt: serverTimestamp(),
+      });
+      
+      // Update local state with the new values
       setState(prev => ({
         ...prev,
+        seller: prev.seller ? { ...prev.seller, ...updates } : null,
         loading: false,
       }));
     } catch (error) {
+      console.error('Update seller profile error:', error);
       setState(prev => ({
         ...prev,
         loading: false,
