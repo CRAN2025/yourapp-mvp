@@ -61,8 +61,22 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
     
     setIsSubmitting(true);
     try {
-      // Here you would typically save the contact info
-      // For now, we'll just complete the step
+      // Save the form data to Firestore sellers collection
+      const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      const sellerRef = doc(db, 'sellers', user.uid);
+      await updateDoc(sellerRef, {
+        logoUrl: data.storeLogo,
+        bannerUrl: data.storeBanner,
+        storeDescription: data.storeBio,
+        socialMedia: data.socialMedia,
+        preferredLanguage: data.preferredLanguage,
+        returnPolicy: data.returnPolicy,
+        operatingHours: data.operatingHours,
+        tags: data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
+        updatedAt: Date.now(),
+      });
       
       await completeStep(user.uid, 'step-2');
       navigate('/onboarding/step-3', { replace: true });

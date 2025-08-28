@@ -42,8 +42,17 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
     
     setIsSubmitting(true);
     try {
-      // Here you would typically save the store configuration
-      // For now, we'll just complete the step
+      // Save the form data to Firestore sellers collection
+      const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      const sellerRef = doc(db, 'sellers', user.uid);
+      await updateDoc(sellerRef, {
+        paymentMethods: data.paymentMethods,
+        deliveryOptions: data.deliveryOptions,
+        onboardingCompleted: true,
+        updatedAt: Date.now(),
+      });
       
       await completeStep(user.uid, 'step-3');
       navigate('/dashboard', { replace: true });
