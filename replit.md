@@ -11,6 +11,7 @@ Preferred communication style: Simple, everyday language.
 2. **Onboarding Flow for New Users**: Complete onboarding process when user is new - All functionality locked, field specifications implemented
 3. **CTA Routing Logic**: Landing page CTA behavior and authentication flow - Logic is working correctly, do not modify
 4. **Field Specification Implementation**: Step 1 (mandatory: Full Name, Store Name, WhatsApp, Email, Country, Category, Subscription), Step 2 (optional: Store Description, Social Media, Language, Hours, Tags), Step 3 (display-only: Payment/Delivery options) - Locked as backup state
+5. **Authentication Connection Structure**: Complete seller ID authentication flow with RTDB mirroring - CRITICAL: All onboarding steps mirror to both Firestore AND Firebase Realtime Database, sessionStorage persistence, anonymous user blocking, force refresh mechanism, and AppGuard protection - WORKING and LOCKED as final backup
 
 # System Architecture
 
@@ -31,6 +32,7 @@ Preferred communication style: Simple, everyday language.
 - **Bootstrap System**: Transaction-safe bootstrap for user initialization, creating profile, store, and onboarding documents, ensuring idempotent operations.
 - **Auth Redirect Utility**: Type-safe user detection and automatic signup mode routing, protecting routes and validating redirect paths.
 - **Onboarding Flow**: Authoritative state-driven progression (Terms → User → Seller → Dashboard) with route guards and integration with the bootstrap system.
+- **Authentication Connection System**: Complete seller ID authentication with dual database persistence (Firestore + RTDB), sessionStorage fallback, anonymous user blocking, force refresh events, and comprehensive route protection via AppGuard - ensures seller profiles are properly connected across onboarding completion and dashboard access.
 
 ## Data Storage Solutions
 - **Primary Database**: PostgreSQL with Drizzle ORM for structured data.
