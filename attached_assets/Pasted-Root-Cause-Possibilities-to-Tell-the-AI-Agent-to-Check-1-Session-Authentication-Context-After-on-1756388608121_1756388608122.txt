@@ -1,0 +1,107 @@
+Root Cause Possibilities to Tell the AI Agent to Check
+1. Session / Authentication Context
+
+After onboarding, confirm the auth token and seller ID are being stored in local/session storage.
+
+Verify the console retrieves the correct logged-in user.
+
+Check if the app is defaulting to a generic “U” profile because the seller context is missing.
+
+What to check:
+
+After onboarding, inspect network calls → confirm the Authorization header is present on console requests.
+
+Ensure the correct sellerId or userId is passed to the API.
+
+2. Missing Profile Linking After Onboarding
+
+Onboarding creates the seller record but may not link it to the authenticated user account.
+
+If the API creates the seller profile but doesn’t return the sellerId to the front-end, the console can’t load the saved info.
+
+What to check:
+
+Confirm that the onboarding success response includes the sellerId.
+
+Ensure the console uses this sellerId when fetching profile details.
+
+3. Console Data Fetch Endpoint
+
+The console might be:
+
+Calling the wrong API endpoint for fetching seller profile data.
+
+Using a static or default request instead of a seller-specific request.
+
+Failing to pass the sellerId from onboarding into the GET request.
+
+What to check:
+
+Review the console’s GET request for /api/sellers/:id/profile.
+
+Confirm the request URL includes the correct sellerId.
+
+Validate that the API returns the right seller record.
+
+4. State & Token Mismatch
+
+If your onboarding and console flows are separate React states:
+
+The onboarding flow sets state but doesn’t persist it in session/local storage.
+
+On redirect, the console has no seller context → defaults to blank.
+
+What to check:
+
+Ensure the seller’s identity & token are stored persistently.
+
+On console load, confirm the sellerId is loaded from session/local storage.
+
+If using Firebase auth, verify that the UID is the same across onboarding and console.
+
+5. UI Symptoms Matching the “U” Avatar
+
+The “U” icon implies the console doesn’t know the logged-in seller name.
+
+If there’s no seller data fetched, the UI renders default placeholders:
+
+Blank settings fields.
+
+Uninitialized avatar “U”.
+
+This strongly indicates the console isn’t fetching the saved seller profile rather than onboarding failing.
+
+Instructions for AI Agent to Fix
+
+Check onboarding success response
+
+Ensure it returns sellerId or unique profile reference.
+
+Save sellerId in session/local storage immediately.
+
+Verify console API request
+
+Confirm the console calls /api/sellers/:id/profile (or equivalent).
+
+Ensure correct sellerId and auth token are used.
+
+Check authentication state persistence
+
+After onboarding, verify the JWT or Firebase token is still valid.
+
+Ensure localStorage or sessionStorage maintains identity context.
+
+Confirm profile linking
+
+Verify backend links user → seller profile at onboarding creation.
+
+Fix any missing mapping on the server if needed.
+
+Test the full flow
+
+Sign up → onboard → redirect → console loads prefilled settings from saved data.
+
+Summary of Problem
+
+Onboarding saves seller data correctly but the seller console is loading in an anonymous or default state (“U” avatar, empty profile).
+This happens because the saved seller profile is not being fetched or linked when landing on the console.

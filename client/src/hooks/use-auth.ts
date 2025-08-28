@@ -46,6 +46,18 @@ export function useAuth() {
           isAnonymous: user?.isAnonymous
         });
         
+        // CRITICAL: Block anonymous users immediately
+        if (user && user.isAnonymous) {
+          console.error('🚨 SECURITY: Anonymous user detected, blocking access');
+          setState({
+            user: null,
+            seller: null,
+            loading: false,
+            error: 'Anonymous access not allowed',
+          });
+          return;
+        }
+        
         if (user) {
           // Load seller data from Firestore
           const { doc, getDoc } = await import('firebase/firestore');
@@ -68,8 +80,37 @@ export function useAuth() {
               loading: false,
               error: null,
             });
+            
+            // Store seller data in sessionStorage for persistence across page reloads
+            if (sellerData) {
+              console.log('🔐 Auth: Storing seller data in sessionStorage for persistence');
+              try {
+                sessionStorage.setItem('seller_profile', JSON.stringify(sellerData));
+              } catch (e) {
+                console.warn('Could not store seller profile in sessionStorage:', e);
+              }
+            }
           } catch (error) {
             console.error('Error loading seller data:', error);
+            
+            // Try to load from sessionStorage as fallback
+            try {
+              const storedSeller = sessionStorage.getItem('seller_profile');
+              if (storedSeller) {
+                console.log('🔐 Auth: Loading seller from sessionStorage fallback');
+                const sellerData = JSON.parse(storedSeller);
+                setState({
+                  user,
+                  seller: sellerData,
+                  loading: false,
+                  error: null,
+                });
+                return;
+              }
+            } catch (storageError) {
+              console.warn('Could not load from sessionStorage:', storageError);
+            }
+            
             setState({
               user,
               seller: null,
@@ -78,6 +119,13 @@ export function useAuth() {
             });
           }
         } else {
+          console.log('🔐 Auth: No user found, setting null state');
+          // Clear sessionStorage when user is not authenticated
+          try {
+            sessionStorage.removeItem('seller_profile');
+          } catch (e) {
+            console.warn('Could not clear sessionStorage:', e);
+          }
           setState({
             user: null,
             seller: null,
@@ -96,6 +144,44 @@ export function useAuth() {
 
     return unsubscribe;
   }, []);
+
+  // Listen for forced auth refresh events (from onboarding completion)
+  useEffect(() => {
+    const handleForceRefresh = async () => {
+      if (state.user && !state.loading) {
+        console.log('🔄 Auth: Received force refresh event');
+        
+        try {
+          const { doc, getDoc } = await import('firebase/firestore');
+          const { db } = await import('@/lib/firebase');
+          
+          const sellerRef = doc(db, 'sellers', state.user.uid);
+          const sellerSnap = await getDoc(sellerRef);
+          const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
+          
+          console.log('✅ Auth: Force refresh completed:', sellerData);
+          
+          setState(prev => ({
+            ...prev,
+            seller: sellerData,
+          }));
+          
+          if (sellerData) {
+            try {
+              sessionStorage.setItem('seller_profile', JSON.stringify(sellerData));
+            } catch (e) {
+              console.warn('Could not store refreshed seller profile:', e);
+            }
+          }
+        } catch (error) {
+          console.error('❌ Auth: Force refresh failed:', error);
+        }
+      }
+    };
+
+    window.addEventListener('force-auth-refresh', handleForceRefresh);
+    return () => window.removeEventListener('force-auth-refresh', handleForceRefresh);
+  }, [state.user, state.loading]);
 
   // Email/Password Sign In
   const signInWithEmail = async (email: string, password: string) => {
@@ -349,6 +435,38 @@ export function useAuth() {
     }
   };
 
+  // Force refresh seller data (for post-onboarding updates)
+  const refreshSellerData = async () => {
+    if (!state.user) return;
+    
+    try {
+      console.log('🔄 Auth: Force refreshing seller data');
+      const { doc, getDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      const sellerRef = doc(db, 'sellers', state.user.uid);
+      const sellerSnap = await getDoc(sellerRef);
+      const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
+      
+      console.log('✅ Auth: Refreshed seller data:', sellerData);
+      
+      setState(prev => ({
+        ...prev,
+        seller: sellerData,
+      }));
+      
+      if (sellerData) {
+        try {
+          sessionStorage.setItem('seller_profile', JSON.stringify(sellerData));
+        } catch (e) {
+          console.warn('Could not store refreshed seller profile:', e);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Auth: Failed to refresh seller data:', error);
+    }
+  };
+
   return {
     ...state,
     signInWithEmail,
@@ -358,5 +476,6 @@ export function useAuth() {
     signOut,
     resetPassword,
     updateSellerProfile,
+    refreshSellerData,
   };
 }
