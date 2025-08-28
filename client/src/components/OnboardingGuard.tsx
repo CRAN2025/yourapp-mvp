@@ -48,8 +48,7 @@ export function OnboardingGuard({ children, requiredStep }: OnboardingGuardProps
   }
 
   // Don't render children if user will be redirected
-  if (!user || onboardingState.status === 'completed' || 
-      (requiredStep !== undefined && !canAccessStep(requiredStep))) {
+  if (!user || isComplete) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <LoadingSpinner size="lg" />

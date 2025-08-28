@@ -57,21 +57,21 @@ export function useRouteDecision() {
     }
 
     // Completed onboarding
-    if (status === 'completed') {
-      if (path !== '/app' && !path.startsWith('/products') && !path.startsWith('/analytics') && !path.startsWith('/orders') && !path.startsWith('/settings') && !path.startsWith('/storefront')) {
-        go('/app', 'Onboarding completed');
+    if (isComplete) {
+      if (path !== '/dashboard' && !path.startsWith('/products') && !path.startsWith('/analytics') && !path.startsWith('/orders') && !path.startsWith('/settings') && !path.startsWith('/storefront')) {
+        go('/dashboard', 'Onboarding completed');
       }
       return;
     }
 
     // In progress or not started - ensure correct step
-    const shouldBe = `/onboarding?step=${nextStep}`;
-    const currentOnboarding = path === '/onboarding' && requestedStep === nextStep;
+    const shouldBe = `/onboarding/${firstIncompleteStep}`;
+    const currentOnboarding = path.startsWith('/onboarding');
     
     if (!currentOnboarding) {
-      go(shouldBe, `Should be on step ${nextStep}, currently on ${path} step ${requestedStep}`);
+      go(shouldBe, `Should be on ${firstIncompleteStep}, currently on ${path}`);
     }
-  }, [ready, user, status, nextStep, navigate, error]);
+  }, [ready, isComplete, firstIncompleteStep, navigate, error]);
 
   return { ready, redirected: redirected.current };
 }
