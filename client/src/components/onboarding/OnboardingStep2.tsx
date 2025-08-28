@@ -11,6 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { GLOBAL_LANGUAGES } from '@/lib/data/countries';
 
 const step2Schema = z.object({
   storeLogo: z.string().optional(),
@@ -248,23 +250,20 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Preferred Language (Optional)</FormLabel>
-                  <FormControl>
-                    <select 
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      {...field}
-                      data-testid="select-language"
-                    >
-                      <option value="">Select language</option>
-                      <option value="english">English</option>
-                      <option value="swahili">Swahili</option>
-                      <option value="french">French</option>
-                      <option value="arabic">Arabic</option>
-                      <option value="hausa">Hausa</option>
-                      <option value="yoruba">Yoruba</option>
-                      <option value="igbo">Igbo</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-language">
+                        <SelectValue placeholder="Select your preferred language" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {GLOBAL_LANGUAGES.map((language) => (
+                        <SelectItem key={language.toLowerCase()} value={language.toLowerCase()}>
+                          {language}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
