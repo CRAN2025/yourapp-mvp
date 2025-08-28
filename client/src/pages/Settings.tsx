@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { User, Palette, CreditCard, Upload } from 'lucide-react';
+import { Store, Phone, CreditCard, Shield, User, Globe, MessageSquare, Tag, Palette, Mail, Languages } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 import { normalizeToE164, isValidPhoneNumber } from '@/lib/utils/phone';
 import { categories } from '@shared/schema';
@@ -19,47 +19,115 @@ import ImageUpload from '@/components/ImageUpload';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
 
-const profileSchema = z.object({
+const storeProfileSchema = z.object({
   storeName: z.string().min(3, 'Store name must be at least 3 characters'),
   storeDescription: z.string().optional(),
-  location: z.string().optional(),
   category: z.enum(categories),
+  tags: z.string().optional(),
+  logoFile: z.instanceof(File).optional(),
+  bannerFile: z.instanceof(File).optional(),
+});
+
+const contactVisibilitySchema = z.object({
   whatsappNumber: z.string().refine((phone) => isValidPhoneNumber(phone), {
     message: 'Please enter a valid WhatsApp number',
   }),
+  email: z.string().email('Please enter a valid email address'),
+  socialMedia: z.object({
+    instagram: z.string().optional(),
+    tiktok: z.string().optional(),
+    facebook: z.string().optional(),
+  }).optional(),
+  preferredLanguage: z.string().optional(),
 });
 
-const brandingSchema = z.object({
-  logoFile: z.instanceof(File).optional(),
-  coverFile: z.instanceof(File).optional(),
+const paymentsDeliverySchema = z.object({
+  paymentMethods: z.array(z.string()).default([]),
+  deliveryOptions: z.array(z.string()).default([]),
 });
 
-type ProfileForm = z.infer<typeof profileSchema>;
-type BrandingForm = z.infer<typeof brandingSchema>;
+const accountSecuritySchema = z.object({
+  subscriptionPlan: z.string(),
+  country: z.string(),
+});
+
+type StoreProfileForm = z.infer<typeof storeProfileSchema>;
+type ContactVisibilityForm = z.infer<typeof contactVisibilitySchema>;
+type PaymentsDeliveryForm = z.infer<typeof paymentsDeliverySchema>;
+type AccountSecurityForm = z.infer<typeof accountSecuritySchema>;
 
 export default function Settings() {
   const { seller, updateSellerProfile, loading } = useAuthContext();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('store');
   const [logoFiles, setLogoFiles] = useState<File[]>([]);
-  const [coverFiles, setCoverFiles] = useState<File[]>([]);
+  const [bannerFiles, setBannerFiles] = useState<File[]>([]);
 
-  const profileForm = useForm<ProfileForm>({
-    resolver: zodResolver(profileSchema),
+  const storeProfileForm = useForm<StoreProfileForm>({
+    resolver: zodResolver(storeProfileSchema),
     defaultValues: {
       storeName: seller?.storeName || '',
       storeDescription: seller?.storeDescription || '',
-      location: seller?.location || '',
       category: seller?.category as any || 'other',
-      whatsappNumber: seller?.whatsappNumber || '',
+      tags: '',
     },
   });
 
-  const brandingForm = useForm<BrandingForm>({
-    resolver: zodResolver(brandingSchema),
+  const contactVisibilityForm = useForm<ContactVisibilityForm>({
+    resolver: zodResolver(contactVisibilitySchema),
+    defaultValues: {
+      whatsappNumber: seller?.whatsappNumber || '',
+      email: seller?.email || '',
+      socialMedia: {
+        instagram: '',
+        tiktok: '',
+        facebook: '',
+      },
+      preferredLanguage: '',
+    },
   });
 
-  const handleProfileUpdate = async (data: ProfileForm) => {
+  const paymentsDeliveryForm = useForm<PaymentsDeliveryForm>({
+    resolver: zodResolver(paymentsDeliverySchema),
+    defaultValues: {
+      paymentMethods: seller?.paymentMethods || [],
+      deliveryOptions: seller?.deliveryOptions || [],
+    },
+  });
+
+  const accountSecurityForm = useForm<AccountSecurityForm>({
+    resolver: zodResolver(accountSecuritySchema),
+    defaultValues: {
+      subscriptionPlan: 'beta-free',
+      country: seller?.country || '',
+    },
+  });
+
+  const handleStoreProfileUpdate = async (data: StoreProfileForm) => {
+    try {
+      const tags = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+      
+      await updateSellerProfile({
+        storeName: data.storeName,
+        storeDescription: data.storeDescription,
+        category: data.category,
+        tags: tags,
+      });
+
+      toast({
+        title: 'Store profile updated',
+        description: 'Your store profile has been updated successfully.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to update store profile.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleContactVisibilityUpdate = async (data: ContactVisibilityForm) => {
     try {
       const e164Number = normalizeToE164(data.whatsappNumber);
       if (!e164Number) {
@@ -67,38 +135,60 @@ export default function Settings() {
       }
 
       await updateSellerProfile({
-        storeName: data.storeName,
-        storeDescription: data.storeDescription,
-        location: data.location,
-        category: data.category,
         whatsappNumber: e164Number,
+        email: data.email,
+        socialMedia: data.socialMedia,
+        preferredLanguage: data.preferredLanguage,
       });
 
       toast({
-        title: 'Profile updated',
-        description: 'Your store profile has been updated successfully.',
+        title: 'Contact information updated',
+        description: 'Your contact and visibility settings have been updated successfully.',
       });
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to update profile.',
+        description: error instanceof Error ? error.message : 'Failed to update contact information.',
         variant: 'destructive',
       });
     }
   };
 
-  const handleBrandingUpdate = async (data: BrandingForm) => {
+  const handlePaymentsDeliveryUpdate = async (data: PaymentsDeliveryForm) => {
     try {
-      // TODO: Upload images to Firebase Storage and get URLs
-      // For now, just show success message
+      await updateSellerProfile({
+        paymentMethods: data.paymentMethods,
+        deliveryOptions: data.deliveryOptions,
+      });
+
       toast({
-        title: 'Branding updated',
-        description: 'Your store branding has been updated successfully.',
+        title: 'Payment & delivery updated',
+        description: 'Your payment and delivery options have been updated successfully.',
       });
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to update branding.',
+        description: 'Failed to update payment and delivery options.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleAccountSecurityUpdate = async (data: AccountSecurityForm) => {
+    try {
+      await updateSellerProfile({
+        subscriptionPlan: data.subscriptionPlan,
+        country: data.country,
+      });
+
+      toast({
+        title: 'Account settings updated',
+        description: 'Your account and security settings have been updated successfully.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update account settings.',
         variant: 'destructive',
       });
     }
@@ -114,39 +204,105 @@ export default function Settings() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="profile" className="flex items-center gap-2" data-testid="tab-profile">
-              <User className="w-4 h-4" />
-              Profile
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="store" className="flex items-center gap-2" data-testid="tab-store-profile">
+              <Store className="w-4 h-4" />
+              Store Profile
             </TabsTrigger>
-            <TabsTrigger value="branding" className="flex items-center gap-2" data-testid="tab-branding">
-              <Palette className="w-4 h-4" />
-              Branding
+            <TabsTrigger value="contact" className="flex items-center gap-2" data-testid="tab-contact-visibility">
+              <Phone className="w-4 h-4" />
+              Contact & Visibility
             </TabsTrigger>
-            <TabsTrigger value="billing" className="flex items-center gap-2" data-testid="tab-billing">
+            <TabsTrigger value="payments" className="flex items-center gap-2" data-testid="tab-payments-delivery">
               <CreditCard className="w-4 h-4" />
-              Billing
+              Payments & Delivery
+            </TabsTrigger>
+            <TabsTrigger value="account" className="flex items-center gap-2" data-testid="tab-account-security">
+              <Shield className="w-4 h-4" />
+              Account & Security
             </TabsTrigger>
           </TabsList>
 
-          {/* Profile Tab */}
-          <TabsContent value="profile">
+          {/* Store Profile Tab */}
+          <TabsContent value="store">
             <Card>
               <CardHeader>
-                <CardTitle>Store Profile</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Store className="w-5 h-5" />
+                  Store Profile
+                </CardTitle>
                 <CardDescription>
-                  Update your store information and contact details
+                  Manage your store's branding, description, and visual presentation
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Form {...profileForm}>
-                  <form onSubmit={profileForm.handleSubmit(handleProfileUpdate)} className="space-y-6">
+                <Form {...storeProfileForm}>
+                  <form onSubmit={storeProfileForm.handleSubmit(handleStoreProfileUpdate)} className="space-y-6">
+                    {/* Store Logo & Banner */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          <Palette className="w-4 h-4 inline mr-1" />
+                          Store Logo
+                        </label>
+                        <ImageUpload
+                          files={logoFiles}
+                          onChange={setLogoFiles}
+                          maxFiles={1}
+                          maxSize={1024 * 1024} // 1MB
+                        />
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Square format recommended (200x200px+)
+                        </p>
+                        {seller?.logoUrl && (
+                          <div className="mt-4">
+                            <p className="text-sm font-medium mb-2">Current:</p>
+                            <img
+                              src={seller.logoUrl}
+                              alt="Current logo"
+                              className="w-16 h-16 rounded-lg object-cover border"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          <Palette className="w-4 h-4 inline mr-1" />
+                          Store Banner
+                        </label>
+                        <ImageUpload
+                          files={bannerFiles}
+                          onChange={setBannerFiles}
+                          maxFiles={1}
+                          maxSize={2 * 1024 * 1024} // 2MB
+                        />
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Wide format recommended (1200x400px+)
+                        </p>
+                        {seller?.bannerUrl && (
+                          <div className="mt-4">
+                            <p className="text-sm font-medium mb-2">Current:</p>
+                            <img
+                              src={seller.bannerUrl}
+                              alt="Current banner"
+                              className="w-full h-20 rounded-lg object-cover border"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Store Info */}
                     <FormField
-                      control={profileForm.control}
+                      control={storeProfileForm.control}
                       name="storeName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Store Name *</FormLabel>
+                          <FormLabel className="flex items-center gap-2">
+                            <Store className="w-4 h-4" />
+                            Store Name *
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="e.g., Sarah's Handmade Jewelry"
@@ -154,13 +310,16 @@ export default function Settings() {
                               data-testid="input-store-name"
                             />
                           </FormControl>
+                          <p className="text-sm text-muted-foreground">
+                            Changing your store name may require verification
+                          </p>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
                     <FormField
-                      control={profileForm.control}
+                      control={storeProfileForm.control}
                       name="storeDescription"
                       render={({ field }) => (
                         <FormItem>
@@ -178,27 +337,9 @@ export default function Settings() {
                       )}
                     />
 
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                       <FormField
-                        control={profileForm.control}
-                        name="location"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Location</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g., Toronto, Canada"
-                                {...field}
-                                data-testid="input-location"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={profileForm.control}
+                        control={storeProfileForm.control}
                         name="category"
                         render={({ field }) => (
                           <FormItem>
@@ -221,36 +362,38 @@ export default function Settings() {
                           </FormItem>
                         )}
                       />
-                    </div>
 
-                    <FormField
-                      control={profileForm.control}
-                      name="whatsappNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>WhatsApp Number *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="tel"
-                              placeholder="+1 (555) 123-4567"
-                              {...field}
-                              data-testid="input-whatsapp"
-                            />
-                          </FormControl>
-                          <p className="text-sm text-muted-foreground">
-                            Customers will contact you through this WhatsApp number
-                          </p>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={storeProfileForm.control}
+                        name="tags"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <Tag className="w-4 h-4" />
+                              Tags/Keywords
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="e.g., organic, handmade, local, affordable"
+                                {...field}
+                                data-testid="input-tags"
+                              />
+                            </FormControl>
+                            <p className="text-sm text-muted-foreground">
+                              Comma-separated keywords to help customers find you
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
                     <Button
                       type="submit"
                       disabled={loading}
-                      data-testid="button-save-profile"
+                      data-testid="button-save-store-profile"
                     >
-                      {loading ? <LoadingSpinner size="sm" /> : 'Save Changes'}
+                      {loading ? <LoadingSpinner size="sm" /> : 'Save Store Profile'}
                     </Button>
                   </form>
                 </Form>
@@ -258,70 +401,179 @@ export default function Settings() {
             </Card>
           </TabsContent>
 
-          {/* Branding Tab */}
-          <TabsContent value="branding">
+          {/* Contact & Visibility Tab */}
+          <TabsContent value="contact">
             <Card>
               <CardHeader>
-                <CardTitle>Store Branding</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="w-5 h-5" />
+                  Contact & Visibility
+                </CardTitle>
                 <CardDescription>
-                  Customize your store's visual appearance
+                  Manage how customers can reach you and your store's visibility
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Form {...brandingForm}>
-                  <form onSubmit={brandingForm.handleSubmit(handleBrandingUpdate)} className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Store Logo</label>
-                      <ImageUpload
-                        files={logoFiles}
-                        onChange={setLogoFiles}
-                        maxFiles={1}
-                        maxSize={1024 * 1024} // 1MB
+                <Form {...contactVisibilityForm}>
+                  <form onSubmit={contactVisibilityForm.handleSubmit(handleContactVisibilityUpdate)} className="space-y-6">
+                    {/* Primary Contact */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5" />
+                        Primary Contact
+                      </h3>
+                      
+                      <FormField
+                        control={contactVisibilityForm.control}
+                        name="whatsappNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>WhatsApp Number *</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="tel"
+                                placeholder="+254 700 123 456"
+                                {...field}
+                                data-testid="input-whatsapp"
+                              />
+                            </FormControl>
+                            <Alert>
+                              <AlertDescription>
+                                Changing your WhatsApp number will require OTP verification
+                              </AlertDescription>
+                            </Alert>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Upload a square logo (recommended: 200x200px or larger)
-                      </p>
-                      {seller?.logoUrl && (
-                        <div className="mt-4">
-                          <p className="text-sm font-medium mb-2">Current Logo:</p>
-                          <img
-                            src={seller.logoUrl}
-                            alt="Current logo"
-                            className="w-20 h-20 rounded-lg object-cover border"
-                          />
-                        </div>
-                      )}
+
+                      <FormField
+                        control={contactVisibilityForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <Mail className="w-4 h-4" />
+                              Email Address *
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="your.email@example.com"
+                                {...field}
+                                data-testid="input-email"
+                              />
+                            </FormControl>
+                            <p className="text-sm text-muted-foreground">
+                              Email changes require confirmation
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Cover Image</label>
-                      <ImageUpload
-                        files={coverFiles}
-                        onChange={setCoverFiles}
-                        maxFiles={1}
-                        maxSize={2 * 1024 * 1024} // 2MB
-                      />
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Upload a cover image for your store (recommended: 1200x400px or larger)
-                      </p>
-                      {seller?.coverUrl && (
-                        <div className="mt-4">
-                          <p className="text-sm font-medium mb-2">Current Cover:</p>
-                          <img
-                            src={seller.coverUrl}
-                            alt="Current cover"
-                            className="w-full h-32 rounded-lg object-cover border"
-                          />
-                        </div>
-                      )}
+                    {/* Social Media */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium flex items-center gap-2">
+                        <Globe className="w-5 h-5" />
+                        Social Media Links
+                      </h3>
+                      
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <FormField
+                          control={contactVisibilityForm.control}
+                          name="socialMedia.instagram"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Instagram</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="https://instagram.com/your-handle"
+                                  {...field}
+                                  data-testid="input-instagram"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={contactVisibilityForm.control}
+                          name="socialMedia.tiktok"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>TikTok</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="https://tiktok.com/@your-handle"
+                                  {...field}
+                                  data-testid="input-tiktok"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={contactVisibilityForm.control}
+                          name="socialMedia.facebook"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Facebook</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="https://facebook.com/your-page"
+                                  {...field}
+                                  data-testid="input-facebook"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={contactVisibilityForm.control}
+                          name="preferredLanguage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="flex items-center gap-2">
+                                <Languages className="w-4 h-4" />
+                                Preferred Language
+                              </FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger data-testid="select-language">
+                                    <SelectValue placeholder="Select language" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="english">English</SelectItem>
+                                  <SelectItem value="swahili">Swahili</SelectItem>
+                                  <SelectItem value="french">French</SelectItem>
+                                  <SelectItem value="arabic">Arabic</SelectItem>
+                                  <SelectItem value="hausa">Hausa</SelectItem>
+                                  <SelectItem value="yoruba">Yoruba</SelectItem>
+                                  <SelectItem value="igbo">Igbo</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                     </div>
 
                     <Button
                       type="submit"
                       disabled={loading}
-                      data-testid="button-save-branding"
+                      data-testid="button-save-contact"
                     >
-                      {loading ? <LoadingSpinner size="sm" /> : 'Save Changes'}
+                      {loading ? <LoadingSpinner size="sm" /> : 'Save Contact Settings'}
                     </Button>
                   </form>
                 </Form>
@@ -329,42 +581,251 @@ export default function Settings() {
             </Card>
           </TabsContent>
 
-          {/* Billing Tab */}
-          <TabsContent value="billing">
+          {/* Payments & Delivery Tab */}
+          <TabsContent value="payments">
             <Card>
               <CardHeader>
-                <CardTitle>Billing & Subscription</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  Payments & Delivery
+                </CardTitle>
                 <CardDescription>
-                  Manage your subscription and billing information
+                  Configure your payment methods and delivery options for customers
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Alert>
-                  <CreditCard className="h-4 w-4" />
-                  <AlertDescription>
-                    Billing will be available soon. You're currently on the free plan with full access to all features.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="mt-6 space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">Current Plan</h4>
-                      <p className="text-sm text-muted-foreground">Free Plan - Unlimited products</p>
+                <Form {...paymentsDeliveryForm}>
+                  <form onSubmit={paymentsDeliveryForm.handleSubmit(handlePaymentsDeliveryUpdate)} className="space-y-6">
+                    {/* Payment Methods */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Payment Methods</h3>
+                      <div className="space-y-2">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="payment-cash"
+                          />
+                          <span>Cash on Delivery</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="payment-mobile-money"
+                          />
+                          <span>Mobile Money (M-Pesa, MTN, etc.)</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="payment-bank-transfer"
+                          />
+                          <span>Bank Transfer</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="payment-card"
+                          />
+                          <span>Credit/Debit Card (Coming Soon)</span>
+                        </label>
+                      </div>
                     </div>
-                    <Button variant="outline" disabled data-testid="button-upgrade-plan">
-                      Coming Soon
+
+                    {/* Delivery Options */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Delivery Options</h3>
+                      <div className="space-y-2">
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="delivery-pickup"
+                          />
+                          <span>Customer Pickup</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="delivery-local"
+                          />
+                          <span>Local Delivery</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="delivery-nationwide"
+                          />
+                          <span>Nationwide Shipping</span>
+                        </label>
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300"
+                            data-testid="delivery-international"
+                          />
+                          <span>International Shipping</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <Alert>
+                      <AlertDescription>
+                        These options will be displayed to customers when they view your products. You can manage specific pricing and delivery details for each product separately.
+                      </AlertDescription>
+                    </Alert>
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      data-testid="button-save-payments-delivery"
+                    >
+                      {loading ? <LoadingSpinner size="sm" /> : 'Save Payment & Delivery Settings'}
                     </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Account & Security Tab */}
+          <TabsContent value="account">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Account & Security
+                </CardTitle>
+                <CardDescription>
+                  Manage your account details, subscription, and security settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Account Information - Read Only */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Account Information</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Full Name
+                        </label>
+                        <Input
+                          value={seller?.fullName || ''}
+                          disabled
+                          className="bg-muted"
+                          data-testid="display-full-name"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Contact support to change your legal name
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Country
+                        </label>
+                        <Input
+                          value={seller?.country || ''}
+                          disabled
+                          className="bg-muted"
+                          data-testid="display-country"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Set during registration - contact support to change
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">Payment Method</h4>
-                      <p className="text-sm text-muted-foreground">No payment method required</p>
+                  {/* Subscription */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Subscription</h3>
+                    <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50 border-green-200">
+                      <div>
+                        <h4 className="font-medium text-green-800">Beta Free Plan</h4>
+                        <p className="text-sm text-green-600">All features included during beta period</p>
+                      </div>
+                      <Button variant="outline" disabled className="bg-white">
+                        Active
+                      </Button>
                     </div>
-                    <Button variant="outline" disabled data-testid="button-add-payment">
-                      Coming Soon
-                    </Button>
+                  </div>
+
+                  {/* Security Settings */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Security</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <h4 className="font-medium">Change Password</h4>
+                          <p className="text-sm text-muted-foreground">Update your account password</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            toast({
+                              title: 'Change Password',
+                              description: 'Password change functionality will be available soon.',
+                            });
+                          }}
+                          data-testid="button-change-password"
+                        >
+                          Change
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <h4 className="font-medium">Two-Factor Authentication</h4>
+                          <p className="text-sm text-muted-foreground">Add extra security with 2FA</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            toast({
+                              title: 'Two-Factor Authentication',
+                              description: '2FA setup will be available soon.',
+                            });
+                          }}
+                          data-testid="button-setup-2fa"
+                        >
+                          Setup
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Danger Zone */}
+                  <div className="space-y-4 border-t pt-6">
+                    <h3 className="text-lg font-medium text-red-600">Danger Zone</h3>
+                    <div className="border border-red-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-red-800">Delete Account</h4>
+                          <p className="text-sm text-red-600">
+                            Permanently delete your account and all associated data
+                          </p>
+                        </div>
+                        <Button
+                          variant="destructive"
+                          onClick={() => {
+                            toast({
+                              title: 'Account Deletion',
+                              description: 'Please contact support to delete your account.',
+                              variant: 'destructive',
+                            });
+                          }}
+                          data-testid="button-delete-account"
+                        >
+                          Delete Account
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
