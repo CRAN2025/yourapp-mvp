@@ -6,6 +6,7 @@ import { Store, Phone, CreditCard, Shield, User, Globe, MessageSquare, Tag, Pale
 import { useAuthContext } from '@/context/AuthContext';
 import { normalizeToE164, isValidPhoneNumber } from '@/lib/utils/phone';
 import { categories } from '@shared/schema';
+import { GLOBAL_COUNTRIES, formatCurrency, getCountryByCode } from '@/lib/data/countries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,12 +35,23 @@ const contactVisibilitySchema = z.object({
     message: 'Please enter a valid WhatsApp number',
   }),
   email: z.string().email('Please enter a valid email address'),
+  country: z.string().optional(),
   socialMedia: z.object({
     instagram: z.string().optional(),
     tiktok: z.string().optional(),
     facebook: z.string().optional(),
   }).optional(),
   preferredLanguage: z.string().optional(),
+}).refine((data) => {
+  // Validate phone number with country context if both are provided
+  if (data.country && data.whatsappNumber) {
+    const { validatePhoneNumber } = require('@/lib/data/countries');
+    return validatePhoneNumber(data.whatsappNumber, data.country);
+  }
+  return true;
+}, {
+  message: 'WhatsApp number format is invalid for selected country',
+  path: ['whatsappNumber'],
 });
 
 const paymentsDeliverySchema = z.object({
@@ -51,6 +63,19 @@ const accountSecuritySchema = z.object({
   subscriptionPlan: z.string(),
   country: z.string(),
 });
+
+const preferredLanguages = [
+  'English',
+  'French',
+  'Spanish', 
+  'Portuguese',
+  'Swahili',
+  'Hausa',
+  'Amharic',
+  'Yoruba',
+  'Igbo',
+  'Arabic',
+] as const;
 
 type StoreProfileForm = z.infer<typeof storeProfileSchema>;
 type ContactVisibilityForm = z.infer<typeof contactVisibilitySchema>;

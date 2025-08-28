@@ -6,19 +6,35 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { auth } from '@/lib/firebase';
 import { completeStep } from '@/lib/onboarding';
+import { categories } from '@shared/schema';
+import { GLOBAL_COUNTRIES, formatPhoneNumber, validatePhoneNumber } from '@/lib/data/countries';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const step1Schema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
   businessName: z.string().min(2, 'Store/Business name must be at least 2 characters'),
-  whatsappNumber: z.string().min(10, 'Please enter a valid WhatsApp number'),
+  whatsappNumber: z.string().refine((phone) => {
+    // Basic format check
+    if (!phone || phone.length < 10) return false;
+    // Phone validation will be done with country context
+    return true;
+  }, 'Please enter a valid WhatsApp number'),
   country: z.string().min(1, 'Please select a country'),
-  category: z.string().min(1, 'Please select a business category'),
+  category: z.enum(categories, { errorMap: () => ({ message: 'Please select a business category' }) }),
   subscriptionPlan: z.string().default('beta-free'),
+}).refine((data) => {
+  // Validate phone number with country context
+  if (data.country && data.whatsappNumber) {
+    return validatePhoneNumber(data.whatsappNumber, data.country);
+  }
+  return true;
+}, {
+  message: 'WhatsApp number format is invalid for selected country',
+  path: ['whatsappNumber'],
 });
 
 type Step1FormData = z.infer<typeof step1Schema>;
@@ -32,6 +48,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
   const [user] = useAuthState(auth);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCountry, setSelectedCountry] = useState<string>('');
 
   const form = useForm<Step1FormData>({
     resolver: zodResolver(step1Schema),
@@ -40,7 +57,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
       businessName: '',
       whatsappNumber: '',
       country: '',
-      category: '',
+      category: '🎨 Arts & Crafts' as const, // Set valid category as default
       subscriptionPlan: 'beta-free',
     },
   });
@@ -64,9 +81,13 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
             businessName: data.storeName || '',
             whatsappNumber: data.whatsappNumber || '',
             country: data.country || '',
-            category: data.category || '',
+            category: data.category || '🎨 Arts & Crafts',
             subscriptionPlan: data.subscriptionPlan || 'beta-free',
           });
+          // Set selected country state for form interactions
+          if (data.country) {
+            setSelectedCountry(data.country);
+          }
         }
       } catch (error) {
         console.error('❌ Error loading Step 1 existing data:', error);
@@ -185,13 +206,29 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
                   <FormLabel>WhatsApp Number *</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Enter your WhatsApp number with country code" 
+                      placeholder={selectedCountry ? `Example: ${GLOBAL_COUNTRIES.find(c => c.code === selectedCountry)?.dialCode}7XXXXXXXX` : "Select country first, then enter WhatsApp number"}
                       type="tel"
                       {...field}
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        // Auto-format with country code if country is selected
+                        if (selectedCountry && value && !value.startsWith('+')) {
+                          const country = GLOBAL_COUNTRIES.find(c => c.code === selectedCountry);
+                          if (country && !value.startsWith(country.dialCode)) {
+                            value = formatPhoneNumber(value, selectedCountry);
+                          }
+                        }
+                        field.onChange(value);
+                      }}
                       data-testid="input-whatsapp"
                     />
                   </FormControl>
                   <FormMessage />
+                  {selectedCountry && (
+                    <p className="text-sm text-gray-600">
+                      Format: {GLOBAL_COUNTRIES.find(c => c.code === selectedCountry)?.dialCode}XXXXXXXXX
+                    </p>
+                  )}
                   <p className="text-sm text-gray-600">This is how customers will contact you</p>
                 </FormItem>
               )}
@@ -203,26 +240,32 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Country *</FormLabel>
-                  <FormControl>
-                    <select 
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      {...field}
-                      data-testid="select-country"
-                    >
-                      <option value="">Select your country</option>
-                      <option value="kenya">Kenya</option>
-                      <option value="uganda">Uganda</option>
-                      <option value="tanzania">Tanzania</option>
-                      <option value="ghana">Ghana</option>
-                      <option value="nigeria">Nigeria</option>
-                      <option value="south-africa">South Africa</option>
-                      <option value="rwanda">Rwanda</option>
-                      <option value="zambia">Zambia</option>
-                      <option value="zimbabwe">Zimbabwe</option>
-                      <option value="senegal">Senegal</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </FormControl>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setSelectedCountry(value);
+                      // Auto-format phone number when country changes
+                      const currentPhone = form.getValues('whatsappNumber');
+                      if (currentPhone && value) {
+                        const formattedPhone = formatPhoneNumber(currentPhone, value);
+                        form.setValue('whatsappNumber', formattedPhone);
+                      }
+                    }}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger data-testid="select-country">
+                        <SelectValue placeholder="Select your country" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {GLOBAL_COUNTRIES.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {country.name} ({country.dialCode})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -234,23 +277,20 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Business Category *</FormLabel>
-                  <FormControl>
-                    <select 
-                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      {...field}
-                      data-testid="select-category"
-                    >
-                      <option value="">Select a category</option>
-                      <option value="food">Food & Beverages</option>
-                      <option value="fashion">Fashion & Clothing</option>
-                      <option value="decor">Home Decor</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="services">Services</option>
-                      <option value="beauty">Beauty & Personal Care</option>
-                      <option value="crafts">Arts & Crafts</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-category">
+                        <SelectValue placeholder="Select a business category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

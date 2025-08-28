@@ -1,0 +1,110 @@
+ShopLynk Onboarding & Settings Fixes
+1. Preload Global WhatsApp-Consuming Countries (Africa + Europe + Americas)
+
+Preload the following list into both onboarding and settings for country selection.
+
+Include:
+
+Country name
+
+International dialing code
+
+Default currency
+
+Currency symbol
+
+Ensure this same list drives:
+
+Phone number validation
+
+Storefront currency symbol display
+
+Region	Country	Code	Currency	Symbol
+Africa	Nigeria	+234	Naira	₦
+Kenya	+254	Kenyan Shilling	KSh	
+South Africa	+27	Rand	R	
+Ghana	+233	Ghanaian Cedi	GH₵	
+Ethiopia	+251	Ethiopian Birr	Br	
+Uganda	+256	Ugandan Shilling	USh	
+Tanzania	+255	Tanzanian Shilling	TSh	
+Rwanda	+250	Rwandan Franc	FRw	
+Senegal	+221	CFA Franc	CFA	
+Ivory Coast	+225	CFA Franc	CFA	
+Cameroon	+237	CFA Franc	CFA	
+Zimbabwe	+263	Zimbabwean Dollar	Z$	
+Zambia	+260	Zambian Kwacha	ZK	
+Botswana	+267	Pula	P	
+Namibia	+264	Namibian Dollar	N$	
+Egypt	+20	Egyptian Pound	E£	
+Morocco	+212	Moroccan Dirham	MAD	
+Algeria	+213	Algerian Dinar	DA	
+Europe	United Kingdom	+44	Pound Sterling	£
+Germany	+49	Euro	€	
+France	+33	Euro	€	
+Italy	+39	Euro	€	
+Spain	+34	Euro	€	
+Netherlands	+31	Euro	€	
+Belgium	+32	Euro	€	
+Portugal	+351	Euro	€	
+Sweden	+46	Swedish Krona	kr	
+Norway	+47	Norwegian Krone	kr	
+Denmark	+45	Danish Krone	kr	
+Switzerland	+41	Swiss Franc	CHF	
+Poland	+48	Polish Złoty	zł	
+North America	United States	+1	US Dollar	$
+Canada	+1	Canadian Dollar	C$	
+2. Consistent Category Synchronization
+
+Use the category list from the Settings page as the single source of truth.
+
+Copy this entire list into onboarding so both pages display the exact same categories.
+
+Ensure:
+
+The order of categories is alphabetized consistently.
+
+Any future category changes in Settings are automatically reflected in onboarding.
+
+3. Phone Number Validation by Country
+
+Implement dynamic, country-aware phone validation based on the country selected.
+
+Auto-apply the country code in the phone input field.
+
+Example: Kenya → +2547XXXXXXXX, USA → +1XXXXXXXXXX.
+
+If a seller enters an invalid format for the selected country, display an inline error and block submission until corrected.
+
+4. Currency Symbol on Storefront
+
+Always display the correct currency symbol based on the seller’s selected country.
+
+This must be applied consistently across:
+
+Product listings
+
+Seller storefronts
+
+Buyer-facing views
+
+Examples:
+
+Kenya → “KSh 2,500”
+
+USA → “$150”
+
+UK → “£95”
+
+France → “€120”
+
+Nigeria → “₦25,000”
+
+This implementation ensures:
+
+Global country coverage
+
+Phone validation linked to country codes
+
+Consistent categories between onboarding and settings
+
+Accurate currency symbols on the storefront globally
