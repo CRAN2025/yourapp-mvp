@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import { useAuth } from "@/hooks/use-auth";
-import SellerAuthOnly from "@/components/auth/AuthGuard";
+// Auth guards no longer needed for auth route
 import { OnboardingGuard } from "@/components/OnboardingGuard";
 import { AppGuard } from "@/components/AppGuard";
 import RequireAuth from "@/routes/guards/RequireAuth";
@@ -49,11 +49,7 @@ function Router() {
     <Switch>
       {/* Public routes */}
       <Route path="/" component={MarketLanding} />
-      <Route path="/auth">
-        <SellerAuthOnly>
-          <Auth />
-        </SellerAuthOnly>
-      </Route>
+      <Route path="/auth" component={Auth} />
       <Route path="/app">
         <AppRouter />
       </Route>
