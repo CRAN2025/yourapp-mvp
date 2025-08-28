@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const step3Schema = z.object({
   paymentMethods: z.array(z.string()).default([]),
@@ -73,6 +74,7 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
     if (!user) return;
     
     setIsSubmitting(true);
+    console.log('✅ Step 3: Starting save with data:', data);
     try {
       // Save the form data to Firestore sellers collection
       const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
@@ -135,59 +137,97 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Payment Methods</h3>
-              <p className="text-sm text-gray-600">Select the payment methods you accept (display-only during beta)</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { id: 'mobile-money', label: 'Mobile Money (M-Pesa, Airtel Money, MTN MoMo)' },
-                  { id: 'bank-transfer', label: 'Bank Transfer' },
-                  { id: 'cash-on-delivery', label: 'Cash on Delivery (COD)' },
-                  { id: 'card-payments', label: 'Card Payments' },
-                  { id: 'paypal', label: 'PayPal' },
-                  { id: 'other-wallets', label: 'Other Local Wallets' },
-                ].map((method) => (
-                  <div key={method.id} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={method.id}
-                      className="rounded border-gray-300"
-                      data-testid={`checkbox-${method.id}`}
-                    />
-                    <label htmlFor={method.id} className="text-sm font-medium">
-                      {method.label}
-                    </label>
+            <FormField
+              control={form.control}
+              name="paymentMethods"
+              render={() => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium">Payment Methods</FormLabel>
+                  <p className="text-sm text-gray-600 mb-3">Select the payment methods you accept (display-only during beta)</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { id: 'mobile-money', label: 'Mobile Money (M-Pesa, Airtel Money, MTN MoMo)' },
+                      { id: 'bank-transfer', label: 'Bank Transfer' },
+                      { id: 'cash-on-delivery', label: 'Cash on Delivery (COD)' },
+                      { id: 'card-payments', label: 'Card Payments' },
+                      { id: 'paypal', label: 'PayPal' },
+                      { id: 'other-wallets', label: 'Other Local Wallets' },
+                    ].map((method) => (
+                      <FormField
+                        key={method.id}
+                        control={form.control}
+                        name="paymentMethods"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(method.id)}
+                                onCheckedChange={(checked) => {
+                                  const updatedValue = checked
+                                    ? [...(field.value || []), method.id]
+                                    : (field.value || []).filter((value) => value !== method.id);
+                                  field.onChange(updatedValue);
+                                }}
+                                data-testid={`checkbox-${method.id}`}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal cursor-pointer">
+                              {method.label}
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Delivery Options</h3>
-              <p className="text-sm text-gray-600">Select your delivery methods (display-only during beta)</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { id: 'pickup', label: 'In-Store Pickup' },
-                  { id: 'local-delivery', label: 'Local Delivery' },
-                  { id: 'national-courier', label: 'National Courier Service' },
-                  { id: 'international', label: 'International Shipping' },
-                ].map((option) => (
-                  <div key={option.id} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={option.id}
-                      className="rounded border-gray-300"
-                      data-testid={`checkbox-${option.id}`}
-                    />
-                    <label htmlFor={option.id} className="text-sm font-medium">
-                      {option.label}
-                    </label>
+            <FormField
+              control={form.control}
+              name="deliveryOptions"
+              render={() => (
+                <FormItem>
+                  <FormLabel className="text-lg font-medium">Delivery Options</FormLabel>
+                  <p className="text-sm text-gray-600 mb-3">Select your delivery methods (display-only during beta)</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { id: 'pickup', label: 'In-Store Pickup' },
+                      { id: 'local-delivery', label: 'Local Delivery' },
+                      { id: 'national-courier', label: 'National Courier Service' },
+                      { id: 'international', label: 'International Shipping' },
+                    ].map((option) => (
+                      <FormField
+                        key={option.id}
+                        control={form.control}
+                        name="deliveryOptions"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(option.id)}
+                                onCheckedChange={(checked) => {
+                                  const updatedValue = checked
+                                    ? [...(field.value || []), option.id]
+                                    : (field.value || []).filter((value) => value !== option.id);
+                                  field.onChange(updatedValue);
+                                }}
+                                data-testid={`checkbox-${option.id}`}
+                              />
+                            </FormControl>
+                            <FormLabel className="font-normal cursor-pointer">
+                              {option.label}
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-medium text-blue-900">Beta Notice</h4>
