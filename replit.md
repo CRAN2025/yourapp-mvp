@@ -13,6 +13,7 @@ Preferred communication style: Simple, everyday language.
 4. **Field Specification Implementation**: Step 1 (mandatory: Full Name, Store Name, WhatsApp, Email, Country, Category, Subscription), Step 2 (optional: Store Description, Social Media, Language, Hours, Tags), Step 3 (display-only: Payment/Delivery options) - Locked as backup state
 5. **Authentication Connection Structure**: Complete seller ID authentication flow with RTDB mirroring - CRITICAL: All onboarding steps mirror to both Firestore AND Firebase Realtime Database, sessionStorage persistence, anonymous user blocking, force refresh mechanism, and AppGuard protection - WORKING and LOCKED as final backup
 6. **Complete Onboarding-Settings Field Synchronization**: Every fillable field from all 3 onboarding steps now saves to Firebase and displays/edits in Settings - All 15 fields mapped: Step 1 (6 fields), Step 2 (7 fields), Step 3 (2 fields) with proper validation, form handling, and data persistence - COMPREHENSIVE FIELD AUDIT COMPLETED and LOCKED
+7. **🔒 GOVERNANCE PROTOCOL ACTIVE**: ShopLynk Onboarding & Settings flows under strict change control - Version-stamped baseline (v1.0) created, Master Change Log implemented, ALL modifications require explicit approval from Senait - Protocol enforced effective August 28, 2025
 
 # System Architecture
 
@@ -84,3 +85,40 @@ Preferred communication style: Simple, everyday language.
 ## Communication Integration
 - **WhatsApp Integration**: Direct customer communication.
 - **Phone Number Validation**: International phone number formatting and E164 normalization.
+
+# Governance Protocol
+
+## ShopLynk Onboarding & Settings Change Control
+**Effective Date**: August 28, 2025  
+**Status**: ACTIVE AND ENFORCED
+
+### Protocol Overview
+All onboarding and settings flows are under strict version control and change management. This includes:
+- Landing → Onboarding → Seller Console routing
+- All onboarding steps, form validation, and temporary saves
+- Settings page functionality (categories, store preferences, currencies, languages)
+- All Firebase reads/writes and authentication dependencies
+
+### Change Control Rules
+1. **No modifications** to onboarding/settings without explicit approval from Senait
+2. **Pause and remind** protocol when unauthorized changes are requested
+3. **Version-stamped baseline** (v1.0) serves as rollback point
+4. **Master Change Log** tracks all requests and approvals
+
+### Protected Baseline Files
+- Baseline Document: `ShopLynk_Onboarding_Settings_v1.0_LOCKED.md`
+- Change Tracking: `ShopLynk_Onboarding_Settings_ChangeLog.md`
+- Status: Production-ready and locked
+
+### Emergency Procedures
+If any regression occurs in onboarding or settings:
+1. Immediately revert to v1.0 baseline
+2. Document rollback reason in change log
+3. Test critical flows before proceeding
+
+### Developer Action Required
+When requests involve onboarding/settings:
+- ⏸️ Pause implementation
+- 📢 Remind that flows are locked  
+- 📝 Log request in change log
+- ⌛ Wait for explicit unlock approval from Senait
