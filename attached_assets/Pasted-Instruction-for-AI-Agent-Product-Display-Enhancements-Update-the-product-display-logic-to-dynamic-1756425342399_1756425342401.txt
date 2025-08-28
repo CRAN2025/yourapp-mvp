@@ -1,0 +1,210 @@
+Instruction for AI Agent — Product Display Enhancements
+
+Update the product display logic to dynamically include these fields wherever a value exists.
+Implement across three places:
+
+Seller Console Product View
+
+Public Product Card (summary)
+
+Public Product Details (full view)
+
+1. Seller Console → Product View
+
+Goal: The seller must see everything they entered for easy verification.
+Rule: If the field has a value → display it.
+
+Fields to Show (If Value Exists):
+
+Product Images (already shown)
+
+Product Name
+
+Price
+
+Quantity in Stock ✅ (missing now — must add)
+
+Category
+
+Subcategory ✅ (missing now — must add)
+
+Description
+
+Brand
+
+Condition
+
+Size
+
+Color
+
+Material
+
+Handmade (icon badge if selected)
+
+Customizable (icon badge if selected)
+
+Processing Time
+
+Chain/Length
+
+Pendant/Item Size
+
+Style
+
+Occasion
+
+Ships From
+
+Personalization Options ✅ (missing now — must add)
+
+Care Instructions ✅ (missing now — must add)
+
+Return Policy
+
+Warranty ✅ (missing now — must add)
+
+Sustainability ✅ (missing now — must add)
+
+Seller Expectation:
+Everything they enter in Edit Product should be fully visible here.
+
+2. Public Product Card → First Screen
+
+Goal: Show only key buying decision fields at a glance, without overwhelming buyers.
+Rule: Display these if a value exists:
+
+Always Show on Card:
+
+Product Image
+
+Product Name
+
+Price
+
+Brand (optional if blank)
+
+Category (always show)
+
+Subcategory (if available — add)
+
+Condition (badge — e.g., “New”)
+
+Primary Attribute Badges (Show Up to 3):
+
+Color (badge)
+
+Size (badge)
+
+Material (badge)
+
+Handmade / Customizable (badge if true)
+
+Stock Indicator:
+
+If Quantity ≤ 10 → Show:
+
+“⚠️ Limited Stock — Only X Left” (add logic, matches your details view)
+
+Example Card Structure:
+
+[Image]
+NEW Badge | Subcategory Badge (if any)
+Product Name
+Brand (if available)
+Price
+Category & Subcategory
+[Color] [Size] [Material]
+⚠️ Limited Stock Indicator (if applicable)
+View Details Button
+
+3. Public Product Details → Full View
+
+Goal: When the buyer clicks View Details, show everything relevant to the purchase.
+Rule: If the seller entered a value → display it.
+
+Fields to Include (If Value Exists):
+
+Product Name
+
+Brand
+
+Price
+
+Category + Subcategory
+
+Stock Availability (already shown, keep “6 units available”)
+
+Description
+
+Size / Color / Material
+
+Chain/Length
+
+Pendant/Item Size
+
+Processing Time
+
+Handmade (show icon + text if selected)
+
+Customizable (show icon + text if selected)
+
+Personalization Options (add if available)
+
+Care Instructions (add if available)
+
+Style (add if available)
+
+Occasion (add if available)
+
+Ships From (add if available)
+
+Sustainability (add if available)
+
+Warranty (add if available)
+
+Return Policy (already included — keep)
+
+Special Features Section (if applicable):
+
+Handmade
+
+Customizable
+
+Personalization Options
+
+Sustainability
+
+4. Implementation Rules
+
+Show if Value Exists: For optional fields, do not display placeholders — only show fields if the seller entered data.
+
+Badge vs. Detail:
+
+On cards → badges only for color, size, material, handmade, customizable
+
+In details → show full descriptions
+
+Consistency: Keep iconography, font sizes, and alignment consistent across seller view, public cards, and details view.
+
+5. Priorities for Missing Fields
+
+The following must be added across the three views:
+
+Field	Seller Console	Public Card	Public Details
+Quantity in Stock	✅ Add	⚠️ Show Low Stock Badge	✅ Show full
+Subcategory	✅ Add	✅ Add	✅ Add
+Personalization	✅ Add	❌ Skip on Card	✅ Add
+Care Instructions	✅ Add	❌ Skip on Card	✅ Add
+Sustainability	✅ Add	❌ Skip on Card	✅ Add
+Warranty	✅ Add	❌ Skip on Card	✅ Add
+Occasion & Style	✅ Add	❌ Skip on Card	✅ Add
+Ships From	✅ Add	❌ Skip on Card	✅ Add
+
+This specification ensures:
+
+Seller Console → Complete visibility
+
+Public Card → Clean, buyer-focused summary
+
+Public Details → Full product information
