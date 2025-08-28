@@ -12,6 +12,7 @@ Preferred communication style: Simple, everyday language.
 3. **CTA Routing Logic**: Landing page CTA behavior and authentication flow - Logic is working correctly, do not modify
 4. **Field Specification Implementation**: Step 1 (mandatory: Full Name, Store Name, WhatsApp, Email, Country, Category, Subscription), Step 2 (optional: Store Description, Social Media, Language, Hours, Tags), Step 3 (display-only: Payment/Delivery options) - Locked as backup state
 5. **Authentication Connection Structure**: Complete seller ID authentication flow with RTDB mirroring - CRITICAL: All onboarding steps mirror to both Firestore AND Firebase Realtime Database, sessionStorage persistence, anonymous user blocking, force refresh mechanism, and AppGuard protection - WORKING and LOCKED as final backup
+6. **Complete Onboarding-Settings Field Synchronization**: Every fillable field from all 3 onboarding steps now saves to Firebase and displays/edits in Settings - All 15 fields mapped: Step 1 (6 fields), Step 2 (7 fields), Step 3 (2 fields) with proper validation, form handling, and data persistence - COMPREHENSIVE FIELD AUDIT COMPLETED and LOCKED
 
 # System Architecture
 
