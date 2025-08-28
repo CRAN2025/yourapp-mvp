@@ -13,9 +13,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const step1Schema = z.object({
-  businessName: z.string().min(2, 'Business name must be at least 2 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  category: z.string().min(1, 'Please select a category'),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  businessName: z.string().min(2, 'Store/Business name must be at least 2 characters'),
+  whatsappNumber: z.string().min(10, 'Please enter a valid WhatsApp number'),
+  country: z.string().min(1, 'Please select a country'),
+  category: z.string().min(1, 'Please select a business category'),
+  subscriptionPlan: z.string().default('beta-free'),
 });
 
 type Step1FormData = z.infer<typeof step1Schema>;
@@ -32,9 +35,12 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
   const form = useForm<Step1FormData>({
     resolver: zodResolver(step1Schema),
     defaultValues: {
+      fullName: '',
       businessName: '',
-      description: '',
+      whatsappNumber: '',
+      country: '',
       category: '',
+      subscriptionPlan: 'beta-free',
     },
   });
 
@@ -72,13 +78,31 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Enter your full name" 
+                      {...field}
+                      data-testid="input-full-name"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="businessName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Name</FormLabel>
+                  <FormLabel>Store/Business Name *</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Enter your business name" 
+                      placeholder="Enter your store or business name" 
                       {...field}
                       data-testid="input-business-name"
                     />
@@ -90,17 +114,49 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
 
             <FormField
               control={form.control}
-              name="description"
+              name="whatsappNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Description</FormLabel>
+                  <FormLabel>WhatsApp Number *</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Describe what your business offers..."
-                      className="min-h-[100px]"
+                    <Input 
+                      placeholder="Enter your WhatsApp number with country code" 
+                      type="tel"
                       {...field}
-                      data-testid="textarea-description"
+                      data-testid="input-whatsapp"
                     />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-sm text-gray-600">This is how customers will contact you</p>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country *</FormLabel>
+                  <FormControl>
+                    <select 
+                      className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      {...field}
+                      data-testid="select-country"
+                    >
+                      <option value="">Select your country</option>
+                      <option value="kenya">Kenya</option>
+                      <option value="uganda">Uganda</option>
+                      <option value="tanzania">Tanzania</option>
+                      <option value="ghana">Ghana</option>
+                      <option value="nigeria">Nigeria</option>
+                      <option value="south-africa">South Africa</option>
+                      <option value="rwanda">Rwanda</option>
+                      <option value="zambia">Zambia</option>
+                      <option value="zimbabwe">Zimbabwe</option>
+                      <option value="senegal">Senegal</option>
+                      <option value="other">Other</option>
+                    </select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -112,7 +168,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Category</FormLabel>
+                  <FormLabel>Business Category *</FormLabel>
                   <FormControl>
                     <select 
                       className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -120,13 +176,13 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
                       data-testid="select-category"
                     >
                       <option value="">Select a category</option>
-                      <option value="fashion">Fashion & Clothing</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="home">Home & Garden</option>
-                      <option value="beauty">Beauty & Personal Care</option>
-                      <option value="sports">Sports & Outdoors</option>
-                      <option value="books">Books & Media</option>
                       <option value="food">Food & Beverages</option>
+                      <option value="fashion">Fashion & Clothing</option>
+                      <option value="decor">Home Decor</option>
+                      <option value="electronics">Electronics</option>
+                      <option value="services">Services</option>
+                      <option value="beauty">Beauty & Personal Care</option>
+                      <option value="crafts">Arts & Crafts</option>
                       <option value="other">Other</option>
                     </select>
                   </FormControl>

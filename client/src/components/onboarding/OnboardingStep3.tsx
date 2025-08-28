@@ -14,13 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 
 const step3Schema = z.object({
-  storeName: z.string().min(2, 'Store name must be at least 2 characters'),
-  storeDescription: z.string().min(10, 'Store description must be at least 10 characters'),
-  whatsappNumber: z.string().min(10, 'Please enter a valid WhatsApp number'),
-  policies: z.object({
-    returnPolicy: z.string().min(10, 'Return policy is required'),
-    shippingPolicy: z.string().min(10, 'Shipping policy is required'),
-  }),
+  paymentMethods: z.array(z.string()).default([]),
+  deliveryOptions: z.array(z.string()).default([]),
 });
 
 type Step3FormData = z.infer<typeof step3Schema>;
@@ -37,13 +32,8 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
   const form = useForm<Step3FormData>({
     resolver: zodResolver(step3Schema),
     defaultValues: {
-      storeName: '',
-      storeDescription: '',
-      whatsappNumber: '',
-      policies: {
-        returnPolicy: '',
-        shippingPolicy: '',
-      },
+      paymentMethods: [],
+      deliveryOptions: [],
     },
   });
 
@@ -71,116 +61,74 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Store Setup</CardTitle>
+        <CardTitle>Payment & Delivery Options</CardTitle>
         <CardDescription>
-          Final step! Configure your store settings and policies to start selling.
+          Select the payment methods and delivery options you'll offer customers. These are display-only during beta.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="storeName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Store Name</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter your store name" 
-                      {...field}
-                      data-testid="input-store-name"
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Payment Methods</h3>
+              <p className="text-sm text-gray-600">Select the payment methods you accept (display-only during beta)</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { id: 'mobile-money', label: 'Mobile Money (M-Pesa, Airtel Money, MTN MoMo)' },
+                  { id: 'bank-transfer', label: 'Bank Transfer' },
+                  { id: 'cash-on-delivery', label: 'Cash on Delivery (COD)' },
+                  { id: 'card-payments', label: 'Card Payments' },
+                  { id: 'paypal', label: 'PayPal' },
+                  { id: 'other-wallets', label: 'Other Local Wallets' },
+                ].map((method) => (
+                  <div key={method.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={method.id}
+                      className="rounded border-gray-300"
+                      data-testid={`checkbox-${method.id}`}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="storeDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Store Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describe your store and what makes it special..."
-                      className="min-h-[100px]"
-                      {...field}
-                      data-testid="textarea-store-description"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="whatsappNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    WhatsApp Number
-                    <Badge variant="secondary" className="ml-2">Required</Badge>
-                  </FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter your WhatsApp number (with country code)" 
-                      type="tel"
-                      {...field}
-                      data-testid="input-whatsapp"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  <p className="text-sm text-gray-600 mt-1">
-                    Customers will use this number to contact you directly through WhatsApp
-                  </p>
-                </FormItem>
-              )}
-            />
+                    <label htmlFor={method.id} className="text-sm font-medium">
+                      {method.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Store Policies</h3>
+              <h3 className="text-lg font-medium">Delivery Options</h3>
+              <p className="text-sm text-gray-600">Select your delivery methods (display-only during beta)</p>
               
-              <FormField
-                control={form.control}
-                name="policies.returnPolicy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Return Policy</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe your return and refund policy..."
-                        className="min-h-[80px]"
-                        {...field}
-                        data-testid="textarea-return-policy"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { id: 'pickup', label: 'In-Store Pickup' },
+                  { id: 'local-delivery', label: 'Local Delivery' },
+                  { id: 'national-courier', label: 'National Courier Service' },
+                  { id: 'international', label: 'International Shipping' },
+                ].map((option) => (
+                  <div key={option.id} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={option.id}
+                      className="rounded border-gray-300"
+                      data-testid={`checkbox-${option.id}`}
+                    />
+                    <label htmlFor={option.id} className="text-sm font-medium">
+                      {option.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-              <FormField
-                control={form.control}
-                name="policies.shippingPolicy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Shipping Policy</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe your shipping methods and delivery times..."
-                        className="min-h-[80px]"
-                        {...field}
-                        data-testid="textarea-shipping-policy"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-medium text-blue-900">Beta Notice</h4>
+              <p className="text-sm text-blue-800 mt-1">
+                During the beta phase, ShopLynk displays your selected payment and delivery options to customers, 
+                but you'll handle all transactions and logistics directly. We'll add automated processing in future updates.
+              </p>
             </div>
 
             <div className="flex justify-between">
