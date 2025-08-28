@@ -105,7 +105,9 @@ export default function Settings() {
 
   // Update forms when seller data changes
   useEffect(() => {
+    console.log('Settings: Seller data loaded:', seller);
     if (seller) {
+      console.log('Settings: Updating forms with seller data');
       storeProfileForm.reset({
         storeName: seller.storeName || '',
         storeDescription: seller.storeDescription || '',
@@ -133,6 +135,8 @@ export default function Settings() {
         subscriptionPlan: seller.subscriptionPlan || 'beta-free',
         country: seller.country || '',
       });
+    } else {
+      console.log('Settings: No seller data available');
     }
   }, [seller, storeProfileForm, contactVisibilityForm, paymentsDeliveryForm, accountSecurityForm]);
 
