@@ -214,30 +214,8 @@ export default function MarketLanding() {
     
     try { (window as any).gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
     
-    // Use auth redirect helper for unauthenticated users
-    const { ensureUnauthRedirect } = await import('@/lib/authRedirect');
-    if (ensureUnauthRedirect(user, navigate)) {
-      setIsLoading(false);
-      return;
-    }
-    
-    // Authenticated path - existing onboarding logic
-    try {
-      const { ensureBootstrap, firstIncompleteStep, isOnboardingComplete } = await import('@/lib/onboarding');
-      const { storeId, progress } = await ensureBootstrap(user!.uid);
-      
-      // Check if onboarding is complete
-      if (isOnboardingComplete(progress?.completed)) {
-        navigate('/dashboard');
-      } else {
-        const step = firstIncompleteStep(progress?.completed);
-        navigate(`/onboarding/${step}`);
-      }
-    } catch (error) {
-      console.error('Error handling CTA click:', error);
-      // Fallback to direct onboarding step
-      navigate('/onboarding/step-1');
-    }
+    // ALL users go to signup page first
+    navigate('/auth?mode=signup&redirect=' + encodeURIComponent('/onboarding/step-1'));
     
     setIsLoading(false);
   };
