@@ -1,0 +1,73 @@
+ShopLynk Beta – Seller Onboarding Fields Specification
+
+(For AI Agent – WhatsApp Marketplace)
+
+1. Mandatory Fields (Minimum Required to Open a Store)
+
+These fields must be collected during signup to activate the seller profile.
+
+Field	Data Type	Purpose	Notes
+Full Name	Text	Seller identity	Internal; not displayed publicly unless no store name is set.
+Store / Business Name	Text	Public-facing shop name	Must be unique.
+WhatsApp Number	Phone	Buyer contact + product inquiries	Core to the model; drives communication.
+Email Address	Email	Login + notifications	Also used for subscription tracking.
+Country	Dropdown	Segmentation, default currency, and payment options	Preload African countries, allow global expansion later.
+Business Category	Dropdown	Organizes shops into categories	Examples: Food, Fashion, Decor, Electronics, Services.
+Subscription Plan	Dropdown	Track beta vs. future tiers	Default = Beta Free Plan.
+2. Optional Fields (Enhance Seller Profile)
+
+Collected but not required to publish the store during beta. Sellers can update later.
+
+Field	Data Type	Purpose
+Store Logo	Image	Branding
+Store Banner	Image	Visual storefront identity
+Short Store Bio / About	Text	Quick intro for buyers
+Social Media Handles	Links	Cross-promotion: Instagram, TikTok, Facebook
+Preferred Language	Dropdown	For localized store display
+Return / Exchange Policies	Text	Optional in beta; increases trust
+Operating Hours	Time range	For service-based sellers
+Tags / Keywords	Multi-text	Improve discoverability in search
+3. Payment Methods (Display-Only in Beta)
+
+ShopLynk will not process payments in beta, but sellers can display supported payment options to buyers.
+These methods must reflect common African payment systems.
+
+Payment Method	Regions Where Common	Notes
+Mobile Money (M-Pesa, Airtel Money, MTN MoMo, Orange Money)	Kenya, Uganda, Tanzania, Ghana, Zambia, Rwanda	Most widely used; high adoption.
+Bank Transfer	All regions	Seller provides details manually.
+Cash on Delivery (COD)	Nigeria, Kenya, Ghana	Critical for low-trust buyers.
+Card Payments (seller-managed)	South Africa, Nigeria, Ghana	Through external gateways (Flutterwave, Paystack, Stripe).
+PayPal (optional)	International sellers	Optional, not widely adopted locally.
+Other Local Wallets	Country-specific	e.g., EcoCash (Zimbabwe), Wave (Senegal).
+
+Implementation Note:
+
+Sellers select one or more payment methods from a predefined list.
+
+Buyers see these methods displayed but ShopLynk does not handle payment routing in beta.
+
+4. Delivery Options (Seller-Managed in Beta)
+
+Sellers specify how they handle delivery; ShopLynk only displays the options to buyers.
+
+Delivery Option	Purpose	Notes
+In-Store Pickup	Buyer collects item directly	Optional.
+Local Delivery	Seller-managed delivery within city or region	Seller can set delivery fees manually.
+National Courier Service	Use countrywide courier services	Examples: DHL Express, GIG Logistics, Aramex, Posta Kenya.
+International Shipping	For cross-border buyers	Optional; sellers must provide their own rates.
+
+Implementation Note:
+
+Sellers choose available delivery methods during onboarding or later in store settings.
+
+Shipping fees remain seller-defined and are not automated in beta.
+
+5. Key Design Rules for Beta
+
+Frictionless Signup: Only the mandatory fields above are required.
+
+Flexible Profile Enrichment: Sellers can add branding, payment methods, and delivery info after activation.
+
+Buyer Transparency: Payment methods and delivery options are visible but ShopLynk does not manage checkout.
+
+Future-Proofing: We can layer subscription tiers and premium store customizations post-beta without disrupting existing sellers.
