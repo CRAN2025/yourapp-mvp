@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 const step1Schema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  businessName: z.string().min(2, 'Store/Business name must be at least 2 characters'),
+  storeName: z.string().min(2, 'Store/Business name must be at least 2 characters'),
   whatsappNumber: z.string().refine((phone) => {
     // Basic format check
     if (!phone || phone.length < 10) return false;
@@ -54,7 +54,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
     resolver: zodResolver(step1Schema),
     defaultValues: {
       fullName: '',
-      businessName: '',
+      storeName: '',
       whatsappNumber: '',
       country: '',
       category: undefined, // No default - user must select
@@ -78,7 +78,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
           const data = sellerSnap.data();
           form.reset({
             fullName: data.fullName || '',
-            businessName: data.storeName || '',
+            storeName: data.storeName || '',
             whatsappNumber: data.whatsappNumber || '',
             country: data.country || '',
             category: data.category, // Load existing or undefined (no default)
@@ -117,7 +117,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
         id: user.uid,
         email: user.email || '',
         fullName: data.fullName,
-        storeName: data.businessName,
+        storeName: data.storeName,
         whatsappNumber: data.whatsappNumber,
         country: data.country,
         category: data.category,
@@ -182,7 +182,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
 
             <FormField
               control={form.control}
-              name="businessName"
+              name="storeName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Store/Business Name *</FormLabel>
@@ -190,7 +190,7 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
                     <Input 
                       placeholder="Enter your store or business name" 
                       {...field}
-                      data-testid="input-business-name"
+                      data-testid="input-store-name"
                     />
                   </FormControl>
                   <FormMessage />
