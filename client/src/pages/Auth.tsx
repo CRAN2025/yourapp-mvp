@@ -34,21 +34,26 @@ const verificationSchema = z.object({
 
 type AuthMode = 'signin' | 'signup';
 
+function parseMode(search: string): AuthMode {
+  const p = new URLSearchParams(search).get('mode');
+  return p === 'signup' ? 'signup' : 'signin';
+}
+
 function useAuthMode(): AuthMode {
-  const [location] = useLocation();
-  return useMemo(() => {
-    // Use window.location.search to get query params since wouter strips them
-    const search = window.location.search.substring(1);
-    const p = new URLSearchParams(search).get('mode');
-    return p === 'signup' ? 'signup' : 'signin';
-  }, [location]);
+  const [mode, setMode] = useState<AuthMode>(() => parseMode(window.location.search));
+  useEffect(() => {
+    const onPop = () => setMode(parseMode(window.location.search));
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  return mode;
 }
 
 export default function Auth() {
   const [location, navigate] = useLocation();
-  const authMode = useAuthMode(); // Direct URL control, no local state
+  const authMode = useAuthMode(); // URL-controlled with state management for popstate
   
-  // Parse redirect parameter - only allow internal paths - use window.location.search
+  // Parse redirect parameter - only allow internal paths
   const search = window.location.search.substring(1);
   const params = new URLSearchParams(search);
   const redirectRaw = params.get('redirect') || '/dashboard';
@@ -318,10 +323,10 @@ export default function Auth() {
                           if (redirectUrl !== '/dashboard') {
                             params.set('redirect', redirectUrl);
                           }
-                          // Use window.location to preserve query params
-                          window.history.replaceState(null, '', `/auth?${params.toString()}`);
-                          // Trigger a re-render by navigating
-                          navigate('/auth', { replace: true });
+                          // Use pushState to update URL and trigger popstate listener
+                          window.history.pushState(null, '', `/auth?${params.toString()}`);
+                          // Trigger the popstate event manually to update our state
+                          window.dispatchEvent(new PopStateEvent('popstate'));
                         }}
                         data-testid="button-toggle-mode"
                       >
