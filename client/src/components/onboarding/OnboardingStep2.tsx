@@ -15,9 +15,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { GLOBAL_LANGUAGES } from '@/lib/data/countries';
 
 const step2Schema = z.object({
-  storeLogo: z.string().optional(),
-  storeBanner: z.string().optional(),
-  storeBio: z.string().optional(),
+  logoUrl: z.string().optional(),
+  bannerUrl: z.string().optional(),
+  storeDescription: z.string().optional(),
   socialMedia: z.object({
     instagram: z.string().optional(),
     tiktok: z.string().optional(),
@@ -44,9 +44,9 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
   const form = useForm<Step2FormData>({
     resolver: zodResolver(step2Schema),
     defaultValues: {
-      storeLogo: '',
-      storeBanner: '',
-      storeBio: '',
+      logoUrl: '',
+      bannerUrl: '',
+      storeDescription: '',
       socialMedia: {
         instagram: '',
         tiktok: '',
@@ -74,9 +74,9 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
         if (sellerSnap.exists()) {
           const data = sellerSnap.data();
           form.reset({
-            storeLogo: data.logoUrl || '',
-            storeBanner: data.bannerUrl || '',
-            storeBio: data.storeDescription || '',
+            logoUrl: data.logoUrl || '',
+            bannerUrl: data.bannerUrl || '',
+            storeDescription: data.storeDescription || '',
             socialMedia: {
               instagram: data.socialMedia?.instagram || '',
               tiktok: data.socialMedia?.tiktok || '',
@@ -113,9 +113,9 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
       
       const sellerRef = doc(db, 'sellers', user.uid);
       const saveData = {
-        logoUrl: data.storeLogo || '',
-        bannerUrl: data.storeBanner || '',
-        storeDescription: data.storeBio || '',
+        logoUrl: data.logoUrl || '',
+        bannerUrl: data.bannerUrl || '',
+        storeDescription: data.storeDescription || '',
         socialMedia: {
           instagram: data.socialMedia?.instagram || '',
           tiktok: data.socialMedia?.tiktok || '',
@@ -170,7 +170,7 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="storeBio"
+              name="storeDescription"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Store Description (Optional)</FormLabel>
