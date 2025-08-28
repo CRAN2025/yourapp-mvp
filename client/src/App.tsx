@@ -5,8 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import { useAuth } from "@/hooks/use-auth";
-import AuthGuard from "@/components/AuthGuard";
-import SellerAuthGuard from "@/components/auth/AuthGuard";
+import SellerAuthOnly from "@/components/auth/AuthGuard";
 import { OnboardingGuard } from "@/components/OnboardingGuard";
 import { AppGuard } from "@/components/AppGuard";
 import RequireAuth from "@/routes/guards/RequireAuth";
@@ -51,9 +50,9 @@ function Router() {
       {/* Public routes */}
       <Route path="/" component={MarketLanding} />
       <Route path="/auth">
-        <AuthGuard requireAuth={false}>
+        <SellerAuthOnly>
           <Auth />
-        </AuthGuard>
+        </SellerAuthOnly>
       </Route>
       <Route path="/app">
         <AppRouter />
@@ -122,9 +121,9 @@ function Router() {
         </AppGuard>
       </Route>
       <Route path="/upgrade">
-        <AuthGuard>
+        <AppGuard>
           <Upgrade />
-        </AuthGuard>
+        </AppGuard>
       </Route>
 
       {/* Admin routes - require admin privileges */}
