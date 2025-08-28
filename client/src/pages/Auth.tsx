@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAuth } from '@/hooks/use-auth';
+import { ensureBootstrap } from '@/lib/ensureBootstrap';
 
 const emailSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -99,12 +100,27 @@ export default function Auth() {
 
   const { user } = useAuth();
 
-  // Redirect authenticated users
+  // Bootstrap user and redirect authenticated users
   useEffect(() => {
-    if (user) {
-      navigate(redirectUrl, { replace: true });
-    }
-  }, [user, navigate, redirectUrl]);
+    const initializeUser = async () => {
+      if (user) {
+        try {
+          // Initialize user data (profile, store, onboarding)
+          await ensureBootstrap(user.uid);
+          navigate(redirectUrl, { replace: true });
+        } catch (error) {
+          console.error('Failed to initialize user:', error);
+          toast({
+            title: 'Setup Error',
+            description: 'Failed to initialize your account. Please try again.',
+            variant: 'destructive',
+          });
+        }
+      }
+    };
+
+    initializeUser();
+  }, [user, navigate, redirectUrl, toast]);
 
   const handleEmailAuth = async (data: z.infer<typeof emailSchema>) => {
     try {

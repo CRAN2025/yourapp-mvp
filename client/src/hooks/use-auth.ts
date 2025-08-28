@@ -12,8 +12,7 @@ import {
   setPersistence,
   browserLocalPersistence,
 } from 'firebase/auth';
-import { ref, get, set, serverTimestamp } from 'firebase/database';
-import { auth, database } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 import type { Seller } from '@shared/schema';
 
 export interface AuthState {
@@ -41,14 +40,9 @@ export function useAuth() {
         setState(prev => ({ ...prev, loading: true, error: null }));
         
         if (user) {
-          // Fetch seller profile
-          const sellerRef = ref(database, `sellers/${user.uid}`);
-          const sellerSnapshot = await get(sellerRef);
-          const seller = sellerSnapshot.exists() ? sellerSnapshot.val() : null;
-          
           setState({
             user,
-            seller,
+            seller: null, // Will be populated by Firestore via useOnboardingProgress
             loading: false,
             error: null,
           });
@@ -83,13 +77,15 @@ export function useAuth() {
       if (!email || !email.includes('@')) {
         throw new Error('Please enter a valid email address');
       }
-      if (!password || password.length < 6) {
-        throw new Error('Password must be at least 6 characters');
+      
+      if (!password || password.length < 8) {
+        throw new Error('Password must be at least 8 characters');
       }
       
-      console.log('Attempting sign in with email:', email);
       const result = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Sign in successful:', result.user.uid);
+      
+      setState(prev => ({ ...prev, loading: false }));
+      return result;
     } catch (error: any) {
       console.error('Email sign in error:', error);
       
@@ -103,6 +99,8 @@ export function useAuth() {
         errorMessage = 'Invalid email address';
       } else if (error.code === 'auth/too-many-requests') {
         errorMessage = 'Too many failed attempts. Please try again later';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your connection';
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -119,55 +117,21 @@ export function useAuth() {
   // Email/Password Sign Up
   const signUpWithEmail = async (email: string, password: string) => {
     try {
-      // Set persistence to keep user signed in across tabs
-      await setPersistence(auth, browserLocalPersistence);
       setState(prev => ({ ...prev, loading: true, error: null }));
       
       // Input validation
       if (!email || !email.includes('@')) {
         throw new Error('Please enter a valid email address');
       }
-      if (!password || password.length < 6) {
-        throw new Error('Password must be at least 6 characters');
+      
+      if (!password || password.length < 8) {
+        throw new Error('Password must be at least 8 characters');
       }
       
-      console.log('Attempting sign up with email:', email);
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('Sign up successful:', result.user.uid);
       
-      // Create initial seller profile with retry logic
-      const sellerData = {
-        id: result.user.uid,
-        email: result.user.email!,
-        storeName: '',
-        category: '',
-        whatsappNumber: '',
-        country: '',
-        currency: 'USD',
-        businessType: 'individual',
-        deliveryOptions: [],
-        paymentMethods: [],
-        onboardingCompleted: false,
-        isAdmin: false,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      };
-      
-      const sellerRef = ref(database, `sellers/${result.user.uid}`);
-      
-      // Retry database write up to 3 times
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          await set(sellerRef, sellerData);
-          break;
-        } catch (dbError) {
-          retries--;
-          if (retries === 0) throw dbError;
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
-        }
-      }
-      
+      setState(prev => ({ ...prev, loading: false }));
+      return result;
     } catch (error: any) {
       console.error('Email sign up error:', error);
       
@@ -237,31 +201,15 @@ export function useAuth() {
       setState(prev => ({ ...prev, loading: true, error: null }));
       const result = await confirmationResult.confirm(code);
       
-      // Check if seller profile exists, create if not
-      const sellerRef = ref(database, `sellers/${result.user.uid}`);
-      const sellerSnapshot = await get(sellerRef);
-      
-      if (!sellerSnapshot.exists()) {
-        const sellerData = {
-          id: result.user.uid,
-          email: result.user.email || '',
-          phone: result.user.phoneNumber!,
-          storeName: '',
-          category: '',
-          whatsappNumber: result.user.phoneNumber!,
-          isAdmin: false,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        };
-        
-        await set(sellerRef, sellerData);
-      }
-      
+      setState(prev => ({ ...prev, loading: false }));
+      return result;
     } catch (error) {
+      console.error('Phone code verification error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Invalid verification code';
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Invalid verification code',
+        error: errorMessage,
       }));
       throw error;
     }
@@ -270,11 +218,29 @@ export function useAuth() {
   // Sign Out
   const signOut = async () => {
     try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
       await firebaseSignOut(auth);
+      
+      // Clean up reCAPTCHA if it exists
+      if (recaptchaVerifier) {
+        recaptchaVerifier.clear();
+        setRecaptchaVerifier(null);
+      }
+      setConfirmationResult(null);
+      
+      setState({
+        user: null,
+        seller: null,
+        loading: false,
+        error: null,
+      });
     } catch (error) {
+      console.error('Sign out error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Sign out failed';
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Sign out failed',
+        loading: false,
+        error: errorMessage,
       }));
       throw error;
     }
@@ -283,30 +249,41 @@ export function useAuth() {
   // Reset Password
   const resetPassword = async (email: string) => {
     try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
       await sendPasswordResetEmail(auth, email);
+      setState(prev => ({ ...prev, loading: false }));
     } catch (error) {
+      console.error('Password reset error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Password reset failed';
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: errorMessage,
+      }));
       throw error;
     }
   };
 
-  // Update seller profile
+  // Update seller profile (placeholder for compatibility)
   const updateSellerProfile = async (updates: Partial<Seller>) => {
     if (!state.user) throw new Error('No authenticated user');
-
+    
     try {
-      const sellerRef = ref(database, `sellers/${state.user.uid}`);
-      const updatedProfile = {
-        ...state.seller,
-        ...updates,
-        updatedAt: Date.now(),
-      };
+      setState(prev => ({ ...prev, loading: true, error: null }));
       
-      await set(sellerRef, updatedProfile);
+      // Profile updates will be handled via Firestore in the onboarding system
+      // This is a placeholder for backward compatibility
       
-      // Mirror to public store
-      const { mirrorSellerProfile } = await import('@/lib/utils/dataMirror');
-      await mirrorSellerProfile(state.user.uid, updatedProfile);
+      setState(prev => ({
+        ...prev,
+        loading: false,
+      }));
     } catch (error) {
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : 'Failed to update profile',
+      }));
       throw error;
     }
   };
