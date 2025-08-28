@@ -54,10 +54,9 @@ export default function Auth() {
   const authMode = useAuthMode(); // URL-controlled with state management for popstate
   
   // Parse redirect parameter - only allow internal paths
-  const search = window.location.search.substring(1);
-  const params = new URLSearchParams(search);
-  const redirectRaw = params.get('redirect') || '/dashboard';
-  const redirectUrl = redirectRaw.startsWith('/') ? redirectRaw : '/dashboard';
+  const params = new URLSearchParams(window.location.search);
+  const redirectRaw = params.get('redirect') || (authMode === 'signup' ? '/onboarding/step-1' : '/dashboard');
+  const redirectUrl = redirectRaw.startsWith('/') ? redirectRaw : (authMode === 'signup' ? '/onboarding/step-1' : '/dashboard');
   const [phoneStep, setPhoneStep] = useState<'phone' | 'verify'>('phone');
   const [showPassword, setShowPassword] = useState(false);
   const { signInWithEmail, signUpWithEmail, sendPhoneVerification, verifyPhoneCode, resetPassword, loading } = useAuthContext();
@@ -317,11 +316,11 @@ export default function Auth() {
                         className="w-full"
                         onClick={() => {
                           const newMode = authMode === 'signin' ? 'signup' : 'signin';
-                          const search = window.location.search.substring(1);
-                          const params = new URLSearchParams(search);
+                          const params = new URLSearchParams(window.location.search);
                           params.set('mode', newMode);
-                          if (redirectUrl !== '/dashboard') {
-                            params.set('redirect', redirectUrl);
+                          // Set appropriate default redirect for the new mode
+                          if (!params.get('redirect')) {
+                            params.set('redirect', newMode === 'signup' ? '/onboarding/step-1' : '/dashboard');
                           }
                           // Use pushState to update URL and trigger popstate listener
                           window.history.pushState(null, '', `/auth?${params.toString()}`);
