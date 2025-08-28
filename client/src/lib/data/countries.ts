@@ -142,4 +142,42 @@ export const validatePhoneNumber = (phone: string, countryCode: string): boolean
   return pattern.test(phone);
 };
 
+// Comprehensive language list based on countries and regions
+export const GLOBAL_LANGUAGES = [
+  // Major international languages
+  'English',
+  'French', 
+  'Spanish',
+  'Portuguese',
+  'German',
+  'Italian',
+  'Dutch',
+  
+  // African languages  
+  'Swahili',
+  'Hausa',
+  'Yoruba',
+  'Igbo',
+  'Amharic',
+  'Wolof',
+  'Akan',
+  'Zulu',
+  'Afrikaans',
+  
+  // Middle Eastern/North African
+  'Arabic',
+  'Berber',
+  
+  // European languages
+  'Danish',
+  'Norwegian',
+  'Swedish',
+  'Polish',
+  
+  // Other
+  'Other'
+] as const;
+
+export type GlobalLanguage = typeof GLOBAL_LANGUAGES[number];
+
 export default GLOBAL_COUNTRIES;

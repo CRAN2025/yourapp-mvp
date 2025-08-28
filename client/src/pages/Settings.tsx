@@ -6,7 +6,7 @@ import { Store, Phone, CreditCard, Shield, User, Globe, MessageSquare, Tag, Pale
 import { useAuthContext } from '@/context/AuthContext';
 import { normalizeToE164, isValidPhoneNumber } from '@/lib/utils/phone';
 import { categories } from '@shared/schema';
-import { GLOBAL_COUNTRIES, formatCurrency, getCountryByCode } from '@/lib/data/countries';
+import { GLOBAL_COUNTRIES, GLOBAL_LANGUAGES, formatCurrency, getCountryByCode } from '@/lib/data/countries';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -68,18 +68,8 @@ const accountSecuritySchema = z.object({
   country: z.string(),
 });
 
-const preferredLanguages = [
-  'English',
-  'French',
-  'Spanish', 
-  'Portuguese',
-  'Swahili',
-  'Hausa',
-  'Amharic',
-  'Yoruba',
-  'Igbo',
-  'Arabic',
-] as const;
+// Use comprehensive global languages from countries data
+const preferredLanguages = GLOBAL_LANGUAGES;
 
 type StoreProfileForm = z.infer<typeof storeProfileSchema>;
 type ContactVisibilityForm = z.infer<typeof contactVisibilitySchema>;
@@ -114,6 +104,12 @@ export default function Settings() {
     if (seller?.deliveryOptions) {
       console.log('🔍 Settings: DeliveryOptions array length:', seller.deliveryOptions.length);
       console.log('🔍 Settings: DeliveryOptions values:', seller.deliveryOptions);
+    }
+    if (seller?.socialMedia) {
+      console.log('🔍 Settings: SocialMedia object:', seller.socialMedia);
+      console.log('🔍 Settings: Instagram:', seller.socialMedia.instagram);
+      console.log('🔍 Settings: TikTok:', seller.socialMedia.tiktok);
+      console.log('🔍 Settings: Facebook:', seller.socialMedia.facebook);
     }
   }, [seller, loading]);
 
@@ -749,14 +745,11 @@ export default function Settings() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="english">English</SelectItem>
-                                  <SelectItem value="swahili">Swahili</SelectItem>
-                                  <SelectItem value="french">French</SelectItem>
-                                  <SelectItem value="arabic">Arabic</SelectItem>
-                                  <SelectItem value="hausa">Hausa</SelectItem>
-                                  <SelectItem value="yoruba">Yoruba</SelectItem>
-                                  <SelectItem value="igbo">Igbo</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
+                                  {preferredLanguages.map((language) => (
+                                    <SelectItem key={language.toLowerCase()} value={language.toLowerCase()}>
+                                      {language}
+                                    </SelectItem>
+                                  ))}
                                 </SelectContent>
                               </Select>
                               <FormMessage />
