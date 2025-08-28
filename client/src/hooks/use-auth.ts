@@ -39,6 +39,13 @@ export function useAuth() {
       try {
         setState(prev => ({ ...prev, loading: true, error: null }));
         
+        console.log('🔐 Auth: onAuthStateChanged fired:', {
+          user: !!user,
+          uid: user?.uid,
+          email: user?.email,
+          isAnonymous: user?.isAnonymous
+        });
+        
         if (user) {
           // Load seller data from Firestore
           const { doc, getDoc } = await import('firebase/firestore');
