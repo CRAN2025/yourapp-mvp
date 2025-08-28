@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Store, Phone, CreditCard, Shield, User, Globe, MessageSquare, Tag, Palette, Mail, Languages } from 'lucide-react';
+import { Store, Phone, CreditCard, Shield, User, Globe, MessageSquare, Tag, Palette, Mail, Languages, CheckCircle } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 import { normalizeToE164, isValidPhoneNumber } from '@/lib/utils/phone';
 import { categories } from '@shared/schema';
@@ -14,7 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import ImageUpload from '@/components/ImageUpload';
@@ -115,6 +116,7 @@ export default function Settings() {
     defaultValues: {
       whatsappNumber: seller?.whatsappNumber || '',
       email: seller?.email || '',
+      country: seller?.country || '',
       socialMedia: {
         instagram: seller?.socialMedia?.instagram || '',
         tiktok: seller?.socialMedia?.tiktok || '',
@@ -153,6 +155,7 @@ export default function Settings() {
       contactVisibilityForm.reset({
         whatsappNumber: seller.whatsappNumber || '',
         email: seller.email || '',
+        country: seller.country || '',
         socialMedia: seller.socialMedia ? {
           instagram: seller.socialMedia.instagram || '',
           tiktok: seller.socialMedia.tiktok || '',
@@ -211,6 +214,7 @@ export default function Settings() {
       await updateSellerProfile({
         whatsappNumber: e164Number,
         email: data.email,
+        country: data.country,
         socialMedia: data.socialMedia,
         preferredLanguage: data.preferredLanguage,
       });
@@ -523,6 +527,34 @@ export default function Settings() {
 
                       <FormField
                         control={contactVisibilityForm.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                              <Globe className="w-4 h-4" />
+                              Country *
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger data-testid="select-country">
+                                  <SelectValue placeholder="Select your country" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {GLOBAL_COUNTRIES.map((country) => (
+                                  <SelectItem key={country.code} value={country.code}>
+                                    {country.name} ({country.dialCode})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={contactVisibilityForm.control}
                         name="email"
                         render={({ field }) => (
                           <FormItem>
@@ -625,14 +657,11 @@ export default function Settings() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="english">English</SelectItem>
-                                  <SelectItem value="swahili">Swahili</SelectItem>
-                                  <SelectItem value="french">French</SelectItem>
-                                  <SelectItem value="arabic">Arabic</SelectItem>
-                                  <SelectItem value="hausa">Hausa</SelectItem>
-                                  <SelectItem value="yoruba">Yoruba</SelectItem>
-                                  <SelectItem value="igbo">Igbo</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
+                                  {preferredLanguages.map((language) => (
+                                    <SelectItem key={language} value={language}>
+                                      {language}
+                                    </SelectItem>
+                                  ))}
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -645,12 +674,241 @@ export default function Settings() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      data-testid="button-save-contact"
+                      data-testid="button-save-contact-visibility"
                     >
-                      {loading ? <LoadingSpinner size="sm" /> : 'Save Contact Settings'}
+                      {loading ? <LoadingSpinner size="sm" /> : 'Save Contact & Visibility Settings'}
                     </Button>
                   </form>
                 </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Payments & Delivery Tab */}
+          <TabsContent value="payments">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  Payments & Delivery
+                </CardTitle>
+                <CardDescription>
+                  Configure your payment methods and delivery options for customers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...paymentsDeliveryForm}>
+                  <form onSubmit={paymentsDeliveryForm.handleSubmit(handlePaymentsDeliveryUpdate)} className="space-y-6">
+                    {/* Payment Methods */}
+                    <FormField
+                      control={paymentsDeliveryForm.control}
+                      name="paymentMethods"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel className="text-lg font-medium">Payment Methods</FormLabel>
+                          <div className="space-y-2">
+                            {[
+                              { id: 'cash', label: 'Cash on Delivery' },
+                              { id: 'mobile-money', label: 'Mobile Money (M-Pesa, MTN, etc.)' },
+                              { id: 'bank-transfer', label: 'Bank Transfer' },
+                              { id: 'card', label: 'Credit/Debit Card (Coming Soon)' },
+                            ].map((option) => (
+                              <FormField
+                                key={option.id}
+                                control={paymentsDeliveryForm.control}
+                                name="paymentMethods"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(option.id)}
+                                        onCheckedChange={(checked) => {
+                                          const updatedValue = checked
+                                            ? [...(field.value || []), option.id]
+                                            : (field.value || []).filter((value) => value !== option.id);
+                                          field.onChange(updatedValue);
+                                        }}
+                                        data-testid={`payment-${option.id}`}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal cursor-pointer">
+                                      {option.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Delivery Options */}
+                    <FormField
+                      control={paymentsDeliveryForm.control}
+                      name="deliveryOptions"
+                      render={() => (
+                        <FormItem>
+                          <FormLabel className="text-lg font-medium">Delivery Options</FormLabel>
+                          <div className="space-y-2">
+                            {[
+                              { id: 'pickup', label: 'Customer Pickup' },
+                              { id: 'local', label: 'Local Delivery' },
+                              { id: 'nationwide', label: 'Nationwide Shipping' },
+                              { id: 'international', label: 'International Shipping' },
+                            ].map((option) => (
+                              <FormField
+                                key={option.id}
+                                control={paymentsDeliveryForm.control}
+                                name="deliveryOptions"
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(option.id)}
+                                        onCheckedChange={(checked) => {
+                                          const updatedValue = checked
+                                            ? [...(field.value || []), option.id]
+                                            : (field.value || []).filter((value) => value !== option.id);
+                                          field.onChange(updatedValue);
+                                        }}
+                                        data-testid={`delivery-${option.id}`}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal cursor-pointer">
+                                      {option.label}
+                                    </FormLabel>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Alert>
+                      <AlertDescription>
+                        These options will be displayed to customers when they view your products. You can manage specific pricing and delivery details for each product separately.
+                      </AlertDescription>
+                    </Alert>
+
+                    <Button
+                      type="submit"
+                      disabled={loading}
+                      data-testid="button-save-payments-delivery"
+                    >
+                      {loading ? <LoadingSpinner size="sm" /> : 'Save Payment & Delivery Settings'}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Account & Security Tab */}
+          <TabsContent value="account">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Account & Security
+                </CardTitle>
+                <CardDescription>
+                  Manage your account details, subscription, and security settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Account Information - Read Only */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Account Information</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Full Name
+                        </label>
+                        <Input
+                          value={seller?.fullName || ''}
+                          disabled
+                          className="bg-muted"
+                          data-testid="display-full-name"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Contact support to change your legal name
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">
+                          Country
+                        </label>
+                        <Input
+                          value={seller?.country ? 
+                            GLOBAL_COUNTRIES.find(c => c.code === seller.country)?.name || seller.country 
+                            : ''}
+                          disabled
+                          className="bg-muted"
+                          data-testid="display-country"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Set during registration - contact support to change
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subscription Information - Read Only */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Subscription</h3>
+                    <div className="p-4 border rounded-lg bg-green-50 border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span className="font-medium text-green-800">Free Plan - Beta Access</span>
+                      </div>
+                      <p className="text-sm text-green-700">
+                        You're part of our exclusive beta program with unlimited access to all features. 
+                        No subscription management needed during beta.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Security Settings */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Security</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <h4 className="font-medium">Email Verification</h4>
+                          <p className="text-sm text-muted-foreground">Your email is verified and secure</p>
+                        </div>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          Verified
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <h4 className="font-medium">Phone Verification</h4>
+                          <p className="text-sm text-muted-foreground">WhatsApp number is verified</p>
+                        </div>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          Verified
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Alert>
+                    <Shield className="w-4 h-4" />
+                    <AlertTitle>Account Security</AlertTitle>
+                    <AlertDescription>
+                      Your account uses Firebase Authentication with industry-standard security. 
+                      For account changes, contact our support team.
+                    </AlertDescription>
+                  </Alert>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
