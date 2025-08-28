@@ -50,7 +50,10 @@ export function useAuth() {
             
             const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
             
-            console.log('✅ Auth: Loaded seller data:', sellerData);
+            console.log('✅ Auth: Loaded seller data from Firestore:', sellerData);
+            console.log('✅ Auth: User UID:', user.uid);
+            console.log('✅ Auth: Seller storeName:', sellerData?.storeName);
+            console.log('✅ Auth: Seller onboardingCompleted:', sellerData?.onboardingCompleted);
             
             setState({
               user,

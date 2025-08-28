@@ -64,6 +64,17 @@ export default function Settings() {
   const [logoFiles, setLogoFiles] = useState<File[]>([]);
   const [bannerFiles, setBannerFiles] = useState<File[]>([]);
 
+  // Debug logging for Settings page
+  useEffect(() => {
+    console.log('🔍 Settings: Component mounted');
+    console.log('🔍 Settings: Seller data:', seller);
+    console.log('🔍 Settings: Loading state:', loading);
+    console.log('🔍 Settings: Seller storeName:', seller?.storeName);
+    console.log('🔍 Settings: Seller fullName:', seller?.fullName);
+    console.log('🔍 Settings: Seller id:', seller?.id);
+    console.log('🔍 Settings: Seller onboardingCompleted:', seller?.onboardingCompleted);
+  }, [seller, loading]);
+
   const storeProfileForm = useForm<StoreProfileForm>({
     resolver: zodResolver(storeProfileSchema),
     defaultValues: {
