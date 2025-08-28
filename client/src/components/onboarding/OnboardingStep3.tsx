@@ -102,7 +102,17 @@ export default function OnboardingStep3({ storeId }: OnboardingStep3Props) {
       }
       
       await completeStep(user.uid, 'step-3');
-      navigate('/dashboard', { replace: true });
+      
+      // Force reload the seller profile in auth context after onboarding completion
+      console.log('🔄 Step 3: Triggering seller profile reload after onboarding completion');
+      
+      // Small delay to ensure RTDB mirroring is complete, then refresh auth and navigate
+      setTimeout(async () => {
+        // Trigger auth context refresh
+        window.dispatchEvent(new CustomEvent('force-auth-refresh'));
+        console.log('🔄 Step 3: Navigating to dashboard with onboarding complete');
+        navigate('/dashboard', { replace: true });
+      }, 500);
     } catch (error) {
       console.error('Error completing step 3:', error);
     } finally {
