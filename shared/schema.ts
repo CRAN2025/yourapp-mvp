@@ -5,6 +5,7 @@ export const sellerSchema = z.object({
   id: z.string(),
   email: z.string().email(),
   phone: z.string().optional(),
+  fullName: z.string().optional(), // Added from onboarding step 1
   storeName: z.string(),
   storeDescription: z.string().optional(),
   businessEmail: z.string().email().optional(),
@@ -12,14 +13,27 @@ export const sellerSchema = z.object({
   whatsappNumber: z.string(),
   country: z.string(),
   city: z.string().optional(),
-  location: z.string().optional(), // Added location field
+  location: z.string().optional(),
   businessType: z.enum(['individual', 'business']).default('individual'),
-  currency: z.string(),
-  deliveryOptions: z.array(z.string()),
-  paymentMethods: z.array(z.string()),
+  currency: z.string().optional(),
+  deliveryOptions: z.array(z.string()).default([]),
+  paymentMethods: z.array(z.string()).default([]),
   logoUrl: z.string().optional(),
   coverUrl: z.string().optional(),
-  onboardingCompleted: z.boolean().default(false), // Track onboarding completion
+  bannerUrl: z.string().optional(), // For store banner
+  // Added from onboarding step 2
+  socialMedia: z.object({
+    instagram: z.string().optional(),
+    tiktok: z.string().optional(),
+    facebook: z.string().optional(),
+  }).optional(),
+  preferredLanguage: z.string().optional(),
+  tags: z.array(z.string()).default([]), // Store tags/keywords
+  operatingHours: z.string().optional(),
+  returnPolicy: z.string().optional(),
+  // Added from onboarding step 1
+  subscriptionPlan: z.string().default('beta-free'),
+  onboardingCompleted: z.boolean().default(false),
   isAdmin: z.boolean().default(false),
   createdAt: z.number(),
   updatedAt: z.number(),

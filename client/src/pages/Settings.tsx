@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -69,7 +69,7 @@ export default function Settings() {
       storeName: seller?.storeName || '',
       storeDescription: seller?.storeDescription || '',
       category: seller?.category as any || 'other',
-      tags: '',
+      tags: seller?.tags?.join(', ') || '',
     },
   });
 
@@ -79,11 +79,11 @@ export default function Settings() {
       whatsappNumber: seller?.whatsappNumber || '',
       email: seller?.email || '',
       socialMedia: {
-        instagram: '',
-        tiktok: '',
-        facebook: '',
+        instagram: seller?.socialMedia?.instagram || '',
+        tiktok: seller?.socialMedia?.tiktok || '',
+        facebook: seller?.socialMedia?.facebook || '',
       },
-      preferredLanguage: '',
+      preferredLanguage: seller?.preferredLanguage || '',
     },
   });
 
@@ -98,10 +98,43 @@ export default function Settings() {
   const accountSecurityForm = useForm<AccountSecurityForm>({
     resolver: zodResolver(accountSecuritySchema),
     defaultValues: {
-      subscriptionPlan: 'beta-free',
+      subscriptionPlan: seller?.subscriptionPlan || 'beta-free',
       country: seller?.country || '',
     },
   });
+
+  // Update forms when seller data changes
+  useEffect(() => {
+    if (seller) {
+      storeProfileForm.reset({
+        storeName: seller.storeName || '',
+        storeDescription: seller.storeDescription || '',
+        category: seller.category as any || 'other',
+        tags: seller.tags?.join(', ') || '',
+      });
+
+      contactVisibilityForm.reset({
+        whatsappNumber: seller.whatsappNumber || '',
+        email: seller.email || '',
+        socialMedia: {
+          instagram: seller.socialMedia?.instagram || '',
+          tiktok: seller.socialMedia?.tiktok || '',
+          facebook: seller.socialMedia?.facebook || '',
+        },
+        preferredLanguage: seller.preferredLanguage || '',
+      });
+
+      paymentsDeliveryForm.reset({
+        paymentMethods: seller.paymentMethods || [],
+        deliveryOptions: seller.deliveryOptions || [],
+      });
+
+      accountSecurityForm.reset({
+        subscriptionPlan: seller.subscriptionPlan || 'beta-free',
+        country: seller.country || '',
+      });
+    }
+  }, [seller, storeProfileForm, contactVisibilityForm, paymentsDeliveryForm, accountSecurityForm]);
 
   const handleStoreProfileUpdate = async (data: StoreProfileForm) => {
     try {

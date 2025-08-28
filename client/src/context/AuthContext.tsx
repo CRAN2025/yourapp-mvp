@@ -3,8 +3,8 @@ import { useAuth } from '@/hooks/use-auth';
 import type { AuthState } from '@/hooks/use-auth';
 
 interface AuthContextType extends AuthState {
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<any>;
+  signUpWithEmail: (email: string, password: string) => Promise<any>;
   sendPhoneVerification: (phoneNumber: string, recaptchaContainer: string) => Promise<any>;
   verifyPhoneCode: (code: string) => Promise<void>;
   signOut: () => Promise<void>;
