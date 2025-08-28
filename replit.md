@@ -6,6 +6,10 @@ ShopLynk is a comprehensive e-commerce platform that enables users to create onl
 
 Preferred communication style: Simple, everyday language.
 
+## Running List of Protected Components (DO NOT CHANGE)
+1. **Landing Page**: Marketing home page (/) - All visuals, layout, and copy frozen
+2. **Onboarding Flow for New Users**: Complete onboarding process when user is new - All functionality locked
+
 # Recent Changes (August 27, 2025)
 
 ## Bootstrap System Implementation
@@ -37,7 +41,9 @@ Preferred communication style: Simple, everyday language.
 - **Usage**: `ensureUnauthRedirect(user, navigate, '/custom/path')` for protecting routes
 - **Security**: Validates redirect paths to prevent open redirect vulnerabilities
 
-## Landing Page Freeze Contract - ACTIVE
+## Critical Constraints - LOCKED & FROZEN
+
+### 1. Landing Page Freeze Contract - ACTIVE
 - **Date**: August 27, 2025
 - **Status**: 🔒 FROZEN - No visual changes permitted
 - **Scope**: Marketing home page (/) - All visuals, layout, typography, and copy are locked
@@ -50,6 +56,20 @@ Preferred communication style: Simple, everyday language.
   - **Performance**: CLS ≤ 0.05, no new network requests, pixel-perfect alignment (≤1px variance)
 - **Permitted Changes**: Only backend routing/authentication logic - zero visual modifications
 - **Quality Gates**: Pixel-diff testing, wordmark single-line validation, CTA visual snapshots required
+
+### 2. Onboarding Flow Lock - NEW USER FLOWS FROZEN
+- **Date**: August 28, 2025
+- **Status**: 🔒 LOCKED - No changes permitted to new user onboarding flow
+- **Scope**: Complete onboarding process for new users (OnboardingNew.tsx, OnboardingStep1-3.tsx)
+- **Restrictions**:
+  - **Step Progression**: Current step validation and navigation logic frozen
+  - **Back Button Functionality**: Working backward navigation must remain intact
+  - **Route Guards**: Current flexible step progression allowing navigation to previous completed steps locked
+  - **Form Components**: Step1 (business info), Step2 (contact), Step3 (store setup) with validation frozen
+  - **Bootstrap Integration**: ensureBootstrap() automatic initialization after authentication locked
+  - **CTA Integration**: Landing page CTAs routing to authoritative onboarding flow locked
+- **User Preference**: "Lock it. Do not change it unless I say to change it"
+- **Quality Gates**: All onboarding navigation paths must remain functional as currently implemented
 
 ## Text Wordmark Implementation - FINAL SHIP READY
 - **Date**: August 27, 2025  
