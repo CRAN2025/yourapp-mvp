@@ -105,6 +105,16 @@ export default function Settings() {
     console.log('🔍 Settings: Seller deliveryOptions:', seller?.deliveryOptions);
     console.log('🔍 Settings: Seller id:', seller?.id);
     console.log('🔍 Settings: Seller onboardingCompleted:', seller?.onboardingCompleted);
+    
+    // Enhanced debugging for payment/delivery data loading
+    if (seller?.paymentMethods) {
+      console.log('🔍 Settings: PaymentMethods array length:', seller.paymentMethods.length);
+      console.log('🔍 Settings: PaymentMethods values:', seller.paymentMethods);
+    }
+    if (seller?.deliveryOptions) {
+      console.log('🔍 Settings: DeliveryOptions array length:', seller.deliveryOptions.length);
+      console.log('🔍 Settings: DeliveryOptions values:', seller.deliveryOptions);
+    }
   }, [seller, loading]);
 
   const storeProfileForm = useForm<StoreProfileForm>({
@@ -793,10 +803,12 @@ export default function Settings() {
                           <FormLabel className="text-lg font-medium">Payment Methods</FormLabel>
                           <div className="space-y-2">
                             {[
-                              { id: 'cash', label: 'Cash on Delivery' },
-                              { id: 'mobile-money', label: 'Mobile Money (M-Pesa, MTN, etc.)' },
+                              { id: 'mobile-money', label: 'Mobile Money (M-Pesa, Airtel Money, MTN MoMo)' },
                               { id: 'bank-transfer', label: 'Bank Transfer' },
-                              { id: 'card', label: 'Credit/Debit Card (Coming Soon)' },
+                              { id: 'cash-on-delivery', label: 'Cash on Delivery (COD)' },
+                              { id: 'card-payments', label: 'Card Payments' },
+                              { id: 'paypal', label: 'PayPal' },
+                              { id: 'other-wallets', label: 'Other Local Wallets' },
                             ].map((option) => (
                               <FormField
                                 key={option.id}
@@ -838,9 +850,9 @@ export default function Settings() {
                           <FormLabel className="text-lg font-medium">Delivery Options</FormLabel>
                           <div className="space-y-2">
                             {[
-                              { id: 'pickup', label: 'Customer Pickup' },
-                              { id: 'local', label: 'Local Delivery' },
-                              { id: 'nationwide', label: 'Nationwide Shipping' },
+                              { id: 'pickup', label: 'In-Store Pickup' },
+                              { id: 'local-delivery', label: 'Local Delivery' },
+                              { id: 'national-courier', label: 'National Courier Service' },
                               { id: 'international', label: 'International Shipping' },
                             ].map((option) => (
                               <FormField
