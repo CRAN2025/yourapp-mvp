@@ -8,6 +8,21 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes (August 27, 2025)
 
+## Bootstrap System Implementation
+- **Date**: August 27, 2025
+- **Status**: ✅ Complete
+- **Description**: Implemented transaction-safe bootstrap system for user initialization with proper read-before-write pattern
+- **Key Features**:
+  - **Transaction Safety**: Uses Firebase runTransaction with proper read-then-write separation
+  - **Idempotent Operations**: Safely handles multiple bootstrap calls without duplication
+  - **Automatic Resource Creation**: Creates profile, store, and onboarding documents as needed
+  - **Firestore Schema**: profiles/{uid}, stores/{storeId}, onboarding/{uid} collections
+  - **Store Linking**: Automatically links stores to onboarding records with storeId reference
+  - **Progress Tracking**: Returns current onboarding progress with step and completion data
+  - **Error Prevention**: Validates existing documents before creating new ones
+- **Usage**: `await ensureBootstrap(user.uid)` returns `{ storeId, progress }`
+- **Compliance**: Follows Firebase transaction best practices for data consistency
+
 ## Auth Redirect Utility Implementation
 - **Date**: August 27, 2025
 - **Status**: ✅ Complete
