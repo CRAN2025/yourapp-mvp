@@ -55,6 +55,10 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
     }
   };
 
+  const goBack = () => {
+    navigate('/', { replace: true });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -131,7 +135,15 @@ export default function OnboardingStep1({ storeId }: OnboardingStep1Props) {
               )}
             />
 
-            <div className="flex justify-end">
+            <div className="flex justify-between">
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={goBack}
+                data-testid="button-back"
+              >
+                Back to Home
+              </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}

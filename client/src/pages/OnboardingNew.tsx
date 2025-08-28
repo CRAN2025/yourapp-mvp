@@ -44,8 +44,13 @@ export default function OnboardingNew({ step }: OnboardingNewProps) {
       return;
     }
 
-    // Redirect to correct step if not already there
-    if (step !== nextStep) {
+    // Allow navigation to current step, previous completed steps, or next incomplete step
+    // Only redirect if trying to access a step beyond the first incomplete step
+    const stepIndex = ['step-1', 'step-2', 'step-3'].indexOf(step);
+    const nextStepIndex = ['step-1', 'step-2', 'step-3'].indexOf(nextStep);
+    
+    // If trying to access a step further than the next incomplete step, redirect to next incomplete
+    if (stepIndex > nextStepIndex) {
       navigate(`/onboarding/${nextStep}`, { replace: true });
       return;
     }
