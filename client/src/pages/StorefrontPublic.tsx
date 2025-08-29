@@ -708,73 +708,87 @@ ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* v1.9.3 Global Marketplace Standard Header */}
+        {/* v1.9.4 Championship ShopLynk-Powered Header */}
         <FullWidthContainer className="py-8">
-          <div className="backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden border border-white/30 relative"
+          <div className="rounded-3xl overflow-hidden border border-white/40 relative"
             style={{
-              background: 'linear-gradient(135deg, rgba(248, 250, 255, 0.92) 0%, rgba(37, 99, 235, 0.06) 100%)'
+              background: 'linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%)',
+              backdropFilter: 'blur(6px)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
             }}>
-            {/* Lighter airier elevation */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white/50 to-blue-50/30 rounded-3xl blur-md"></div>
             
-            {/* Global marketplace gradient banner */}
+            {/* Clean premium banner */}
             <div
               className="h-32 md:h-36 w-full relative overflow-hidden"
               style={{
                 background: seller?.coverUrl
-                  ? `linear-gradient(135deg, rgba(248, 250, 255, 0.92) 0%, rgba(37, 99, 235, 0.06) 100%), url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg, rgba(248, 250, 255, 0.92) 0%, rgba(37, 99, 235, 0.06) 100%)',
+                  ? `linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%), url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%)',
               }}
             >
-              {/* Subtle glass overlay */}
-              <div className="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
+              {/* Lightweight frosted overlay */}
+              <div className="absolute inset-0 bg-white/15 backdrop-blur-sm"></div>
             </div>
 
             <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9.3 Finalized Hybrid Avatar Strategy (88px) */}
+                {/* v1.9.4 Perfect ShopLynk Avatar Strategy (88px) */}
                 <div className="relative group">
-                  {/* Premium avatar container with global marketplace standard */}
+                  {/* Championship avatar container */}
                   <div 
-                    className="relative w-22 h-22 rounded-full bg-white flex items-center justify-center overflow-hidden transition-all duration-300 ease-out hover:scale-105"
+                    className="relative rounded-full bg-white flex items-center justify-center overflow-hidden transition-all duration-300 ease-out hover:scale-103"
                     style={{ 
                       width: '88px',
                       height: '88px',
-                      border: '1px solid rgba(229, 231, 235, 0.5)',
-                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.06)'
+                      borderRadius: '50%',
+                      border: '1px solid rgba(229, 231, 235, 0.6)',
+                      boxShadow: '0 2px 10px rgba(79, 70, 229, 0.25)',
+                      transform: 'scale(1)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.03)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
                     {seller?.logoUrl ? (
                       <img
                         src={seller.logoUrl}
                         alt={`${seller.storeName} logo`}
-                        className="w-full h-full object-cover rounded-full"
+                        className="w-full h-full object-cover"
                         style={{ 
+                          borderRadius: '50%',
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Fallback to ShopLynk gradient logo on error
+                          // Clean ShopLynk icon fallback on error
                           e.currentTarget.src = logoUrl;
-                          e.currentTarget.alt = 'ShopLynk logo';
+                          e.currentTarget.alt = 'ShopLynk icon';
                           e.currentTarget.style.objectFit = 'contain';
-                          e.currentTarget.style.padding = '12px';
+                          e.currentTarget.style.padding = '16px';
                           e.currentTarget.style.background = 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)';
                         }}
                       />
                     ) : (
-                      /* ShopLynk gradient logo fallback when no seller avatar */
+                      /* Sharp ShopLynk icon fallback when no seller avatar */
                       <div 
-                        className="w-full h-full rounded-full flex items-center justify-center"
+                        className="w-full h-full flex items-center justify-center"
                         style={{ 
+                          borderRadius: '50%',
                           background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)'
                         }}
                       >
                         <img
                           src={logoUrl}
-                          alt="ShopLynk logo"
-                          className="w-full h-full object-contain"
-                          style={{ padding: '12px' }}
+                          alt="ShopLynk icon"
+                          className="object-contain"
+                          style={{ 
+                            width: '56px',
+                            height: '56px',
+                            padding: '8px'
+                          }}
                         />
                       </div>
                     )}
@@ -792,8 +806,8 @@ ${productUrl}`;
                     {seller.storeName}
                   </h1>
                   
-                  {/* v1.9.3 Premium "Powered by ShopLynk" Badge */}
-                  <div className="flex items-center gap-2 mt-1 mb-2 transition-all duration-300 hover:opacity-80 cursor-pointer">
+                  {/* v1.9.4 Perfect "Powered by ShopLynk" Badge */}
+                  <div className="flex items-center gap-2 mt-1 mb-2 transition-opacity duration-300 hover:opacity-100 cursor-pointer opacity-70">
                     <img 
                       src={logoUrl} 
                       alt="ShopLynk" 
@@ -808,7 +822,7 @@ ${productUrl}`;
                       style={{ 
                         fontSize: '12px',
                         fontWeight: 500,
-                        color: '#6B7280',
+                        color: '#4B5563',
                         fontFamily: 'Inter, sans-serif'
                       }}
                     >
@@ -989,16 +1003,16 @@ ${productUrl}`;
           </div>
         </FullWidthContainer>
 
-        {/* v1.9 Championship Glass Search and Filters (EDGE-TO-EDGE MATCH) */}
+        {/* v1.9.4 Clean Global Search and Filters */}
         <FullWidthContainer className="py-10">
-          <Card className="p-10 mb-12 backdrop-blur-2xl rounded-3xl relative overflow-hidden border border-white/30"
+          <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
             style={{
-              background: 'rgba(255, 255, 255, 0.55)',
-              boxShadow: '0 16px 48px rgba(0, 0, 0, 0.08)'
+              background: 'linear-gradient(135deg, rgba(248, 251, 255, 0.92) 0%, rgba(255, 255, 255, 0.88) 100%)',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)'
             }}>
-            {/* Championship glass morphism with depth */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-slate-50/30 rounded-3xl"></div>
-            <div className="absolute inset-0 backdrop-blur-2xl rounded-3xl"></div>
+            {/* Clean frosted glass effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-slate-50/20 rounded-3xl"></div>
             <div className="relative z-10">
             <div className="space-y-10">
               {/* v1.9.3 Global Standard Search Bar */}
