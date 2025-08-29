@@ -22,25 +22,21 @@ import { useToast } from '@/hooks/use-toast';
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
 
-// --- Unified Container System for v1.8 Alignment ---
-const SharedContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <div className={`mx-auto max-w-7xl ${className}`} style={{
-    paddingInline: 'clamp(12px, 4vw, 24px)',
-    paddingLeft: 'max(16px, env(safe-area-inset-left))',
-    paddingRight: 'max(16px, env(safe-area-inset-right))'
-  }}>
+// --- v1.8 Full-Width Container System for Edge-to-Edge Alignment ---
+const FullWidthContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+  <div className={`w-full max-w-full px-6 md:px-12 ${className}`}>
     {children}
   </div>
 );
 
-// --- Full-bleed section with unified container ---
+// --- Full-bleed section with edge-to-edge container ---
 const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
   <section className="w-full py-8" style={{
     background: 'linear-gradient(135deg, #2563EB 0%, #9333EA 100%)'
   }}>
-    <SharedContainer>
+    <FullWidthContainer>
       {children}
-    </SharedContainer>
+    </FullWidthContainer>
   </section>
 );
 
@@ -909,7 +905,7 @@ ${productUrl}`;
         </FullBleedSection>
 
         {/* v1.8 Premium Search and Filters */}
-        <SharedContainer className="py-8">
+        <FullWidthContainer className="py-8">
           <Card className="p-8 mb-10 bg-white/95 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
             <div className="space-y-8">
               {/* v1.8 Glass-style Search Bar */}
@@ -1437,7 +1433,7 @@ ${productUrl}`;
               </Card>
             </div>
           )}
-        </SharedContainer>
+        </FullWidthContainer>
 
         {/* Floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
 
