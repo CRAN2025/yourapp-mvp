@@ -734,78 +734,74 @@ ${productUrl}`;
           transform: scale(0.98);
         }
         
-        /* UPGRADED CATEGORY PILLS - Landing Page Hierarchy Match */
+        /* UNIFIED CATEGORY PILLS - Perfect Token Alignment */
         .category-pill {
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
           padding: 10px 20px;
-          border-radius: 12px;
-          font-weight: 500;
+          border-radius: var(--control-radius);
+          font-weight: var(--control-font-weight);
           font-size: 14px;
           color: #555;
-          background: #f8f9fc;
-          border: 1px solid #e5e7eb;
+          background: var(--control-bg-inactive);
+          border: var(--control-border);
           cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-          transition: transform 0.25s cubic-bezier(.22,.61,.36,1),
-                      background 0.25s ease-in-out,
-                      box-shadow 0.25s ease-in-out;
+          box-shadow: var(--control-shadow);
+          transition: var(--control-transition);
         }
         
         .category-pill:hover {
-          transform: scale(1.05);
+          transform: scale(1.03);
           background: #f0f4ff;
           border-color: #b3c8ff;
-          box-shadow: 0 4px 12px rgba(80, 155, 255, 0.15);
+          box-shadow: var(--control-shadow-hover);
         }
         
         .category-pill.active {
-          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          background: var(--control-gradient);
           color: #fff;
           border: none;
           box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
         }
         
         .category-pill.active:hover {
-          transform: scale(1.06);
+          transform: scale(1.03);
           box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
         }
         
-        /* Legacy filter pill classes for backward compatibility */
+        /* Unified filter pill classes using global tokens */
         .filter-pill-active {
-          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          background: var(--control-gradient);
           color: #FFFFFF;
           box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
-          border-radius: 12px;
-          font-weight: 500;
-          transition: transform 0.25s cubic-bezier(.22,.61,.36,1),
-                      box-shadow 0.25s ease-in-out;
+          border-radius: var(--control-radius);
+          font-weight: var(--control-font-weight);
+          transition: var(--control-transition);
           border: none;
         }
         
         .filter-pill-active:hover {
-          transform: scale(1.06);
+          transform: scale(1.03);
           box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
         }
         
         .filter-pill-inactive {
-          background: #f8f9fc;
+          background: var(--control-bg-inactive);
           color: #555;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          transition: transform 0.25s cubic-bezier(.22,.61,.36,1),
-                      background 0.25s ease-in-out,
-                      box-shadow 0.25s ease-in-out;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+          border: var(--control-border);
+          border-radius: var(--control-radius);
+          transition: var(--control-transition);
+          box-shadow: var(--control-shadow);
+          font-weight: var(--control-font-weight);
         }
         
         .filter-pill-inactive:hover {
-          transform: scale(1.05);
+          transform: scale(1.03);
           background: #f0f4ff;
           border-color: #b3c8ff;
-          box-shadow: 0 4px 12px rgba(80, 155, 255, 0.15);
+          box-shadow: var(--control-shadow-hover);
         }
         
         /* UNIFIED FILTER CONTROL BAR COMPONENTS */
