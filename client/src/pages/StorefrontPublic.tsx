@@ -705,19 +705,25 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
+        /* Avatar icon dynamic sizing for crisp scaling */
+        .avatar-icon {
+          width: 60%;
+          height: auto;
+          max-width: 60%;
+        }
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* v1.9.4 Championship ShopLynk-Powered Header */}
+        {/* v1.9.5 Global Championship Integrated Header */}
         <FullWidthContainer className="py-8">
-          <div className="rounded-3xl overflow-hidden border border-white/40 relative"
+          <div className="rounded-3xl overflow-hidden border border-white/50 relative"
             style={{
               background: 'linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%)',
-              backdropFilter: 'blur(6px)',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
             }}>
             
-            {/* Clean premium banner */}
+            {/* Integrated glass elevation banner */}
             <div
               className="h-32 md:h-36 w-full relative overflow-hidden"
               style={{
@@ -726,24 +732,26 @@ ${productUrl}`;
                   : 'linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%)',
               }}
             >
-              {/* Lightweight frosted overlay */}
-              <div className="absolute inset-0 bg-white/15 backdrop-blur-sm"></div>
+              {/* Subtle halo glass overlay */}
+              <div className="absolute inset-0 bg-white/12 backdrop-blur-sm"></div>
             </div>
 
             <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9.4 Perfect ShopLynk Avatar Strategy (88px) */}
+                {/* v1.9.5 Global Championship Avatar with Adaptive Integration */}
                 <div className="relative group">
-                  {/* Championship avatar container */}
+                  {/* Adaptive championship avatar container */}
                   <div 
-                    className="relative rounded-full bg-white flex items-center justify-center overflow-hidden transition-all duration-300 ease-out hover:scale-103"
+                    className="relative rounded-full flex items-center justify-center overflow-hidden transition-all duration-300 ease-out"
                     style={{ 
                       width: '88px',
                       height: '88px',
                       borderRadius: '50%',
-                      border: '1px solid rgba(229, 231, 235, 0.6)',
-                      boxShadow: '0 2px 10px rgba(79, 70, 229, 0.25)',
+                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(239, 246, 255, 0.6)',
+                      border: '0.5px solid rgba(255, 255, 255, 0.8)',
+                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
+                      backdropFilter: 'blur(8px)',
                       transform: 'scale(1)'
                     }}
                     onMouseEnter={(e) => {
@@ -763,34 +771,33 @@ ${productUrl}`;
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Clean ShopLynk icon fallback on error
+                          // Adaptive ShopLynk icon fallback on error
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            parent.style.background = 'rgba(239, 246, 255, 0.6)';
+                          }
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk icon';
                           e.currentTarget.style.objectFit = 'contain';
-                          e.currentTarget.style.padding = '16px';
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)';
+                          e.currentTarget.style.width = '60%';
+                          e.currentTarget.style.height = 'auto';
+                          e.currentTarget.style.maxWidth = '60%';
+                          e.currentTarget.style.borderRadius = '0';
                         }}
                       />
                     ) : (
-                      /* Sharp ShopLynk icon fallback when no seller avatar */
-                      <div 
-                        className="w-full h-full flex items-center justify-center"
+                      /* Adaptive ShopLynk icon fallback with proportional sizing */
+                      <img
+                        src={logoUrl}
+                        alt="ShopLynk icon"
+                        className="object-contain avatar-icon"
                         style={{ 
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)'
+                          width: '60%',
+                          height: 'auto',
+                          maxWidth: '60%',
+                          filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))'
                         }}
-                      >
-                        <img
-                          src={logoUrl}
-                          alt="ShopLynk icon"
-                          className="object-contain"
-                          style={{ 
-                            width: '56px',
-                            height: '56px',
-                            padding: '8px'
-                          }}
-                        />
-                      </div>
+                      />
                     )}
                   </div>
                 </div>
