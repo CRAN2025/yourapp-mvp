@@ -22,12 +22,25 @@ import { useToast } from '@/hooks/use-toast';
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
 
-// --- Full-bleed section helper ---
+// --- Unified Container System for v1.8 Alignment ---
+const SharedContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+  <div className={`mx-auto max-w-7xl ${className}`} style={{
+    paddingInline: 'clamp(12px, 4vw, 24px)',
+    paddingLeft: 'max(16px, env(safe-area-inset-left))',
+    paddingRight: 'max(16px, env(safe-area-inset-right))'
+  }}>
+    {children}
+  </div>
+);
+
+// --- Full-bleed section with unified container ---
 const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
-  <section className="w-full bg-blue-600 text-white py-6">
-    <div className="max-w-4xl mx-auto px-4">
+  <section className="w-full py-8" style={{
+    background: 'linear-gradient(135deg, #2563EB 0%, #9333EA 100%)'
+  }}>
+    <SharedContainer>
       {children}
-    </div>
+    </SharedContainer>
   </section>
 );
 
@@ -700,7 +713,7 @@ ${productUrl}`;
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
         {/* v1.8 Premium Header / Banner (FULL-BLEED) */}
         <FullBleedSection>
-          <div className="mx-auto max-w-3xl md:max-w-4xl bg-white/95 rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-white/95 rounded-2xl shadow-xl overflow-hidden">
             {/* Premium gradient banner matching landing page */}
             <div
               className="h-40 md:h-48 w-full relative"
@@ -714,7 +727,7 @@ ${productUrl}`;
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
             </div>
 
-            <div className="px-[clamp(12px,4vw,24px)] pb-6 -mt-8">
+            <div className="px-6 pb-6 -mt-8">
               {/* Enhanced Header row */}
               <div className="flex items-center gap-6">
                 {/* v1.8 Larger circular store avatar with premium styling */}
@@ -896,11 +909,7 @@ ${productUrl}`;
         </FullBleedSection>
 
         {/* v1.8 Premium Search and Filters */}
-        <div className="mx-auto max-w-7xl py-8" style={{
-          paddingInline: 'clamp(12px, 4vw, 24px)',
-          paddingLeft: 'max(16px, env(safe-area-inset-left))',
-          paddingRight: 'max(16px, env(safe-area-inset-right))'
-        }}>
+        <SharedContainer className="py-8">
           <Card className="p-8 mb-10 bg-white/95 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
             <div className="space-y-8">
               {/* v1.8 Glass-style Search Bar */}
@@ -1428,7 +1437,7 @@ ${productUrl}`;
               </Card>
             </div>
           )}
-        </div>
+        </SharedContainer>
 
         {/* Floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
 
