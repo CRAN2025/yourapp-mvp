@@ -1,0 +1,74 @@
+Instruction to AI Agent — Lock Category Pills, Filters & Favorites into Global Tokens
+Objective
+
+Unify and lock the Category Pills, Newest First filter, and Favorites button styles into global design tokens so future UI components inherit the exact same hierarchy, spacing, hover states, and gradients across the app.
+
+Global Tokens to Lock
+1. Primary Gradient Token
+
+Used for: Active category pills & primary CTAs.
+
+--token-gradient-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+
+2. Button Heights & Spacing
+
+Category Pills, Filters, and Favorites all share 36px fixed height.
+
+Perfectly center icons & labels vertically.
+
+Horizontal padding scales based on content width.
+
+--token-button-height: 36px;
+--token-button-padding-x: 16px;
+--token-button-padding-y: 8px;
+
+3. Shadows & Elevation
+
+Active Gradient Pills & CTAs: Elevated.
+
+Inactive Pills, Filters, Favorites: Subtle depth only.
+
+--token-shadow-primary: 0px 5px 18px rgba(80, 155, 255, 0.45);
+--token-shadow-primary-hover: 0px 7px 20px rgba(80, 155, 255, 0.55);
+--token-shadow-secondary: 0px 2px 6px rgba(0, 0, 0, 0.06);
+
+4. Interactivity Tokens
+
+Smooth, consistent animations across category pills, filters, favorites, and CTAs.
+
+--token-transition-default: all 0.25s ease-in-out;
+--token-hover-scale: 1.05;
+--token-hover-brightness: 1.08;
+
+5. Component-Specific Rules
+Category Pills
+
+Active → Gradient background + bold text
+
+Inactive → Neutral fill, subtle border
+
+Newest First Filter Dropdown
+
+Always secondary (never gradient)
+
+Light border with minimal elevation
+
+Consistent hover brightness with inactive pills
+
+Favorites Button
+
+Same elevation and border treatment as Newest First
+
+Red badge (#FF3B5C) remains global token:
+
+--token-badge-danger: #FF3B5C;
+
+Governance Rules
+
+Do not override these tokens per screen; they are global defaults.
+
+Do not modify badge size or icon alignment — lock current proportions.
+
+Any future pills, filters, or segmented controls must inherit these exact properties.
+
+Use the same gradient token for all CTAs to maintain visual hierarchy consistency across the app.
