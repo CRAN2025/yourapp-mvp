@@ -734,23 +734,23 @@ ${productUrl}`;
           transform: scale(0.98);
         }
         
-        /* UNIFIED CATEGORY PILLS - Perfect Height Alignment */
+        /* CATEGORY PILLS - Primary Control with Locked Tokens */
         .category-pill {
+          height: var(--filter-height);
+          padding: var(--filter-padding-y) var(--filter-padding-x);
+          border-radius: var(--filter-radius);
+          font-size: var(--filter-font-size);
+          font-weight: 500;
+          background: #f8f9fc;
+          border: 1px solid #e5e7eb;
+          cursor: pointer;
+          transition: var(--filter-transition);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
           display: inline-flex;
           align-items: center;
-          height: var(--control-height);
-          padding: 0 var(--control-pad-x);
-          border-radius: var(--control-radius);
-          font-size: var(--control-font-size);
-          line-height: var(--control-line-height);
-          gap: var(--control-gap);
-          font-weight: var(--control-font-weight);
+          justify-content: center;
+          gap: var(--filter-gap);
           color: #555;
-          background: var(--control-bg-inactive);
-          border: var(--control-border);
-          cursor: pointer;
-          box-shadow: var(--control-shadow);
-          transition: var(--control-transition);
           margin-top: 0;
         }
         
@@ -761,55 +761,59 @@ ${productUrl}`;
         }
         
         .category-pill:hover {
-          transform: scale(1.03);
+          transform: scale(1.05);
           background: #f0f4ff;
           border-color: #b3c8ff;
-          box-shadow: var(--control-shadow-hover);
         }
         
         .category-pill.active {
-          background: var(--control-gradient);
+          background: linear-gradient(135deg, var(--cta-gradient-start), var(--cta-gradient-end));
           color: #fff;
           border: none;
-          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
+          box-shadow: 0px 5px 18px rgba(80, 155, 255, 0.45);
         }
         
         .category-pill.active:hover {
-          transform: scale(1.03);
+          transform: scale(1.05);
           box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
         }
         
-        /* Unified filter pill classes using global tokens */
+        /* Filter pill classes using locked tokens */
         .filter-pill-active {
-          background: var(--control-gradient);
+          background: linear-gradient(135deg, var(--cta-gradient-start), var(--cta-gradient-end));
           color: #FFFFFF;
           box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
-          border-radius: var(--control-radius);
-          font-weight: var(--control-font-weight);
-          transition: var(--control-transition);
+          border-radius: var(--filter-radius);
+          font-weight: 500;
+          transition: var(--filter-transition);
           border: none;
+          height: var(--filter-height);
+          padding: var(--filter-padding-y) var(--filter-padding-x);
+          font-size: var(--filter-font-size);
         }
         
         .filter-pill-active:hover {
-          transform: scale(1.03);
+          transform: scale(1.05);
           box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
         }
         
         .filter-pill-inactive {
-          background: var(--control-bg-inactive);
+          background: #f8f9fc;
           color: #555;
-          border: var(--control-border);
-          border-radius: var(--control-radius);
-          transition: var(--control-transition);
-          box-shadow: var(--control-shadow);
-          font-weight: var(--control-font-weight);
+          border: 1px solid #e5e7eb;
+          border-radius: var(--filter-radius);
+          transition: var(--filter-transition);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+          font-weight: 500;
+          height: var(--filter-height);
+          padding: var(--filter-padding-y) var(--filter-padding-x);
+          font-size: var(--filter-font-size);
         }
         
         .filter-pill-inactive:hover {
-          transform: scale(1.03);
+          transform: scale(1.05);
           background: #f0f4ff;
           border-color: #b3c8ff;
-          box-shadow: var(--control-shadow-hover);
         }
         
         /* Filter Bar Layout */
@@ -833,125 +837,159 @@ ${productUrl}`;
           margin: 0;
         }
         
-        /* UNIFIED FILTER CONTROL BAR COMPONENTS */
-        /* Global design tokens for consistent visual language */
+        /* LOCKED GLOBAL FILTER BAR TOKENS */
+        /* Unified sizing, spacing, and alignment system */
         :root {
-          /* Control sizing */
-          --control-height: 40px;
-          --control-radius: 12px;
-          --control-pad-x: 14px;
-          --control-gap: 10px;
+          /* Global filter tokens - LOCKED */
+          --filter-height: 40px;
+          --filter-radius: 12px;
+          --filter-padding-x: 18px;
+          --filter-padding-y: 8px;
+          --filter-font-size: 14px;
+          --filter-gap: 10px;
+          --filter-transition: all 0.25s ease-in-out;
           
-          /* Typography for controls */
-          --control-font-size: 14px;
+          /* Locked CTA gradient tokens */
+          --cta-gradient-start: #4FA8FF;
+          --cta-gradient-end: #5271FF;
+          
+          /* Legacy tokens for backward compatibility */
+          --control-height: var(--filter-height);
+          --control-radius: var(--filter-radius);
+          --control-pad-x: var(--filter-padding-x);
+          --control-gap: var(--filter-gap);
+          --control-font-size: var(--filter-font-size);
           --control-line-height: 20px;
-          
-          /* Icon sizing */
           --icon-size: 16px;
-          
-          /* Visual tokens */
-          --control-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          --control-gradient: linear-gradient(135deg, var(--cta-gradient-start) 0%, var(--cta-gradient-end) 100%);
           --control-bg-inactive: #f8f9fc;
           --control-border: 1px solid #e5e7eb;
           --control-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
           --control-shadow-hover: 0px 5px 15px rgba(80, 155, 255, 0.35);
           --control-font-weight: 500;
-          --control-transition: all 0.25s ease-in-out;
+          --control-transition: var(--filter-transition);
         }
         
-        /* Unified Dropdown Styling */
-        .unified-dropdown,
+        /* SORT DROPDOWN - Secondary Control with Locked Tokens */
         .sort-dropdown {
+          height: var(--filter-height);
+          padding: var(--filter-padding-y) var(--filter-padding-x);
+          border-radius: var(--filter-radius);
+          font-size: var(--filter-font-size);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          color: #333;
+          cursor: pointer;
+          transition: var(--filter-transition);
           display: inline-flex;
           align-items: center;
-          height: var(--control-height);
-          padding: 0 var(--control-pad-x);
-          border-radius: var(--control-radius);
-          font-size: var(--control-font-size);
-          line-height: var(--control-line-height);
-          gap: var(--control-gap);
-          background: var(--control-bg-inactive);
-          border: var(--control-border);
-          box-shadow: var(--control-shadow);
-          font-weight: var(--control-font-weight);
-          color: #555;
-          cursor: pointer;
-          transition: var(--control-transition);
+          gap: var(--filter-gap);
           margin-top: 0;
         }
         
         .sort-dropdown .icon,
-        .sort-dropdown .chevron,
-        .unified-dropdown .icon,
-        .unified-dropdown .chevron {
+        .sort-dropdown .chevron {
           width: var(--icon-size);
           height: var(--icon-size);
           flex: 0 0 var(--icon-size);
         }
         
-        .unified-dropdown:hover {
-          background: #f0f4ff;
+        .sort-dropdown:hover,
+        .sort-dropdown:focus {
           border-color: #b3c8ff;
-          box-shadow: var(--control-shadow-hover);
-          transform: scale(1.03);
+          box-shadow: 0 0 0 3px rgba(80, 155, 255, 0.2);
         }
         
-        .unified-dropdown.active {
-          background: var(--control-gradient);
-          color: #fff;
-          border: none;
-          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
-        }
-        
-        /* Unified Favorites Button */
-        .unified-favorites-button,
-        .favorites-chip {
+        /* Legacy unified dropdown for backward compatibility */
+        .unified-dropdown {
+          height: var(--filter-height);
+          padding: var(--filter-padding-y) var(--filter-padding-x);
+          border-radius: var(--filter-radius);
+          font-size: var(--filter-font-size);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          color: #333;
+          cursor: pointer;
+          transition: var(--filter-transition);
           display: inline-flex;
           align-items: center;
-          height: var(--control-height);
-          padding: 0 var(--control-pad-x);
-          border-radius: var(--control-radius);
-          font-size: var(--control-font-size);
-          line-height: var(--control-line-height);
-          gap: var(--control-gap);
-          background: var(--control-bg-inactive);
-          border: var(--control-border);
-          box-shadow: var(--control-shadow);
-          font-weight: var(--control-font-weight);
-          color: #555;
-          cursor: pointer;
-          transition: var(--control-transition);
+          gap: var(--filter-gap);
           margin-top: 0;
         }
         
-        .favorites-chip .icon,
-        .unified-favorites-button .icon {
+        .unified-dropdown:hover {
+          border-color: #b3c8ff;
+          box-shadow: 0 0 0 3px rgba(80, 155, 255, 0.2);
+        }
+        
+        /* FAVORITES CHIP - Secondary Control with Locked Tokens */
+        .favorites-chip {
+          height: var(--filter-height);
+          padding: var(--filter-padding-y) var(--filter-padding-x);
+          border-radius: var(--filter-radius);
+          font-size: var(--filter-font-size);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: var(--filter-transition);
+          cursor: pointer;
+          color: #333;
+          margin-top: 0;
+        }
+        
+        .favorites-chip:hover {
+          background: #f9f9fc;
+          border-color: #b3c8ff;
+        }
+        
+        .favorites-chip .icon {
           width: var(--icon-size);
           height: var(--icon-size);
           flex: 0 0 var(--icon-size);
         }
         
-        .favorites-chip .badge,
-        .unified-favorites-button .badge {
+        .favorites-chip .badge {
+          background: #ff3366;
+          color: #fff;
+          font-size: 12px;
+          border-radius: 50%;
+          padding: 2px 6px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           min-width: 18px;
           height: 18px;
-          border-radius: 999px;
-          font-size: 12px;
           line-height: 12px;
         }
         
+        /* Legacy unified favorites button for backward compatibility */
+        .unified-favorites-button {
+          height: var(--filter-height);
+          padding: var(--filter-padding-y) var(--filter-padding-x);
+          border-radius: var(--filter-radius);
+          font-size: var(--filter-font-size);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: var(--filter-transition);
+          cursor: pointer;
+          color: #333;
+          margin-top: 0;
+        }
+        
         .unified-favorites-button:hover {
-          background: #f0f4ff;
+          background: #f9f9fc;
           border-color: #b3c8ff;
-          box-shadow: var(--control-shadow-hover);
-          transform: scale(1.03);
         }
         
         .unified-favorites-button.active {
-          background: var(--control-gradient);
+          background: linear-gradient(135deg, var(--cta-gradient-start), var(--cta-gradient-end));
           color: #fff;
           border: none;
           box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);

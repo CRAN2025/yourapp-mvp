@@ -1,0 +1,111 @@
+Instruction to AI Agent — Lock Global Filter Bar Tokens
+Objective
+
+Unify sizing, spacing, padding, and top alignment for category pills, sort dropdown, and favorites chip into one global token system.
+However, maintain visual hierarchy:
+
+Category pills → primary, styled like CTAs.
+
+Sort + Favorites → secondary, visually lighter but consistent in dimensions.
+
+Design Tokens to Lock
+1. Shared Global Tokens ✅ (apply to all three components)
+Token	Value	Purpose
+--filter-height	40px	Unify button height
+--filter-radius	12px	Rounded edges
+--filter-padding-x	18px	Equal horizontal spacing
+--filter-padding-y	8px	Vertical balance
+--filter-font-size	14px	Legible, consistent
+--filter-gap	10px	Standardized space between components
+--filter-transition	all 0.25s ease-in-out	Smooth hover/active states
+2. Category Pills (Primary Control)
+.category-pill {
+  height: var(--filter-height);
+  padding: var(--filter-padding-y) var(--filter-padding-x);
+  border-radius: var(--filter-radius);
+  font-size: var(--filter-font-size);
+  font-weight: 500;
+  background: #f8f9fc;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: var(--filter-transition);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Active category */
+.category-pill.active {
+  background: linear-gradient(135deg, var(--cta-gradient-start), var(--cta-gradient-end));
+  color: #fff;
+  border: none;
+  box-shadow: 0px 5px 18px rgba(80, 155, 255, 0.45);
+}
+
+/* Hover */
+.category-pill:hover {
+  transform: scale(1.05);
+  background: #f0f4ff;
+  border-color: #b3c8ff;
+}
+
+
+Important: Use the locked CTA gradient tokens we finalized earlier.
+
+3. Sort Dropdown (Secondary Control)
+.sort-dropdown {
+  height: var(--filter-height);
+  padding: var(--filter-padding-y) var(--filter-padding-x);
+  border-radius: var(--filter-radius);
+  font-size: var(--filter-font-size);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #333;
+  cursor: pointer;
+  transition: var(--filter-transition);
+}
+
+.sort-dropdown:hover,
+.sort-dropdown:focus {
+  border-color: #b3c8ff;
+  box-shadow: 0 0 0 3px rgba(80, 155, 255, 0.2);
+}
+
+4. Favorites Chip (Secondary Control)
+.favorites-chip {
+  height: var(--filter-height);
+  padding: var(--filter-padding-y) var(--filter-padding-x);
+  border-radius: var(--filter-radius);
+  font-size: var(--filter-font-size);
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--filter-transition);
+}
+
+.favorites-chip:hover {
+  background: #f9f9fc;
+  border-color: #b3c8ff;
+}
+
+/* Badge styling */
+.favorites-chip .badge {
+  background: #ff3366;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 2px 6px;
+}
+
+Governance Rules
+
+Do not modify product cards, search bar, or favorites badge size.
+
+Do not override gradient tokens — use the locked CTA gradient for active category pills.
+
+Maintain 40px height across all components — no exceptions.
+
+All components must sit on the same vertical axis.
+
+Apply the same global tokens in all future storefront UIs for consistency.
