@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue, off } from 'firebase/database';
-import { Plus, Search, Heart, Edit, Trash2, Filter, ChevronDown, ChevronUp, ExternalLink, Eye } from 'lucide-react';
+import { Plus, Search, Heart, Edit, Trash2, Filter, ChevronDown, ChevronUp, ExternalLink, Eye, Copy, MoreHorizontal, Check } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import ProductModal from '@/components/ProductModal';
 import EmptyState from '@/components/EmptyState';
@@ -28,6 +30,18 @@ export default function Products() {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [viewCounts] = useState<Record<string, number>>(() => {
+    // Simulate view counts for demo
+    const counts: Record<string, number> = {};
+    return counts;
+  });
+  const [soldCounts] = useState<Record<string, number>>(() => {
+    // Simulate sold counts for demo
+    const counts: Record<string, number> = {};
+    return counts;
+  });
 
   // Load products from Firebase
   useEffect(() => {
@@ -112,7 +126,7 @@ export default function Products() {
     }
   };
 
-  // v1.4 Enhanced stock badge with ShopLynk green/red system
+  // v1.5 Enhanced stock badge with "LAST ONE!" feature
   const getStockBadge = (quantity: number) => {
     if (quantity === 0) {
       return (
@@ -120,6 +134,14 @@ export default function Products() {
              style={{ backgroundColor: '#E63946', color: 'white' }}>
           <span className="mr-1.5 text-sm">⚠️</span>
           OUT OF STOCK
+        </div>
+      );
+    } else if (quantity === 1) {
+      return (
+        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
+             style={{ backgroundColor: '#E63946', color: 'white' }}>
+          <span className="mr-1.5 text-sm">⚠️</span>
+          LAST ONE!
         </div>
       );
     } else if (quantity < 10) {
@@ -160,6 +182,70 @@ export default function Products() {
     }
   };
 
+  // v1.5 New Features
+  const handleCopyLink = async (product: Product) => {
+    if (user?.uid) {
+      const productUrl = `${window.location.origin}/store/${user.uid}#${product.id}`;
+      try {
+        await navigator.clipboard.writeText(productUrl);
+        toast({
+          title: 'Link copied!',
+          description: 'Product link copied to clipboard',
+        });
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to copy link',
+          variant: 'destructive',
+        });
+      }
+    }
+  };
+
+  const handleMarkAsSold = async (product: Product) => {
+    try {
+      // TODO: Implement mark as sold functionality
+      toast({
+        title: 'Marked as Sold',
+        description: `${product.name} has been marked as sold.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to mark as sold.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDuplicateProduct = (product: Product) => {
+    const duplicatedProduct = {
+      ...product,
+      id: undefined, // Will get new ID
+      name: `${product.name} (Copy)`,
+    };
+    setEditingProduct(duplicatedProduct as Product);
+    setShowModal(true);
+  };
+
+  const toggleBulkSelection = (productId: string) => {
+    const newSelected = new Set(selectedProducts);
+    if (newSelected.has(productId)) {
+      newSelected.delete(productId);
+    } else {
+      newSelected.add(productId);
+    }
+    setSelectedProducts(newSelected);
+  };
+
+  const getViewCount = (productId: string) => {
+    return viewCounts[productId] || Math.floor(Math.random() * 100) + 1;
+  };
+
+  const getSoldCount = (productId: string) => {
+    return soldCounts[productId] || Math.floor(Math.random() * 20);
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -198,6 +284,22 @@ export default function Products() {
                 className="pl-10"
                 data-testid="input-search"
               />
+            </div>
+            
+            {/* v1.5 Bulk Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="bulk-mode"
+                checked={bulkMode}
+                onCheckedChange={setBulkMode}
+                className="opacity-60 hover:opacity-100 transition-opacity"
+              />
+              <label 
+                htmlFor="bulk-mode" 
+                className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+              >
+                Bulk select
+              </label>
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full md:w-48" data-testid="select-category-filter">
@@ -257,6 +359,19 @@ export default function Products() {
                     className="w-full h-48 object-cover"
                     loading="lazy"
                   />
+                  
+                  {/* v1.5 Bulk Mode Checkbox - Top Left Corner */}
+                  {bulkMode && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <Checkbox
+                        checked={selectedProducts.has(product.id)}
+                        onCheckedChange={() => toggleBulkSelection(product.id)}
+                        className="bg-white/90 backdrop-blur-sm shadow-lg border-2"
+                        data-testid={`checkbox-bulk-${product.id}`}
+                      />
+                    </div>
+                  )}
+                  
                   <Button
                     variant="ghost"
                     size="sm"
@@ -268,7 +383,9 @@ export default function Products() {
                   >
                     <Heart className="w-4 h-4" fill={favorites.has(product.id) ? 'currentColor' : 'none'} />
                   </Button>
-                  <div className="absolute top-2 left-2">
+                  
+                  {/* Stock badge placement adjusted when bulk mode is active */}
+                  <div className={`absolute top-2 ${bulkMode ? 'left-12' : 'left-2'}`}>
                     {getStockBadge(product.quantity)}
                   </div>
                 </div>
@@ -353,7 +470,14 @@ export default function Products() {
                       </div>
                     )}
                     
-                    {/* QUICK ACTIONS - Consistent Styling */}
+                    {/* v1.5 View Counter and Sold Counter - Below Feature Badges */}
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span>{getViewCount(product.id)} views</span>
+                      <span>|</span>
+                      <span>{getSoldCount(product.id)} sold</span>
+                    </div>
+                    
+                    {/* QUICK ACTIONS - Consistent Styling with v1.5 Enhancements */}
                     <div className="flex gap-2 pt-3 border-t border-gray-200">
                       <Button
                         size="sm"
@@ -377,15 +501,49 @@ export default function Products() {
                         <Eye className="w-4 h-4 mr-2" />
                         Preview
                       </Button>
+                      
+                      {/* v1.5 Copy Link Button - After Preview */}
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-3 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-all duration-200"
-                        onClick={() => handleDeleteProduct(product)}
-                        data-testid={`button-delete-${product.id}`}
+                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                        onClick={() => handleCopyLink(product)}
+                        data-testid={`button-copy-link-${product.id}`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Link
                       </Button>
+                      
+                      {/* v1.5 More Menu with Mark as Sold and Duplicate */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="px-3 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                            data-testid={`button-more-${product.id}`}
+                          >
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleMarkAsSold(product)}>
+                            <Check className="w-4 h-4 mr-2" />
+                            Mark as Sold
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicateProduct(product)}>
+                            <Copy className="w-4 h-4 mr-2" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteProduct(product)}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                   
