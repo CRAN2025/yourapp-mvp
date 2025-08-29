@@ -705,7 +705,7 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Master UI/UX avatar logo scaling */
+        /* Reinforced ShopLynk avatar logo */
         .avatar-logo {
           width: 80%;
           height: auto;
@@ -714,46 +714,44 @@ ${productUrl}`;
           object-fit: contain;
         }
         
-        /* Elevated avatar container with refined glass */
+        /* Reinforced avatar container with crisp white backdrop */
         .avatar-container {
-          width: 72px;
-          height: 72px;
+          width: 90px;
+          height: 90px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(8px);
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+          background: #FFFFFF;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
           display: flex;
           justify-content: center;
           align-items: center;
         }
         
-        /* Minimal powered-by design */
+        /* Refined powered-by hierarchy with ShopLynk blue */
         .powered-by {
           font-size: 13px;
           font-weight: 500;
-          color: #6B7280;
-          margin-left: 4px;
-          opacity: 0.9;
+          color: #2563EB;
+          letter-spacing: 0.2px;
         }
         
-        /* Refined responsive avatar sizing */
+        /* Reinforced responsive avatar sizing */
         @media (max-width: 480px) {
           .avatar-responsive {
-            width: 56px !important;
-            height: 56px !important;
+            width: 70px !important;
+            height: 70px !important;
           }
         }
         
         @media (min-width: 1440px) {
           .avatar-responsive {
-            width: 72px !important;
-            height: 72px !important;
+            width: 90px !important;
+            height: 90px !important;
           }
         }
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* v1.9.5 Global Championship Integrated Header */}
+        {/* v2.0 Reinforced ShopLynk Brand Header */}
         <FullWidthContainer className="py-8">
           <div className="rounded-3xl overflow-hidden border border-white/50 relative"
             style={{
@@ -778,18 +776,18 @@ ${productUrl}`;
             <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9.9 Master UI/UX Elevated Avatar */}
+                {/* v2.0 Reinforced ShopLynk Brand Avatar */}
                 <div className="relative group">
-                  {/* Master elevated avatar with refined glass */}
+                  {/* Reinforced brand avatar with crisp white backdrop */}
                   <div 
                     className="avatar-container avatar-responsive relative overflow-hidden transition-all duration-300 ease-out"
                     style={{ 
-                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.8)',
-                      border: '0.5px solid rgba(255, 255, 255, 0.9)',
+                      background: seller?.logoUrl ? '#FFFFFF' : '#FFFFFF',
+                      border: '1px solid rgba(229, 231, 235, 0.6)',
                       transform: 'scale(1)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.transform = 'scale(1.03)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
@@ -805,27 +803,27 @@ ${productUrl}`;
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Master ShopLynk logo fallback
+                          // Reinforced ShopLynk logo fallback
                           const parent = e.currentTarget.parentElement;
                           if (parent) {
-                            parent.style.background = 'rgba(255, 255, 255, 0.8)';
+                            parent.style.background = '#FFFFFF';
                             parent.classList.add('avatar-container');
                           }
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
                           e.currentTarget.className = 'object-contain avatar-logo';
                           e.currentTarget.style.borderRadius = '0';
-                          e.currentTarget.style.filter = 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))';
+                          e.currentTarget.style.filter = 'none';
                         }}
                       />
                     ) : (
-                      /* Master ShopLynk logo with 80% scaling */
+                      /* Reinforced ShopLynk logo with crisp rendering */
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
                         className="object-contain avatar-logo"
                         style={{ 
-                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))'
+                          filter: 'none'
                         }}
                       />
                     )}
@@ -843,7 +841,7 @@ ${productUrl}`;
                     {seller.storeName}
                   </h1>
                   
-                  {/* v1.9.8 Clean "Powered by ShopLynk" Tagline */}
+                  {/* v2.0 Refined "Powered by ShopLynk" Hierarchy */}
                   <div className="mt-1 mb-2">
                     <span className="powered-by">
                       Powered by ShopLynk
