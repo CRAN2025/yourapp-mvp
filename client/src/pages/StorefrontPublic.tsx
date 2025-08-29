@@ -705,23 +705,24 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Global championship ShopLynk avatar */
+        /* Premium ShopLynk avatar with refined scaling */
         .shoplynk-avatar {
-          width: clamp(96px, 9vw, 120px);
-          height: clamp(96px, 9vw, 120px);
+          width: clamp(96px, 8vw, 120px);
+          height: clamp(96px, 8vw, 120px);
           border-radius: 18px;
           background-color: #FFFFFF;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow:
-            0 8px 20px rgba(0, 0, 0, 0.06),
-            0 4px 10px rgba(0, 0, 0, 0.03);
+          box-shadow: 
+            0 8px 24px rgba(0, 0, 0, 0.06),
+            0 4px 8px rgba(0, 0, 0, 0.03);
           transition: transform 0.2s ease-in-out;
         }
         
         .shoplynk-avatar img {
           width: 80%;
+          max-width: 88px;
           height: auto;
           object-fit: contain;
         }
@@ -730,7 +731,18 @@ ${productUrl}`;
           transform: scale(1.04);
         }
         
-        /* Consistent seller avatar framing */
+        /* Consistent seller avatar framing system */
+        .seller-avatar {
+          width: clamp(80px, 7vw, 100px);
+          height: clamp(80px, 7vw, 100px);
+          border-radius: 16px;
+          background-color: #fff;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+        }
+        
         .seller-avatar img {
           width: 80%;
           height: auto;
@@ -806,31 +818,31 @@ ${productUrl}`;
                       <img
                         src={seller.logoUrl}
                         alt={`${seller.storeName} logo`}
-                        className="w-full h-full object-cover"
+                        className="seller-avatar"
                         style={{ 
-                          borderRadius: '18px',
-                          imageRendering: 'crisp-edges',
-                          objectFit: 'cover'
+                          borderRadius: '16px',
+                          imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Perfect ShopLynk fallback
+                          // Premium ShopLynk fallback
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
-                          e.currentTarget.className = 'seller-avatar';
+                          e.currentTarget.className = '';
                           e.currentTarget.style.width = '80%';
+                          e.currentTarget.style.maxWidth = '88px';
                           e.currentTarget.style.height = 'auto';
                           e.currentTarget.style.objectFit = 'contain';
                           e.currentTarget.style.borderRadius = '0';
                         }}
                       />
                     ) : (
-                      /* Perfect ShopLynk logo */
+                      /* Premium ShopLynk logo */
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
-                        className="shoplynk-avatar"
                         style={{ 
                           width: '80%',
+                          maxWidth: '88px',
                           height: 'auto',
                           objectFit: 'contain'
                         }}
