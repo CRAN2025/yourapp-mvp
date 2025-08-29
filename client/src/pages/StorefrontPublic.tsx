@@ -723,19 +723,18 @@ ${productUrl}`;
         .secondary-pill.inactive {
           color: #6B7280;
         }
-        /* Icy-blue SaaS themed avatar with subtle inner shadow */
+        /* Icy-blue SaaS themed avatar with proper 64px default */
         .shoplynk-avatar {
-          width: clamp(104px, 8vw, 128px);
-          height: clamp(104px, 8vw, 128px);
-          border-radius: 20px;
+          width: clamp(64px, 8vw, 128px);
+          height: clamp(64px, 8vw, 128px);
+          border-radius: 16px;
           background-color: #fff;
           display: flex;
           justify-content: center;
           align-items: center;
           box-shadow: 
             inset 0 0 12px rgba(0, 0, 0, 0.03),
-            0 8px 32px rgba(59, 130, 246, 0.08),
-            0 4px 12px rgba(0, 0, 0, 0.03);
+            0 4px 6px rgba(0, 0, 0, 0.04);
           transition: transform 0.2s ease-in-out;
         }
         
@@ -751,16 +750,16 @@ ${productUrl}`;
         
         /* Icy-blue SaaS themed seller avatar */
         .seller-avatar {
-          width: clamp(104px, 8vw, 128px);
-          height: clamp(104px, 8vw, 128px);
-          border-radius: 20px;
+          width: clamp(64px, 8vw, 128px);
+          height: clamp(64px, 8vw, 128px);
+          border-radius: 16px;
           background-color: #fff;
           display: flex;
           justify-content: center;
           align-items: center;
           box-shadow: 
             inset 0 0 12px rgba(0, 0, 0, 0.03),
-            0 6px 18px rgba(59, 130, 246, 0.06);
+            0 4px 6px rgba(0, 0, 0, 0.04);
         }
         
         .seller-avatar img {
@@ -851,7 +850,7 @@ ${productUrl}`;
                         alt={`${seller.storeName} logo`}
                         className="seller-avatar"
                         style={{ 
-                          borderRadius: '20px',
+                          borderRadius: '16px',
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
@@ -1064,12 +1063,12 @@ ${productUrl}`;
         <FullWidthContainer className="py-10">
           <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
             style={{
-              background: 'linear-gradient(135deg, rgba(248, 251, 255, 0.92) 0%, rgba(255, 255, 255, 0.88) 100%)',
+              background: 'linear-gradient(135deg, #F8FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
               backdropFilter: 'blur(8px)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)'
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
             }}>
             {/* Clean frosted glass effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-slate-50/20 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-white/20 rounded-3xl"></div>
             <div className="relative z-10">
             <div className="space-y-10">
               {/* v1.9.3 Global Standard Search Bar */}
