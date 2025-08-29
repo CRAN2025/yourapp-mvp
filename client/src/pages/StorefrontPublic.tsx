@@ -18,6 +18,7 @@ import PublicLayout from '@/components/Layout/PublicLayout';
 import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
+import logoUrl from '@/assets/logo.png';
 
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
@@ -731,22 +732,46 @@ ${productUrl}`;
             <div className="px-10 pb-10 -mt-10 relative z-10">
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9 Championship Store Avatar (96px) */}
-                <div className="relative group">
+                {/* v1.9.2 Hybrid Avatar Strategy (96px) */}
+                <div className="relative group" style={{ marginTop: '8px', marginBottom: '8px' }}>
                   {/* Soft neon ring glow */}
                   <div className="absolute -inset-3 bg-gradient-to-r from-blue-400/35 via-blue-500/35 to-blue-400/35 rounded-full opacity-70 blur-xl group-hover:opacity-90 transition-all duration-500 animate-pulse"></div>
                   {/* Outer glow ring */}
                   <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/40 to-blue-600/40 rounded-full opacity-80 blur-lg"></div>
-                  {/* Championship avatar container */}
-                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-4 border-white shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-all duration-300 hover:scale-110">
+                  {/* Championship avatar container with subtle border */}
+                  <div 
+                    className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-all duration-300 hover:scale-110"
+                    style={{ 
+                      border: '1px solid #E5E7EB'
+                    }}
+                  >
                     {seller?.logoUrl ? (
                       <img
                         src={seller.logoUrl}
-                        alt={seller.storeName}
+                        alt={`${seller.storeName} logo`}
                         className="w-full h-full object-cover rounded-full"
-                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                        style={{ 
+                          minWidth: '200px', 
+                          minHeight: '200px',
+                          imageRendering: 'crisp-edges'
+                        }}
+                        onError={(e) => {
+                          // Fallback to ShopLynk logo on error
+                          e.currentTarget.src = logoUrl;
+                          e.currentTarget.alt = 'ShopLynk logo';
+                          e.currentTarget.style.objectFit = 'contain';
+                          e.currentTarget.style.padding = '8px';
+                        }}
                       />
-                    ) : '🛍️'}
+                    ) : (
+                      /* ShopLynk logo fallback when no seller avatar */
+                      <img
+                        src={logoUrl}
+                        alt="ShopLynk logo"
+                        className="w-full h-full object-contain rounded-full"
+                        style={{ padding: '8px' }}
+                      />
+                    )}
                     {/* Premium inner shadow */}
                     <div className="absolute inset-0 rounded-full shadow-inner bg-gradient-to-t from-black/8 to-transparent pointer-events-none"></div>
                   </div>
@@ -762,8 +787,28 @@ ${productUrl}`;
                       }}>
                     {seller.storeName}
                   </h1>
+                  
+                  {/* v1.9.2 "Powered by ShopLynk" Badge */}
+                  <div className="flex items-center gap-2 mt-1 mb-2 transition-opacity duration-300 hover:opacity-90">
+                    <img 
+                      src={logoUrl} 
+                      alt="ShopLynk" 
+                      className="w-4 h-4 object-contain"
+                    />
+                    <span 
+                      className="font-medium tracking-wide"
+                      style={{ 
+                        fontSize: '12px',
+                        color: '#6B7280',
+                        fontFamily: 'Inter, sans-serif'
+                      }}
+                    >
+                      Powered by ShopLynk
+                    </span>
+                  </div>
+                  
                   {/* Ultra-subtle hierarchy subtitle */}
-                  <p className="truncate mt-2 font-medium tracking-wide" 
+                  <p className="truncate font-medium tracking-wide" 
                      style={{ 
                        fontSize: '13px',
                        color: '#6B7280'
