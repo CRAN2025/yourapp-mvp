@@ -707,36 +707,34 @@ ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
-        {/* v1.8 Premium Glass Morphism Header / Banner (FULL-BLEED) */}
-        <FullBleedSection>
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative">
-            {/* Subtle glow effect - unified brand color */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/12 to-blue-500/12 rounded-3xl blur-xl"></div>
+        {/* v1.8 Premium Light Header / Banner (FULL-WIDTH) */}
+        <FullWidthContainer className="py-8">
+          <div className="bg-gradient-to-r from-slate-50 to-blue-50 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden border border-white/30 relative">
+            {/* Subtle elevation shadow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-50/80 to-blue-50/80 rounded-2xl blur-sm"></div>
             
-            {/* Premium gradient banner with enhanced glass effect */}
+            {/* Light pastel banner section */}
             <div
-              className="h-44 md:h-52 w-full relative overflow-hidden"
+              className="h-32 md:h-36 w-full relative overflow-hidden"
               style={{
                 background: seller?.coverUrl
-                  ? `url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                  ? `linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(234, 242, 255, 0.9) 100%), url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'linear-gradient(135deg, #F8FAFC 0%, #EAF2FF 100%)',
               }}
             >
-              {/* Enhanced glass overlay with unified brand color */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/25 to-blue-500/25 backdrop-blur-sm"></div>
-              {/* Subtle texture overlay */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1)_0%,transparent_50%)] opacity-60"></div>
+              {/* Soft glass overlay */}
+              <div className="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
             </div>
 
-            <div className="px-8 pb-8 -mt-10 relative z-10">
-              {/* Enhanced Header row with premium spacing */}
-              <div className="flex items-center gap-8">
-                {/* v1.8 Enhanced store avatar with halo glow */}
+            <div className="px-8 pb-8 -mt-8 relative z-10">
+              {/* Clean Header row with premium spacing */}
+              <div className="flex items-center gap-6">
+                {/* v1.8 Premium store avatar (80px) */}
                 <div className="relative group">
-                  {/* Halo glow effect - unified brand color */}
-                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 rounded-full opacity-75 blur-lg group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Subtle premium ring shadow */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-400/30 to-blue-500/30 rounded-full opacity-60 blur-md group-hover:opacity-80 transition-opacity duration-300"></div>
                   {/* Main avatar container */}
-                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-4 border-white shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-transform duration-300 hover:scale-105">
+                  <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-3 border-white shadow-xl flex items-center justify-center text-3xl overflow-hidden transition-transform duration-200 hover:scale-105">
                     {seller?.logoUrl ? (
                       <img
                         src={seller.logoUrl}
@@ -745,18 +743,18 @@ ${productUrl}`;
                         onError={(e) => (e.currentTarget.style.display = 'none')}
                       />
                     ) : '🛍️'}
-                    {/* Enhanced inner shadow */}
-                    <div className="absolute inset-0 rounded-full shadow-inner bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
+                    {/* Subtle inner shadow */}
+                    <div className="absolute inset-0 rounded-full shadow-inner bg-gradient-to-t from-black/5 to-transparent pointer-events-none"></div>
                   </div>
                 </div>
                 
                 <div className="min-w-0 flex-1">
-                  {/* v1.8 Premium typography with enhanced hierarchy */}
-                  <h1 className="text-3xl md:text-4xl font-bold truncate bg-gradient-to-r from-slate-800 to-slate-700 bg-clip-text text-transparent leading-tight">
+                  {/* v1.8 Clean typography hierarchy */}
+                  <h1 className="text-2xl md:text-3xl font-bold truncate text-gray-900 leading-tight">
                     {seller.storeName}
                   </h1>
-                  {/* Enhanced subtitle with improved spacing */}
-                  <p className="truncate mt-2 text-slate-600 font-medium tracking-wide" style={{ fontSize: '15px' }}>
+                  {/* Lighter subtitle for hierarchy */}
+                  <p className="truncate mt-1 text-gray-500 font-medium" style={{ fontSize: '14px' }}>
                     {seller.location || 'Online Store'}
                   </p>
                 </div>
@@ -792,47 +790,47 @@ ${productUrl}`;
                 )}
               </div>
 
-              {/* v1.8 Premium glass morphism pills */}
-              <div className="flex flex-wrap items-center gap-4 mt-8">
+              {/* v1.8 Glass morphism info pills */}
+              <div className="flex flex-wrap items-center gap-3 mt-6">
                 {!!paymentMethods.length && (
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="group inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-md border border-white/30"
+                    className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 backdrop-blur-sm"
                     style={{
-                      backgroundColor: 'rgba(235, 244, 255, 0.95)',
-                      color: '#2563EB',
-                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.2)'
+                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      color: '#1F2937',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                     }}
                     title="View payment methods"
                   >
-                    <CreditCard className="h-5 w-5 transition-transform group-hover:scale-110" />
+                    <CreditCard className="h-4 w-4" />
                     {paymentMethods.length} Payment Methods
                   </button>
                 )}
                 {!!deliveryOptions.length && (
                   <button
                     onClick={() => setShowDeliveryModal(true)}
-                    className="group inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-md border border-white/30"
+                    className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 backdrop-blur-sm"
                     style={{
-                      backgroundColor: 'rgba(240, 253, 244, 0.95)',
-                      color: '#059669',
-                      boxShadow: '0 8px 24px rgba(5, 150, 105, 0.2)'
+                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      color: '#1F2937',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                     }}
                     title="View delivery options"
                   >
-                    <Truck className="h-5 w-5 transition-transform group-hover:scale-110" />
+                    <Truck className="h-4 w-4" />
                     {deliveryOptions.length} Delivery Options
                   </button>
                 )}
                 {seller.currency && (
-                  <span className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-md border border-white/30"
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium backdrop-blur-sm"
                     style={{
-                      backgroundColor: 'rgba(248, 250, 252, 0.95)',
-                      color: '#64748B',
-                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.1)'
+                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      color: '#1F2937',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                     }}
                   >
-                    <Globe className="h-5 w-5" />
+                    <Globe className="h-4 w-4" />
                     {seller.currency} Currency
                   </span>
                 )}
@@ -919,34 +917,33 @@ ${productUrl}`;
               </div>
             </div>
           </div>
-        </FullBleedSection>
+        </FullWidthContainer>
 
-        {/* v1.8 Premium Floating Glass Search and Filters */}
-        <FullWidthContainer className="py-12">
-          <Card className="p-10 mb-12 bg-white/90 backdrop-blur-2xl shadow-[0_32px_64px_rgba(0,0,0,0.12)] border border-white/30 rounded-3xl relative overflow-hidden">
-            {/* Floating glass effect background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/20 rounded-3xl"></div>
+        {/* v1.8 Clean Glass Search and Filters (FULL-WIDTH MATCH) */}
+        <FullWidthContainer className="py-8">
+          <Card className="p-8 mb-10 backdrop-blur-lg rounded-2xl relative overflow-hidden border border-white/20"
+            style={{
+              background: 'rgba(255, 255, 255, 0.7)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)'
+            }}>
+            {/* Pure glass morphism background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-slate-50/40 rounded-2xl"></div>
             <div className="relative z-10">
-            <div className="space-y-10">
-              {/* v1.8 Premium Glow Search Bar */}
+            <div className="space-y-8">
+              {/* v1.8 Clean Glass Search Bar */}
               <div className="relative group">
-                {/* Enhanced glow effect - unified brand color */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-3xl opacity-0 group-focus-within:opacity-25 transition-all duration-700 blur-xl"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-500"></div>
+                {/* Subtle focus effect */}
+                <div className="absolute inset-0 bg-blue-500/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
                 
-                {/* Search icon with animation */}
-                <Search className="w-7 h-7 absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 transition-all duration-300 group-focus-within:scale-110" 
-                  style={{ color: 'currentColor' }} 
-                  onFocus={() => {}} 
-                  data-focus-color="#2563EB" />
+                {/* Search icon */}
+                <Search className="w-6 h-6 absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-200" />
                 
                 <Input
                   type="text"
                   placeholder="Search for products, brands, or categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="relative pl-16 pr-14 h-18 text-lg border-2 border-slate-200/50 focus:border-blue-500 rounded-3xl bg-white/95 backdrop-blur-md transition-all duration-300 placeholder:text-slate-400 shadow-xl focus:shadow-2xl font-medium"
-                  style={{ height: '72px' }}
+                  className="pl-12 pr-12 h-14 text-base border border-slate-200/50 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400 shadow-sm focus:shadow-md"
                   data-testid="input-search-products"
                 />
                 
@@ -955,9 +952,9 @@ ${productUrl}`;
                     variant="ghost"
                     size="sm"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full hover:bg-slate-100 transition-all duration-200 hover:scale-110"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100 transition-all duration-200"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </Button>
                 )}
               </div>
@@ -966,31 +963,30 @@ ${productUrl}`;
               <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
                 {/* v1.8 Category Pills with Pastel Backgrounds */}
                 <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="text-base font-bold text-slate-700 uppercase tracking-wide flex items-center">
-                      <Filter className="w-5 h-5 mr-3" style={{ color: '#2563EB' }} />
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="text-sm font-semibold text-slate-600 uppercase tracking-wide flex items-center">
+                      <Filter className="w-4 h-4 mr-2 text-blue-600" />
                       Categories
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-3">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setCategoryFilter('all')}
-                      className={`group rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
+                      className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 hover:scale-105 border-0 ${
                         categoryFilter === 'all' 
-                          ? 'shadow-xl hover:shadow-2xl' 
-                          : 'shadow-md hover:shadow-lg'
+                          ? 'shadow-md' 
+                          : 'shadow-sm hover:shadow-md'
                       }`}
                       style={categoryFilter === 'all' ? {
-                        background: 'linear-gradient(135deg, #2563EB 0%, #2563EB 100%)',
+                        backgroundColor: '#2563EB',
                         color: 'white',
-                        boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
+                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
                       } : {
-                        backgroundColor: 'rgba(248, 250, 252, 0.85)',
-                        color: '#64748B',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid rgba(37, 99, 235, 0.15)'
+                        backgroundColor: '#F1F5F9',
+                        color: '#475569',
+                        border: '1px solid #E2E8F0'
                       }}
                     >
                       All Categories ({products.length})
@@ -1004,20 +1000,19 @@ ${productUrl}`;
                           variant="outline"
                           size="sm"
                           onClick={() => setCategoryFilter(category)}
-                          className={`group rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
+                          className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 hover:scale-105 border-0 ${
                             isActive 
-                              ? 'shadow-xl hover:shadow-2xl' 
-                              : 'shadow-md hover:shadow-lg'
+                              ? 'shadow-md' 
+                              : 'shadow-sm hover:shadow-md'
                           }`}
                           style={isActive ? {
-                            background: 'linear-gradient(135deg, #2563EB 0%, #2563EB 100%)',
+                            backgroundColor: '#2563EB',
                             color: 'white',
-                            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
+                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
                           } : {
-                            backgroundColor: 'rgba(248, 250, 252, 0.85)',
-                            color: '#64748B',
-                            backdropFilter: 'blur(12px)',
-                            border: '1px solid rgba(37, 99, 235, 0.15)'
+                            backgroundColor: '#F1F5F9',
+                            color: '#475569',
+                            border: '1px solid #E2E8F0'
                           }}
                         >
                           {category} ({count})
@@ -1027,23 +1022,22 @@ ${productUrl}`;
                   </div>
                 </div>
 
-                {/* v1.8 Premium Controls with floating style */}
-                <div className="flex gap-6 items-center flex-wrap">
+                {/* v1.8 Clean Controls */}
+                <div className="flex gap-4 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-56 h-14 rounded-2xl border-0 font-bold shadow-xl transition-all duration-300 hover:scale-105"
+                    <SelectTrigger className="w-48 h-12 rounded-xl border font-medium shadow-sm transition-all duration-200 hover:shadow-md"
                       style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        backdropFilter: 'blur(12px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid #E2E8F0'
                       }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-0 shadow-2xl backdrop-blur-xl"
+                    <SelectContent className="rounded-xl border shadow-lg backdrop-blur-sm"
                       style={{
                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(16px)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid #E2E8F0'
                       }}>
                       <SelectItem value="newest">🆕 Newest First</SelectItem>
                       <SelectItem value="popular">🔥 Most Popular</SelectItem>
@@ -1053,34 +1047,31 @@ ${productUrl}`;
                     </SelectContent>
                   </Select>
 
-                  {/* v1.8 Premium Favorites Counter with softer pastels */}
+                  {/* v1.8 Clean Favorites Counter */}
                   <Button
                     variant="outline"
                     size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className="group h-14 px-8 rounded-2xl font-bold transition-all duration-300 hover:scale-105 border-0 shadow-xl"
+                    className="h-12 px-6 rounded-xl font-medium transition-all duration-200 hover:scale-105 border shadow-sm"
                     style={showFavorites ? {
-                      background: 'linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(252, 231, 243, 0.95) 100%)',
+                      backgroundColor: '#FEF2F2',
                       color: '#DC2626',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 24px rgba(220, 38, 38, 0.2)'
+                      border: '1px solid #FECACA',
+                      boxShadow: '0 2px 8px rgba(220, 38, 38, 0.1)'
                     } : {
-                      backgroundColor: 'rgba(248, 250, 252, 0.95)',
+                      backgroundColor: '#F8FAFC',
                       color: '#64748B',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.1)'
+                      border: '1px solid #E2E8F0',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                     }}
                     data-testid="button-toggle-favorites"
                   >
-                    <Heart className={`w-6 h-6 mr-3 transition-transform group-hover:scale-110 ${showFavorites ? 'fill-current' : ''}`} />
+                    <Heart className={`w-5 h-5 mr-2 ${showFavorites ? 'fill-current' : ''}`} />
                     Favorites {favorites.size > 0 && (
-                      <span className="ml-3 inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-transform group-hover:scale-110"
+                      <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
                             style={{
-                              background: showFavorites 
-                                ? 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)' 
-                                : 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
-                              color: 'white',
-                              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+                              backgroundColor: showFavorites ? '#DC2626' : '#EF4444',
+                              color: 'white'
                             }}>
                         {favorites.size}
                       </span>
