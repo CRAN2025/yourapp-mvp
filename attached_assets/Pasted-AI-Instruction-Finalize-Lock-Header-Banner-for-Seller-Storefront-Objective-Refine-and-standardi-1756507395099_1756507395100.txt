@@ -1,0 +1,106 @@
+AI Instruction — Finalize & Lock Header/Banner for Seller Storefront
+Objective
+
+Refine and standardize the header/banner area for the seller storefront to achieve a premium, reusable, token-driven design. This locked style will later be inherited by the buyer storefront for consistency.
+
+Design Goals
+
+Maintain consistent branding aligned with the landing page and CTA tokens.
+
+Finalize alignment, gradients, and spacing.
+
+Ensure tokens are reusable across seller and buyer storefronts.
+
+Required Updates
+1. Background & Gradient Consistency
+
+Use the exact icy-blue gradient family already locked for the CTA and category pills.
+
+Remove any reddish/grey overlay tones to keep a unified visual identity.
+
+2. Store Logo / Avatar Container
+
+Reduce logo container padding by 4px on all sides.
+
+Apply subtle elevation using the same card-shadow token used for category pills:
+
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+
+Lock a 1:1 aspect ratio (square) for logos to prevent distortion.
+
+For non-square logos, scale and center-align vertically and horizontally.
+
+3. Store Title & Subtitle Spacing
+
+Decrease the vertical gap between:
+
+Store Name → “Powered by ShopLynk” → Subtitle (“Online Store”).
+
+New spacing: 4px between name → powered text, 2px between powered text → subtitle.
+
+Match store name typography with locked H3 token:
+
+font-size: 22px;
+font-weight: 700;
+color: #111827;
+
+4. Payment & Delivery Badges
+
+Use the same card style tokens as category pills:
+
+Rounded corners: 12px.
+
+Padding: 8px 16px.
+
+Shadow: match category pills' locked token.
+
+Background: solid white with a 1px neutral border.
+
+Vertically align these badges with the baseline of the Back to Dashboard CTA for a perfectly balanced header row.
+
+5. Back to Dashboard CTA
+
+Do not modify the CTA tokens.
+
+Ensure its baseline matches the badges and store title text alignment.
+
+6. Responsive Behavior
+
+Ensure smooth scaling across all breakpoints:
+
+Desktop (≥1280px)
+
+Maintain current proportions and spacing.
+
+Tablet (768px–1279px)
+
+Scale down store logo/avatar by 10%.
+
+Reduce store title font-size from 22px → 20px.
+
+Maintain horizontal alignment.
+
+Mobile (≤767px)
+
+Collapse payment/delivery badges into a two-column grid.
+
+Scale down logo/avatar by 20%.
+
+7. Tokenization Requirements
+
+After completing the refinements, lock the following header tokens globally:
+
+Token Name	Purpose	Usage Context
+--header-bg-gradient	Background gradient	Header, banner
+--store-logo-shadow	Avatar shadow elevation	Store logo/avatar container
+--store-title-font	Store name styling	Title typography
+--badge-card-style	Payment/Delivery cards	Category pills + badges
+--header-spacing	Vertical & horizontal spacing	Global header padding
+Governance
+
+Do not modify product cards, category pills, filters, or favorites buttons.
+
+Ensure all spacing, shadows, and colors are pulled from locked tokens to guarantee reusability.
+
+After this, all headers across the app (seller + buyer storefronts) should automatically inherit these tokens.
