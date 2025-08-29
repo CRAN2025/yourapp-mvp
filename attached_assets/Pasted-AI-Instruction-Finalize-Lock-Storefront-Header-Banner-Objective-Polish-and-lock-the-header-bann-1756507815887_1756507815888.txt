@@ -1,0 +1,87 @@
+AI Instruction — Finalize & Lock Storefront Header/Banner
+Objective
+
+Polish and lock the header/banner layout and tokens for the storefront (seller first). The same structure should be reusable for the buyer view.
+
+Required Refinements
+1. Vertical Alignment
+
+Goal: Align these three blocks perfectly:
+
+Logo + Store Name Block
+
+Payment & Delivery Badges
+
+Back to Dashboard CTA
+
+Ensure all elements are baseline-aligned so they sit on the same visual row.
+
+2. Spacing Adjustments
+
+Reduce vertical padding above and below the badges by 4px.
+
+Decrease spacing between:
+
+Store Name → “Powered by ShopLynk” → Subtitle
+→ Set consistent 4px and 2px gaps for a tighter visual hierarchy.
+
+Left padding around the store logo stays locked, but tighten right padding by 8px for better balance.
+
+3. Payment & Delivery Badges
+
+Apply the same card styling tokens we locked for category pills:
+
+Rounded corners: 12px
+
+Padding: 8px 16px
+
+Shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
+
+Border: 1px solid #e5e7eb
+
+Background: White.
+
+Ensure these badges are perfectly baseline-aligned with the CTA.
+
+4. Back to Dashboard CTA
+
+No visual changes to gradient, size, or shadows — reuse the locked CTA token.
+
+Its baseline must match the badges and store name.
+
+5. Background Gradient & Elevation
+
+Ensure the banner background uses the same icy-blue gradient token as the landing page CTA and category pills (--header-bg-gradient).
+
+Apply subtle elevation:
+
+box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.04);
+
+
+Rounded corners: 16px for a modern, soft card feel.
+
+6. Responsive Behavior
+
+Desktop (≥1280px) → Maintain current proportions.
+
+Tablet (768–1279px) → Scale logo 90%, adjust font size to 20px.
+
+Mobile (≤767px) → Stack badges under the logo/title block, centered alignment.
+
+7. Locking Tokens
+
+After updating, lock these global tokens:
+
+Token Name	Purpose	Applied To
+--header-bg-gradient	Header gradient	Banner background
+--store-logo-shadow	Logo shadow/elevation	Logo avatar block
+--badge-card-style	Shared badge styling	Payment/Delivery + Category Pills
+--header-spacing	Uniform padding/margin	Top & bottom header zones
+--store-title-font	Store name typography	Global title token
+Governance
+
+Do not modify product cards, category pills, or filter/favorites styles.
+
+All sizing, shadows, colors, and spacing must inherit locked tokens.
+
+Once applied, the same header layout becomes reusable for the buyer storefront.
