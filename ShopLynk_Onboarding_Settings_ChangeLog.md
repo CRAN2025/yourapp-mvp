@@ -24,6 +24,7 @@
 | 2025-08-29 | v1.2_UI_UX_FINAL | UI/UX | **COMPLETE UI/UX REFINEMENT** - Navy badges (#2C3E50), eco-friendly text (#1E7D3D), attribute text (#333333), enhanced View Details buttons with elevation | Senait | ✅ APPROVED | Agent | 🔒 **LOCKED** | Baseline: v1.2.2_PREMIUM_POLISH |
 | 2025-08-29 | v1.3_UI_UX_WHATSAPP | INTEGRATION | **WHATSAPP CONTACT ENHANCEMENT** - Enhanced WhatsApp "Contact Seller" button integration with pre-filled messages and responsive design | Senait | ✅ APPROVED | Agent | ✅ Completed | Baseline: v1.2_UI_UX_FINAL |
 | 2025-08-29 | v1.3.1_UI_UX_WHATSAPP_PER_CARD | INTEGRATION | **PER-CARD WHATSAPP CTA SYSTEM** - Remove floating FAB, add comprehensive per-card WhatsApp buttons with analytics, accessibility, and visibility logic | Senait | ✅ APPROVED | Agent | 🔒 **LOCKED** | Baseline: v1.3_UI_UX_WHATSAPP |
+| 2025-08-29 | v1.4_SELLER_CONSOLE_REDESIGN | UI/UX | **SELLER CONSOLE PRODUCT CARDS REDESIGN** - Two-tier layout with expandable panels, inventory prioritization, simplified colors, improved quick actions - Seller dashboard only | Senait | ✅ APPROVED | Agent | ✅ Completed | Baseline: v1.3.1_UI_UX_WHATSAPP_PER_CARD |
 
 ---
 
