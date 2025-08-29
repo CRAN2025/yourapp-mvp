@@ -1,0 +1,90 @@
+Instruction to AI Agent
+
+Objective: Finalize the ShopLynk Hybrid Avatar Experience and polish the public storefront header to a global marketplace standard.
+
+1. Avatar Upgrade (Seller + ShopLynk Fallback)
+Logic
+
+If seller uploads logo/avatar → Display uploaded logo (centered, circular).
+
+If no avatar uploaded → Use /assets/logos/shoplynk-logo.svg (ShopLynk’s gradient logo).
+
+If low-resolution avatar (< 200x200px) → Auto-upscale and wrap in subtle shadow (max blur 8px).
+
+Styling
+
+Size: 88px × 88px
+
+Shape: Perfect circle.
+
+Border: 1px solid rgba(229, 231, 235, 0.5) (light neutral stroke).
+
+Shadow: Ultra-soft glow → 0 4px 14px rgba(0, 0, 0, 0.06)
+
+Hover effect: Slight scale(1.03) with smooth ease-out transition.
+
+2. “Powered by ShopLynk” Badge (Premium Treatment)
+Placement
+
+Below store name.
+
+Left-aligned, same baseline as store title.
+
+Design
+
+Badge content:
+[ShopLynk Icon] Powered by ShopLynk
+
+Icon source: /assets/logos/shoplynk-icon.svg
+
+Icon size: 14px × 14px
+
+Typography:
+
+Font: Inter
+
+Size: 12px
+
+Weight: 500
+
+Color: #6B7280 (neutral gray).
+
+Hover: Subtle fade-in opacity effect to highlight interactivity.
+
+3. Header Gradient & Composition
+
+Keep the current light-to-transparent gradient (top-left → bottom-right).
+
+Reduce opacity of the header background from 100% to 92% for a lighter, airier effect.
+
+Maintain 24px vertical padding inside header for breathing space.
+
+Ensure alignment matches the filter/search bar width precisely — edge-to-edge consistency.
+
+4. Unification of Visual Identity
+
+We’ll integrate the ShopLynk gradient branding into fallback elements for cohesiveness:
+
+Fallback avatar → ShopLynk gradient logo instead of solid blue.
+
+Button hover glow → ShopLynk gradient at linear-gradient(135deg, #4F46E5 0%, #6366F1 100%).
+
+Search bar focus state → Subtle gradient border using ShopLynk colors.
+
+5. Governance & Locks
+
+LOCKED: Product cards → v1.3.1_UI_UX_WHATSAPP_PER_CARD
+
+LOCKED: Seller console → v1.7_SELLER_CONSOLE_PREMIUM_POLISH
+
+LOCKED: WhatsApp CTA routing & deep links → Reserved for v1.9.4
+
+This applies only to the public storefront header.
+
+Key Outcomes
+
+Premium Visual Consistency → ShopLynk branding subtly present without overpowering seller individuality.
+
+Global E-commerce Standard → Matches Shopify, Etsy, and Stripe aesthetics.
+
+Scalable Branding Strategy → Ensures ShopLynk stays visually trusted while empowering sellers.
