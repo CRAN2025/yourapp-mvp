@@ -279,6 +279,14 @@ export default function StorefrontPublic() {
           return;
         }
         
+        console.log('🐛 DEBUG - Loaded seller data:', { 
+          sellerId, 
+          sellerData, 
+          storeDescription: sellerData.storeDescription,
+          hasStoreDescription: !!sellerData.storeDescription,
+          storeDescriptionType: typeof sellerData.storeDescription,
+          allKeys: Object.keys(sellerData)
+        });
         setSeller(sellerData);
 
         // Load products from public store with enhanced filtering
@@ -1416,13 +1424,6 @@ ${productUrl}`;
                         {seller.storeDescription}
                       </div>
                     )}
-                    {/* Debug: Check if description exists but is empty */}
-                    {console.log('Seller data for description debug:', { 
-                      storeDescription: seller.storeDescription, 
-                      hasDescription: !!seller.storeDescription,
-                      storeName: seller.storeName,
-                      allSellerKeys: Object.keys(seller)
-                    })}
                     <p className="store-subtitle-locked truncate">
                       {seller.location || 'Online Store'}
                     </p>
