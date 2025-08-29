@@ -1,0 +1,137 @@
+AI Agent Instruction – Enterprise Visual Polish & Brand Unification
+Objective
+
+Bring the storefront visual design into perfect alignment with the ShopLynk landing page — gradients, buttons, pills, headers, shadows, and badges — to achieve one cohesive enterprise-grade aesthetic.
+
+Governance
+
+No functionality changes — visuals only.
+
+All design tokens (colors, gradients, shadows, typography) must be centralized in themeConfig.js.
+
+Ensure ShopLynk landing page parity.
+
+Maintain WCAG AA accessibility compliance.
+
+Reuse components wherever possible — no isolated, inline hacks.
+
+Key Enhancements
+1. Global Background & Hue
+
+Current issue: Storefront header background still has a faint reddish tint, while the landing page has a cooler, icy blue gradient.
+
+Solution: Replace the background gradient with ShopLynk's icy blueprint.
+
+background: linear-gradient(135deg, #F9FBFF 0%, #F3F7FF 100%);
+
+
+Apply to:
+
+Header container
+
+Search + category filter bar container
+
+Main storefront background
+
+2. Logo & Header Zone
+
+Logo Container (square — keep current shape):
+
+border-radius: 16px;
+padding: 16px;
+box-shadow: 0 8px 24px rgba(59, 130, 246, 0.12);
+background: #FFFFFF;
+
+
+Typography Consistency
+
+.store-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+.powered-by {
+    font-size: 14px;
+    font-weight: 500;
+    color: #3B82F6;
+}
+.subtitle {
+    font-size: 13px;
+    color: #6B7280;
+}
+
+3. Back-to-Dashboard Button
+
+The current blue button is flat and doesn’t match the gradient depth of ShopLynk's CTAs.
+
+Apply landing-style gradient + depth:
+
+background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+color: #FFFFFF;
+font-weight: 600;
+padding: 12px 28px;
+border-radius: 12px;
+box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+transition: all 0.25s ease-in-out;
+
+
+Hover State
+
+background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+transform: translateY(-2px);
+box-shadow: 0 12px 28px rgba(59, 130, 246, 0.4);
+
+4. Category Pills (Consistency & Depth)
+
+Active Pill
+
+background: #3B82F6;
+color: #FFFFFF;
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+font-weight: 600;
+
+
+Inactive Pill
+
+background: #F9FAFB;
+color: #6B7280;
+border: 1px solid #E5EAF5;
+transition: all 0.2s ease-in-out;
+
+
+Hover State
+
+background: #F3F7FF;
+box-shadow: 0 4px 10px rgba(59, 130, 246, 0.12);
+
+5. Search Bar Improvements
+
+Improve elevation + match landing form field styles:
+
+background: #FFFFFF;
+border: 1px solid #E5EAF5;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+border-radius: 12px;
+padding: 12px 16px;
+font-size: 14px;
+
+6. Favorites Badge
+
+Make the red badge consistent everywhere:
+
+background-color: #F43F5E;
+box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+color: #FFFFFF;
+font-weight: 600;
+
+7. Centralize Tokens (themeConfig.js)
+export const colors = {
+  primary: '#3B82F6',
+  primaryLight: '#60A5FA',
+  icyBackgroundStart: '#F9FBFF',
+  icyBackgroundEnd: '#F3F7FF',
+  neutralText: '#6B7280',
+  neutralLight: '#F9FAFB',
+  neutralBorder: '#E5EAF5',
+  accentRed: '#F43F5E'
+};

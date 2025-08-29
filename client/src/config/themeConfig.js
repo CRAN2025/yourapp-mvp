@@ -9,7 +9,9 @@ export const colors = {
   primaryLight: '#60A5FA',
   primaryDark: '#2563EB',
   
-  // Background system
+  // Background system (icy blueprint)
+  icyBackgroundStart: '#F9FBFF',
+  icyBackgroundEnd: '#F3F7FF',
   backgroundIcy: '#F9FBFF',
   backgroundSecondary: '#F3F7FF',
   
