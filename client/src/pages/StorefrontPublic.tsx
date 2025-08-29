@@ -808,6 +808,76 @@ ${productUrl}`;
           box-shadow: 0 4px 12px rgba(80, 155, 255, 0.15);
         }
         
+        /* UNIFIED FILTER CONTROL BAR COMPONENTS */
+        /* Global design tokens for consistent visual language */
+        :root {
+          --control-radius: 12px;
+          --control-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+          --control-shadow-hover: 0px 5px 15px rgba(80, 155, 255, 0.35);
+          --control-gradient-active: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          --control-font-weight: 500;
+          --control-transition: all 0.25s ease-in-out;
+        }
+        
+        /* Unified Dropdown Styling */
+        .unified-dropdown {
+          background: #f8f9fc;
+          border: 1px solid #e5e7eb;
+          border-radius: var(--control-radius);
+          box-shadow: var(--control-shadow);
+          font-weight: var(--control-font-weight);
+          font-size: 14px;
+          color: #555;
+          padding: 10px 16px;
+          cursor: pointer;
+          transition: var(--control-transition);
+        }
+        
+        .unified-dropdown:hover {
+          background: #f0f4ff;
+          border-color: #b3c8ff;
+          box-shadow: var(--control-shadow-hover);
+          transform: scale(1.02);
+        }
+        
+        .unified-dropdown.active {
+          background: var(--control-gradient-active);
+          color: #fff;
+          border: none;
+          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
+        }
+        
+        /* Unified Favorites Button */
+        .unified-favorites-button {
+          background: #f8f9fc;
+          border: 1px solid #e5e7eb;
+          border-radius: var(--control-radius);
+          box-shadow: var(--control-shadow);
+          font-weight: var(--control-font-weight);
+          font-size: 14px;
+          color: #555;
+          padding: 10px 16px;
+          cursor: pointer;
+          transition: var(--control-transition);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .unified-favorites-button:hover {
+          background: #f0f4ff;
+          border-color: #b3c8ff;
+          box-shadow: var(--control-shadow-hover);
+          transform: scale(1.03);
+        }
+        
+        .unified-favorites-button.active {
+          background: var(--control-gradient-active);
+          color: #fff;
+          border: none;
+          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
+        }
+        
         /* Premium search bar matching landing page inputs */
         .frosted-search {
           background: #FFFFFF;
@@ -1275,10 +1345,16 @@ ${productUrl}`;
                 {/* v1.9 Championship Controls */}
                 <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-56 h-14 border-0 font-bold transition-all duration-300 frosted-search micro-elevation"
+                    <SelectTrigger className="w-56 h-14 border-0 transition-all duration-300 unified-dropdown"
                       style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.75)',
-                        backdropFilter: 'blur(8px)'
+                        backgroundColor: '#f8f9fc',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: 'var(--control-radius)',
+                        boxShadow: 'var(--control-shadow)',
+                        fontWeight: 'var(--control-font-weight)',
+                        fontSize: '14px',
+                        color: '#555',
+                        padding: '10px 16px'
                       }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
@@ -1296,22 +1372,26 @@ ${productUrl}`;
                     </SelectContent>
                   </Select>
 
-                  {/* v1.9 Championship Favorites with Soft Red Badge */}
+                  {/* Unified Favorites Button */}
                   <Button
                     variant="outline"
                     size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className="h-14 px-8 rounded-2xl font-bold transition-all duration-300 hover:scale-105 border-0 shadow-lg"
+                    className={`h-14 px-8 transition-all duration-300 border-0 unified-favorites-button ${showFavorites ? 'active' : ''}`}
                     style={showFavorites ? {
-                      backgroundColor: '#FEF2F2',
-                      color: '#DC2626',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 24px rgba(220, 38, 38, 0.2)'
+                      background: 'var(--control-gradient-active)',
+                      color: '#fff',
+                      border: 'none',
+                      boxShadow: '0 5px 18px rgba(80, 155, 255, 0.45)',
+                      borderRadius: 'var(--control-radius)',
+                      fontWeight: 'var(--control-font-weight)'
                     } : {
-                      backgroundColor: '#F8FAFC',
-                      color: '#64748B',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)'
+                      background: '#f8f9fc',
+                      color: '#555',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 'var(--control-radius)',
+                      boxShadow: 'var(--control-shadow)',
+                      fontWeight: 'var(--control-font-weight)'
                     }}
                     data-testid="button-toggle-favorites"
                   >
