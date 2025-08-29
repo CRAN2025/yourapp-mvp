@@ -705,23 +705,33 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Avatar logo dynamic scaling for brand presence */
+        /* Single avatar logo with championship proportions */
         .avatar-logo {
-          width: 70%;
+          width: 75%;
           height: auto;
           display: block;
           margin: 0 auto;
+          object-fit: contain;
         }
         
-        /* Avatar container harmonized with header */
+        /* Harmonized avatar container with premium glass */
         .avatar-container {
-          background: rgba(250, 250, 255, 0.7);
-          backdrop-filter: blur(14px);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          background: rgba(250, 250, 255, 0.6);
+          backdrop-filter: blur(12px);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
           border-radius: 50%;
           display: flex;
           justify-content: center;
           align-items: center;
+        }
+        
+        /* Clean powered-by tagline styling */
+        .powered-by {
+          font-size: 13px;
+          font-weight: 500;
+          color: #6B7280;
+          margin-top: 2px;
+          display: inline-block;
         }
         
         /* Proportional responsiveness */
@@ -766,15 +776,15 @@ ${productUrl}`;
             <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9.7 Enhanced Brand Presence Avatar */}
+                {/* v1.9.8 Championship Single Logo Avatar */}
                 <div className="relative group">
-                  {/* Enhanced brand-focused avatar container */}
+                  {/* Championship avatar with single logo */}
                   <div 
                     className="avatar-container avatar-responsive relative overflow-hidden transition-all duration-300 ease-out"
                     style={{ 
                       width: '88px',
                       height: '88px',
-                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(250, 250, 255, 0.7)',
+                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(250, 250, 255, 0.6)',
                       border: '0.5px solid rgba(255, 255, 255, 0.8)',
                       transform: 'scale(1)'
                     }}
@@ -795,10 +805,10 @@ ${productUrl}`;
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Enhanced ShopLynk brand fallback
+                          // Single ShopLynk logo fallback
                           const parent = e.currentTarget.parentElement;
                           if (parent) {
-                            parent.style.background = 'rgba(250, 250, 255, 0.7)';
+                            parent.style.background = 'rgba(250, 250, 255, 0.6)';
                             parent.classList.add('avatar-container');
                           }
                           e.currentTarget.src = logoUrl;
@@ -809,7 +819,7 @@ ${productUrl}`;
                         }}
                       />
                     ) : (
-                      /* Enhanced ShopLynk brand logo with 70% scaling */
+                      /* Single ShopLynk logo with 75% scaling */
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
@@ -833,26 +843,9 @@ ${productUrl}`;
                     {seller.storeName}
                   </h1>
                   
-                  {/* v1.9.4 Perfect "Powered by ShopLynk" Badge */}
-                  <div className="flex items-center gap-2 mt-1 mb-2 transition-opacity duration-300 hover:opacity-100 cursor-pointer opacity-70">
-                    <img 
-                      src={logoUrl} 
-                      alt="ShopLynk" 
-                      className="object-contain"
-                      style={{ 
-                        width: '14px',
-                        height: '14px'
-                      }}
-                    />
-                    <span 
-                      className="tracking-wide"
-                      style={{ 
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        color: '#4B5563',
-                        fontFamily: 'Inter, sans-serif'
-                      }}
-                    >
+                  {/* v1.9.8 Clean "Powered by ShopLynk" Tagline */}
+                  <div className="mt-1 mb-2">
+                    <span className="powered-by">
                       Powered by ShopLynk
                     </span>
                   </div>
