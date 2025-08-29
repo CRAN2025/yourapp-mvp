@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue, off } from 'firebase/database';
-import { Plus, Search, Heart, Edit, Trash2, Filter } from 'lucide-react';
+import { Plus, Search, Heart, Edit, Trash2, Filter, ChevronDown, ChevronUp, ExternalLink, Eye } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -27,6 +27,7 @@ export default function Products() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   // Load products from Firebase
   useEffect(() => {
@@ -111,13 +112,51 @@ export default function Products() {
     }
   };
 
+  // v1.4 Enhanced stock badge with ShopLynk green/red system
   const getStockBadge = (quantity: number) => {
     if (quantity === 0) {
-      return <Badge variant="destructive">Out of Stock</Badge>;
-    } else if (quantity <= 5) {
-      return <Badge variant="secondary" className="bg-warning text-warning-foreground">Low Stock ({quantity})</Badge>;
+      return (
+        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
+             style={{ backgroundColor: '#E63946', color: 'white' }}>
+          <span className="mr-1.5 text-sm">⚠️</span>
+          OUT OF STOCK
+        </div>
+      );
+    } else if (quantity < 10) {
+      return (
+        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
+             style={{ backgroundColor: '#E63946', color: 'white' }}>
+          <span className="mr-1.5 text-sm">⚠️</span>
+          LOW STOCK — {quantity} LEFT
+        </div>
+      );
     } else {
-      return <Badge variant="secondary" className="bg-success text-success-foreground">In Stock ({quantity})</Badge>;
+      return (
+        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
+             style={{ backgroundColor: '#27AE60', color: 'white' }}>
+          <span className="mr-1.5 text-sm">✅</span>
+          IN STOCK — {quantity} UNITS
+        </div>
+      );
+    }
+  };
+
+  // Toggle expandable card panels
+  const toggleCardExpansion = (productId: string) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(productId)) {
+      newExpanded.delete(productId);
+    } else {
+      newExpanded.add(productId);
+    }
+    setExpandedCards(newExpanded);
+  };
+
+  // Preview product in public storefront (new tab)
+  const handlePreviewProduct = (product: Product) => {
+    if (user?.uid) {
+      const previewUrl = `${window.location.origin}/store/${user.uid}#${product.id}`;
+      window.open(previewUrl, '_blank');
     }
   };
 
@@ -202,13 +241,15 @@ export default function Products() {
             }}
           />
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
               <Card key={product.id} className="overflow-hidden border-0 transition-all duration-200 hover:shadow-xl"
                     style={{ 
                       boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
                       borderRadius: '14px'
                     }}>
+                
+                {/* TOP SECTION - Always Visible */}
                 <div className="relative">
                   <img
                     src={getProductImageUrl(product)}
@@ -219,7 +260,7 @@ export default function Products() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`absolute top-2 right-2 w-8 h-8 rounded-full ${
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg ${
                       favorites.has(product.id) ? 'text-red-500' : 'text-gray-400'
                     }`}
                     onClick={() => toggleFavorite(product.id)}
@@ -232,232 +273,244 @@ export default function Products() {
                   </div>
                 </div>
                 <CardContent style={{ 
-                  paddingTop: '16px', 
-                  paddingBottom: '16px', 
-                  paddingLeft: '14px', 
-                  paddingRight: '14px' 
+                  paddingTop: '20px', 
+                  paddingBottom: '20px', 
+                  paddingLeft: '20px', 
+                  paddingRight: '20px' 
                 }}>
-                  <h3 className="font-semibold text-lg mb-2" style={{ color: '#1F2937' }} data-testid={`product-name-${product.id}`}>
-                    {product.name}
-                  </h3>
-                  {product.description && (
-                    <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
                   
-                  {/* Enhanced Product Attributes */}
-                  <div className="space-y-2 mb-4">
-                    {product.brand && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Brand:</span>
-                        <Badge variant="secondary" className="text-xs">{product.brand}</Badge>
-                      </div>
-                    )}
-                    {product.condition && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Condition:</span>
-                        <Badge variant="outline" className="text-xs capitalize">{product.condition}</Badge>
-                      </div>
-                    )}
-                    <div className="flex flex-wrap gap-1">
-                      {product.size && (
-                        <Badge variant="secondary" className="text-xs">Size: {product.size}</Badge>
-                      )}
-                      {product.color && (
-                        <Badge variant="secondary" className="text-xs">Color: {product.color}</Badge>
-                      )}
-                      {product.material && (
-                        <Badge variant="secondary" className="text-xs">Material: {product.material}</Badge>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {product.isHandmade && (
-                        <Badge variant="outline" className="text-xs">🎨 Handmade</Badge>
-                      )}
-                      {product.isCustomizable && (
-                        <Badge variant="outline" className="text-xs">⚙️ Customizable</Badge>
-                      )}
-                      {product.madeToOrder && (
-                        <Badge variant="outline" className="text-xs">📋 Made to Order</Badge>
-                      )}
-                      {product.giftWrapping && (
-                        <Badge variant="outline" className="text-xs">🎁 Gift Wrap</Badge>
-                      )}
-                      {product.processingTime && (
-                        <Badge variant="secondary" className="text-xs">⏱️ {product.processingTime}</Badge>
+                  {/* ALWAYS VISIBLE TOP SECTION */}
+                  <div className="space-y-4 mb-4">
+                    
+                    {/* Product Title & Brand */}
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-xl text-gray-900 leading-tight" data-testid={`product-name-${product.id}`}>
+                        {product.name}
+                      </h3>
+                      {product.brand && (
+                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                          {product.brand}
+                        </div>
                       )}
                     </div>
                     
-                    {/* Additional attributes row */}
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {product.chainLength && (
-                        <Badge variant="secondary" className="text-xs">Length: {product.chainLength}</Badge>
-                      )}
-                      {product.pendantSize && (
-                        <Badge variant="secondary" className="text-xs">Size: {product.pendantSize}</Badge>
-                      )}
-                      {product.style && (
-                        <Badge variant="secondary" className="text-xs">{product.style}</Badge>
-                      )}
-                      {product.occasion && (
-                        <Badge variant="secondary" className="text-xs">{product.occasion}</Badge>
-                      )}
+                    {/* PRIORITY: Price & Stock Together */}
+                    <div className="flex items-center justify-between p-4 rounded-xl border-2"
+                         style={{ borderColor: '#27AE60', backgroundColor: '#F0FDF4' }}>
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-bold" style={{ color: '#27AE60' }} data-testid={`product-price-${product.id}`}>
+                          {formatPrice(product.price)}
+                        </span>
+                        <span className="text-sm text-gray-600 font-medium">per unit</span>
+                      </div>
+                      <div>
+                        {getStockBadge(product.quantity)}
+                      </div>
                     </div>
                     
-                    {/* Shipping and policy info */}
-                    {(product.shipsFrom || product.returnPolicy || product.warranty) && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {product.shipsFrom && (
-                          <Badge variant="outline" className="text-xs">✈️ Ships from {product.shipsFrom}</Badge>
-                        )}
-                        {product.returnPolicy && (
-                          <Badge variant="outline" className="text-xs">🔄 {product.returnPolicy}</Badge>
-                        )}
-                        {product.warranty && (
-                          <Badge variant="outline" className="text-xs">🛡️ {product.warranty}</Badge>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Premium Header with Price and Category */}
-                  <div className="flex items-center justify-between mb-6 p-4 bg-slate-50 rounded-xl border-l-4 border-emerald-400">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold" style={{ color: '#27AE60' }} data-testid={`product-price-${product.id}`}>
-                        {formatPrice(product.price)}
-                      </span>
-                      <div className="text-sm text-slate-600 font-medium">per unit</div>
-                    </div>
+                    {/* Category & Subcategory */}
                     <div className="flex items-center gap-2">
-                      <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm font-semibold">
-                        📦 {product.category}
+                      <div className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold"
+                           style={{ backgroundColor: '#2C3E50', color: 'white' }}>
+                        <span className="mr-2">📦</span>
+                        {product.category}
                       </div>
                       {product.subcategory && (
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-600 text-white text-xs font-medium">
+                        <div className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium"
+                             style={{ backgroundColor: '#6C757D', color: 'white' }}>
                           {product.subcategory}
                         </div>
                       )}
                     </div>
-                  </div>
-
-                  {/* Premium Seller Console Sections */}
-                  <div className="space-y-4 mb-6">
                     
-                    {/* Inventory & Pricing Section */}
-                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-                      <h4 className="text-sm font-bold text-emerald-800 mb-3 flex items-center gap-2">
-                        <span className="text-lg">📊</span>
-                        Inventory & Pricing
-                      </h4>
-                      <div className="flex items-center gap-3">
-                        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
-                             style={{ 
-                               backgroundColor: product.quantity <= 10 ? '#E63946' : '#27AE60', 
-                               color: 'white' 
-                             }}>
-                          <span className="mr-1.5 text-sm flex items-center">{product.quantity <= 10 ? '⚠️' : '✅'}</span>
-                          {product.quantity <= 10 ? 'Low stock' : 'In stock'} — {product.quantity} units
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Product Features Section */}
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                        <span className="text-lg">⭐</span>
-                        Features & Services
-                      </h4>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        {/* Special Features */}
-                        <div className="space-y-2">
-                          {product.isHandmade && (
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#FEF7F0', color: '#EA580C' }}>
-                              <span className="mr-1.5 text-sm flex items-center">🎨</span>
-                              Handmade
-                            </div>
-                          )}
-                          {product.isCustomizable && (
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F0F9FF', color: '#0369A1' }}>
-                              <span className="mr-1.5 text-sm flex items-center">⚙️</span>
-                              Customizable
-                            </div>
-                          )}
-                          {product.giftWrapping && (
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#FDF4FF', color: '#A21CAF' }}>
-                              <span className="mr-1.5 text-sm flex items-center">🎁</span>
-                              Gift wrap
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Sustainability */}
-                        <div className="space-y-2">
-                          {product.sustainability && (
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#DFF6E3', color: '#2ECC71' }}>
-                              <span className="mr-1.5 text-sm flex items-center">🌱</span>
-                              Eco-friendly
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Customer Information Section */}
-                    {(product.personalizationOptions || product.careInstructions || product.targetAgeGroup) && (
-                      <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
-                        <h4 className="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
-                          <span className="text-lg">👥</span>
-                          Customer Information
-                        </h4>
-                        <div className="space-y-2">
-                          {product.targetAgeGroup && (
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
-                              <span className="mr-1.5 text-sm flex items-center">👥</span>
-                              {product.targetAgeGroup}
-                            </div>
-                          )}
-                          {product.personalizationOptions && (
-                            <div className="text-xs text-blue-700 mt-2">
-                              <span className="font-semibold">✏️ Personalization:</span> {product.personalizationOptions}
-                            </div>
-                          )}
-                          {product.careInstructions && (
-                            <div className="text-xs text-blue-700 mt-2">
-                              <span className="font-semibold">🧼 Care:</span> {product.careInstructions}
-                            </div>
-                          )}
-                        </div>
+                    {/* Features & Services Pills - Single Row */}
+                    {(product.isHandmade || product.isCustomizable || product.giftWrapping || product.sustainability) && (
+                      <div className="flex flex-wrap gap-2">
+                        {product.isHandmade && (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                            <span className="mr-1">🎨</span>
+                            Handmade
+                          </div>
+                        )}
+                        {product.sustainability && (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                            <span className="mr-1">🌱</span>
+                            Eco-friendly
+                          </div>
+                        )}
+                        {product.giftWrapping && (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                            <span className="mr-1">🎁</span>
+                            Gift Wrap
+                          </div>
+                        )}
+                        {product.isCustomizable && (
+                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                            <span className="mr-1">⚙️</span>
+                            Customizable
+                          </div>
+                        )}
                       </div>
                     )}
-
+                    
+                    {/* QUICK ACTIONS - Consistent Styling */}
+                    <div className="flex gap-2 pt-3 border-t border-gray-200">
+                      <Button
+                        size="sm"
+                        className="flex-1 font-medium transition-all duration-200"
+                        style={{ backgroundColor: '#27AE60', color: 'white' }}
+                        onClick={() => handleEditProduct(product)}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#219A52'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#27AE60'}
+                        data-testid={`button-edit-${product.id}`}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                        onClick={() => handlePreviewProduct(product)}
+                        data-testid={`button-preview-${product.id}`}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Preview
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="px-3 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-all duration-200"
+                        onClick={() => handleDeleteProduct(product)}
+                        data-testid={`button-delete-${product.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
+                  
+                  {/* EXPANDABLE PANEL - Collapsed by Default */}
+                  <div className="border-t border-gray-200 pt-4">
                     <Button
-                      variant="default"
+                      variant="ghost"
                       size="sm"
-                      className="flex-1"
-                      onClick={() => handleEditProduct(product)}
-                      data-testid={`button-edit-${product.id}`}
+                      className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                      onClick={() => toggleCardExpansion(product.id)}
+                      data-testid={`button-expand-${product.id}`}
                     >
-                      <Edit className="w-3 h-3 mr-1" />
-                      Edit
+                      <span className="text-sm font-medium text-gray-700">
+                        {expandedCards.has(product.id) ? 'Hide Details' : 'Show Details'}
+                      </span>
+                      {expandedCards.has(product.id) ? (
+                        <ChevronUp className="w-4 h-4 text-gray-500" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                      )}
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteProduct(product)}
-                      data-testid={`button-delete-${product.id}`}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
+                    
+                    {expandedCards.has(product.id) && (
+                      <div className="mt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                        
+                        {/* Attributes Section */}
+                        {(product.size || product.color || product.material || product.condition) && (
+                          <div className="p-4 bg-gray-50 rounded-lg">
+                            <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                              <span>🏷️</span>
+                              Attributes
+                            </h4>
+                            <div className="grid grid-cols-2 gap-2">
+                              {product.size && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-gray-600">Size:</span>
+                                  <span className="ml-2 text-gray-800">{product.size}</span>
+                                </div>
+                              )}
+                              {product.color && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-gray-600">Color:</span>
+                                  <span className="ml-2 text-gray-800">{product.color}</span>
+                                </div>
+                              )}
+                              {product.material && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-gray-600">Material:</span>
+                                  <span className="ml-2 text-gray-800">{product.material}</span>
+                                </div>
+                              )}
+                              {product.condition && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-gray-600">Condition:</span>
+                                  <span className="ml-2 text-gray-800 capitalize">{product.condition}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Customer Info Section */}
+                        {(product.targetAgeGroup || product.personalizationOptions || product.careInstructions) && (
+                          <div className="p-4 bg-blue-50 rounded-lg">
+                            <h4 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                              <span>👥</span>
+                              Customer Info
+                            </h4>
+                            <div className="space-y-2">
+                              {product.targetAgeGroup && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-blue-700">Age Group:</span>
+                                  <span className="ml-2 text-blue-800">{product.targetAgeGroup}</span>
+                                </div>
+                              )}
+                              {product.personalizationOptions && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-blue-700">Personalization:</span>
+                                  <p className="mt-1 text-blue-800">{product.personalizationOptions}</p>
+                                </div>
+                              )}
+                              {product.careInstructions && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-blue-700">Care Instructions:</span>
+                                  <p className="mt-1 text-blue-800">{product.careInstructions}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Shipping & Returns */}
+                        {(product.shipsFrom || product.returnPolicy || product.warranty) && (
+                          <div className="p-4 bg-purple-50 rounded-lg">
+                            <h4 className="text-sm font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                              <span>📦</span>
+                              Shipping & Returns
+                            </h4>
+                            <div className="space-y-2">
+                              {product.shipsFrom && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-purple-700">Ships From:</span>
+                                  <span className="ml-2 text-purple-800">{product.shipsFrom}</span>
+                                </div>
+                              )}
+                              {product.returnPolicy && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-purple-700">Returns:</span>
+                                  <span className="ml-2 text-purple-800">{product.returnPolicy}</span>
+                                </div>
+                              )}
+                              {product.warranty && (
+                                <div className="text-xs">
+                                  <span className="font-medium text-purple-700">Warranty:</span>
+                                  <span className="ml-2 text-purple-800">{product.warranty}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                      </div>
+                    )}
                   </div>
+                  
                 </CardContent>
               </Card>
             ))}
