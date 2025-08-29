@@ -1012,7 +1012,11 @@ Product Link: ${productUrl}`;
               {filteredProducts.map((product) => (
                 <Card
                   key={product.id}
-                  className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer border rounded-lg overflow-hidden"
+                  className="group cursor-pointer border-0 overflow-hidden transition-all duration-200 hover:shadow-xl"
+                  style={{ 
+                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
+                    borderRadius: '14px'
+                  }}
                   onClick={() => handleProductView(product)}
                   data-testid={`card-product-${product.id}`}
                 >
@@ -1076,10 +1080,15 @@ Product Link: ${productUrl}`;
                     </div>
 
                     {/* Product info */}
-                    <CardContent className="p-4 space-y-3">
+                    <CardContent style={{ 
+                      paddingTop: '16px', 
+                      paddingBottom: '16px', 
+                      paddingLeft: '14px', 
+                      paddingRight: '14px' 
+                    }} className="space-y-3">
                       {/* Product name and brand */}
                       <div className="space-y-2">
-                        <h3 className="font-semibold text-base line-clamp-2">
+                        <h3 className="font-semibold text-lg line-clamp-2" style={{ color: '#1F2937' }}>
                           {product.name}
                         </h3>
                         {product.brand && (
@@ -1094,16 +1103,19 @@ Product Link: ${productUrl}`;
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-3">
-                              <span className="text-xl font-bold text-green-600">
+                              <span className="text-xl font-bold" style={{ color: '#27AE60' }}>
                                 {formatPrice(product.price)}
                               </span>
                             </div>
                             <div className="space-y-2">
-                              <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-800 text-white text-xs font-medium">
-                                📦 {product.category}
+                              <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                                   style={{ backgroundColor: '#212529', color: 'white' }}>
+                                <span className="mr-1.5 text-sm flex items-center">📦</span>
+                                {product.category}
                               </div>
                               {product.subcategory && (
-                                <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-600 text-white text-xs font-medium ml-2">
+                                <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ml-2" 
+                                     style={{ backgroundColor: '#212529', color: 'white' }}>
                                   {product.subcategory}
                                 </div>
                               )}
@@ -1118,7 +1130,12 @@ Product Link: ${productUrl}`;
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-1 border border-gray-200 hover:bg-gray-50 rounded-md"
+                            className="flex-1 bg-white hover:bg-gray-50 transition-all duration-200 font-medium"
+                            style={{
+                              border: '1px solid #E0E0E0',
+                              borderRadius: '8px',
+                              boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.05)'
+                            }}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleProductView(product);
@@ -1148,7 +1165,12 @@ Product Link: ${productUrl}`;
                                 e.stopPropagation();
                                 handleProductView(product);
                               }}
-                              className="px-4 border border-gray-200 hover:bg-gray-50 rounded-md"
+                              className="px-4 bg-white hover:bg-gray-50 transition-all duration-200 font-medium"
+                              style={{
+                                border: '1px solid #E0E0E0',
+                                borderRadius: '8px',
+                                boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.05)'
+                              }}
                               data-testid={`button-view-${product.id}`}
                             >
                               View
@@ -1157,27 +1179,35 @@ Product Link: ${productUrl}`;
                         )}
                       </div>
 
-                      {/* Refined limited stock warning */}
+                      {/* Premium stock warning - #E63946 background, white bold text, ALL CAPS */}
                       {product.quantity <= 10 && (
                         <div className="pt-3 border-t border-slate-100">
-                          <div className="inline-flex items-center px-3 py-2 rounded-md text-xs font-bold tracking-wide" 
-                               style={{ backgroundColor: '#E63946', color: 'white' }}>
+                          <div className="inline-flex items-center rounded-md text-xs font-bold tracking-wide" 
+                               style={{ 
+                                 backgroundColor: '#E63946', 
+                                 color: 'white',
+                                 padding: '8px 12px'
+                               }}>
                             <span className="mr-2 text-sm flex items-center">⚠️</span>
-                            Limited stock — Only {product.quantity} left
+                            LIMITED STOCK — ONLY {product.quantity} LEFT
                           </div>
                         </div>
                       )}
 
-                      {/* Refined badge system - max 4 badges per card */}
+                      {/* Premium refined badge system - max 4 badges per card */}
                       {(() => {
                         const badges = [];
                         const maxBadges = 4;
                         
-                        // Priority 1: Physical attributes (light gray background)
+                        // Priority 1: Physical attributes (light gray #F1F3F5 background, #333 text)
                         if (product.color && badges.length < maxBadges) {
                           badges.push(
-                            <div key="color" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
+                            <div key="color" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#F1F3F5', 
+                                   color: '#333',
+                                   padding: '6px 12px'
+                                 }}>
                               <span className="mr-1.5 text-sm flex items-center">🎨</span>
                               {product.color}
                             </div>
@@ -1185,8 +1215,12 @@ Product Link: ${productUrl}`;
                         }
                         if (product.size && badges.length < maxBadges) {
                           badges.push(
-                            <div key="size" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
+                            <div key="size" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#F1F3F5', 
+                                   color: '#333',
+                                   padding: '6px 12px'
+                                 }}>
                               <span className="mr-1.5 text-sm flex items-center">📏</span>
                               {product.size}
                             </div>
@@ -1194,26 +1228,34 @@ Product Link: ${productUrl}`;
                         }
                         if (product.material && badges.length < maxBadges) {
                           badges.push(
-                            <div key="material" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
+                            <div key="material" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#F1F3F5', 
+                                   color: '#333',
+                                   padding: '6px 12px'
+                                 }}>
                               <span className="mr-1.5 text-sm flex items-center">🧵</span>
                               {product.material}
                             </div>
                           );
                         }
                         
-                        // Priority 2: Sustainability (soft green)
+                        // Priority 2: Sustainability (soft green #DFF6E3 background, #2ECC71 text)
                         if (product.sustainability && badges.length < maxBadges) {
                           badges.push(
-                            <div key="sustainability" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#DFF6E3', color: '#2ECC71' }}>
+                            <div key="sustainability" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#DFF6E3', 
+                                   color: '#2ECC71',
+                                   padding: '6px 12px'
+                                 }}>
                               <span className="mr-1.5 text-sm flex items-center">🌱</span>
                               Eco-friendly
                             </div>
                           );
                         }
                         
-                        // Note: Handmade, Customizable, Gift Wrap moved to details view
+                        // Note: Handmade, Customizable, Gift Wrap moved to details view per specs
                         
                         return badges.length > 0 && (
                           <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
