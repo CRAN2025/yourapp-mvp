@@ -47,7 +47,7 @@ export default function StorefrontPublic() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
-  const [showChatFab, setShowChatFab] = useState(false);
+  // Removed showChatFab state - floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD
   const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
   const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
   const [isOwner, setIsOwner] = useState(false);
@@ -101,34 +101,24 @@ export default function StorefrontPublic() {
     }
   }, [favKey]);
 
-  // Enhanced floating chat button with intelligent positioning
-  useEffect(() => {
-    let ticking = false;
+  // Track WhatsApp CTA views for analytics per v1.3.1_UI_UX_WHATSAPP_PER_CARD
+  const trackWhatsAppView = async (productId: string) => {
+    if (!sellerId || !seller?.whatsappNumber) return;
     
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const scrolled = window.scrollY;
-          const windowHeight = window.innerHeight;
-          const documentHeight = document.documentElement.scrollHeight;
-          const isNearBottom = scrolled + windowHeight > documentHeight - 200;
-          
-          setShowChatFab(scrolled > 400 || window.innerWidth > 1024);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, []);
+    try {
+      await trackInteraction({
+        type: 'whatsapp_cta_viewed',
+        sellerId,
+        productId,
+        metadata: { location: 'card' },
+      });
+    } catch (error) {
+      console.warn('Failed to track WhatsApp CTA view:', error);
+    }
+  };
+
+  // Removed floating chat button logic per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification
+  // All WhatsApp functionality moved to per-card buttons
 
 
 
@@ -462,36 +452,44 @@ export default function StorefrontPublic() {
     }
   };
 
-  // Enhanced product contact with rich messaging
+  // Enhanced product contact with comprehensive analytics and messaging per v1.3.1_UI_UX_WHATSAPP_PER_CARD
   const handleContactProduct = async (product: Product) => {
-    if (!seller?.whatsappNumber || !sellerId) return;
+    if (!seller?.whatsappNumber || !sellerId) {
+      // Track blocked attempt for analytics
+      try {
+        await trackInteraction({
+          type: 'whatsapp_cta_missing_number',
+          sellerId: sellerId!,
+          productId: product.id,
+          metadata: { location: 'card', reason: 'no_whatsapp_number' },
+        });
+      } catch (error) {
+        console.warn('Failed to track blocked WhatsApp attempt:', error);
+      }
+      return;
+    }
     
     try {
+      // Enhanced analytics tracking per specification
       await trackInteraction({
-        type: 'wa_click',
+        type: 'whatsapp_cta_clicked',
         sellerId,
         productId: product.id,
         metadata: {
+          location: 'card',
           productName: product.name,
           productPrice: product.price,
           category: product.category,
+          sellerName: seller.fullName || seller.storeName,
         },
       });
       
+      // Enhanced pre-filled message with seller first name
+      const sellerFirstName = seller.fullName?.split(' ')[0] || seller.storeName;
       const productUrl = `${window.location.origin}/store/${sellerId}#${product.id}`;
-      const message = `🛍️ Hi! I'm interested in this product from ${seller.storeName}:
+      const message = `Hi ${sellerFirstName}, I'm interested in "${product.name}" on ShopLynk.
 
-📦 *${product.name}*
-💰 Price: ${formatPrice(product.price)}
-🏷️ Category: ${product.category}
-
-I'd like to know more about:
-• Availability and stock
-• Payment options
-• Delivery details
-• Any additional specifications
-
-Product Link: ${productUrl}`;
+${productUrl}`;
       
       openWhatsApp(seller.whatsappNumber, message);
       
@@ -1124,84 +1122,101 @@ Product Link: ${productUrl}`;
                         </div>
                       </div>
 
-                      {/* Action buttons - different for owners vs buyers */}
-                      <div className="flex gap-2 pt-3 border-t border-gray-200">
-                        {isOwner ? (
+                      {/* Per-card WhatsApp CTA per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
+                      <div className="space-y-2 pt-3 border-t border-gray-200">
+                        {/* WhatsApp Contact Button - appears for all users when seller has valid number */}
+                        {seller?.whatsappNumber ? (
                           <Button
-                            variant="outline"
+                            className="w-full text-white font-medium transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
                             size="sm"
-                            className="flex-1 bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5"
                             style={{
-                              border: '1px solid #E0E0E0',
+                              backgroundColor: '#25D366',
                               borderRadius: '10px',
-                              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
+                              boxShadow: '0 2px 6px rgba(37, 211, 102, 0.25)',
+                              focusRingColor: 'rgba(37, 211, 102, 0.5)'
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleProductView(product);
+                              handleContactProduct(product);
                             }}
                             onMouseEnter={(e) => {
-                              e.currentTarget.style.color = '#2C3E50';
+                              e.currentTarget.style.backgroundColor = '#1DB854';
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 211, 102, 0.35)';
+                              trackWhatsAppView(product.id);
                             }}
                             onMouseLeave={(e) => {
-                              e.currentTarget.style.color = '';
+                              e.currentTarget.style.backgroundColor = '#25D366';
+                              e.currentTarget.style.boxShadow = '0 2px 6px rgba(37, 211, 102, 0.25)';
                             }}
-                            data-testid={`button-view-${product.id}`}
+                            onFocus={(e) => {
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 211, 102, 0.35), 0 0 0 2px rgba(37, 211, 102, 0.5)';
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.boxShadow = '0 2px 6px rgba(37, 211, 102, 0.25)';
+                            }}
+                            aria-label={`Contact seller about ${product.name} on WhatsApp`}
+                            data-testid={`button-whatsapp-${product.id}`}
                           >
-                            View Details
+                            <MessageCircle className="h-4 w-4 mr-2" aria-hidden="true" />
+                            Contact Seller
                           </Button>
-                        ) : (
-                          <>
+                        ) : isOwner ? (
+                          // Seller console preview - disabled button with tooltip
+                          <div className="relative group">
                             <Button
-                              className="flex-1 text-white font-medium transition-all duration-200 hover:shadow-lg"
+                              disabled
+                              className="w-full font-medium opacity-60 cursor-not-allowed"
                               size="sm"
                               style={{
                                 backgroundColor: '#25D366',
                                 borderRadius: '10px',
-                                boxShadow: '0 2px 6px rgba(37, 211, 102, 0.25)'
+                                color: 'white'
                               }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleContactProduct(product);
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#1DB854';
-                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 211, 102, 0.35)';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#25D366';
-                                e.currentTarget.style.boxShadow = '0 2px 6px rgba(37, 211, 102, 0.25)';
-                              }}
-                              data-testid={`button-contact-${product.id}`}
+                              data-testid={`button-whatsapp-disabled-${product.id}`}
                             >
-                              <MessageCircle className="h-4 w-4 mr-2" />
-                              WhatsApp
+                              <MessageCircle className="h-4 w-4 mr-2" aria-hidden="true" />
+                              Contact Seller
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleProductView(product);
-                              }}
-                              className="px-4 bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5"
-                              style={{
-                                border: '1px solid #E0E0E0',
-                                borderRadius: '10px',
-                                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.color = '#2C3E50';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.color = '';
-                              }}
-                              data-testid={`button-view-${product.id}`}
-                            >
-                              View
-                            </Button>
-                          </>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                              <div className="bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                Add a WhatsApp number in Settings to enable this
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-black"></div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
+                        
+                        {/* Out of stock caption */}
+                        {seller?.whatsappNumber && product.quantity <= 0 && (
+                          <p className="text-xs text-gray-500 text-center">
+                            Currently out of stock — message seller for availability
+                          </p>
                         )}
+                        
+                        {/* View Details Button */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleProductView(product);
+                          }}
+                          className="w-full bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                          style={{
+                            border: '1px solid #E0E0E0',
+                            borderRadius: '10px',
+                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#2C3E50';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '';
+                          }}
+                          data-testid={`button-view-${product.id}`}
+                        >
+                          View Details
+                        </Button>
                       </div>
 
                       {/* Premium stock warning - #E63946 background, white bold text, ALL CAPS */}
@@ -1314,25 +1329,7 @@ Product Link: ${productUrl}`;
           )}
         </div>
 
-        {/* Enhanced floating contact button */}
-        {showChatFab && seller.whatsappNumber && (
-          <div className="fixed bottom-8 right-8 z-50">
-            <Button
-              onClick={handleFloatingChatClick}
-              className="h-16 w-16 rounded-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
-              data-testid="button-floating-contact"
-            >
-              <MessageCircle className="h-8 w-8 group-hover:scale-110 transition-transform duration-300" />
-              <span className="sr-only">Contact store via WhatsApp</span>
-            </Button>
-            
-            {/* Floating tooltip */}
-            <div className="absolute bottom-20 right-0 bg-black/90 text-white px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">
-              💬 Chat with {seller.storeName}
-              <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black/90"></div>
-            </div>
-          </div>
-        )}
+        {/* Floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
 
         {/* Enhanced contact notification */}
         {contactNotification.show && contactNotification.product && (
