@@ -705,20 +705,23 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Avatar icon dynamic scaling for Retina optimization */
-        .avatar-icon {
-          width: 68%;
+        /* Avatar logo dynamic scaling for brand presence */
+        .avatar-logo {
+          width: 70%;
           height: auto;
-          max-width: 68%;
           display: block;
           margin: 0 auto;
         }
         
-        /* Avatar container harmonized background */
+        /* Avatar container harmonized with header */
         .avatar-container {
-          background: rgba(240, 245, 255, 0.65);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+          background: rgba(250, 250, 255, 0.7);
           backdrop-filter: blur(14px);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border-radius: 50%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
         
         /* Proportional responsiveness */
@@ -763,19 +766,16 @@ ${productUrl}`;
             <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9.6 Final Master Avatar with Retina Optimization */}
+                {/* v1.9.7 Enhanced Brand Presence Avatar */}
                 <div className="relative group">
-                  {/* Master championship avatar container */}
+                  {/* Enhanced brand-focused avatar container */}
                   <div 
-                    className="avatar-container avatar-responsive relative rounded-full flex items-center justify-center overflow-hidden transition-all duration-300 ease-out"
+                    className="avatar-container avatar-responsive relative overflow-hidden transition-all duration-300 ease-out"
                     style={{ 
                       width: '88px',
                       height: '88px',
-                      borderRadius: '50%',
-                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(240, 245, 255, 0.65)',
+                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(250, 250, 255, 0.7)',
                       border: '0.5px solid rgba(255, 255, 255, 0.8)',
-                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
-                      backdropFilter: 'blur(14px)',
                       transform: 'scale(1)'
                     }}
                     onMouseEnter={(e) => {
@@ -795,25 +795,25 @@ ${productUrl}`;
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Master ShopLynk fallback with enhanced scaling
+                          // Enhanced ShopLynk brand fallback
                           const parent = e.currentTarget.parentElement;
                           if (parent) {
-                            parent.style.background = 'rgba(240, 245, 255, 0.65)';
+                            parent.style.background = 'rgba(250, 250, 255, 0.7)';
                             parent.classList.add('avatar-container');
                           }
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
-                          e.currentTarget.className = 'object-contain avatar-icon';
+                          e.currentTarget.className = 'object-contain avatar-logo';
                           e.currentTarget.style.borderRadius = '0';
                           e.currentTarget.style.filter = 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12))';
                         }}
                       />
                     ) : (
-                      /* Master ShopLynk logo with optimized scaling */
+                      /* Enhanced ShopLynk brand logo with 70% scaling */
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
-                        className="object-contain avatar-icon"
+                        className="object-contain avatar-logo"
                         style={{ 
                           filter: 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12))'
                         }}
