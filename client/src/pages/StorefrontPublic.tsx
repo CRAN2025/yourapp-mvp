@@ -708,14 +708,15 @@ ${productUrl}`;
             radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
         }
         
-        /* Perfect ShopLynk landing page CTA button with enhanced depth */
+        /* GLOBAL CTA BUTTON STANDARD v2.1 (LOCKED) */
+        /* Use across all ShopLynk components for primary actions */
         .primary-button-gradient {
           background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
-          box-shadow: 0px 6px 20px rgba(80, 155, 255, 0.45);
-          border-radius: 12px;
-          padding: 12px 28px;
+          box-shadow: 0 6px 18px rgba(80, 155, 255, 0.45);
+          border-radius: 14px;
+          padding: 14px 28px;
           color: #FFFFFF;
-          font-weight: 700;
+          font-weight: 600;
           font-size: 16px;
           letter-spacing: 0.3px;
           border: none;
@@ -725,8 +726,8 @@ ${productUrl}`;
         
         .primary-button-gradient:hover {
           background: linear-gradient(135deg, #5ABFFF 0%, #5F7AFF 100%);
-          transform: scale(1.05);
-          box-shadow: 0px 8px 25px rgba(80, 155, 255, 0.55);
+          transform: scale(1.03);
+          box-shadow: 0 8px 24px rgba(80, 155, 255, 0.55);
         }
         
         .primary-button-gradient:active {
