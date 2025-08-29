@@ -1,0 +1,77 @@
+ShopLynk Governance Protocol
+
+Version: v1.8_PUBLIC_STORE_PREMIUM_POLISH
+Scope: Public storefront header + search/filter bar
+Status: ✅ Approved for Implementation
+
+Governance Rules
+
+Locked Components:
+
+Seller Console v1.7 → No changes.
+
+Product Cards v1.3.1_UI_UX_WHATSAPP_PER_CARD → No changes.
+
+WhatsApp Integration v1.9 → Reserved, untouched.
+
+Landing Page → Reference visuals only, no modifications.
+
+Safe Area:
+
+Public storefront header, banner background, store avatar, store meta pills, search bar, category filters, sorting dropdown, and favorites badge.
+
+AI Implementation Instruction
+UNLOCK APPROVED: v1.8_PUBLIC_STORE_PREMIUM_POLISH
+
+OBJECTIVE:
+Implement a premium-polished redesign for the public storefront HEADER + SEARCH/FILTER
+section to visually unify it with the ShopLynk landing page aesthetics.
+
+SCOPE OF CHANGES:
+1. HEADER / BANNER
+   - Make the header background full-width (100vw) with ShopLynk's brand gradient:
+     From #2563EB → To #9333EA, matching landing page styling.
+   - Keep inner content centered inside a max-width container (~1100px).
+   - Redesign the store avatar: 96px, circular, soft shadow, 3px white border.
+   - Update store title to text-2xl bold (#111827), subtitle muted gray (#6B7280).
+   - Convert Payment & Delivery badges into rounded pastel glass-style pills:
+       💳 Payment: pastel blue (#E0F2FF)
+       🚚 Delivery: pastel green (#DCFCE7)
+   - Add right-aligned optional CTAs ("Follow Store", "Share Store") styled like landing page CTAs.
+
+2. SEARCH BAR & FILTERS
+   - Glassmorphic search bar with backdrop blur, shadow-lg, and embedded icon.
+   - Redesign category pills with pastel backgrounds, rounded-xl, hover lift, and shadow:
+       • Active pill: solid #2563EB, white bold text, soft shadow.
+   - Sorting dropdown redesigned to match pastel pill styling and shadowed hover effect.
+   - Favorites indicator as a soft pill (#FEE2E2 background, #DC2626 text).
+
+3. TYPOGRAPHY & SPACING
+   - Match landing page styles:
+       • Titles → bold, text-2xl, dark gray.
+       • Subtitles → medium, muted gray.
+       • Pills → semi-bold, small caps where appropriate.
+   - Maintain consistent vertical rhythm and spacing alignment.
+
+GOVERNANCE LOCKS:
+- DO NOT modify product cards, product details, or seller console v1.7.
+- DO NOT change WhatsApp hooks or integration.
+- DO NOT alter landing page; match visuals only.
+
+DELIVERABLES:
+- Premium-polished public storefront header + filters implemented.
+- Visual parity with ShopLynk landing page aesthetic.
+- Final confirmation screenshots on both desktop & mobile.
+- Lock v1.8 after successful verification.
+
+What This Achieves
+
+🎨 Unified Branding → Landing page + public store finally look consistent.
+
+🪟 Modern Design → Glassmorphism, gradients, shadows, and pastel accents.
+
+📱 Responsive UX → Works seamlessly across desktop, tablet, and mobile.
+
+🔒 Governance Safe → Seller console, product cards, and WhatsApp integration untouched.
+
+🏁 Locked Baseline → v1.8 becomes the golden public UI reference for ShopLynk.
