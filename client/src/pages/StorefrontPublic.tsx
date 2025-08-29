@@ -710,8 +710,8 @@ ${productUrl}`;
         {/* v1.8 Premium Glass Morphism Header / Banner (FULL-BLEED) */}
         <FullBleedSection>
           <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative">
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-3xl blur-xl"></div>
+            {/* Subtle glow effect - unified brand color */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/12 to-blue-500/12 rounded-3xl blur-xl"></div>
             
             {/* Premium gradient banner with enhanced glass effect */}
             <div
@@ -719,11 +719,11 @@ ${productUrl}`;
               style={{
                 background: seller?.coverUrl
                   ? `url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  : 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
               }}
             >
-              {/* Enhanced glass overlay with blur */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30 backdrop-blur-sm"></div>
+              {/* Enhanced glass overlay with unified brand color */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/25 to-blue-500/25 backdrop-blur-sm"></div>
               {/* Subtle texture overlay */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1)_0%,transparent_50%)] opacity-60"></div>
             </div>
@@ -733,10 +733,10 @@ ${productUrl}`;
               <div className="flex items-center gap-8">
                 {/* v1.8 Enhanced store avatar with halo glow */}
                 <div className="relative group">
-                  {/* Halo glow effect */}
-                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 rounded-full opacity-75 blur-lg group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Halo glow effect - unified brand color */}
+                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-400 rounded-full opacity-75 blur-lg group-hover:opacity-100 transition-opacity duration-500"></div>
                   {/* Main avatar container */}
-                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 border-4 border-white shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-transform duration-300 hover:scale-105">
+                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-4 border-white shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-transform duration-300 hover:scale-105">
                     {seller?.logoUrl ? (
                       <img
                         src={seller.logoUrl}
@@ -799,9 +799,9 @@ ${productUrl}`;
                     onClick={() => setShowPaymentModal(true)}
                     className="group inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-md border border-white/30"
                     style={{
-                      backgroundColor: 'rgba(235, 244, 255, 0.9)',
-                      color: '#1E40AF',
-                      boxShadow: '0 8px 24px rgba(30, 64, 175, 0.15)'
+                      backgroundColor: 'rgba(235, 244, 255, 0.95)',
+                      color: '#2563EB',
+                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.2)'
                     }}
                     title="View payment methods"
                   >
@@ -814,9 +814,9 @@ ${productUrl}`;
                     onClick={() => setShowDeliveryModal(true)}
                     className="group inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-md border border-white/30"
                     style={{
-                      backgroundColor: 'rgba(240, 253, 244, 0.9)',
-                      color: '#166534',
-                      boxShadow: '0 8px 24px rgba(22, 101, 52, 0.15)'
+                      backgroundColor: 'rgba(240, 253, 244, 0.95)',
+                      color: '#059669',
+                      boxShadow: '0 8px 24px rgba(5, 150, 105, 0.2)'
                     }}
                     title="View delivery options"
                   >
@@ -827,9 +827,9 @@ ${productUrl}`;
                 {seller.currency && (
                   <span className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-md border border-white/30"
                     style={{
-                      backgroundColor: 'rgba(248, 250, 252, 0.9)',
-                      color: '#475569',
-                      boxShadow: '0 8px 24px rgba(71, 85, 105, 0.1)'
+                      backgroundColor: 'rgba(248, 250, 252, 0.95)',
+                      color: '#64748B',
+                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.1)'
                     }}
                   >
                     <Globe className="h-5 w-5" />
@@ -855,14 +855,14 @@ ${productUrl}`;
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 12,
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                       color: 'white',
                       padding: '16px 32px',
                       borderRadius: 16,
                       fontWeight: 700,
                       border: 'none',
                       textDecoration: 'none',
-                      boxShadow: '0 12px 32px rgba(102, 126, 234, 0.4)'
+                      boxShadow: '0 12px 32px rgba(37, 99, 235, 0.4)'
                     }}
                   >
                     <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
@@ -901,14 +901,14 @@ ${productUrl}`;
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 12,
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                         color: 'white',
                         padding: '16px 32px',
                         borderRadius: 16,
                         fontWeight: 700,
                         border: 'none',
                         textDecoration: 'none',
-                        boxShadow: '0 12px 32px rgba(102, 126, 234, 0.4)'
+                        boxShadow: '0 12px 32px rgba(37, 99, 235, 0.4)'
                       }}
                     >
                       <Sparkles className="h-6 w-6 transition-transform group-hover:scale-110" />
@@ -930,12 +930,15 @@ ${productUrl}`;
             <div className="space-y-10">
               {/* v1.8 Premium Glow Search Bar */}
               <div className="relative group">
-                {/* Enhanced glow effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 rounded-3xl opacity-0 group-focus-within:opacity-25 transition-all duration-700 blur-xl"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-500"></div>
+                {/* Enhanced glow effect - unified brand color */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-3xl opacity-0 group-focus-within:opacity-25 transition-all duration-700 blur-xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-500"></div>
                 
                 {/* Search icon with animation */}
-                <Search className="w-7 h-7 absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-all duration-300 group-focus-within:scale-110" />
+                <Search className="w-7 h-7 absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 transition-all duration-300 group-focus-within:scale-110" 
+                  style={{ color: 'currentColor' }} 
+                  onFocus={() => {}} 
+                  data-focus-color="#2563EB" />
                 
                 <Input
                   type="text"
@@ -965,7 +968,7 @@ ${productUrl}`;
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-6">
                     <span className="text-base font-bold text-slate-700 uppercase tracking-wide flex items-center">
-                      <Filter className="w-5 h-5 mr-3 text-blue-600" />
+                      <Filter className="w-5 h-5 mr-3" style={{ color: '#2563EB' }} />
                       Categories
                     </span>
                   </div>
@@ -980,14 +983,14 @@ ${productUrl}`;
                           : 'shadow-md hover:shadow-lg'
                       }`}
                       style={categoryFilter === 'all' ? {
-                        background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+                        background: 'linear-gradient(135deg, #2563EB 0%, #2563EB 100%)',
                         color: 'white',
                         boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
                       } : {
-                        backgroundColor: 'rgba(248, 250, 252, 0.8)',
-                        color: '#475569',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(226, 232, 240, 0.5)'
+                        backgroundColor: 'rgba(248, 250, 252, 0.85)',
+                        color: '#64748B',
+                        backdropFilter: 'blur(12px)',
+                        border: '1px solid rgba(37, 99, 235, 0.15)'
                       }}
                     >
                       All Categories ({products.length})
@@ -1007,14 +1010,14 @@ ${productUrl}`;
                               : 'shadow-md hover:shadow-lg'
                           }`}
                           style={isActive ? {
-                            background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+                            background: 'linear-gradient(135deg, #2563EB 0%, #2563EB 100%)',
                             color: 'white',
                             boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
                           } : {
-                            backgroundColor: 'rgba(241, 245, 249, 0.8)',
-                            color: '#475569',
-                            backdropFilter: 'blur(8px)',
-                            border: '1px solid rgba(226, 232, 240, 0.5)'
+                            backgroundColor: 'rgba(248, 250, 252, 0.85)',
+                            color: '#64748B',
+                            backdropFilter: 'blur(12px)',
+                            border: '1px solid rgba(37, 99, 235, 0.15)'
                           }}
                         >
                           {category} ({count})
@@ -1057,15 +1060,15 @@ ${productUrl}`;
                     onClick={() => setShowFavorites(!showFavorites)}
                     className="group h-14 px-8 rounded-2xl font-bold transition-all duration-300 hover:scale-105 border-0 shadow-xl"
                     style={showFavorites ? {
-                      background: 'linear-gradient(135deg, rgba(254, 242, 242, 0.9) 0%, rgba(252, 231, 243, 0.9) 100%)',
+                      background: 'linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(252, 231, 243, 0.95) 100%)',
                       color: '#DC2626',
                       backdropFilter: 'blur(12px)',
                       boxShadow: '0 8px 24px rgba(220, 38, 38, 0.2)'
                     } : {
-                      backgroundColor: 'rgba(248, 250, 252, 0.9)',
+                      backgroundColor: 'rgba(248, 250, 252, 0.95)',
                       color: '#64748B',
                       backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 24px rgba(100, 116, 139, 0.1)'
+                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.1)'
                     }}
                     data-testid="button-toggle-favorites"
                   >
