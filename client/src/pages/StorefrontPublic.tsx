@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useRoute, useLocation } from 'wouter';
+import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter } from 'lucide-react';
