@@ -705,27 +705,34 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Rounded-square logo container with dynamic scaling */
-        .logo-container {
-          width: clamp(88px, 9vw, 110px);
-          height: clamp(88px, 9vw, 110px);
-          border-radius: 16px;
+        /* Enterprise-grade ShopLynk avatar container */
+        .shoplynk-avatar {
+          width: clamp(96px, 9vw, 120px);
+          height: clamp(96px, 9vw, 120px);
+          border-radius: 18px;
           background-color: #FFFFFF;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
           transition: transform 0.2s ease-in-out;
         }
         
-        .logo-container img {
-          width: 80%;
+        .shoplynk-avatar img {
+          width: 78%;
           height: auto;
           object-fit: contain;
         }
         
-        .logo-container:hover {
+        .shoplynk-avatar:hover {
           transform: scale(1.04);
+        }
+        
+        /* Consistent seller avatar framing */
+        .seller-avatar img {
+          width: 80%;
+          height: auto;
+          object-fit: contain;
         }
         
         /* Championship typography hierarchy */
@@ -778,16 +785,16 @@ ${productUrl}`;
             <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* Enterprise-Grade Logo Container */}
+                {/* Perfect ShopLynk Brand Avatar */}
                 <div className="relative group">
-                  {/* Enterprise logo with dynamic scaling */}
+                  {/* Enterprise-grade ShopLynk avatar */}
                   <div 
-                    className="logo-container relative overflow-hidden transition-all duration-300 ease-out"
+                    className="shoplynk-avatar relative overflow-hidden"
                     style={{ 
                       transform: 'scale(1)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.03)';
+                      e.currentTarget.style.transform = 'scale(1.04)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
@@ -799,28 +806,29 @@ ${productUrl}`;
                         alt={`${seller.storeName} logo`}
                         className="w-full h-full object-cover"
                         style={{ 
-                          borderRadius: '16px',
+                          borderRadius: '18px',
                           imageRendering: 'crisp-edges',
                           objectFit: 'cover'
                         }}
                         onError={(e) => {
-                          // Championship ShopLynk fallback
+                          // Perfect ShopLynk fallback
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
-                          e.currentTarget.className = '';
-                          e.currentTarget.style.width = '80%';
+                          e.currentTarget.className = 'seller-avatar';
+                          e.currentTarget.style.width = '78%';
                           e.currentTarget.style.height = 'auto';
                           e.currentTarget.style.objectFit = 'contain';
                           e.currentTarget.style.borderRadius = '0';
                         }}
                       />
                     ) : (
-                      /* Championship ShopLynk logo */
+                      /* Perfect ShopLynk logo */
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
+                        className="shoplynk-avatar"
                         style={{ 
-                          width: '80%',
+                          width: '78%',
                           height: 'auto',
                           objectFit: 'contain'
                         }}
