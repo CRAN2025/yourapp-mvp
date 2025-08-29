@@ -1,0 +1,131 @@
+AI IMPLEMENTATION INSTRUCTION
+Scope: v1.9_PUBLIC_STORE_ULTRA_PREMIUM
+
+Objective: Transform the public storefront into a world-class, visually cohesive, ultra-premium experience while maintaining locked governance on seller console, product cards, and WhatsApp integrations.
+
+Governance Rules 🔒 (DO NOT BREAK)
+
+DO NOT modify product cards (v1.3.1_UI_UX_WHATSAPP_PER_CARD is locked).
+
+DO NOT modify the seller console (v1.7_SELLER_CONSOLE_PREMIUM_POLISH is locked).
+
+DO NOT modify WhatsApp integration logic (reserved for v1.9.5).
+
+All updates must be scoped to the public storefront header + filters.
+
+Mobile responsiveness must be maintained and tested.
+
+Core Design Direction 🎨
+
+We’re designing as if we’re competing at a global UI/UX championship:
+
+Minimalist Luxury → Clean, spacious, frictionless browsing.
+
+Landing Page Harmony → Use ShopLynk Blue (#2563EB) as the primary accent with whites & soft neutrals for the base.
+
+Premium Depth → Elevate the header, filters, and search with glass morphism, subtle shadows, and layer separation.
+
+Scalable Identity → The design must look just as elegant on small shops as it does on multi-category storefronts.
+
+Header Enhancements 🏆
+1. Full-Width Immersive Header
+
+Header now stretches edge-to-edge, matching filter bar alignment exactly.
+
+Background:
+
+Use a layered gradient →
+
+From: #F8FAFF (soft white top)
+To: rgba(37, 99, 235, 0.08) (~8% ShopLynk Blue overlay)
+
+
+Gives a clean, airy feel vs the heavy purple block.
+
+2. Store Avatar & Branding
+
+Avatar: Larger 96px circle with soft neon ring glow (rgba(37, 99, 235, 0.35)).
+
+Title: Bold, elevated typography (font-weight: 800, #111827 for better contrast).
+
+Subtitle (“Online Store”): Reduce size, use #6B7280 for subtle hierarchy.
+
+3. Action Pills ("Payment Methods", "Delivery Options")
+
+Convert pills into glass-style buttons:
+
+Background: rgba(255,255,255,0.6) with backdrop blur.
+
+Hover: Slight scale-up (1.04x) + blue shadow glow.
+
+Icons: Retain minimal SVG icons but update fill to #2563EB.
+
+4. Back to Dashboard Button
+
+Premium gradient:
+
+From: #2563EB → To: #3B82F6
+
+
+Add subtle elevation + hover depth shadow.
+
+Filter & Search Bar Polish ✨
+1. Search Bar
+
+Apply glass morphism:
+
+Background: rgba(255,255,255,0.55)
+
+Backdrop blur: blur(16px)
+
+Inner shadow: Soft rgba(0,0,0,0.03)
+
+On focus: Animate glowing blue ring #2563EB.
+
+2. Category Pills
+
+Default state: Soft-neutral background (#F3F4F6), text #374151.
+
+Active state:
+
+Full ShopLynk Blue background (#2563EB).
+
+White bold text, soft drop shadow for premium click feel.
+
+3. Sort + Favorites
+
+Keep alignment consistent.
+
+Replace old gray badge with pill-style soft red badge (#F43F5E with opacity 85%).
+
+Hover glow to make it pop subtly without distraction.
+
+Page-Wide Visual Balance 🌿
+
+Reduce purple dominance — switch from heavy purple backgrounds → airy white-first, blue-accent design.
+
+Introduce elevated shadows to create separation between header, filters, and content.
+
+Background gradient for body:
+
+From: #FFFFFF
+To: #F8FAFC
+
+
+→ Matches the landing page’s light, breathable tone.
+
+Expected Visual Outcome 🌟
+Element	Before 🟣	After 🏆
+Header background	Heavy purple block	Soft-white + blue accent gradient
+Store avatar	Small, flat	Larger, glowing premium elevation
+Pills & buttons	Flat, gray	Glass morphism + animated hover
+Search + filters	Functional, basic	Elevated, breathing, intuitive
+Color balance	Overloaded	Unified, minimal, premium
+Landing page match	Partial	90% visual consistency
+Version & Scope
+
+Version: v1.9_PUBLIC_STORE_ULTRA_PREMIUM
+
+Scope: Public storefront only
+
+Deliverable: Final pixel-perfect, premium UI consistent with ShopLynk branding
