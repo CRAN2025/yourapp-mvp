@@ -1,0 +1,129 @@
+Instruction to AI Agent — Upgrade Category Pills
+Objective
+
+Update category pills in the storefront to match the landing page hierarchy and visual interactivity, using the locked CTA gradient and unified styles.
+
+Design Requirements
+
+Active Pill Styling
+
+Use the locked CTA gradient:
+
+background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+
+
+White text (#fff).
+
+Elevation: subtle, soft shadow (same depth as CTA).
+
+Smooth hover scaling + brightened shadow.
+
+Inactive Pill Styling
+
+Neutral background #f8f9fc.
+
+Border: 1px solid #e5e7eb.
+
+Text color: #555.
+
+No gradient, flat appearance.
+
+Hover Interactions
+
+Subtle lift effect using:
+
+Scale: 1.05.
+
+Shadow on hover: light, icy, soft.
+
+Ensure performance on mobile (GPU-accelerated transforms only).
+
+Consistent Corners
+
+Match locked CTA radius → 12px (var(--radius-md) if tokens are in place).
+
+Smooth Transitions
+
+Apply .25s cubic-bezier(.22,.61,.36,1) (matches locked CTA motion system).
+
+Code Implementation
+/* Category Pills - Default */
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 10px 20px;
+  border-radius: 12px;
+
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+
+  color: #555;
+  background: #f8f9fc;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s cubic-bezier(.22,.61,.36,1),
+              background 0.25s ease-in-out,
+              box-shadow 0.25s ease-in-out;
+}
+
+/* Hover effect */
+.category-pill:hover {
+  transform: scale(1.05);
+  background: #f0f4ff;
+  border-color: #b3c8ff;
+  box-shadow: 0 4px 12px rgba(80, 155, 255, 0.15);
+}
+
+/* Active pill */
+.category-pill.active {
+  background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
+}
+
+/* Active hover */
+.category-pill.active:hover {
+  transform: scale(1.06);
+  box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
+}
+
+Governance
+
+🔒 Locked Rules
+
+Gradient: Must match CTA gradient exactly.
+
+Radius: Must use 12px globally for all pills (no overrides).
+
+Shadows: Use the same elevation system from the global tokens.
+
+⚠️ Do Not Touch
+
+Product cards
+
+Search bars
+
+Favorites badges
+
+Any core CTAs (they’re already locked)
+
+Validation Checklist
+
+Before merging, confirm:
+
+✅ Hover, focus, and active states match landing page behavior.
+
+✅ No regressions on mobile, tablet, or desktop layouts.
+
+✅ Interaction timing and easing match locked CTA animations.
+
+✅ Inactive pills remain flat and neutral.
+
+✅ Active pills visually “lift” like CTAs.
