@@ -708,10 +708,10 @@ ${productUrl}`;
             radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
         }
         
-        /* Perfect ShopLynk landing page CTA button match */
+        /* Final ShopLynk landing page CTA button perfect match */
         .primary-button-gradient {
           background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
-          box-shadow: 0 8px 24px rgba(77, 174, 255, 0.35);
+          box-shadow: 0px 4px 15px rgba(80, 155, 255, 0.4);
           border-radius: 12px;
           padding: 12px 28px;
           color: #FFFFFF;
@@ -724,7 +724,7 @@ ${productUrl}`;
         .primary-button-gradient:hover {
           background: linear-gradient(135deg, #5ABFFF 0%, #5F7AFF 100%);
           transform: scale(1.05);
-          box-shadow: 0 10px 28px rgba(77, 174, 255, 0.4);
+          box-shadow: 0px 6px 20px rgba(80, 155, 255, 0.5);
         }
         
         .primary-button-gradient:active {
