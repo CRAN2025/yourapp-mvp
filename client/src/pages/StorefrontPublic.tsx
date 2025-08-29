@@ -705,47 +705,49 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Single avatar logo with championship proportions */
+        /* Master UI/UX avatar logo scaling */
         .avatar-logo {
-          width: 75%;
+          width: 80%;
           height: auto;
           display: block;
           margin: 0 auto;
           object-fit: contain;
         }
         
-        /* Harmonized avatar container with premium glass */
+        /* Elevated avatar container with refined glass */
         .avatar-container {
-          background: rgba(250, 250, 255, 0.6);
-          backdrop-filter: blur(12px);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+          width: 72px;
+          height: 72px;
           border-radius: 50%;
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
           display: flex;
           justify-content: center;
           align-items: center;
         }
         
-        /* Clean powered-by tagline styling */
+        /* Minimal powered-by design */
         .powered-by {
           font-size: 13px;
           font-weight: 500;
           color: #6B7280;
-          margin-top: 2px;
-          display: inline-block;
+          margin-left: 4px;
+          opacity: 0.9;
         }
         
-        /* Proportional responsiveness */
+        /* Refined responsive avatar sizing */
         @media (max-width: 480px) {
           .avatar-responsive {
-            width: 68px !important;
-            height: 68px !important;
+            width: 56px !important;
+            height: 56px !important;
           }
         }
         
         @media (min-width: 1440px) {
           .avatar-responsive {
-            width: 88px !important;
-            height: 88px !important;
+            width: 72px !important;
+            height: 72px !important;
           }
         }
       `}</style>
@@ -776,20 +778,18 @@ ${productUrl}`;
             <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9.8 Championship Single Logo Avatar */}
+                {/* v1.9.9 Master UI/UX Elevated Avatar */}
                 <div className="relative group">
-                  {/* Championship avatar with single logo */}
+                  {/* Master elevated avatar with refined glass */}
                   <div 
                     className="avatar-container avatar-responsive relative overflow-hidden transition-all duration-300 ease-out"
                     style={{ 
-                      width: '88px',
-                      height: '88px',
-                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(250, 250, 255, 0.6)',
-                      border: '0.5px solid rgba(255, 255, 255, 0.8)',
+                      background: seller?.logoUrl ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.8)',
+                      border: '0.5px solid rgba(255, 255, 255, 0.9)',
                       transform: 'scale(1)'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.03)';
+                      e.currentTarget.style.transform = 'scale(1.05)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = 'scale(1)';
@@ -805,27 +805,27 @@ ${productUrl}`;
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Single ShopLynk logo fallback
+                          // Master ShopLynk logo fallback
                           const parent = e.currentTarget.parentElement;
                           if (parent) {
-                            parent.style.background = 'rgba(250, 250, 255, 0.6)';
+                            parent.style.background = 'rgba(255, 255, 255, 0.8)';
                             parent.classList.add('avatar-container');
                           }
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
                           e.currentTarget.className = 'object-contain avatar-logo';
                           e.currentTarget.style.borderRadius = '0';
-                          e.currentTarget.style.filter = 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12))';
+                          e.currentTarget.style.filter = 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))';
                         }}
                       />
                     ) : (
-                      /* Single ShopLynk logo with 75% scaling */
+                      /* Master ShopLynk logo with 80% scaling */
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
                         className="object-contain avatar-logo"
                         style={{ 
-                          filter: 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12))'
+                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))'
                         }}
                       />
                     )}
