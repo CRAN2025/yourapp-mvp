@@ -868,6 +868,25 @@ ${productUrl}`;
           --token-font-weight: 500;
           --token-gap: 10px;
           
+          /* LOCKED HEADER TOKENS */
+          --header-bg-gradient: linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%);
+          --store-logo-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          --store-title-font: 22px;
+          --store-title-weight: 700;
+          --store-title-color: #111827;
+          --badge-card-style-bg: #ffffff;
+          --badge-card-style-border: 1px solid #e5e7eb;
+          --badge-card-style-radius: 12px;
+          --badge-card-style-padding: 8px 16px;
+          --badge-card-style-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+          --header-spacing-vertical: 4px;
+          --header-spacing-minimal: 2px;
+          
+          /* Responsive tokens */
+          --store-title-font-tablet: 20px;
+          --logo-scale-tablet: 0.9;
+          --logo-scale-mobile: 0.8;
+          
           /* Legacy compatibility mappings */
           --filter-height: var(--token-button-height);
           --filter-radius: var(--token-border-radius);
@@ -1046,7 +1065,33 @@ ${productUrl}`;
         .micro-elevation {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
-        /* Enterprise logo container with premium depth */
+        /* LOCKED STORE LOGO CONTAINER */
+        .store-logo-container {
+          width: clamp(64px, 8vw, 128px);
+          height: clamp(64px, 8vw, 128px);
+          aspect-ratio: 1 / 1; /* Lock 1:1 aspect ratio */
+          border-radius: 16px;
+          background: #FFFFFF;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 12px; /* Reduced by 4px from 16px */
+          box-shadow: var(--store-logo-shadow);
+          transition: var(--token-transition-default);
+        }
+        
+        .store-logo-container img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain; /* Scale and center for non-square logos */
+          object-position: center;
+        }
+        
+        .store-logo-container:hover {
+          transform: scale(var(--token-hover-scale));
+        }
+        
+        /* Legacy avatar classes for backward compatibility */
         .shoplynk-avatar {
           width: clamp(64px, 8vw, 128px);
           height: clamp(64px, 8vw, 128px);
@@ -1055,22 +1100,22 @@ ${productUrl}`;
           display: flex;
           justify-content: center;
           align-items: center;
-          padding: 16px;
-          box-shadow: 0 8px 24px rgba(59, 130, 246, 0.12);
-          transition: all 0.25s ease-in-out;
+          padding: 12px;
+          box-shadow: var(--store-logo-shadow);
+          transition: var(--token-transition-default);
         }
         
         .shoplynk-avatar img {
-          width: 82%;
-          height: auto;
+          width: 100%;
+          height: 100%;
           object-fit: contain;
+          object-position: center;
         }
         
         .shoplynk-avatar:hover {
-          transform: scale(1.04);
+          transform: scale(var(--token-hover-scale));
         }
         
-        /* Icy-blue SaaS themed seller avatar */
         .seller-avatar {
           width: clamp(64px, 8vw, 128px);
           height: clamp(64px, 8vw, 128px);
@@ -1079,15 +1124,15 @@ ${productUrl}`;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 
-            inset 0 0 12px rgba(0, 0, 0, 0.03),
-            0 4px 6px rgba(0, 0, 0, 0.04);
+          padding: 12px;
+          box-shadow: var(--store-logo-shadow);
         }
         
         .seller-avatar img {
-          width: 82%;
-          height: auto;
+          width: 100%;
+          height: 100%;
           object-fit: contain;
+          object-position: center;
         }
         
         /* Premium tagline styling */
@@ -1099,20 +1144,44 @@ ${productUrl}`;
           letter-spacing: -0.2px;
         }
         
-        /* Icy-blue SaaS typography hierarchy */
-        .store-name-championship {
-          font-size: 24px;
-          font-weight: 700;
-          color: #111827;
+        /* LOCKED STORE TITLE TYPOGRAPHY */
+        .store-title-locked {
+          font-size: var(--store-title-font);
+          font-weight: var(--store-title-weight);
+          color: var(--store-title-color);
           line-height: 1.2;
-          margin-bottom: 4px;
+          margin-bottom: var(--header-spacing-vertical);
+        }
+        
+        .powered-by-locked {
+          font-size: 14px;
+          font-weight: 500;
+          color: #3B82F6;
+          margin-bottom: var(--header-spacing-minimal);
+          letter-spacing: -0.2px;
+        }
+        
+        .store-subtitle-locked {
+          font-size: 13px;
+          font-weight: 400;
+          color: #6B7280;
+          line-height: 1.4;
+        }
+        
+        /* Legacy typography classes for backward compatibility */
+        .store-name-championship {
+          font-size: var(--store-title-font);
+          font-weight: var(--store-title-weight);
+          color: var(--store-title-color);
+          line-height: 1.2;
+          margin-bottom: var(--header-spacing-vertical);
         }
         
         .powered-by-championship {
           font-size: 14px;
           font-weight: 500;
           color: #3B82F6;
-          margin-bottom: 4px;
+          margin-bottom: var(--header-spacing-minimal);
           letter-spacing: -0.2px;
         }
         
@@ -1134,6 +1203,49 @@ ${productUrl}`;
           border-radius: 50%;
         }
         
+        /* LOCKED PAYMENT/DELIVERY BADGE STYLING */
+        .payment-delivery-badge {
+          background: var(--badge-card-style-bg);
+          border: var(--badge-card-style-border);
+          border-radius: var(--badge-card-style-radius);
+          padding: var(--badge-card-style-padding);
+          box-shadow: var(--badge-card-style-shadow);
+          transition: var(--token-transition-default);
+        }
+        
+        .payment-delivery-badge:hover {
+          transform: scale(var(--token-hover-scale));
+          filter: brightness(var(--token-hover-brightness));
+        }
+        
+        /* RESPONSIVE BEHAVIOR - LOCKED TOKENS */
+        @media (max-width: 1279px) and (min-width: 768px) {
+          .store-title-locked {
+            font-size: var(--store-title-font-tablet);
+          }
+          
+          .store-logo-container,
+          .shoplynk-avatar,
+          .seller-avatar {
+            transform: scale(var(--logo-scale-tablet));
+          }
+        }
+        
+        @media (max-width: 767px) {
+          .store-logo-container,
+          .shoplynk-avatar,
+          .seller-avatar {
+            transform: scale(var(--logo-scale-mobile));
+          }
+          
+          .header-badges-responsive {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+          }
+        }
+        
         /* Enterprise responsive logo scaling handled by clamp */
       `}</style>
 
@@ -1142,7 +1254,7 @@ ${productUrl}`;
         <FullWidthContainer className="py-8">
           <div className="rounded-3xl overflow-hidden border border-white/50 relative"
             style={{
-              background: 'linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%)',
+              background: 'var(--header-bg-gradient)',
               backdropFilter: 'blur(8px)',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.4)'
             }}>
@@ -1152,8 +1264,8 @@ ${productUrl}`;
               className="h-32 md:h-36 w-full relative overflow-hidden"
               style={{
                 background: seller?.coverUrl
-                  ? `linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%), url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%)',
+                  ? `var(--header-bg-gradient), url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'var(--header-bg-gradient)',
               }}
             >
               {/* Subtle halo glass overlay */}
@@ -1214,18 +1326,18 @@ ${productUrl}`;
                 </div>
                 
                 <div className="min-w-0 flex-1">
-                  {/* Championship Typography Hierarchy */}
-                  <h1 className="store-name-championship mb-0 truncate">
+                  {/* Locked Store Title Typography */}
+                  <h1 className="store-title-locked mb-0 truncate">
                     {seller.storeName}
                   </h1>
                   
-                  {/* Championship "Powered by ShopLynk" Typography */}
-                  <div className="powered-by-championship">
+                  {/* Locked "Powered by ShopLynk" Typography */}
+                  <div className="powered-by-locked">
                     Powered by ShopLynk
                   </div>
                   
-                  {/* Championship subtitle */}
-                  <p className="online-store-championship truncate mt-1">
+                  {/* Locked Store Subtitle */}
+                  <p className="store-subtitle-locked truncate mt-1">
                     {seller.location || 'Online Store'}
                   </p>
                 </div>
@@ -1261,17 +1373,19 @@ ${productUrl}`;
                 )}
               </div>
 
-              {/* v1.9 Championship Glass Pills */}
-              <div className="flex flex-wrap items-center gap-4 mt-8">
+              {/* v1.9 Championship Glass Pills - Responsive Layout */}
+              <div className="flex flex-wrap items-center gap-4 mt-8 md:flex-row header-badges-responsive md:grid-cols-none">
                 {!!paymentMethods.length && (
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
+                    className="payment-delivery-badge group inline-flex items-center gap-3 text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: '#F9FAFB',
+                      backgroundColor: 'var(--badge-card-style-bg)',
                       color: '#6B7280',
-                      border: '1px solid #E5EAF5',
-                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+                      border: 'var(--badge-card-style-border)',
+                      borderRadius: 'var(--badge-card-style-radius)',
+                      padding: 'var(--badge-card-style-padding)',
+                      boxShadow: 'var(--badge-card-style-shadow)'
                     }}
                     title="View payment methods"
                   >
@@ -1282,12 +1396,14 @@ ${productUrl}`;
                 {!!deliveryOptions.length && (
                   <button
                     onClick={() => setShowDeliveryModal(true)}
-                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
+                    className="payment-delivery-badge group inline-flex items-center gap-3 text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: '#F9FAFB',
+                      backgroundColor: 'var(--badge-card-style-bg)',
                       color: '#6B7280',
-                      border: '1px solid #E5EAF5',
-                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+                      border: 'var(--badge-card-style-border)',
+                      borderRadius: 'var(--badge-card-style-radius)',
+                      padding: 'var(--badge-card-style-padding)',
+                      boxShadow: 'var(--badge-card-style-shadow)'
                     }}
                     title="View delivery options"
                   >
@@ -1296,12 +1412,14 @@ ${productUrl}`;
                   </button>
                 )}
                 {seller.currency && (
-                  <span className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold"
+                  <span className="payment-delivery-badge inline-flex items-center gap-3 text-sm font-semibold"
                     style={{
-                      backgroundColor: '#F9FAFB',
+                      backgroundColor: 'var(--badge-card-style-bg)',
                       color: '#6B7280',
-                      border: '1px solid #E5EAF5',
-                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+                      border: 'var(--badge-card-style-border)',
+                      borderRadius: 'var(--badge-card-style-radius)',
+                      padding: 'var(--badge-card-style-padding)',
+                      boxShadow: 'var(--badge-card-style-shadow)'
                     }}
                   >
                     <Globe className="h-5 w-5" style={{ color: '#3B82F6' }} />
