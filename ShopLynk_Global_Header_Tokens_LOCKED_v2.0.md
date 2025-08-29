@@ -27,6 +27,8 @@ This document establishes the FINAL global header token system for all ShopLynk 
 --store-subtitle-color: #6B7280;
 --store-powered-by-font: 14px;
 --store-powered-by-color: #3B82F6;
+--store-description-font: 14px;
+--store-description-color: #6B7280;
 ```
 
 ### Badge Card Style Tokens - Global
@@ -66,6 +68,7 @@ This document establishes the FINAL global header token system for all ShopLynk 
 |---------|-----------|--------|-------|-------------|
 | Store Name | 22px | 700 | #111827 | 28px |
 | "Powered by ShopLynk" | 14px | 500 | #3B82F6 | 20px |
+| Store Description | 14px | 400 | #6B7280 | 1.5 |
 | Subtitle ("Online Store") | 13px | 400 | #6B7280 | 20px |
 
 ### 4. Badge Card Requirements
@@ -151,6 +154,27 @@ This document establishes the FINAL global header token system for all ShopLynk 
   font-weight: 400;
   color: var(--store-subtitle-color);
   line-height: 20px;
+}
+
+.store-description-locked {
+  font-size: var(--store-description-font);
+  font-weight: 400;
+  color: var(--store-description-color);
+  line-height: 1.5;
+  margin-top: 4px;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+@media (max-width: 767px) {
+  .store-description-locked {
+    -webkit-line-clamp: 1;
+    max-width: 100%;
+  }
 }
 ```
 
