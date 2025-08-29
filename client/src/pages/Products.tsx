@@ -126,38 +126,34 @@ export default function Products() {
     }
   };
 
-  // v1.5 Enhanced stock badge with "LAST ONE!" feature
-  const getStockBadge = (quantity: number) => {
+  // v1.6 Refined stock pill for price container integration
+  const getStockPill = (quantity: number) => {
     if (quantity === 0) {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
-             style={{ backgroundColor: '#E63946', color: 'white' }}>
-          <span className="mr-1.5 text-sm">⚠️</span>
+        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+             style={{ backgroundColor: '#EF4444', color: 'white' }}>
           OUT OF STOCK
         </div>
       );
     } else if (quantity === 1) {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
-             style={{ backgroundColor: '#E63946', color: 'white' }}>
-          <span className="mr-1.5 text-sm">⚠️</span>
+        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+             style={{ backgroundColor: '#EF4444', color: 'white' }}>
           LAST ONE!
         </div>
       );
     } else if (quantity < 10) {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
-             style={{ backgroundColor: '#E63946', color: 'white' }}>
-          <span className="mr-1.5 text-sm">⚠️</span>
-          LOW STOCK — {quantity} LEFT
+        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+             style={{ backgroundColor: '#EF4444', color: 'white' }}>
+          LOW STOCK
         </div>
       );
     } else {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
-             style={{ backgroundColor: '#27AE60', color: 'white' }}>
-          <span className="mr-1.5 text-sm">✅</span>
-          IN STOCK — {quantity} UNITS
+        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+             style={{ backgroundColor: '#22C55E', color: 'white' }}>
+          IN STOCK
         </div>
       );
     }
@@ -384,10 +380,7 @@ export default function Products() {
                     <Heart className="w-4 h-4" fill={favorites.has(product.id) ? 'currentColor' : 'none'} />
                   </Button>
                   
-                  {/* Stock badge placement adjusted when bulk mode is active */}
-                  <div className={`absolute top-2 ${bulkMode ? 'left-12' : 'left-2'}`}>
-                    {getStockBadge(product.quantity)}
-                  </div>
+                  {/* v1.6 Removed floating stock badge - now integrated in price section only */}
                 </div>
                 <CardContent style={{ 
                   paddingTop: '20px', 
@@ -396,32 +389,31 @@ export default function Products() {
                   paddingRight: '20px' 
                 }}>
                   
-                  {/* ALWAYS VISIBLE TOP SECTION */}
-                  <div className="space-y-4 mb-4">
+                  {/* v1.6 ALWAYS VISIBLE TOP SECTION - Normalized Spacing */}
+                  <div className="space-y-5 mb-5">
                     
-                    {/* Product Title & Brand */}
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-xl text-gray-900 leading-tight" data-testid={`product-name-${product.id}`}>
+                    {/* v1.6 Enhanced Product Title & Brand */}
+                    <div className="space-y-3">
+                      <h3 className="font-bold text-2xl text-gray-900 leading-tight" data-testid={`product-name-${product.id}`}>
                         {product.name}
                       </h3>
                       {product.brand && (
-                        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        <div className="text-sm text-gray-500 font-medium">
                           {product.brand}
                         </div>
                       )}
                     </div>
                     
-                    {/* PRIORITY: Price & Stock Together */}
-                    <div className="flex items-center justify-between p-4 rounded-xl border-2"
-                         style={{ borderColor: '#27AE60', backgroundColor: '#F0FDF4' }}>
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl font-bold" style={{ color: '#27AE60' }} data-testid={`product-price-${product.id}`}>
+                    {/* v1.6 Split Price & Stock Pills - Evenly Spaced */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full border-2 bg-white"
+                           style={{ borderColor: '#22C55E' }}>
+                        <span className="text-xl font-bold" style={{ color: '#22C55E' }} data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
-                        <span className="text-sm text-gray-600 font-medium">per unit</span>
                       </div>
-                      <div>
-                        {getStockBadge(product.quantity)}
+                      <div className="flex-1 flex justify-center">
+                        {getStockPill(product.quantity)}
                       </div>
                     </div>
                     
@@ -440,29 +432,33 @@ export default function Products() {
                       )}
                     </div>
                     
-                    {/* Features & Services Pills - Single Row */}
+                    {/* v1.6 Standardized Feature Pills - Muted Pastel Tones */}
                     {(product.isHandmade || product.isCustomizable || product.giftWrapping || product.sustainability) && (
                       <div className="flex flex-wrap gap-2">
-                        {product.isHandmade && (
-                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
-                            <span className="mr-1">🎨</span>
-                            Handmade
-                          </div>
-                        )}
                         {product.sustainability && (
-                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
+                               style={{ backgroundColor: '#D1FAE5', color: '#065F46' }}>
                             <span className="mr-1">🌱</span>
                             Eco-friendly
                           </div>
                         )}
+                        {product.isHandmade && (
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
+                               style={{ backgroundColor: '#FFEFD5', color: '#9A3412' }}>
+                            <span className="mr-1">🎨</span>
+                            Handmade
+                          </div>
+                        )}
                         {product.giftWrapping && (
-                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
+                               style={{ backgroundColor: '#F5E8FF', color: '#7C2D92' }}>
                             <span className="mr-1">🎁</span>
                             Gift Wrap
                           </div>
                         )}
                         {product.isCustomizable && (
-                          <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
+                               style={{ backgroundColor: '#E0F2FF', color: '#1E40AF' }}>
                             <span className="mr-1">⚙️</span>
                             Customizable
                           </div>
@@ -477,15 +473,17 @@ export default function Products() {
                       <span>{getSoldCount(product.id)} sold</span>
                     </div>
                     
-                    {/* QUICK ACTIONS - Consistent Styling with v1.5 Enhancements */}
-                    <div className="flex gap-2 pt-3 border-t border-gray-200">
+                    {/* v1.6 Enhanced Quick Actions - Subtle Shadows & Hover Animations */}
+                    <div className="flex gap-3 pt-4 border-t border-gray-200">
                       <Button
                         size="sm"
-                        className="flex-1 font-medium transition-all duration-200"
-                        style={{ backgroundColor: '#27AE60', color: 'white' }}
+                        className="flex-1 font-medium transition-all duration-300 border-2 shadow-md hover:shadow-lg hover:scale-105"
+                        style={{ 
+                          backgroundColor: '#22C55E', 
+                          color: 'white',
+                          borderColor: '#16A34A'
+                        }}
                         onClick={() => handleEditProduct(product)}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#219A52'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#27AE60'}
                         data-testid={`button-edit-${product.id}`}
                       >
                         <Edit className="w-4 h-4 mr-2" />
@@ -494,7 +492,7 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
                         onClick={() => handlePreviewProduct(product)}
                         data-testid={`button-preview-${product.id}`}
                       >
@@ -502,11 +500,10 @@ export default function Products() {
                         Preview
                       </Button>
                       
-                      {/* v1.5 Copy Link Button - After Preview */}
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
                         onClick={() => handleCopyLink(product)}
                         data-testid={`button-copy-link-${product.id}`}
                       >
@@ -514,13 +511,12 @@ export default function Products() {
                         Copy Link
                       </Button>
                       
-                      {/* v1.5 More Menu with Mark as Sold and Duplicate */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="px-3 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                            className="px-3 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
                             data-testid={`button-more-${product.id}`}
                           >
                             <MoreHorizontal className="w-4 h-4" />
