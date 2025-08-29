@@ -705,12 +705,12 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Championship logo container with enhanced scaling */
+        /* Rounded-square logo container with dynamic scaling */
         .logo-container {
-          width: clamp(80px, 9vw, 100px);
-          height: clamp(80px, 9vw, 100px);
-          background-color: #fff;
-          border-radius: 50%;
+          width: clamp(88px, 9vw, 110px);
+          height: clamp(88px, 9vw, 110px);
+          border-radius: 16px;
+          background-color: #FFFFFF;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -799,8 +799,9 @@ ${productUrl}`;
                         alt={`${seller.storeName} logo`}
                         className="w-full h-full object-cover"
                         style={{ 
-                          borderRadius: '50%',
-                          imageRendering: 'crisp-edges'
+                          borderRadius: '16px',
+                          imageRendering: 'crisp-edges',
+                          objectFit: 'cover'
                         }}
                         onError={(e) => {
                           // Championship ShopLynk fallback
