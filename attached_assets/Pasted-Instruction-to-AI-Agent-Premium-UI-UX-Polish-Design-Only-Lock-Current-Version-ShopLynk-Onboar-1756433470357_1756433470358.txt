@@ -1,0 +1,178 @@
+Instruction to AI Agent — Premium UI/UX Polish (Design-Only)
+
+Lock Current Version:
+
+ShopLynk_Onboarding_Settings_v1.1_PRODUCT_DISPLAY
+
+
+Create New Version:
+
+ShopLynk_Onboarding_Settings_v1.2_UI_UX
+
+
+Goal:
+Deliver a world-class, consistent, and beautiful UI for:
+
+Public Product Cards (summary view)
+
+Product Details (full view)
+
+Seller Console Product View
+
+1. Product Card Design Refinements
+
+Make the product cards premium, clean, and consistent across all categories.
+
+A) Badge Styling
+
+Unify badge backgrounds and text colors:
+
+Badge Type	Background	Text Color	Icon
+Stock Warning	#E63946	White, bold, ALL CAPS	⚠️ Always included
+Sustainability	#DFF6E3	#2ECC71	✅ Leaf icon
+Category/Subcategory	Dark neutral #212529	White	Keep same icon style
+Features (Handmade, Customizable, Gift Wrap, Made-to-Order)	#F8F9FA	#444 muted	Use consistent neutral pastel icons
+Attributes (Color, Size, Material)	Light gray #F1F3F5	Darker neutral text #333	Consistent attribute icons
+B) Typography Rules
+
+Use sentence case across all labels:
+
+✅ “Eco-friendly”
+
+✅ “One Size”
+
+✅ “Limited Stock — Only 10 Left”
+
+❌ “eco friendly”, “one size”, “limited stock — only 10 left”
+
+Use consistent font sizes:
+
+Product Name → Slightly larger than badges
+
+Price → Bold + green #27AE60
+
+Badges → Smaller, consistent across all types.
+
+C) Badge Layout & Spacing
+
+All badges must:
+
+Be perfectly aligned horizontally.
+
+Use equal vertical padding.
+
+Center icons and text visually.
+
+Max badges per row: 3
+
+Max badges per card: 4 (primary attributes only)
+
+Prioritize: Color → Size → Material → Sustainability
+
+Push all secondary badges like Gift Wrapping, Made-to-Order, Customizable to View Details only.
+
+D) “View Details” Button Styling
+
+Current button blends into the background → make it more visually distinct:
+
+White button with a soft border: #E0E0E0
+
+Slight shadow: box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05)
+
+Rounded corners to match card edges.
+
+On hover: subtle shadow lift + darker text color.
+
+E) Card Layout Enhancements
+
+Add soft shadows for premium polish:
+
+box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+border-radius: 14px;
+
+
+Maintain consistent padding around edges:
+
+Top → 16px
+
+Bottom → 16px
+
+Sides → 14px
+
+2. Product Details Page Refinements
+
+Group related info visually into clean sections:
+
+Top Section: Product Name, Brand, Price, Category/Subcategory, Limited Stock badge.
+
+Attributes Section: Color, Size, Material, Sustainability.
+
+Special Features Section: Handmade, Customizable, Gift Wrapping, Made-to-Order.
+
+Product Policies Section: Warranty, Return Policy, Care Instructions, Ships From, Personalization.
+
+Occasion & Age Group Section: Show if provided.
+
+Use the same badge style rules from product cards for visual consistency.
+
+3. Seller Console Product View
+
+Display all fields entered in a clean, grouped layout:
+
+Inventory & Pricing: Price, Quantity in Stock.
+
+Classification: Category, Subcategory.
+
+Attributes: Size, Color, Material.
+
+Features: Handmade, Customizable, Gift Wrapping, Made-to-Order.
+
+Policies: Care Instructions, Warranty, Return Policy.
+
+Additional Details: Sustainability, Occasion, Age Group.
+
+Match badge styling with the public view for a cohesive design.
+
+4. Rules for Implementation
+
+Design-Only Change → Do not alter data fetching, routing, or backend logic.
+
+Ensure mobile-first responsive design:
+
+Cards adapt perfectly on mobile, tablet, and desktop.
+
+Maintain consistent spacing, typography, and color palette across all product categories.
+
+5. Testing Requirements
+
+Before finalizing, verify:
+
+Badges are styled consistently across all products and categories.
+
+Font sizes and capitalization are uniform.
+
+Product cards, seller console, and details page look identical in:
+
+✅ Desktop view
+
+✅ Tablet view
+
+✅ Mobile view
+
+“View Details” button visually separates from the card background.
+
+Secondary badges move successfully into View Details without breaking layout.
+
+Deliverables
+
+Updated UI on v1.2_UI_UX
+
+Screenshots of:
+
+Product cards (various categories).
+
+Product details page.
+
+Seller console product view.
+
+Confirmation that no functional changes were introduced.

@@ -204,7 +204,11 @@ export default function Products() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+              <Card key={product.id} className="overflow-hidden border-0 transition-all duration-200 hover:shadow-xl"
+                    style={{ 
+                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
+                      borderRadius: '14px'
+                    }}>
                 <div className="relative">
                   <img
                     src={getProductImageUrl(product)}
@@ -227,8 +231,13 @@ export default function Products() {
                     {getStockBadge(product.quantity)}
                   </div>
                 </div>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-foreground mb-2" data-testid={`product-name-${product.id}`}>
+                <CardContent style={{ 
+                  paddingTop: '16px', 
+                  paddingBottom: '16px', 
+                  paddingLeft: '14px', 
+                  paddingRight: '14px' 
+                }}>
+                  <h3 className="font-semibold text-lg mb-2" style={{ color: '#1F2937' }} data-testid={`product-name-${product.id}`}>
                     {product.name}
                   </h3>
                   {product.description && (
