@@ -1,0 +1,78 @@
+Revised AI Agent Instruction — Finalize & Lock Seller Header
+Objective
+
+Polish the seller storefront header into a single, clean layout that fixes duplication, aligns all elements perfectly, and prepares the banner for global reuse across seller and buyer storefronts.
+
+Required Fixes
+1. Remove Duplicate CTA
+
+Ensure only one “Back to Dashboard” button exists.
+
+Keep the button right-aligned inside the header’s top row.
+
+Use the locked CTA gradient:
+linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%).
+
+2. Align the Three Core Sections
+
+We have three zones inside the header:
+
+Zone	Elements Included	Alignment Rule
+Left	Logo + Store Name + Subtitle	Top-aligned to badges & CTA
+Middle	Payment & Delivery Badges	Baseline-aligned with CTA
+Right	“Back to Dashboard” CTA	Baseline-aligned with badges
+
+All three zones should share the same vertical baseline for a clean, unified header.
+
+3. Fix Spacing
+
+Vertical padding inside the entire banner: 24px top and bottom.
+
+Gap between:
+
+Logo & store info → 12px
+
+Badges → 16px from logo block.
+
+Badges & CTA → 20px max.
+
+Tighten text line-heights:
+
+Store name → line-height: 28px
+
+Subtitle + “Powered by ShopLynk” → line-height: 20px.
+
+4. Typography Hierarchy
+Element	Font Size	Weight	Color
+Store Name	22px	700	#111827
+“Powered by …” Link	14px	500	#3B82F6
+Subtitle (“Online Store”)	13px	400	#6B7280
+5. Card Styling
+
+Header background: var(--header-bg-gradient) → locked globally.
+
+Card shadow:
+
+box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.05);
+
+
+Rounded corners: 16px.
+
+Keep elevation subtle but consistent with the rest of the seller dashboard.
+
+6. Lock the Tokens After Fix
+Token Name	Purpose	Applies To
+--header-bg-gradient	Banner background	Seller & Buyer
+--header-layout	Baseline grid alignment	Logo, badges, CTA
+--store-title-font	Typography styles	Logo/title block
+--badge-card-style	Badge visual style	Payment, Delivery, Category pills
+--cta-primary-style	CTA gradient + shadow	Buttons across app
+Governance
+
+Do not modify:
+
+Category pills.
+
+Filter & Favorites bar.
+
+Global CTA gradient token.
