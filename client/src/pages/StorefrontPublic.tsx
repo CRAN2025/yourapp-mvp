@@ -708,33 +708,65 @@ ${productUrl}`;
             radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
         }
         
-        /* Primary button gradient styling */
+        /* Landing page matched CTA button styling */
         .primary-button-gradient {
           background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-          box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+          box-shadow: 0 6px 14px rgba(59, 130, 246, 0.2);
+          border-radius: 12px;
+          color: #FFFFFF;
+          font-weight: 600;
+          transition: all 0.2s ease-in-out;
         }
         
-        /* Secondary pills and filter chips */
-        .secondary-pill {
-          background-color: #F3F8FE;
-          color: #1E40AF;
+        .primary-button-gradient:hover {
+          box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+          transform: translateY(-1px);
         }
         
-        .secondary-pill.inactive {
+        /* Category filter pills - landing page matched */
+        .filter-pill-active {
+          background: #3B82F6;
+          color: #FFFFFF;
+          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+          border-radius: 12px;
+          transition: all 0.2s ease-in-out;
+        }
+        
+        .filter-pill-inactive {
+          background: #F4F7FE;
           color: #6B7280;
+          border-radius: 12px;
+          transition: all 0.2s ease-in-out;
         }
-        /* Icy-blue SaaS themed avatar with proper 64px default */
+        
+        .filter-pill-inactive:hover {
+          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+          transform: translateY(-1px);
+        }
+        
+        /* Frosted glass search bar */
+        .frosted-search {
+          background: rgba(255, 255, 255, 0.75);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          border-radius: 12px;
+        }
+        
+        /* Consistent micro-elevations */
+        .micro-elevation {
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+        /* Landing page matched logo container with depth */
         .shoplynk-avatar {
           width: clamp(64px, 8vw, 128px);
           height: clamp(64px, 8vw, 128px);
           border-radius: 16px;
-          background-color: #fff;
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(12px);
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 
-            inset 0 0 12px rgba(0, 0, 0, 0.03),
-            0 4px 6px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
           transition: transform 0.2s ease-in-out;
         }
         
@@ -1086,18 +1118,18 @@ ${productUrl}`;
                 <div className="absolute inset-0 bg-blue-500/3 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
                 
                 {/* Premium search icon */}
-                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-all duration-300" />
+                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300" style={{ color: '#9CA3AF' }} />
                 
                 <Input
                   type="text"
                   placeholder="Search for products, brands, or categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-14 pr-14 h-14 text-base border-0 rounded-2xl transition-all duration-300 placeholder:text-slate-400 font-medium relative z-10"
+                  className="pl-14 pr-14 h-14 text-base border-0 frosted-search transition-all duration-300 font-medium relative z-10"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.7)',
-                    backdropFilter: 'blur(12px)',
-                    boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.05)'
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#374151'
                   }}
                   data-testid="input-search-products"
                 />
@@ -1129,20 +1161,11 @@ ${productUrl}`;
                       variant="outline"
                       size="sm"
                       onClick={() => setCategoryFilter('all')}
-                      className={`rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
+                      className={`px-8 py-4 font-bold transition-all duration-300 micro-elevation ${
                         categoryFilter === 'all' 
-                          ? 'shadow-xl' 
-                          : 'shadow-sm hover:shadow-lg'
+                          ? 'filter-pill-active' 
+                          : 'filter-pill-inactive'
                       }`}
-                      style={categoryFilter === 'all' ? {
-                        backgroundColor: '#2563EB',
-                        color: 'white',
-                        boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
-                      } : {
-                        backgroundColor: '#F3F4F6',
-                        color: '#374151',
-                        border: '1px solid #E5E7EB'
-                      }}
                     >
                       All Categories ({products.length})
                     </Button>
@@ -1155,20 +1178,11 @@ ${productUrl}`;
                           variant="outline"
                           size="sm"
                           onClick={() => setCategoryFilter(category)}
-                          className={`rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
+                          className={`px-8 py-4 font-bold transition-all duration-300 micro-elevation ${
                             isActive 
-                              ? 'shadow-xl' 
-                              : 'shadow-sm hover:shadow-lg'
+                              ? 'filter-pill-active' 
+                              : 'filter-pill-inactive'
                           }`}
-                          style={isActive ? {
-                            backgroundColor: '#2563EB',
-                            color: 'white',
-                            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
-                          } : {
-                            backgroundColor: '#F3F4F6',
-                            color: '#374151',
-                            border: '1px solid #E5E7EB'
-                          }}
                         >
                           {category} ({count})
                         </Button>
@@ -1180,12 +1194,10 @@ ${productUrl}`;
                 {/* v1.9 Championship Controls */}
                 <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-56 h-14 rounded-2xl border-0 font-bold shadow-lg transition-all duration-300 hover:scale-105"
+                    <SelectTrigger className="w-56 h-14 border-0 font-bold transition-all duration-300 frosted-search micro-elevation"
                       style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(16px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                        backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                        backdropFilter: 'blur(8px)'
                       }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>

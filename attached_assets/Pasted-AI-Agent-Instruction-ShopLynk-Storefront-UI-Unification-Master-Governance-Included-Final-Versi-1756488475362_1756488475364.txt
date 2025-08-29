@@ -1,0 +1,173 @@
+AI Agent Instruction — ShopLynk Storefront UI Unification
+
+(Master Governance Included — Final Version)
+
+Objective
+
+Unify the ShopLynk storefront design with the landing page’s icy-blue SaaS aesthetic for a cleaner, enterprise-ready look.
+This is visual-only work: do not touch any onboarding, seller data, or business logic.
+
+Scope of Work
+
+Update the UI theme and visual hierarchy to match the landing page’s modern aesthetic, focusing on:
+
+Header section (logo container, title, powered-by text, back button)
+
+Primary CTA buttons
+
+Search bar styling
+
+Category filter pills
+
+Micro-elevations, shadows, and gradients
+
+Maintaining full responsiveness and accessibility
+
+Governance Rules — DO NOT BREAK 🔒
+
+Do NOT modify business logic
+
+Do not touch onboarding, authentication, product uploads, WhatsApp flows, or checkout.
+
+Theme updates ONLY
+
+All new styles must live inside themeConfig.js or global stylesheet overrides.
+
+Pixel-perfect alignment
+
+Ensure new designs match the landing page’s branding (gradients, shadows, fonts, spacing).
+
+Responsiveness
+
+Test final visuals for mobile, tablet, and desktop views.
+
+Regression safety
+
+Ensure there’s no impact on seller console flows, payment setups, or saved storefront data.
+
+Design Implementation Instructions
+1. Logo Container (Header Left)
+
+Current Issue: Looks flat, blends into the background.
+
+Action:
+
+Keep square shape ✅
+
+Add subtle depth:
+
+background: rgba(255, 255, 255, 0.85);
+backdrop-filter: blur(12px);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+border-radius: 16px;
+
+
+Logo size: Dynamically scale based on viewport width (don’t let it look tiny on ultrawide screens).
+
+2. "Back to Dashboard" Button (Header Right)
+
+Current Issue: Color and gradient don’t match the landing page.
+
+Action: Match landing page CTA styling:
+
+background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+box-shadow: 0 6px 14px rgba(59, 130, 246, 0.2);
+border-radius: 12px;
+padding: 10px 22px;
+color: #FFFFFF;
+font-weight: 600;
+transition: all 0.2s ease-in-out;
+
+
+Add hover glow:
+
+box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+transform: translateY(-1px);
+
+3. Search Bar
+
+Current Issue: Slightly too flat compared to landing page styling.
+
+Action:
+
+Add frosted-glass feel:
+
+background: rgba(255, 255, 255, 0.75);
+backdrop-filter: blur(8px);
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+border-radius: 12px;
+
+
+Placeholder text: Use #9CA3AF for better contrast.
+
+4. Category Filter Pills
+
+Current Issue: Inactive states look dull, active state inconsistent with landing page.
+
+Action:
+
+Active pill (blue) → Match landing page CTA blue:
+
+background: #3B82F6;
+color: #FFFFFF;
+box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+
+
+Inactive pills → Use lighter frosted blue:
+
+background: #F4F7FE;
+color: #6B7280;
+
+
+Hover state for inactive pills:
+
+box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+transform: translateY(-1px);
+
+5. Card Shadows & Elevation
+
+Current Issue: Overall page feels flat, lacks depth.
+
+Action:
+
+Apply micro-elevations consistently:
+
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+
+
+Use for:
+
+Logo container
+
+Search bar
+
+Category pills
+
+CTA buttons
+
+Product cards
+
+6. Color Tokens to Lock
+
+Define these in themeConfig.js for consistency across storefront:
+
+const colors = {
+  primaryBlue: '#3B82F6',
+  primaryBlueLight: '#60A5FA',
+  gradientCTA: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
+  frostedWhite: 'rgba(255, 255, 255, 0.85)',
+  inactivePill: '#F4F7FE',
+  inactiveText: '#6B7280'
+};
+
+Acceptance Criteria ✅
+
+The storefront header, buttons, and filters look visually unified with the landing page.
+
+Buttons and pills use consistent icy-blue gradients.
+
+Shadows and depth are applied consistently.
+
+Responsiveness fully tested.
+
+No logic, routing, or data persistence affected.
