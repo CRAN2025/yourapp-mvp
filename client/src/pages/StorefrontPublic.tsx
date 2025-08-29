@@ -1109,13 +1109,13 @@ Product Link: ${productUrl}`;
                             </div>
                             <div className="space-y-2">
                               <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                   style={{ backgroundColor: '#212529', color: 'white' }}>
+                                   style={{ backgroundColor: '#2C3E50', color: 'white' }}>
                                 <span className="mr-1.5 text-sm flex items-center">📦</span>
                                 {product.category}
                               </div>
                               {product.subcategory && (
                                 <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ml-2" 
-                                     style={{ backgroundColor: '#212529', color: 'white' }}>
+                                     style={{ backgroundColor: '#2C3E50', color: 'white' }}>
                                   {product.subcategory}
                                 </div>
                               )}
