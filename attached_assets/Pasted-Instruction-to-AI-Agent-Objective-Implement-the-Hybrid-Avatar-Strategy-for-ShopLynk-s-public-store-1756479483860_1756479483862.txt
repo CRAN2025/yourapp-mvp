@@ -1,0 +1,98 @@
+Instruction to AI Agent
+
+Objective: Implement the Hybrid Avatar Strategy for ShopLynk’s public storefront while maintaining premium aesthetics and marketplace trust.
+
+Scope
+
+File(s): Public storefront header & store info components only.
+
+Version: v1.9.2_UI_PUBLIC_STORE_PREMIUM_POLISH.
+
+Assets: Use existing ShopLynk gradient logo in /assets/logos/shoplynk-logo.svg as fallback.
+
+Preserve:
+
+Product cards (v1.3.1_UI_UX_WHATSAPP_PER_CARD) LOCKED
+
+Seller Console Premium Polish (v1.7) LOCKED
+
+WhatsApp integration routing LOCKED
+
+Implementation Details
+1. Avatar Strategy
+
+If Seller Avatar Exists → Display seller’s custom logo/avatar.
+
+If No Avatar Uploaded → Display ShopLynk’s gradient logo as fallback.
+
+Avatar size: 96px (circular, crisp, high-DPI ready).
+
+Subtle 1px border around avatar (#E5E7EB) with soft outer shadow for visual lift.
+
+Keep avatar aligned left as it is today.
+
+2. “Powered by ShopLynk” Badge
+
+Below the store name, add a tiny branding badge:
+
+Badge text: “Powered by ShopLynk”
+
+Left-aligned under the store name.
+
+Use ShopLynk’s official logo icon (from /assets/logos/shoplynk-logo.svg).
+
+Typography:
+
+Font: Inter, 12px
+
+Weight: medium
+
+Color: #6B7280 (neutral gray).
+
+Badge background: transparent (no pill), for premium minimalism.
+
+Hover state: Light fade-in animation to 90% opacity.
+
+3. Header Layout & Aesthetics
+
+Maintain the current soft-white / neutral gradient header introduced in v1.9.1.
+
+Keep consistent 8px rounded corners on avatar + container.
+
+Adjust vertical spacing: Add 8px breathing room above and below the avatar block for better balance.
+
+Match visual language with the landing page gradient treatment:
+
+Light, airy feel (avoid heavy purples or overly saturated blues).
+
+Aim for elevated minimalism consistent with premium marketplaces.
+
+4. Fallback Logic
+
+If the seller uploads a low-quality avatar (e.g., < 200x200px resolution):
+
+Auto-upscale with shadow & blur fallback layer to maintain visual quality.
+
+If the avatar cannot be fetched → Default to ShopLynk gradient logo immediately.
+
+Governance & Locks
+
+LOCKED: Product cards → v1.3.1_UI_UX_WHATSAPP_PER_CARD (don’t touch)
+
+LOCKED: Seller console → v1.7_SELLER_CONSOLE_PREMIUM_POLISH
+
+LOCKED: WhatsApp integration flows reserved for v1.9.4
+
+All avatar logic applies only to public storefront headers.
+
+Final Deliverable
+
+When implemented correctly, the public storefront header will:
+
+Show seller’s branding prominently when available.
+
+Fall back gracefully to ShopLynk’s premium logo when no avatar is set.
+
+Subtly reinforce ShopLynk’s marketplace identity using the “Powered by ShopLynk” badge.
+
+Maintain visual harmony with the landing page’s premium, light aesthetic.
