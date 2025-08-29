@@ -734,28 +734,78 @@ ${productUrl}`;
           transform: scale(0.98);
         }
         
-        /* Enterprise category pills with consistent depth */
-        .filter-pill-active {
-          background: #3B82F6;
-          color: #FFFFFF;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        /* UPGRADED CATEGORY PILLS - Landing Page Hierarchy Match */
+        .category-pill {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px 20px;
           border-radius: 12px;
-          font-weight: 600;
-          transition: all 0.2s ease-in-out;
+          font-weight: 500;
+          font-size: 14px;
+          color: #555;
+          background: #f8f9fc;
+          border: 1px solid #e5e7eb;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+          transition: transform 0.25s cubic-bezier(.22,.61,.36,1),
+                      background 0.25s ease-in-out,
+                      box-shadow 0.25s ease-in-out;
+        }
+        
+        .category-pill:hover {
+          transform: scale(1.05);
+          background: #f0f4ff;
+          border-color: #b3c8ff;
+          box-shadow: 0 4px 12px rgba(80, 155, 255, 0.15);
+        }
+        
+        .category-pill.active {
+          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          color: #fff;
+          border: none;
+          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
+        }
+        
+        .category-pill.active:hover {
+          transform: scale(1.06);
+          box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
+        }
+        
+        /* Legacy filter pill classes for backward compatibility */
+        .filter-pill-active {
+          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          color: #FFFFFF;
+          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
+          border-radius: 12px;
+          font-weight: 500;
+          transition: transform 0.25s cubic-bezier(.22,.61,.36,1),
+                      box-shadow 0.25s ease-in-out;
+          border: none;
+        }
+        
+        .filter-pill-active:hover {
+          transform: scale(1.06);
+          box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
         }
         
         .filter-pill-inactive {
-          background: #F9FAFB;
-          color: #6B7280;
-          border: 1px solid #E5EAF5;
+          background: #f8f9fc;
+          color: #555;
+          border: 1px solid #e5e7eb;
           border-radius: 12px;
-          transition: all 0.2s ease-in-out;
+          transition: transform 0.25s cubic-bezier(.22,.61,.36,1),
+                      background 0.25s ease-in-out,
+                      box-shadow 0.25s ease-in-out;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
         
         .filter-pill-inactive:hover {
-          background: #F3F7FF;
-          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.12);
-          transform: translateY(-1px);
+          transform: scale(1.05);
+          background: #f0f4ff;
+          border-color: #b3c8ff;
+          box-shadow: 0 4px 12px rgba(80, 155, 255, 0.15);
         }
         
         /* Premium search bar matching landing page inputs */
