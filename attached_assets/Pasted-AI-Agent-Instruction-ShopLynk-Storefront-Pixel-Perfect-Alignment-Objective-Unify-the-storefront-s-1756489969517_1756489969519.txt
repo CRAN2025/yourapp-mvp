@@ -1,0 +1,129 @@
+AI Agent Instruction — ShopLynk Storefront Pixel-Perfect Alignment
+Objective
+
+Unify the storefront's visual identity with the ShopLynk landing page, focusing on gradients, CTAs, category pills, and badge treatments for a polished, consistent enterprise feel.
+
+Governance
+
+No changes to logic or routing — visuals only.
+
+Use centralized theme tokens in themeConfig.js.
+
+Align exactly with ShopLynk landing page design tokens.
+
+Maintain WCAG AA compliance for all text and contrast.
+
+Do not duplicate CSS — extend existing styles wherever possible.
+
+Required Enhancements
+1. Global Gradient & Background Tone
+
+Issue: Storefront still carries a faint reddish tint, while the ShopLynk landing page has a clean, icy blue-white palette.
+
+Fix: Apply the landing page gradient across all major containers.
+
+background: linear-gradient(135deg, #F9FBFF 0%, #F3F7FF 100%);
+
+
+Apply To:
+
+Header container
+
+Filter/search bar container
+
+Main page background
+
+2. Back-to-Dashboard Button (CTA)
+
+Issue: The CTA is a flat blue — inconsistent with ShopLynk’s gradient-driven call-to-action style.
+
+Fix: Update to match the landing button’s icy blue gradient and hover elevation.
+
+background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+color: #FFFFFF;
+font-weight: 600;
+padding: 12px 28px;
+border-radius: 12px;
+box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+transition: all 0.25s ease-in-out;
+
+
+Hover State
+
+background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+transform: translateY(-2px);
+box-shadow: 0 12px 28px rgba(59, 130, 246, 0.4);
+
+3. Category Pills & Active States
+
+Issue: Current pills are functional but lack the visual depth and elevation from ShopLynk.
+
+Fix: Match the component hierarchy from the landing page.
+
+Active Pill
+
+background: #3B82F6;
+color: #FFFFFF;
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+font-weight: 600;
+
+
+Inactive Pill
+
+background: #F9FAFB;
+color: #6B7280;
+border: 1px solid #E5EAF5;
+transition: all 0.2s ease-in-out;
+
+
+Hover State
+
+background: #F3F7FF;
+box-shadow: 0 4px 10px rgba(59, 130, 246, 0.12);
+
+4. Favorites Badge Consistency
+
+Issue: Favorites pill does not match ShopLynk’s landing treatment.
+
+Fix: Apply unified color, radius, and shadow:
+
+background-color: #F43F5E;
+box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+color: #FFFFFF;
+font-size: 12px;
+font-weight: 600;
+padding: 2px 6px;
+border-radius: 50%;
+
+5. Centralize Theme Tokens
+
+Move all critical colors and shadows into themeConfig.js:
+
+export const colors = {
+  primary: '#3B82F6',
+  primaryLight: '#60A5FA',
+  icyBackgroundStart: '#F9FBFF',
+  icyBackgroundEnd: '#F3F7FF',
+  neutralText: '#6B7280',
+  neutralLight: '#F9FAFB',
+  neutralBorder: '#E5EAF5',
+  accentRed: '#F43F5E'
+};
+
+export const shadows = {
+  card: '0 4px 12px rgba(0, 0, 0, 0.06)',
+  button: '0 8px 24px rgba(59, 130, 246, 0.3)',
+  buttonHover: '0 12px 28px rgba(59, 130, 246, 0.4)'
+};
+
+Acceptance Criteria
+
+✅ Gradients across storefront match exactly with ShopLynk landing.
+
+✅ CTAs, pills, and badges feel elevated, interactive, and modern.
+
+✅ Icy blue replaces reddish undertones globally.
+
+✅ Tokens centralized for long-term scalability.
+
+✅ Result visually indistinguishable from ShopLynk homepage branding.

@@ -840,12 +840,15 @@ ${productUrl}`;
           line-height: 1.4;
         }
         
-        /* Consistent favorites badge styling */
+        /* Unified favorites badge pixel-perfect styling */
         .favorites-badge {
           background-color: #F43F5E;
           box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
           color: #FFFFFF;
+          font-size: 12px;
           font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 50%;
         }
         
         /* Enterprise responsive logo scaling handled by clamp */
@@ -1255,13 +1258,7 @@ ${productUrl}`;
                   >
                     <Heart className={`w-6 h-6 mr-3 transition-transform hover:scale-110 ${showFavorites ? 'fill-current' : ''}`} />
                     Favorites {favorites.size > 0 && (
-                      <span className="ml-3 inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300 hover:scale-110"
-                            style={{
-                              backgroundColor: '#F43F5E',
-                              opacity: 0.85,
-                              color: 'white',
-                              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.4)'
-                            }}>
+                      <span className="ml-3 inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300 hover:scale-110 favorites-badge">
                         {favorites.size}
                       </span>
                     )}
