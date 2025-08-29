@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap } from 'lucide-react';
+import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter } from 'lucide-react';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -698,23 +698,27 @@ ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
-        {/* ===== Header / Banner (FULL-BLEED) ===== */}
+        {/* v1.8 Premium Header / Banner (FULL-BLEED) */}
         <FullBleedSection>
           <div className="mx-auto max-w-3xl md:max-w-4xl bg-white/95 rounded-2xl shadow-xl overflow-hidden">
-            {/* Optional banner (falls back to gradient) */}
+            {/* Premium gradient banner matching landing page */}
             <div
-              className="h-40 md:h-48 w-full"
+              className="h-40 md:h-48 w-full relative"
               style={{
                 background: seller?.coverUrl
                   ? `url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
+                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               }}
-            />
+            >
+              {/* Gradient overlay for better text contrast */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+            </div>
 
             <div className="px-[clamp(12px,4vw,24px)] pb-6 -mt-8">
-              {/* Header row */}
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-cyan-400 border-4 border-white shadow-md flex items-center justify-center text-2xl">
+              {/* Enhanced Header row */}
+              <div className="flex items-center gap-6">
+                {/* v1.8 Larger circular store avatar with premium styling */}
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 border-4 border-white shadow-xl flex items-center justify-center text-3xl relative overflow-hidden">
                   {seller?.logoUrl ? (
                     <img
                       src={seller.logoUrl}
@@ -723,65 +727,119 @@ ${productUrl}`;
                       onError={(e) => (e.currentTarget.style.display = 'none')}
                     />
                   ) : '🛍️'}
+                  {/* Subtle shadow ring */}
+                  <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none"></div>
                 </div>
-                <div className="min-w-0">
-                  <h1 className="text-2xl md:text-3xl font-bold truncate">
+                
+                <div className="min-w-0 flex-1">
+                  {/* v1.8 Enhanced store title */}
+                  <h1 className="text-2xl font-bold truncate" style={{ color: '#111827' }}>
                     {seller.storeName}
                   </h1>
-                  <p className="text-muted-foreground truncate">
+                  {/* v1.8 Muted subtitle */}
+                  <p className="truncate" style={{ color: '#6B7280', fontSize: '14px', fontWeight: '500' }}>
                     {seller.location || 'Online Store'}
                   </p>
                 </div>
+                
+                {/* v1.8 Optional CTAs: Follow Store / Share Store pills, right aligned */}
+                {!isOwner && (
+                  <div className="hidden md:flex items-center gap-3">
+                    <button
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105"
+                      style={{
+                        backgroundColor: '#F3F4F6',
+                        color: '#374151',
+                        border: '1px solid #E5E7EB'
+                      }}
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      Follow Store
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105"
+                      style={{
+                        backgroundColor: '#F3F4F6',
+                        color: '#374151',
+                        border: '1px solid #E5E7EB'
+                      }}
+                    >
+                      <Share2 className="h-4 w-4" />
+                      Share Store
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Chips */}
-              <div className="flex flex-wrap items-center gap-2 mt-4">
+              {/* v1.8 Enhanced Payment/Delivery Pills */}
+              <div className="flex flex-wrap items-center gap-3 mt-6">
                 {!!paymentMethods.length && (
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="px-3 py-2 rounded-full border text-sm bg-indigo-50 border-indigo-100"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 shadow-sm"
+                    style={{
+                      backgroundColor: '#EBF4FF',
+                      color: '#1E40AF',
+                      border: '1px solid #DBEAFE'
+                    }}
                     title="View payment methods"
                   >
-                    💳 {paymentMethods.length} Payment Methods
+                    <CreditCard className="h-4 w-4" />
+                    {paymentMethods.length} Payment Methods
                   </button>
                 )}
                 {!!deliveryOptions.length && (
                   <button
                     onClick={() => setShowDeliveryModal(true)}
-                    className="px-3 py-2 rounded-full border text-sm bg-cyan-50 border-cyan-100"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 shadow-sm"
+                    style={{
+                      backgroundColor: '#F0FDF4',
+                      color: '#166534',
+                      border: '1px solid #DCFCE7'
+                    }}
                     title="View delivery options"
                   >
-                    🚚 {deliveryOptions.length} Delivery Options
+                    <Truck className="h-4 w-4" />
+                    {deliveryOptions.length} Delivery Options
                   </button>
                 )}
                 {seller.currency && (
-                  <span className="px-3 py-2 rounded-full border text-sm bg-slate-50 border-slate-200">
-                    🌐 {seller.currency} Currency
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium shadow-sm"
+                    style={{
+                      backgroundColor: '#F8FAFC',
+                      color: '#475569',
+                      border: '1px solid #E2E8F0'
+                    }}
+                  >
+                    <Globe className="h-4 w-4" />
+                    {seller.currency} Currency
                   </span>
                 )}
               </div>
 
               {/* Description */}
               {seller.storeDescription && (
-                <p className="mt-3 text-slate-700 line-clamp-2">{seller.storeDescription}</p>
+                <p className="mt-4 line-clamp-2" style={{ color: '#64748B', fontSize: '15px', lineHeight: '1.6' }}>
+                  {seller.storeDescription}
+                </p>
               )}
 
               {/* Owner read-only view vs buyer CTAs */}
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
                 {isOwner ? (
                   <a 
                     href="/products" 
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full border font-bold text-decoration-none cursor-pointer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 8,
-                      background: 'rgba(99,102,241,0.12)',
-                      color: '#6366f1',
-                      padding: '8px 16px',
-                      borderRadius: 999,
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      color: 'white',
+                      padding: '12px 24px',
+                      borderRadius: 12,
                       fontWeight: 700,
-                      border: '1px solid rgba(0,0,0,0.08)',
+                      border: 'none',
                       textDecoration: 'none'
                     }}
                   >
@@ -792,21 +850,21 @@ ${productUrl}`;
                     {seller.whatsappNumber && (
                       <button
                         onClick={handleFloatingChatClick}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full border font-semibold"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: 8,
-                          background: 'rgba(37,211,102,0.12)',
-                          color: '#25D366',
-                          padding: '8px 16px',
-                          borderRadius: 999,
+                          background: '#25D366',
+                          color: 'white',
+                          padding: '12px 24px',
+                          borderRadius: 12,
                           fontWeight: 700,
-                          border: '1px solid rgba(0,0,0,0.08)',
+                          border: 'none',
                           cursor: 'pointer'
                         }}
                       >
-                        <MessageCircle className="h-4 w-4" />
+                        <MessageCircle className="h-5 w-5" />
                         Chat with seller on WhatsApp
                       </button>
                     )}
@@ -814,17 +872,17 @@ ${productUrl}`;
                       href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
                       target="_blank" rel="noopener noreferrer"
                       onClick={() => handleMarketingClick('hero')}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full border font-bold"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border font-bold transition-all duration-300 hover:scale-105 shadow-lg"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 8,
-                        background: 'rgba(59,130,246,0.12)',
-                        color: '#3b82f6',
-                        padding: '8px 16px',
-                        borderRadius: 999,
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        padding: '12px 24px',
+                        borderRadius: 12,
                         fontWeight: 700,
-                        border: '1px solid rgba(0,0,0,0.08)',
+                        border: 'none',
                         textDecoration: 'none'
                       }}
                     >
@@ -837,24 +895,24 @@ ${productUrl}`;
           </div>
         </FullBleedSection>
 
-        {/* Enhanced Search and Filters */}
+        {/* v1.8 Premium Search and Filters */}
         <div className="mx-auto max-w-7xl py-8" style={{
           paddingInline: 'clamp(12px, 4vw, 24px)',
           paddingLeft: 'max(16px, env(safe-area-inset-left))',
           paddingRight: 'max(16px, env(safe-area-inset-right))'
         }}>
-          <Card className="p-8 mb-10 bg-white/90 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
+          <Card className="p-8 mb-10 bg-white/95 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
             <div className="space-y-8">
-              {/* Premium Search Bar */}
+              {/* v1.8 Glass-style Search Bar */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl opacity-0 group-focus-within:opacity-10 transition-all duration-500"></div>
-                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl opacity-0 group-focus-within:opacity-15 transition-all duration-500 shadow-lg"></div>
+                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
                 <Input
                   type="text"
                   placeholder="Search for products, brands, or categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-14 pr-6 h-16 text-lg border-3 border-slate-200 focus:border-blue-500 rounded-2xl bg-white/80 backdrop-blur-sm transition-all duration-300 placeholder:text-slate-400"
+                  className="pl-14 pr-6 h-16 text-lg border-2 border-slate-200 focus:border-blue-500 rounded-2xl bg-white/90 backdrop-blur-sm transition-all duration-300 placeholder:text-slate-400 shadow-lg focus:shadow-xl"
                   data-testid="input-search-products"
                 />
                 {searchQuery && (
@@ -869,34 +927,63 @@ ${productUrl}`;
                 )}
               </div>
 
-              {/* Enhanced Filters */}
+              {/* v1.8 Enhanced Filters */}
               <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
-                {/* Category Pills */}
+                {/* v1.8 Category Pills with Pastel Backgrounds */}
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-4">
                     <span className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center">
-                      <Zap className="w-4 h-4 mr-2 text-blue-600" />
+                      <Filter className="w-4 h-4 mr-2 text-blue-600" />
                       Categories
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <Button
-                      variant={categoryFilter === 'all' ? 'default' : 'outline'}
+                      variant="outline"
                       size="sm"
                       onClick={() => setCategoryFilter('all')}
-                      className="rounded-full px-6 py-3 font-bold transition-all duration-300 hover:scale-105"
+                      className={`rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105 shadow-sm ${
+                        categoryFilter === 'all' 
+                          ? 'shadow-lg' 
+                          : 'hover:shadow-md'
+                      }`}
+                      style={categoryFilter === 'all' ? {
+                        backgroundColor: '#2563EB',
+                        color: 'white',
+                        border: 'none',
+                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                      } : {
+                        backgroundColor: '#F8FAFC',
+                        color: '#475569',
+                        border: '1px solid #E2E8F0'
+                      }}
                     >
                       All Categories ({products.length})
                     </Button>
                     {categories.slice(0, 6).map(category => {
                       const count = products.filter(p => p.category === category).length;
+                      const isActive = categoryFilter === category;
                       return (
                         <Button
                           key={category}
-                          variant={categoryFilter === category ? 'default' : 'outline'}
+                          variant="outline"
                           size="sm"
                           onClick={() => setCategoryFilter(category)}
-                          className="rounded-full px-6 py-3 font-bold transition-all duration-300 hover:scale-105"
+                          className={`rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105 shadow-sm ${
+                            isActive 
+                              ? 'shadow-lg' 
+                              : 'hover:shadow-md'
+                          }`}
+                          style={isActive ? {
+                            backgroundColor: '#2563EB',
+                            color: 'white',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                          } : {
+                            backgroundColor: '#F1F5F9',
+                            color: '#475569',
+                            border: '1px solid #E2E8F0'
+                          }}
                         >
                           {category} ({count})
                         </Button>
@@ -905,13 +992,13 @@ ${productUrl}`;
                   </div>
                 </div>
 
-                {/* Enhanced Controls */}
+                {/* v1.8 Enhanced Controls */}
                 <div className="flex gap-4 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-48 h-12 rounded-xl border-2 border-slate-200 focus:border-blue-500 font-semibold">
+                    <SelectTrigger className="w-48 h-12 rounded-xl border-2 border-slate-200 focus:border-blue-500 font-semibold bg-white/90 backdrop-blur-sm shadow-lg">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-2 border-slate-200">
+                    <SelectContent className="rounded-xl border-2 border-slate-200 bg-white/95 backdrop-blur-sm shadow-xl">
                       <SelectItem value="newest">🆕 Newest First</SelectItem>
                       <SelectItem value="popular">🔥 Most Popular</SelectItem>
                       <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
@@ -920,18 +1007,32 @@ ${productUrl}`;
                     </SelectContent>
                   </Select>
 
+                  {/* v1.8 Soft Pastel Pill Badge for Favorites */}
                   <Button
-                    variant={showFavorites ? "default" : "outline"}
+                    variant="outline"
                     size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className="h-12 px-6 rounded-xl border-2 border-slate-200 font-bold transition-all duration-300 hover:scale-105"
+                    className="h-12 px-6 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                    style={showFavorites ? {
+                      backgroundColor: '#FEF2F2',
+                      color: '#DC2626',
+                      border: '2px solid #FECACA'
+                    } : {
+                      backgroundColor: '#F8FAFC',
+                      color: '#64748B',
+                      border: '2px solid #E2E8F0'
+                    }}
                     data-testid="button-toggle-favorites"
                   >
-                    <Heart className={`w-5 h-5 mr-2 ${showFavorites ? 'fill-current text-red-500' : 'text-slate-400'}`} />
+                    <Heart className={`w-5 h-5 mr-2 ${showFavorites ? 'fill-current' : ''}`} />
                     Favorites {favorites.size > 0 && (
-                      <Badge className="ml-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
+                      <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                            style={{
+                              backgroundColor: showFavorites ? '#DC2626' : '#EF4444',
+                              color: 'white'
+                            }}>
                         {favorites.size}
-                      </Badge>
+                      </span>
                     )}
                   </Button>
                 </div>
