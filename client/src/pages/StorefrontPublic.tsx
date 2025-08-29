@@ -882,6 +882,8 @@ ${productUrl}`;
           --store-subtitle-color: #6B7280;
           --store-powered-by-font: 14px;
           --store-powered-by-color: #3B82F6;
+          --store-description-font: 14px;
+          --store-description-color: #6B7280;
           
           /* BADGE CARD STYLE - GLOBAL */
           --badge-card-style-bg: #FFFFFF;
@@ -1186,6 +1188,27 @@ ${productUrl}`;
           line-height: 20px;
         }
         
+        .store-description-locked {
+          font-size: var(--store-description-font);
+          font-weight: 400;
+          color: var(--store-description-color);
+          line-height: 1.5;
+          margin-top: 4px;
+          max-width: 70%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+        }
+        
+        @media (max-width: 767px) {
+          .store-description-locked {
+            -webkit-line-clamp: 1;
+            max-width: 100%;
+          }
+        }
+        
         /* Legacy typography classes for backward compatibility */
         .store-name-championship {
           font-size: var(--store-title-font);
@@ -1388,6 +1411,9 @@ ${productUrl}`;
                     <div className="powered-by-locked">
                       Powered by ShopLynk
                     </div>
+                    <div className="store-description-locked">
+                      {seller.storeDescription || 'Your curated storefront to manage, showcase, and grow your online business seamlessly.'}
+                    </div>
                     <p className="store-subtitle-locked truncate">
                       {seller.location || 'Online Store'}
                     </p>
@@ -1485,14 +1511,7 @@ ${productUrl}`;
                 </div>
               </div>
 
-              {/* Store Description - Below Header */}
-              {seller.storeDescription && (
-                <div className="mt-4 text-center">
-                  <p style={{ color: '#64748B', fontSize: '15px', lineHeight: '1.6' }}>
-                    {seller.storeDescription}
-                  </p>
-                </div>
-              )}
+
             </div>
           </div>
         </FullWidthContainer>
