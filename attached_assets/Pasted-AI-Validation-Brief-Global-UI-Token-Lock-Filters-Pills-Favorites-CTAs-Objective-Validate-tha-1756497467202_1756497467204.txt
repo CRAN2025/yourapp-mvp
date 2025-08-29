@@ -1,0 +1,148 @@
+AI Validation Brief — Global UI Token Lock (Filters, Pills, Favorites, CTAs)
+Objective
+
+Validate that the locked global tokens are applied and inherited consistently across the app (no changes to UI; verification only).
+
+Governance (Do NOT change anything)
+
+Visual verification only — do not alter styles, tokens, or layout.
+
+If a mismatch is found, report it; do not “hot-fix”.
+
+Scope: Category pills, “Newest First” dropdown, Favorites button, Primary CTAs.
+
+Tokens to Confirm (must exist & be used)
+
+--token-button-height: 36px
+
+--token-button-radius: 12px
+
+--token-padding-x: 16px
+
+--token-padding-y: 8px
+
+--token-gradient-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%)
+
+--token-shadow-secondary: 0 2px 6px rgba(0,0,0,0.06)
+
+--token-shadow-primary: 0 5px 18px rgba(80,155,255,0.45)
+
+--token-shadow-primary-hover: 0 7px 20px rgba(80,155,255,0.55)
+
+--token-hover-scale: 1.05
+
+--token-focus-ring: 0 0 0 3px rgba(79,168,255,0.35)
+
+--token-badge-danger: #FF3B5C
+
+CTA height (separate, locked): 44px
+
+Pages / Surfaces to Check
+
+Public storefront (filters bar above product grid)
+
+Seller dashboard (any list with filters/sorting/favorites)
+
+Onboarding / Store setup (if filter chips are present)
+
+Any reused filter components in other modules
+
+What to Verify (Computed Styles)
+
+For each component, capture computed CSS (browser devtools) and confirm:
+
+A) Category Pills
+
+Height = 36px; Border-radius = 12px
+
+Inactive: background #F8F9FC, border #E5E7EB, shadow = --token-shadow-secondary
+
+Active: background = --token-gradient-primary, text #FFF, shadow = --token-shadow-primary
+
+Hover: scale ≈ 1.05, primary or secondary shadow increases
+
+B) “Newest First” Dropdown
+
+Height = 36px; Radius = 12px
+
+Neutral surface (no gradient), border #E5E7EB
+
+Hover: subtle scale/halo; no gradient
+
+C) Favorites Button
+
+Height = 36px; Radius = 12px
+
+Neutral surface, border #E5E7EB, shadow = secondary
+
+Badge = 24×24px, background = --token-badge-danger, centered text
+
+D) Primary CTAs
+
+Height = 44px (intentionally taller)
+
+Background = --token-gradient-primary
+
+Shadow = primary; hover = primary-hover
+
+E) Alignment
+
+In the filter bar, category pills, “Newest First”, and Favorites share the same top baseline and visual center.
+
+“CATEGORIES” label does not push pills down.
+
+F) Responsiveness (3 widths)
+
+≥1200px desktop: one line; aligned
+
+768–1199px tablet: stack/wrap gracefully; heights unchanged
+
+≤767px mobile: wrap chips; heights unchanged; badge readable
+
+G) Accessibility
+
+Focus ring visible on all interactive elements (matches --token-focus-ring)
+
+Text contrast meets WCAG AA (pill text, dropdown text, favorites badge)
+
+Report Format (Return Exactly This)
+
+Provide a single JSON-style summary plus 3 screenshots.
+
+{
+  "status": "pass" | "fail_with_issues",
+  "summary": "One or two sentences",
+  "checks": {
+    "tokens_present": true|false,
+    "category_pills": { "height_ok": true, "active_uses_gradient": true, "inactive_neutral": true, "hover_scale": "1.05" },
+    "dropdown_newest_first": { "height_ok": true, "no_gradient": true, "hover_ok": true },
+    "favorites_button": { "height_ok": true, "badge_24x24": true, "hover_ok": true },
+    "cta": { "height_44": true, "gradient_ok": true, "hover_ok": true },
+    "alignment": { "baseline_matched": true },
+    "responsiveness": { "desktop": true, "tablet": true, "mobile": true },
+    "a11y": { "focus_ring": true, "contrast_AA": true }
+  },
+  "violations": [
+    { "component": "Favorites button (dashboard)", "issue": "Height computed 38px instead of 36px", "location": "Seller dashboard > Products", "suggested_fix": "Use --token-button-height" }
+  ],
+  "screenshots": [
+    "public_storefront_filters_desktop.png",
+    "public_storefront_filters_tablet.png",
+    "public_storefront_filters_mobile.png"
+  ]
+}
+
+
+Notes
+
+If any item fails, set "status": "fail_with_issues" and list each violation with component, location, computed value, and suggested fix (token name to use).
+
+Do not change styles as part of this task.
+
+Acceptance Criteria
+
+All checks return true; status = pass.
+
+Only tokenized values are used (no hard-coded one-offs).
+
+Visual alignment & interaction behavior are consistent across pages and breakpoints.
