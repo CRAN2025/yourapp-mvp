@@ -1130,15 +1130,21 @@ Product Link: ${productUrl}`;
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-1 bg-white hover:bg-gray-50 transition-all duration-200 font-medium"
+                            className="flex-1 bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5"
                             style={{
                               border: '1px solid #E0E0E0',
-                              borderRadius: '8px',
-                              boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.05)'
+                              borderRadius: '10px',
+                              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleProductView(product);
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.color = '#2C3E50';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.color = '';
                             }}
                             data-testid={`button-view-${product.id}`}
                           >
@@ -1165,11 +1171,17 @@ Product Link: ${productUrl}`;
                                 e.stopPropagation();
                                 handleProductView(product);
                               }}
-                              className="px-4 bg-white hover:bg-gray-50 transition-all duration-200 font-medium"
+                              className="px-4 bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5"
                               style={{
                                 border: '1px solid #E0E0E0',
-                                borderRadius: '8px',
-                                boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.05)'
+                                borderRadius: '10px',
+                                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.color = '#2C3E50';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.color = '';
                               }}
                               data-testid={`button-view-${product.id}`}
                             >
@@ -1199,13 +1211,13 @@ Product Link: ${productUrl}`;
                         const badges = [];
                         const maxBadges = 4;
                         
-                        // Priority 1: Physical attributes (light gray #F1F3F5 background, #333 text)
+                        // Priority 1: Physical attributes (light gray #F1F3F5 background, #333333 text)
                         if (product.color && badges.length < maxBadges) {
                           badges.push(
                             <div key="color" className="inline-flex items-center rounded-md text-xs font-medium" 
                                  style={{ 
                                    backgroundColor: '#F1F3F5', 
-                                   color: '#333',
+                                   color: '#333333',
                                    padding: '6px 12px'
                                  }}>
                               <span className="mr-1.5 text-sm flex items-center">🎨</span>
@@ -1218,7 +1230,7 @@ Product Link: ${productUrl}`;
                             <div key="size" className="inline-flex items-center rounded-md text-xs font-medium" 
                                  style={{ 
                                    backgroundColor: '#F1F3F5', 
-                                   color: '#333',
+                                   color: '#333333',
                                    padding: '6px 12px'
                                  }}>
                               <span className="mr-1.5 text-sm flex items-center">📏</span>
@@ -1231,7 +1243,7 @@ Product Link: ${productUrl}`;
                             <div key="material" className="inline-flex items-center rounded-md text-xs font-medium" 
                                  style={{ 
                                    backgroundColor: '#F1F3F5', 
-                                   color: '#333',
+                                   color: '#333333',
                                    padding: '6px 12px'
                                  }}>
                               <span className="mr-1.5 text-sm flex items-center">🧵</span>
@@ -1240,13 +1252,13 @@ Product Link: ${productUrl}`;
                           );
                         }
                         
-                        // Priority 2: Sustainability (soft green #DFF6E3 background, #2ECC71 text)
+                        // Priority 2: Sustainability (soft green #DFF6E3 background, #1E7D3D text)
                         if (product.sustainability && badges.length < maxBadges) {
                           badges.push(
                             <div key="sustainability" className="inline-flex items-center rounded-md text-xs font-medium" 
                                  style={{ 
                                    backgroundColor: '#DFF6E3', 
-                                   color: '#2ECC71',
+                                   color: '#1E7D3D',
                                    padding: '6px 12px'
                                  }}>
                               <span className="mr-1.5 text-sm flex items-center">🌱</span>
