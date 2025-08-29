@@ -1157,87 +1157,68 @@ Product Link: ${productUrl}`;
                         )}
                       </div>
 
-                      {/* Premium limited stock warning */}
+                      {/* Refined limited stock warning */}
                       {product.quantity <= 10 && (
                         <div className="pt-3 border-t border-slate-100">
-                          <div className="inline-flex items-center px-3 py-2 rounded-lg text-xs font-bold tracking-wide" 
+                          <div className="inline-flex items-center px-3 py-2 rounded-md text-xs font-bold tracking-wide" 
                                style={{ backgroundColor: '#E63946', color: 'white' }}>
-                            <span className="mr-2 text-sm">⚠️</span>
-                            LIMITED STOCK — ONLY {product.quantity} LEFT
+                            <span className="mr-2 text-sm flex items-center">⚠️</span>
+                            Limited stock — Only {product.quantity} left
                           </div>
                         </div>
                       )}
 
-                      {/* Premium attribute badges - limit to 3-4 most important */}
+                      {/* Refined badge system - max 4 badges per card */}
                       {(() => {
-                        const attributeBadges = [];
-                        const specialBadges = [];
+                        const badges = [];
+                        const maxBadges = 4;
                         
-                        // Priority attributes (max 3)
-                        if (product.color && attributeBadges.length < 3) {
-                          attributeBadges.push(
-                            <div key="color" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                        // Priority 1: Physical attributes (light gray background)
+                        if (product.color && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="color" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
                                  style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
-                              🎨 {product.color}
+                              <span className="mr-1.5 text-sm flex items-center">🎨</span>
+                              {product.color}
                             </div>
                           );
                         }
-                        if (product.size && attributeBadges.length < 3) {
-                          attributeBadges.push(
-                            <div key="size" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                        if (product.size && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="size" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
                                  style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
-                              📏 {product.size}
+                              <span className="mr-1.5 text-sm flex items-center">📏</span>
+                              {product.size}
                             </div>
                           );
                         }
-                        if (product.material && attributeBadges.length < 3) {
-                          attributeBadges.push(
-                            <div key="material" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                        if (product.material && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="material" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
                                  style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
-                              🧵 {product.material}
-                            </div>
-                          );
-                        }
-                        
-                        // Special feature badges (separate section)
-                        if (product.isHandmade) {
-                          specialBadges.push(
-                            <div key="handmade" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
-                              🎨 Handmade
-                            </div>
-                          );
-                        }
-                        if (product.isCustomizable) {
-                          specialBadges.push(
-                            <div key="customizable" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
-                              ⚙️ Customizable
-                            </div>
-                          );
-                        }
-                        if (product.sustainability && specialBadges.length < 2) {
-                          specialBadges.push(
-                            <div key="sustainability" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#2ECC71', color: '#FFFFFF' }}>
-                              🌱 Eco-friendly
+                              <span className="mr-1.5 text-sm flex items-center">🧵</span>
+                              {product.material}
                             </div>
                           );
                         }
                         
-                        return (
-                          <>
-                            {attributeBadges.length > 0 && (
-                              <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
-                                {attributeBadges}
-                              </div>
-                            )}
-                            {specialBadges.length > 0 && (
-                              <div className="flex flex-wrap gap-2 pt-2">
-                                {specialBadges}
-                              </div>
-                            )}
-                          </>
+                        // Priority 2: Sustainability (soft green)
+                        if (product.sustainability && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="sustainability" className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#DFF6E3', color: '#2ECC71' }}>
+                              <span className="mr-1.5 text-sm flex items-center">🌱</span>
+                              Eco-friendly
+                            </div>
+                          );
+                        }
+                        
+                        // Note: Handmade, Customizable, Gift Wrap moved to details view
+                        
+                        return badges.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
+                            {badges}
+                          </div>
                         );
                       })()}
                     </CardContent>
@@ -1539,17 +1520,19 @@ Product Link: ${productUrl}`;
                           {selectedProduct.name}
                         </h2>
                         <div className="flex items-center gap-3 flex-wrap">
-                          <div className="inline-flex items-center px-4 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold">
-                            📦 {selectedProduct.category}
+                          <div className="inline-flex items-center px-4 py-2 rounded-md bg-slate-800 text-white text-sm font-semibold">
+                            <span className="mr-2 text-sm flex items-center">📦</span>
+                            {selectedProduct.category}
                           </div>
                           {(selectedProduct as any).subcategory && (
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-600 text-white text-sm font-medium">
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-600 text-white text-sm font-medium">
                               {(selectedProduct as any).subcategory}
                             </div>
                           )}
                           {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-sm font-semibold">
-                              🆕 New Arrival
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-emerald-500 text-white text-sm font-semibold">
+                              <span className="mr-1.5 text-sm flex items-center">🆕</span>
+                              New arrival
                             </div>
                           )}
                         </div>
@@ -1564,8 +1547,8 @@ Product Link: ${productUrl}`;
                     </div>
                   </div>
                   
-                  {/* Premium Stock Status */}
-                  <div className="p-5 rounded-2xl border-2" style={{
+                  {/* Refined Stock Status */}
+                  <div className="p-5 rounded-xl border-2" style={{
                     backgroundColor: selectedProduct.quantity > 10 ? '#E8F5E8' : 
                                    selectedProduct.quantity > 0 ? '#FFF4E6' : '#FFE6E6',
                     borderColor: selectedProduct.quantity > 10 ? '#27AE60' : 
@@ -1583,9 +1566,9 @@ Product Link: ${productUrl}`;
                           color: selectedProduct.quantity > 10 ? '#27AE60' : 
                                  selectedProduct.quantity > 0 ? '#D68910' : '#C0392B'
                         }}>
-                          {selectedProduct.quantity > 10 ? '✅ In Stock & Ready to Ship' :
-                           selectedProduct.quantity > 0 ? `⚠️ Limited Stock — Only ${selectedProduct.quantity} Left` : 
-                           '❌ Currently Out of Stock'}
+                          {selectedProduct.quantity > 10 ? 'In stock & ready to ship' :
+                           selectedProduct.quantity > 0 ? `Limited stock — Only ${selectedProduct.quantity} left` : 
+                           'Currently out of stock'}
                         </div>
                         <p className="text-slate-600 mt-1 text-sm font-medium">
                           {selectedProduct.quantity > 0 
@@ -1596,6 +1579,39 @@ Product Link: ${productUrl}`;
                       </div>
                     </div>
                   </div>
+
+                  {/* Secondary Feature Badges (moved from cards) */}
+                  {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).giftWrapping) && (
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <span className="text-lg">⭐</span>
+                        Special features
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {(selectedProduct as any).isHandmade && (
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                               style={{ backgroundColor: '#FEF7F0', color: '#EA580C' }}>
+                            <span className="mr-1.5 text-sm flex items-center">🎨</span>
+                            Handmade
+                          </div>
+                        )}
+                        {(selectedProduct as any).isCustomizable && (
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                               style={{ backgroundColor: '#F0F9FF', color: '#0369A1' }}>
+                            <span className="mr-1.5 text-sm flex items-center">⚙️</span>
+                            Customizable
+                          </div>
+                        )}
+                        {(selectedProduct as any).giftWrapping && (
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                               style={{ backgroundColor: '#FDF4FF', color: '#A21CAF' }}>
+                            <span className="mr-1.5 text-sm flex items-center">🎁</span>
+                            Gift wrap
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -1628,14 +1644,16 @@ Product Link: ${productUrl}`;
                         { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
                         { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
                       ].filter(item => item.value).map((item, index) => (
-                        <div key={index} className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div key={index} className="p-4 rounded-md border" 
+                             style={{ backgroundColor: '#F1F3F5', borderColor: '#E5E7EB' }}>
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-lg">{item.icon}</span>
-                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                            <span className="text-sm flex items-center">{item.icon}</span>
+                            <span className="text-xs font-semibold uppercase tracking-wide" 
+                                  style={{ color: '#495057' }}>
                               {item.label}
                             </span>
                           </div>
-                          <p className="font-bold text-lg text-slate-800 capitalize">{item.value}</p>
+                          <p className="font-bold text-lg capitalize" style={{ color: '#495057' }}>{item.value}</p>
                         </div>
                       ))}
                     </div>

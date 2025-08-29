@@ -342,12 +342,13 @@ export default function Products() {
                         Inventory & Pricing
                       </h4>
                       <div className="flex items-center gap-3">
-                        <div className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide" 
+                        <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-bold tracking-wide" 
                              style={{ 
                                backgroundColor: product.quantity <= 10 ? '#E63946' : '#27AE60', 
                                color: 'white' 
                              }}>
-                          {product.quantity <= 10 ? '⚠️ LOW STOCK' : '✅ IN STOCK'} — {product.quantity} UNITS
+                          <span className="mr-1.5 text-sm flex items-center">{product.quantity <= 10 ? '⚠️' : '✅'}</span>
+                          {product.quantity <= 10 ? 'Low stock' : 'In stock'} — {product.quantity} units
                         </div>
                       </div>
                     </div>
@@ -363,21 +364,24 @@ export default function Products() {
                         {/* Special Features */}
                         <div className="space-y-2">
                           {product.isHandmade && (
-                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
-                              🎨 Handmade
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#FEF7F0', color: '#EA580C' }}>
+                              <span className="mr-1.5 text-sm flex items-center">🎨</span>
+                              Handmade
                             </div>
                           )}
                           {product.isCustomizable && (
-                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
-                              ⚙️ Customizable
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F0F9FF', color: '#0369A1' }}>
+                              <span className="mr-1.5 text-sm flex items-center">⚙️</span>
+                              Customizable
                             </div>
                           )}
                           {product.giftWrapping && (
-                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
-                              🎁 Gift Wrap
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#FDF4FF', color: '#A21CAF' }}>
+                              <span className="mr-1.5 text-sm flex items-center">🎁</span>
+                              Gift wrap
                             </div>
                           )}
                         </div>
@@ -385,9 +389,10 @@ export default function Products() {
                         {/* Sustainability */}
                         <div className="space-y-2">
                           {product.sustainability && (
-                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
-                                 style={{ backgroundColor: '#2ECC71', color: '#FFFFFF' }}>
-                              🌱 Eco-friendly
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#DFF6E3', color: '#2ECC71' }}>
+                              <span className="mr-1.5 text-sm flex items-center">🌱</span>
+                              Eco-friendly
                             </div>
                           )}
                         </div>
@@ -403,9 +408,10 @@ export default function Products() {
                         </h4>
                         <div className="space-y-2">
                           {product.targetAgeGroup && (
-                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
                                  style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
-                              👥 {product.targetAgeGroup}
+                              <span className="mr-1.5 text-sm flex items-center">👥</span>
+                              {product.targetAgeGroup}
                             </div>
                           )}
                           {product.personalizationOptions && (
