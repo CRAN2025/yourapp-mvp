@@ -1,0 +1,116 @@
+AI Agent Implementation Instructions (With Governance)
+Objective
+
+Unify the storefront UI and landing page design language under a single icy-blue SaaS theme for a premium, enterprise-grade look.
+
+Step 1 — Color & Gradient Updates
+
+Update the storefront theme to match the landing page:
+
+Header Background Gradient:
+
+Start: #EEF3FF
+
+End: #F8FBFF
+
+Primary Button Gradient:
+
+Start: #3B82F6
+
+End: #60A5FA
+
+Shadow: rgba(59, 130, 246, 0.25) blur 6px.
+
+Secondary Pills / Filter Chips:
+
+Base: #F3F8FE
+
+Active Text: #1E40AF
+
+Inactive Text: #6B7280
+
+Powered by ShopLynk brand blue: #2563EB
+
+Overall Elevation Style: Keep soft frosted shadows (rgba(0, 0, 0, 0.04)) for cards and buttons for depth.
+
+Step 2 — Logo Container Treatment
+
+Maintain square container.
+
+Apply a subtle inner shadow to differentiate from header background, using:
+box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.03).
+
+Maintain proportional scaling:
+
+Default: 64px height
+
+Scales dynamically based on screen size for better consistency across devices.
+
+Keep logo background aligned with header hues; no harsh contrasts.
+
+Step 3 — Typography & Hierarchy Lock
+
+Store Name ("Grow Up") → font-weight: 700; font-size: 1.75rem; color: #111827
+
+Powered by ShopLynk → font-weight: 500; font-size: 0.95rem; color: #2563EB
+
+Online Store → font-weight: 400; font-size: 0.85rem; color: #6B7280
+
+Ensure line-heights remain consistent across breakpoints.
+
+Step 4 — Governance & Safety Rules
+
+Why governance matters: These changes affect core storefront visuals, so we must isolate style updates from seller data and console logic.
+
+Rules for Implementation
+
+Do NOT modify seller data flows:
+
+Onboarding
+
+Product uploads
+
+Order processing
+
+WhatsApp integration
+→ All business logic remains untouched.
+
+Isolate style variables into a theme config file:
+
+No hard-coded colors in components.
+
+No overrides inside console-specific screens.
+
+Do NOT alter landing page marketing analytics hooks.
+
+Regression check:
+
+After implementation, confirm that authenticated vs unauthenticated flows remain unaffected.
+
+Verify that public store views still inherit branding safely.
+
+Step 5 — Deliverable Checklist for Agent
+
+ Update color tokens & gradients.
+
+ Align buttons, pills, and cards with icy-blue SaaS styling.
+
+ Apply proportional logo sizing rules.
+
+ Lock header typography & hierarchy.
+
+ Test across:
+
+Desktop, tablet, mobile
+
+Light & dark rendering modes
+
+Multi-seller stores.
+
+Final Result
+
+Storefront → Matches landing page in mood and visual identity.
+
+Unified branding = premium, trustworthy, scalable.
+
+Minimal code risk since business logic, seller data, and onboarding remain untouched.

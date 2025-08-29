@@ -700,12 +700,30 @@ ${productUrl}`;
           overflow: hidden;
         }
         
+        /* Icy-blue SaaS theme gradients */
         .bg-mesh {
+          background: linear-gradient(135deg, #EEF3FF 0%, #F8FBFF 100%);
           background-image: 
-            radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+            radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
         }
-        /* Premium ShopLynk avatar with enhanced scaling */
+        
+        /* Primary button gradient styling */
+        .primary-button-gradient {
+          background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+          box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+        }
+        
+        /* Secondary pills and filter chips */
+        .secondary-pill {
+          background-color: #F3F8FE;
+          color: #1E40AF;
+        }
+        
+        .secondary-pill.inactive {
+          color: #6B7280;
+        }
+        /* Icy-blue SaaS themed avatar with subtle inner shadow */
         .shoplynk-avatar {
           width: clamp(104px, 8vw, 128px);
           height: clamp(104px, 8vw, 128px);
@@ -714,8 +732,10 @@ ${productUrl}`;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06),
-                      0 4px 12px rgba(0, 0, 0, 0.03);
+          box-shadow: 
+            inset 0 0 12px rgba(0, 0, 0, 0.03),
+            0 8px 32px rgba(59, 130, 246, 0.08),
+            0 4px 12px rgba(0, 0, 0, 0.03);
           transition: transform 0.2s ease-in-out;
         }
         
@@ -729,7 +749,7 @@ ${productUrl}`;
           transform: scale(1.04);
         }
         
-        /* Unified seller avatar framing system */
+        /* Icy-blue SaaS themed seller avatar */
         .seller-avatar {
           width: clamp(104px, 8vw, 128px);
           height: clamp(104px, 8vw, 128px);
@@ -738,7 +758,9 @@ ${productUrl}`;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+          box-shadow: 
+            inset 0 0 12px rgba(0, 0, 0, 0.03),
+            0 6px 18px rgba(59, 130, 246, 0.06);
         }
         
         .seller-avatar img {
@@ -756,26 +778,27 @@ ${productUrl}`;
           letter-spacing: -0.2px;
         }
         
-        /* Championship typography hierarchy */
+        /* Icy-blue SaaS typography hierarchy */
         .store-name-championship {
           font-weight: 700;
-          font-size: clamp(24px, 4vw, 28px);
+          font-size: 1.75rem;
           color: #111827;
           line-height: 1.2;
         }
         
         .powered-by-championship {
-          font-size: 14px;
           font-weight: 500;
-          color: #2563eb;
+          font-size: 0.95rem;
+          color: #2563EB;
           margin-top: 2px;
           letter-spacing: -0.2px;
         }
         
         .online-store-championship {
           font-weight: 400;
-          font-size: 14px;
+          font-size: 0.85rem;
           color: #6B7280;
+          line-height: 1.4;
         }
         
         /* Enterprise responsive logo scaling handled by clamp */
@@ -910,11 +933,11 @@ ${productUrl}`;
                 {!!paymentMethods.length && (
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-lg border border-white/20"
+                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                      color: '#1F2937',
-                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'
+                      backgroundColor: '#F3F8FE',
+                      color: '#1E40AF',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
                     }}
                     title="View payment methods"
                   >
@@ -925,11 +948,11 @@ ${productUrl}`;
                 {!!deliveryOptions.length && (
                   <button
                     onClick={() => setShowDeliveryModal(true)}
-                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-lg border border-white/20"
+                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                      color: '#1F2937',
-                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'
+                      backgroundColor: '#F3F8FE',
+                      color: '#1E40AF',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
                     }}
                     title="View delivery options"
                   >
@@ -938,11 +961,11 @@ ${productUrl}`;
                   </button>
                 )}
                 {seller.currency && (
-                  <span className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold backdrop-blur-lg border border-white/20"
+                  <span className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                      color: '#1F2937',
-                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'
+                      backgroundColor: '#F3F8FE',
+                      color: '#1E40AF',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
                     }}
                   >
                     <Globe className="h-5 w-5" style={{ color: '#2563EB' }} />
@@ -963,19 +986,19 @@ ${productUrl}`;
                 {isOwner ? (
                   <a 
                     href="/products" 
-                    className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105"
+                    className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105 primary-button-gradient"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 12,
-                      background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
+                      background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
                       color: 'white',
                       padding: '16px 32px',
                       borderRadius: 16,
                       fontWeight: 700,
                       border: 'none',
                       textDecoration: 'none',
-                      boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
+                      boxShadow: '0 4px 6px rgba(59, 130, 246, 0.25)',
                       fontSize: '15px'
                     }}
                   >
@@ -1011,19 +1034,19 @@ ${productUrl}`;
                       href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
                       target="_blank" rel="noopener noreferrer"
                       onClick={() => handleMarketingClick('hero')}
-                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-105"
+                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-105 primary-button-gradient"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: 12,
-                        background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
+                        background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
                         color: 'white',
                         padding: '16px 32px',
                         borderRadius: 16,
                         fontWeight: 700,
                         border: 'none',
                         textDecoration: 'none',
-                        boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
+                        boxShadow: '0 4px 6px rgba(59, 130, 246, 0.25)',
                         fontSize: '15px'
                       }}
                     >
@@ -1055,7 +1078,7 @@ ${productUrl}`;
                 <div 
                   className="absolute -inset-1 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-400"
                   style={{
-                    background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
+                    background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
                     padding: '1px'
                   }}
                 >
