@@ -14,6 +14,7 @@ Preferred communication style: Simple, everyday language.
 5. **Authentication Connection Structure**: Complete seller ID authentication flow with RTDB mirroring - CRITICAL: All onboarding steps mirror to both Firestore AND Firebase Realtime Database, sessionStorage persistence, anonymous user blocking, force refresh mechanism, and AppGuard protection - WORKING and LOCKED as final backup
 6. **Complete Onboarding-Settings Field Synchronization**: Every fillable field from all 3 onboarding steps now saves to Firebase and displays/edits in Settings - All 15 fields mapped: Step 1 (6 fields), Step 2 (7 fields), Step 3 (2 fields) with proper validation, form handling, and data persistence - COMPREHENSIVE FIELD AUDIT COMPLETED and LOCKED
 7. **🔒 GOVERNANCE PROTOCOL ACTIVE**: ShopLynk Onboarding & Settings flows under strict change control - Version-stamped baseline (v1.0) created, Master Change Log implemented, ALL modifications require explicit approval from Senait - Protocol enforced effective August 28, 2025
+8. **🔒 PRODUCT CARD UI/UX DESIGN**: v1.2_UI_UX_FINAL locked as golden reference - Navy category badges (#2C3E50), eco-friendly text (#1E7D3D), attribute text (#333333), enhanced View Details buttons with elevation and hover effects - Fortune 100 quality achieved, NO further UI refinements permitted without explicit unlock
 
 # System Architecture
 
