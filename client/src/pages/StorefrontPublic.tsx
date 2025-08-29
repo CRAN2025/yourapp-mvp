@@ -1411,9 +1411,11 @@ ${productUrl}`;
                     <div className="powered-by-locked">
                       Powered by ShopLynk
                     </div>
-                    <div className="store-description-locked">
-                      {seller.storeDescription || 'Your curated storefront to manage, showcase, and grow your online business seamlessly.'}
-                    </div>
+                    {seller.storeDescription && (
+                      <div className="store-description-locked">
+                        {seller.storeDescription}
+                      </div>
+                    )}
                     <p className="store-subtitle-locked truncate">
                       {seller.location || 'Online Store'}
                     </p>
