@@ -1,0 +1,73 @@
+Final Instruction for AI Agent
+Objective
+
+Enhance the ShopLynk brand presence in the storefront header by:
+
+Dynamically scaling the ShopLynk logo.
+
+Harmonizing the avatar background with the header design.
+
+Preserving the glass-morphism premium polish.
+
+Maintaining governance locks across other components.
+
+Implementation Details
+1. Dynamic Logo Scaling (Proportional to Avatar)
+
+Logo size should always occupy 70% of the avatar’s diameter.
+
+Use the ShopLynk SVG from /assets/shoplynk-logo.svg for crispness.
+
+.avatar-logo {
+  width: 70%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+
+🔹 Why: Ensures the ShopLynk logo is visually authoritative and always scales perfectly across devices.
+
+2. Harmonized Avatar Background
+
+Keep the frosted-glass glassmorphism effect but slightly increase contrast so the ShopLynk logo is visible.
+
+Match avatar background tone to the header background, but make it one shade darker for depth.
+
+.avatar-container {
+  background: rgba(250, 250, 255, 0.7);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+🔹 Result: The ShopLynk logo pops, while still blending naturally into the premium header aesthetic.
+
+3. Adaptive Responsiveness
+
+On mobile (<480px): Reduce avatar to 68px while maintaining 70% logo ratio.
+
+On desktop: Avatar fixed at 88px for balanced header hierarchy.
+
+On 4K/Retina: Maintain SVG scaling for pixel-perfect rendering.
+
+4. Governance Compliance
+
+✅ LOCKED → Product cards untouched (v1.3.1_UI_UX_WHATSAPP_PER_CARD)
+✅ LOCKED → Seller console untouched (v1.7_SELLER_CONSOLE_PREMIUM_POLISH)
+✅ LOCKED → WhatsApp integrations reserved for v1.9
+✅ SAFE TO UPDATE → Public storefront header only.
+
+Expected Result
+
+ShopLynk logo is now crisp, proportional, and visually dominant without feeling heavy.
+
+Avatar background seamlessly integrates with the header, elevating brand trust.
+
+Design stays premium, minimal, and marketplace-ready.
+
+Fully responsive and retina-ready.
