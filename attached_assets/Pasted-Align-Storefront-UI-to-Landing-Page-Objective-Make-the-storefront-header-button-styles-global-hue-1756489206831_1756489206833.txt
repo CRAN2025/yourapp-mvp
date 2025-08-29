@@ -1,0 +1,111 @@
+Align Storefront UI to Landing Page
+Objective
+
+Make the storefront header, button styles, global hues, and shadows fully consistent with the ShopLynk landing page for a polished, enterprise-grade visual system.
+
+Governance Rules
+
+No routing or functional changes — visuals only.
+
+Use global design tokens in themeConfig.js for colors, shadows, and radii.
+
+Match landing page branding 1:1 for CTA buttons, highlights, and base hues.
+
+Maintain WCAG contrast compliance.
+
+Implementation Details
+1. Global Background & Hue
+
+Apply icy-neutral tones globally to remove reddish undertones:
+
+background: linear-gradient(135deg, #F9FBFF 0%, #F3F7FF 100%);
+
+
+Apply to:
+
+Header wrapper
+
+Search bar container
+
+Category pill background
+
+2. Back to Dashboard Button
+
+Replicate ShopLynk landing CTA exactly.
+
+background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+color: #fff;
+font-weight: 600;
+border-radius: 12px;
+padding: 10px 24px;
+box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
+transition: all 0.25s ease-in-out;
+
+
+Hover State
+
+background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+box-shadow: 0 12px 22px rgba(59, 130, 246, 0.35);
+transform: translateY(-2px);
+
+3. Typography Hierarchy
+
+Increase spacing & consistency around the logo area:
+
+.store-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.powered-by {
+    font-size: 14px;
+    color: #3B82F6;
+    margin-bottom: 6px;
+}
+.subtitle {
+    font-size: 13px;
+    color: #6B7280;
+}
+
+
+Maintain 10px vertical gap between Store Name → Powered By → Online Store.
+
+4. Category Pills
+
+Ensure inactive pills match landing neutrals:
+
+.inactive-pill {
+    background: #F9FAFB;
+    color: #6B7280;
+    border: 1px solid #E5EAF5;
+    transition: all 0.2s ease-in-out;
+}
+.inactive-pill:hover {
+    background: #F3F7FF;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+}
+.active-pill {
+    background: #3B82F6;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+5. Centralize Tokens in themeConfig.js
+export const colors = {
+  primary: '#3B82F6',
+  primaryLight: '#60A5FA',
+  backgroundIcy: '#F9FBFF',
+  neutralLight: '#F9FAFB',
+  neutralBorder: '#E5EAF5',
+  neutralText: '#6B7280'
+};
+
+Acceptance Criteria
+
+✅ Storefront header, buttons, and filters perfectly match ShopLynk landing page styles.
+
+✅ No visual inconsistencies in gradient tones or shadows.
+
+✅ Everything remains fully responsive and accessible.
+
+✅ Centralized tokens allow for future brand-wide updates.
