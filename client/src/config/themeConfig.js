@@ -37,20 +37,20 @@ export const shadows = {
   // Micro-elevations
   micro: '0 2px 6px rgba(0, 0, 0, 0.04)',
   
-  // Component shadows
-  card: '0 4px 12px rgba(0, 0, 0, 0.04)',
-  button: '0 8px 20px rgba(59, 130, 246, 0.3)',
-  buttonHover: '0 12px 24px rgba(59, 130, 246, 0.4)',
+  // Component shadows (pixel-perfect landing page match)
+  card: '0 4px 12px rgba(0, 0, 0, 0.06)',
+  button: '0 8px 24px rgba(59, 130, 246, 0.3)',
+  buttonHover: '0 12px 28px rgba(59, 130, 246, 0.4)',
   
   // Avatar and logo
-  avatar: '0 6px 16px rgba(59, 130, 246, 0.12)',
+  avatar: '0 8px 24px rgba(59, 130, 246, 0.12)',
   
   // Pills and chips
-  pill: '0 4px 10px rgba(59, 130, 246, 0.25)',
-  pillHover: '0 4px 12px rgba(59, 130, 246, 0.15)',
+  pill: '0 4px 12px rgba(59, 130, 246, 0.25)',
+  pillHover: '0 4px 10px rgba(59, 130, 246, 0.12)',
   
-  // Favorites badge
-  favoritesBadge: '0 4px 12px rgba(244, 63, 94, 0.2)'
+  // Favorites badge (unified treatment)
+  favoritesBadge: '0 2px 6px rgba(244, 63, 94, 0.4)'
 };
 
 export const gradients = {
