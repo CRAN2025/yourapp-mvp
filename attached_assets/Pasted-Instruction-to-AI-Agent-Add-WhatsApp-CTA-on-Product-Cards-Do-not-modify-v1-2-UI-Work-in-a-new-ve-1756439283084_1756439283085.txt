@@ -1,0 +1,161 @@
+Instruction to AI Agent — Add WhatsApp CTA on Product Cards
+
+Do not modify v1.2 UI.
+Work in a new version and only touch what’s specified.
+
+Versioning
+
+Base (locked): ShopLynk_Onboarding_Settings_v1.2_UI_UX_FINAL
+
+New: ShopLynk_Onboarding_Settings_v1.3_UI_UX_WHATSAPP_CARD
+
+Goal
+
+Show a primary “Contact Seller on WhatsApp” button on every product card (grid/list) so buyers can message the seller without opening the details view.
+
+Placement & Layout
+
+Insert the button between:
+
+Above: the attribute/stock badges block (or horizontal rule)
+
+Below: the price & category badges block
+
+Before the “View Details” button (WhatsApp = primary, View Details = secondary)
+
+Full-width within the card content area; same horizontal padding as the “View Details” button.
+
+Respect current spacing scale (use the same vertical gap tokens used for the details button).
+
+Visual Spec
+
+Label: “Contact Seller”
+
+Icon: WhatsApp glyph (left of label)
+
+Background: #25D366 (WhatsApp green)
+
+Text: #FFFFFF
+
+Border: none
+
+Radius: match “View Details” (currently 10px)
+
+Height: match “View Details” height
+
+Hover/Active:
+
+Hover bg: darken by ~6%
+
+Active bg: darken by ~10%, apply 1px inset shadow
+
+Focus: visible 2px outline rgba(37,211,102,0.5) + offset to meet a11y
+
+Disabled state (see Visibility Logic): 60% opacity, not clickable
+
+Copy & Prefill
+
+Pre-filled message (URL-encoded):
+
+Hi {seller_first_name}, I'm interested in "{product_title}" on ShopLynk.
+
+
+Optional: append product deep-link if available ?p={product_id}
+
+Behavior
+
+Click opens WhatsApp:
+
+Mobile: https://wa.me/{E164_phone}?text={encodedMessage}
+
+Desktop: https://web.whatsapp.com/send?phone={E164_phone}&text={encodedMessage}
+
+Detect via UA; fallback to wa.me.
+
+Open in new tab/window.
+
+Visibility Logic
+
+Show only if seller has a valid E.164 WhatsApp number in onboarding/settings.
+
+If missing/invalid:
+
+Hide the button entirely on public cards.
+
+In seller console preview, show disabled button with tooltip: “Add a WhatsApp number in Settings to enable this.”
+
+If product is out of stock (qty ≤ 0):
+
+Keep button enabled (buyers may still ask), but add subtle caption under the button: “Currently out of stock — message seller for availability.”
+
+Performance & Responsiveness
+
+Must not cause layout shift (reserve height on skeleton).
+
+Works on mobile, tablet, and desktop breakpoints; text wraps gracefully.
+
+Dark mode: use same green; ensure contrast AA (text ratio ≥ 4.5:1).
+
+Accessibility
+
+aria-label="Contact seller about {product_title} on WhatsApp"
+
+Button reachable via keyboard; focus ring visible.
+
+Icon marked aria-hidden="true".
+
+Analytics (events)
+
+Fire analytics with these exact event names & props:
+
+whatsapp_cta_viewed { product_id, seller_id, location: "card" }
+
+whatsapp_cta_clicked { product_id, seller_id, location: "card" }
+
+whatsapp_cta_blocked (if number missing) { product_id, seller_id }
+
+QA / Acceptance Criteria
+
+Button appears on all product cards with a valid number.
+
+Correct position: above “View Details”, below price/badges.
+
+Prefill uses seller first name, product title, and optional deep-link.
+
+Mobile opens native WhatsApp; desktop opens WhatsApp Web.
+
+No regressions to:
+
+Card spacing, badges, prices, or shadows
+
+Seller console and product details (existing WhatsApp button there remains)
+
+Meets a11y focus & contrast; keyboard operable.
+
+RTL locales: icon stays left of text; text direction follows locale.
+
+Smoke test with:
+
+Valid number
+
+Missing number
+
+Out-of-stock product
+
+Long product titles (ellipsis after two lines)
+
+Safeguards
+
+Do not remove or restyle the existing details-page WhatsApp CTA.
+
+Do not change color tokens, typography, or badge styles from v1.2_UI_UX_FINAL.
+
+If any failure in number formatting, do not render the button on public cards.
+
+Rollout switch
+
+Gate behind featureFlag: whatsappCardCTA (default ON for staging, 50% in production if you need canary).
+
+Unlock + Execute Command (one line you can give)
+
+“Unlock v1.2 and implement v1.3_UI_UX_WHATSAPP_CARD exactly as specified above, then report with screenshots on mobile & desktop for products with/without WhatsApp numbers. Do not alter any other UI.”
