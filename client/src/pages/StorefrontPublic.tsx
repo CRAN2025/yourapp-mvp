@@ -700,42 +700,42 @@ ${productUrl}`;
           overflow: hidden;
         }
         
-        /* Perfect icy-blue SaaS background matching landing page */
+        /* Perfect landing page icy gradient with cool palette */
         .bg-mesh {
-          background: linear-gradient(135deg, #F8FBFF 0%, #EEF3FF 100%);
+          background: linear-gradient(135deg, #F9FBFF 0%, #F3F7FF 100%);
           background-image: 
-            radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.06) 0%, transparent 50%);
+            radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
         }
         
-        /* Perfect landing page CTA button matching */
+        /* Perfect landing page CTA button with enhanced interactions */
         .primary-button-gradient {
           background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-          box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
+          box-shadow: 0 8px 18px rgba(59, 130, 246, 0.25);
           border-radius: 12px;
-          padding: 10px 22px;
+          padding: 10px 24px;
           color: #FFFFFF;
           font-weight: 600;
           transition: all 0.25s ease-in-out;
         }
         
         .primary-button-gradient:hover {
-          box-shadow: 0 10px 18px rgba(59, 130, 246, 0.35);
-          transform: translateY(-1px);
+          box-shadow: 0 12px 22px rgba(59, 130, 246, 0.35);
+          transform: translateY(-1.5px);
         }
         
-        /* Perfect landing page category filter pills */
+        /* Perfect landing page neutral filter pills */
         .filter-pill-active {
           background: #3B82F6;
           color: #FFFFFF;
-          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
           border-radius: 12px;
           font-weight: 600;
           transition: all 0.25s ease-in-out;
         }
         
         .filter-pill-inactive {
-          background: #F8FAFF;
+          background: #F9FAFB;
           color: #6B7280;
           border: 1px solid #E5EAF5;
           border-radius: 12px;
@@ -743,7 +743,7 @@ ${productUrl}`;
         }
         
         .filter-pill-inactive:hover {
-          background: #F0F6FF;
+          background: #F3F7FF;
           box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
           transform: translateY(-1px);
         }
@@ -826,6 +826,7 @@ ${productUrl}`;
           font-weight: 500;
           color: #3B82F6;
           margin-top: 2px;
+          margin-bottom: 6px;
           letter-spacing: -0.2px;
         }
         
@@ -970,7 +971,7 @@ ${productUrl}`;
                     onClick={() => setShowPaymentModal(true)}
                     className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: '#F8FAFF',
+                      backgroundColor: '#F9FAFB',
                       color: '#6B7280',
                       border: '1px solid #E5EAF5',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
@@ -986,7 +987,7 @@ ${productUrl}`;
                     onClick={() => setShowDeliveryModal(true)}
                     className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: '#F8FAFF',
+                      backgroundColor: '#F9FAFB',
                       color: '#6B7280',
                       border: '1px solid #E5EAF5',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
@@ -1000,7 +1001,7 @@ ${productUrl}`;
                 {seller.currency && (
                   <span className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold"
                     style={{
-                      backgroundColor: '#F8FAFF',
+                      backgroundColor: '#F9FAFB',
                       color: '#6B7280',
                       border: '1px solid #E5EAF5',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
@@ -1102,7 +1103,7 @@ ${productUrl}`;
         <FullWidthContainer className="py-10">
           <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
             style={{
-              background: 'linear-gradient(135deg, #F8FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
+              background: 'linear-gradient(135deg, #F9FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
               backdropFilter: 'blur(8px)',
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
             }}>

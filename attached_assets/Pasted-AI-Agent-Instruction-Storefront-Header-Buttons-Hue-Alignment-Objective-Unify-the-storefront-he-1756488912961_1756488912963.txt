@@ -1,0 +1,101 @@
+AI Agent Instruction — Storefront Header, Buttons & Hue Alignment
+Objective
+
+Unify the storefront header area, buttons, typography, and background hue to visually match the ShopLynk landing page for a premium SaaS look.
+
+Governance Rules
+
+Do not alter routing, onboarding, API integration, or seller dashboard logic.
+
+Apply changes through centralized style tokens in themeConfig.js.
+
+Maintain accessibility: contrasts, ARIA labels, and focus states intact.
+
+Test responsiveness — mobile, tablet, and desktop must inherit these updates.
+
+Implementation Details
+1. Background & Global Hue
+
+Match landing page's icy gradient and cool palette:
+
+background: linear-gradient(135deg, #F9FBFF 0%, #F3F7FF 100%);
+
+
+This subtly removes the reddish undertone.
+
+Apply this globally in the theme tokens.
+
+2. Back to Dashboard Button
+
+Update gradient, shadow, and interaction states to match landing CTA:
+
+background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+box-shadow: 0 8px 18px rgba(59, 130, 246, 0.25);
+border-radius: 12px;
+color: #fff;
+font-weight: 600;
+padding: 10px 24px;
+transition: all 0.25s ease-in-out;
+
+
+Hover State
+
+box-shadow: 0 12px 22px rgba(59, 130, 246, 0.35);
+transform: translateY(-1.5px);
+
+3. Typography & Hierarchy
+
+“Powered by ShopLynk” spacing and color match:
+
+font-size: 14px;
+font-weight: 500;
+color: #3B82F6;
+margin-top: 2px;
+margin-bottom: 6px;
+
+
+Add a 10px vertical gap between Store Name → Powered By → Online Store to give breathing room.
+
+4. Filter Pills
+
+Make inactive states perfectly match landing page neutral tones:
+
+Active State
+
+background: #3B82F6;
+color: #fff;
+font-weight: 600;
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+
+
+Inactive State
+
+background: #F9FAFB;
+color: #6B7280;
+border: 1px solid #E5EAF5;
+
+
+Hover for Inactive Pills
+
+background: #F3F7FF;
+box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+
+5. Centralize Colors in themeConfig.js
+const colors = {
+  primary: '#3B82F6', // Match landing blue
+  primaryLight: '#60A5FA',
+  backgroundIcy: '#F9FBFF',
+  inactivePill: '#F9FAFB',
+  inactiveBorder: '#E5EAF5',
+  inactiveText: '#6B7280'
+};
+
+Acceptance Criteria
+
+✅ Storefront header fully matches landing page icy-blue aesthetic.
+
+✅ Back button, pills, and highlights match the ShopLynk theme perfectly.
+
+✅ Typography hierarchy looks premium and balanced.
+
+✅ No regressions in seller data, onboarding logic, or responsive views.
