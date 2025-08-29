@@ -734,22 +734,29 @@ ${productUrl}`;
           transform: scale(0.98);
         }
         
-        /* UNIFIED CATEGORY PILLS - Perfect Token Alignment */
+        /* UNIFIED CATEGORY PILLS - Perfect Height Alignment */
         .category-pill {
           display: inline-flex;
           align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 10px 20px;
+          height: var(--control-height);
+          padding: 0 var(--control-pad-x);
           border-radius: var(--control-radius);
+          font-size: var(--control-font-size);
+          line-height: var(--control-line-height);
+          gap: var(--control-gap);
           font-weight: var(--control-font-weight);
-          font-size: 14px;
           color: #555;
           background: var(--control-bg-inactive);
           border: var(--control-border);
           cursor: pointer;
           box-shadow: var(--control-shadow);
           transition: var(--control-transition);
+        }
+        
+        .category-pill .icon {
+          width: var(--icon-size);
+          height: var(--icon-size);
+          flex: 0 0 var(--icon-size);
         }
         
         .category-pill:hover {
@@ -804,10 +811,35 @@ ${productUrl}`;
           box-shadow: var(--control-shadow-hover);
         }
         
+        /* Filter Bar Layout */
+        .filter-bar {
+          display: grid;
+          grid-template-columns: 1fr auto auto;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .filter-bar__section-title {
+          margin-bottom: 8px;
+        }
+        
         /* UNIFIED FILTER CONTROL BAR COMPONENTS */
         /* Global design tokens for consistent visual language */
         :root {
+          /* Control sizing */
+          --control-height: 40px;
           --control-radius: 12px;
+          --control-pad-x: 14px;
+          --control-gap: 10px;
+          
+          /* Typography for controls */
+          --control-font-size: 14px;
+          --control-line-height: 20px;
+          
+          /* Icon sizing */
+          --icon-size: 16px;
+          
+          /* Visual tokens */
           --control-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           --control-bg-inactive: #f8f9fc;
           --control-border: 1px solid #e5e7eb;
@@ -818,17 +850,32 @@ ${productUrl}`;
         }
         
         /* Unified Dropdown Styling */
-        .unified-dropdown {
+        .unified-dropdown,
+        .sort-dropdown {
+          display: inline-flex;
+          align-items: center;
+          height: var(--control-height);
+          padding: 0 var(--control-pad-x);
+          border-radius: var(--control-radius);
+          font-size: var(--control-font-size);
+          line-height: var(--control-line-height);
+          gap: var(--control-gap);
           background: var(--control-bg-inactive);
           border: var(--control-border);
-          border-radius: var(--control-radius);
           box-shadow: var(--control-shadow);
           font-weight: var(--control-font-weight);
-          font-size: 14px;
           color: #555;
-          padding: 10px 16px;
           cursor: pointer;
           transition: var(--control-transition);
+        }
+        
+        .sort-dropdown .icon,
+        .sort-dropdown .chevron,
+        .unified-dropdown .icon,
+        .unified-dropdown .chevron {
+          width: var(--icon-size);
+          height: var(--icon-size);
+          flex: 0 0 var(--icon-size);
         }
         
         .unified-dropdown:hover {
@@ -846,20 +893,42 @@ ${productUrl}`;
         }
         
         /* Unified Favorites Button */
-        .unified-favorites-button {
-          background: var(--control-bg-inactive);
-          border: var(--control-border);
-          border-radius: var(--control-radius);
-          box-shadow: var(--control-shadow);
-          font-weight: var(--control-font-weight);
-          font-size: 14px;
-          color: #555;
-          padding: 10px 16px;
-          cursor: pointer;
-          transition: var(--control-transition);
+        .unified-favorites-button,
+        .favorites-chip {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          height: var(--control-height);
+          padding: 0 var(--control-pad-x);
+          border-radius: var(--control-radius);
+          font-size: var(--control-font-size);
+          line-height: var(--control-line-height);
+          gap: var(--control-gap);
+          background: var(--control-bg-inactive);
+          border: var(--control-border);
+          box-shadow: var(--control-shadow);
+          font-weight: var(--control-font-weight);
+          color: #555;
+          cursor: pointer;
+          transition: var(--control-transition);
+        }
+        
+        .favorites-chip .icon,
+        .unified-favorites-button .icon {
+          width: var(--icon-size);
+          height: var(--icon-size);
+          flex: 0 0 var(--icon-size);
+        }
+        
+        .favorites-chip .badge,
+        .unified-favorites-button .badge {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 18px;
+          height: 18px;
+          border-radius: 999px;
+          font-size: 12px;
+          line-height: 12px;
         }
         
         .unified-favorites-button:hover {
@@ -1295,12 +1364,12 @@ ${productUrl}`;
                 )}
               </div>
 
-              {/* v1.8 Enhanced Filters */}
-              <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
+              {/* v1.8 Enhanced Filters - Unified Height System */}
+              <div className="filter-bar flex flex-col xl:flex-row gap-6 items-start xl:items-center">
                 {/* v1.8 Category Pills with Pastel Backgrounds */}
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-6">
-                    <span className="text-base font-bold text-slate-700 uppercase tracking-wide flex items-center">
+                    <span className="filter-bar__section-title text-base font-bold text-slate-700 uppercase tracking-wide flex items-center">
                       <Filter className="w-5 h-5 mr-3 text-blue-600" />
                       Categories
                     </span>
@@ -1310,7 +1379,7 @@ ${productUrl}`;
                       variant="outline"
                       size="sm"
                       onClick={() => setCategoryFilter('all')}
-                      className={`px-8 py-4 font-bold transition-all duration-300 micro-elevation ${
+                      className={`category-pill transition-all duration-300 micro-elevation ${
                         categoryFilter === 'all' 
                           ? 'filter-pill-active' 
                           : 'filter-pill-inactive'
@@ -1327,7 +1396,7 @@ ${productUrl}`;
                           variant="outline"
                           size="sm"
                           onClick={() => setCategoryFilter(category)}
-                          className={`px-8 py-4 font-bold transition-all duration-300 micro-elevation ${
+                          className={`category-pill transition-all duration-300 micro-elevation ${
                             isActive 
                               ? 'filter-pill-active' 
                               : 'filter-pill-inactive'
@@ -1343,16 +1412,18 @@ ${productUrl}`;
                 {/* v1.9 Championship Controls */}
                 <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-56 h-14 border-0 unified-dropdown"
+                    <SelectTrigger className="w-56 sort-dropdown border-0"
                       style={{
+                        height: 'var(--control-height)',
+                        padding: '0 var(--control-pad-x)',
                         background: 'var(--control-bg-inactive)',
                         border: 'var(--control-border)',
                         borderRadius: 'var(--control-radius)',
                         boxShadow: 'var(--control-shadow)',
                         fontWeight: 'var(--control-font-weight)',
-                        fontSize: '14px',
+                        fontSize: 'var(--control-font-size)',
+                        lineHeight: 'var(--control-line-height)',
                         color: '#555',
-                        padding: '10px 16px',
                         transition: 'var(--control-transition)'
                       }}>
                       <SelectValue placeholder="Sort by" />
@@ -1376,22 +1447,30 @@ ${productUrl}`;
                     variant="outline"
                     size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className={`h-14 px-8 border-0 unified-favorites-button ${showFavorites ? 'active' : ''}`}
+                    className={`favorites-chip border-0 ${showFavorites ? 'active' : ''}`}
                     style={showFavorites ? {
+                      height: 'var(--control-height)',
+                      padding: '0 var(--control-pad-x)',
                       background: 'var(--control-gradient)',
                       color: '#fff',
                       border: 'none',
                       boxShadow: '0 5px 18px rgba(80, 155, 255, 0.45)',
                       borderRadius: 'var(--control-radius)',
                       fontWeight: 'var(--control-font-weight)',
+                      fontSize: 'var(--control-font-size)',
+                      lineHeight: 'var(--control-line-height)',
                       transition: 'var(--control-transition)'
                     } : {
+                      height: 'var(--control-height)',
+                      padding: '0 var(--control-pad-x)',
                       background: 'var(--control-bg-inactive)',
                       color: '#555',
                       border: 'var(--control-border)',
                       borderRadius: 'var(--control-radius)',
                       boxShadow: 'var(--control-shadow)',
                       fontWeight: 'var(--control-font-weight)',
+                      fontSize: 'var(--control-font-size)',
+                      lineHeight: 'var(--control-line-height)',
                       transition: 'var(--control-transition)'
                     }}
                     data-testid="button-toggle-favorites"

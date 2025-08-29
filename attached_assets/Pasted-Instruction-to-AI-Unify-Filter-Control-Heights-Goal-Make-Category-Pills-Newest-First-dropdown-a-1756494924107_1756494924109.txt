@@ -1,0 +1,118 @@
+Instruction to AI — Unify Filter Control Heights
+Goal
+
+Make Category Pills, Newest First dropdown, and Favorites the exact same height and baseline so they feel like one system.
+
+What to change (ONE change only)
+
+Introduce a single height token and apply it to all three control types.
+
+1) Add/confirm tokens (design system)
+:root {
+  /* Control sizing */
+  --control-height: 40px;         /* was inconsistent across components */
+  --control-radius: 12px;         /* already used for pills/cta */
+  --control-pad-x: 14px;          /* horizontal padding */
+  --control-gap: 10px;            /* internal icon/text gap */
+
+  /* Typography for controls */
+  --control-font-size: 14px;
+  --control-line-height: 20px;
+
+  /* Icon sizing */
+  --icon-size: 16px;
+}
+
+2) Normalize Category Pills
+/* Base pill */
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height);
+  padding: 0 var(--control-pad-x);
+  border-radius: var(--control-radius);
+  font-size: var(--control-font-size);
+  line-height: var(--control-line-height);
+  gap: var(--control-gap);
+}
+
+/* Icons inside pills */
+.category-pill .icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex: 0 0 var(--icon-size);
+}
+
+3) Normalize “Newest First” dropdown
+/* Wrapper button/select for the dropdown */
+.sort-dropdown {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height);
+  padding: 0 var(--control-pad-x);
+  border-radius: var(--control-radius);
+  font-size: var(--control-font-size);
+  line-height: var(--control-line-height);
+  gap: var(--control-gap);
+}
+
+/* Icons inside the dropdown (badge + chevron) */
+.sort-dropdown .icon,
+.sort-dropdown .chevron {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex: 0 0 var(--icon-size);
+}
+
+4) Normalize Favorites control
+.favorites-chip {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height);
+  padding: 0 var(--control-pad-x);
+  border-radius: var(--control-radius);
+  font-size: var(--control-font-size);
+  line-height: var(--control-line-height);
+  gap: var(--control-gap);
+}
+
+.favorites-chip .icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex: 0 0 var(--icon-size);
+}
+
+/* Badge should be vertically centered within the shared height */
+.favorites-chip .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 12px;
+}
+
+5) Align baselines inside a shared bar
+.filter-bar {
+  display: grid;
+  grid-template-columns: 1fr auto auto; /* pills | dropdown | favorites */
+  align-items: center;                   /* vertical centering across all */
+  gap: 12px;
+}
+
+/* Ensure the “Categories” label does not push pills down */
+.filter-bar__section-title {
+  margin-bottom: 8px; /* title spacing only, not affecting controls */
+}
+
+Governance
+
+Do not change gradients, shadows, or colors (those are locked).
+
+Apply only these size/height/spacing changes.
+
+Use the same tokens everywhere these controls exist (other pages will inherit).
+
+If any component has internal overrides (e.g., line-height: 44px;), remove them so the tokenized height rules take effect.
