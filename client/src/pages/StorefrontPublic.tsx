@@ -705,7 +705,7 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Enterprise-grade ShopLynk avatar container */
+        /* Global championship ShopLynk avatar */
         .shoplynk-avatar {
           width: clamp(96px, 9vw, 120px);
           height: clamp(96px, 9vw, 120px);
@@ -714,12 +714,14 @@ ${productUrl}`;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+          box-shadow:
+            0 8px 20px rgba(0, 0, 0, 0.06),
+            0 4px 10px rgba(0, 0, 0, 0.03);
           transition: transform 0.2s ease-in-out;
         }
         
         .shoplynk-avatar img {
-          width: 78%;
+          width: 80%;
           height: auto;
           object-fit: contain;
         }
@@ -815,7 +817,7 @@ ${productUrl}`;
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
                           e.currentTarget.className = 'seller-avatar';
-                          e.currentTarget.style.width = '78%';
+                          e.currentTarget.style.width = '80%';
                           e.currentTarget.style.height = 'auto';
                           e.currentTarget.style.objectFit = 'contain';
                           e.currentTarget.style.borderRadius = '0';
@@ -828,7 +830,7 @@ ${productUrl}`;
                         alt="ShopLynk logo"
                         className="shoplynk-avatar"
                         style={{ 
-                          width: '78%',
+                          width: '80%',
                           height: 'auto',
                           objectFit: 'contain'
                         }}
