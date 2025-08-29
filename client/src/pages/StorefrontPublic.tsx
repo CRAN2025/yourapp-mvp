@@ -708,10 +708,10 @@ ${productUrl}`;
             radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
         }
         
-        /* Enterprise CTA button matching landing page exactly */
+        /* Premium CTA button with enhanced depth */
         .primary-button-gradient {
           background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
           border-radius: 12px;
           padding: 12px 28px;
           color: #FFFFFF;
@@ -721,15 +721,15 @@ ${productUrl}`;
         
         .primary-button-gradient:hover {
           background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
-          box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4);
+          box-shadow: 0 12px 28px rgba(59, 130, 246, 0.4);
           transform: translateY(-2px);
         }
         
-        /* Premium landing page style category pills */
+        /* Enterprise category pills with consistent depth */
         .filter-pill-active {
           background: #3B82F6;
           color: #FFFFFF;
-          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
           border-radius: 12px;
           font-weight: 600;
           transition: all 0.2s ease-in-out;
@@ -745,7 +745,7 @@ ${productUrl}`;
         
         .filter-pill-inactive:hover {
           background: #F3F7FF;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.12);
           transform: translateY(-1px);
         }
         
@@ -763,18 +763,17 @@ ${productUrl}`;
         .micro-elevation {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
-        /* Enterprise logo container with enhanced depth */
+        /* Enterprise logo container with premium depth */
         .shoplynk-avatar {
           width: clamp(64px, 8vw, 128px);
           height: clamp(64px, 8vw, 128px);
           border-radius: 16px;
-          background: rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(10px);
+          background: #FFFFFF;
           display: flex;
           justify-content: center;
           align-items: center;
           padding: 16px;
-          box-shadow: 0 6px 16px rgba(59, 130, 246, 0.12);
+          box-shadow: 0 8px 24px rgba(59, 130, 246, 0.12);
           transition: all 0.25s ease-in-out;
         }
         
@@ -839,6 +838,14 @@ ${productUrl}`;
           font-weight: 400;
           color: #6B7280;
           line-height: 1.4;
+        }
+        
+        /* Consistent favorites badge styling */
+        .favorites-badge {
+          background-color: #F43F5E;
+          box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+          color: #FFFFFF;
+          font-weight: 600;
         }
         
         /* Enterprise responsive logo scaling handled by clamp */
