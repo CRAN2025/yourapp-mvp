@@ -708,21 +708,27 @@ ${productUrl}`;
             radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
         }
         
-        /* ShopLynk landing page CTA button exact match */
+        /* Perfect ShopLynk landing page CTA button match */
         .primary-button-gradient {
-          background: linear-gradient(135deg, #4DAEFF 0%, #5271FF 100%);
-          box-shadow: 0 8px 20px rgba(77, 174, 255, 0.35);
+          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          box-shadow: 0 8px 24px rgba(77, 174, 255, 0.35);
           border-radius: 12px;
           padding: 12px 28px;
           color: #FFFFFF;
-          font-weight: 600;
+          font-weight: 700;
           font-size: 16px;
+          letter-spacing: 0.3px;
           transition: all 0.25s ease-in-out;
         }
         
         .primary-button-gradient:hover {
           background: linear-gradient(135deg, #5ABFFF 0%, #5F7AFF 100%);
           transform: scale(1.05);
+          box-shadow: 0 10px 28px rgba(77, 174, 255, 0.4);
+        }
+        
+        .primary-button-gradient:active {
+          transform: scale(0.98);
         }
         
         /* Enterprise category pills with consistent depth */
