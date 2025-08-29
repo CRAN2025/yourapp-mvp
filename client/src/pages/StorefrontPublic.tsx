@@ -700,46 +700,50 @@ ${productUrl}`;
           overflow: hidden;
         }
         
-        /* Icy-blue SaaS theme gradients */
+        /* Perfect icy-blue SaaS background matching landing page */
         .bg-mesh {
-          background: linear-gradient(135deg, #EEF3FF 0%, #F8FBFF 100%);
+          background: linear-gradient(135deg, #F8FBFF 0%, #EEF3FF 100%);
           background-image: 
-            radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.08) 0%, transparent 50%);
+            radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.06) 0%, transparent 50%);
         }
         
-        /* Landing page matched CTA button styling */
+        /* Perfect landing page CTA button matching */
         .primary-button-gradient {
           background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-          box-shadow: 0 6px 14px rgba(59, 130, 246, 0.2);
+          box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
           border-radius: 12px;
+          padding: 10px 22px;
           color: #FFFFFF;
           font-weight: 600;
-          transition: all 0.2s ease-in-out;
+          transition: all 0.25s ease-in-out;
         }
         
         .primary-button-gradient:hover {
-          box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+          box-shadow: 0 10px 18px rgba(59, 130, 246, 0.35);
           transform: translateY(-1px);
         }
         
-        /* Category filter pills - landing page matched */
+        /* Perfect landing page category filter pills */
         .filter-pill-active {
           background: #3B82F6;
           color: #FFFFFF;
           box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
           border-radius: 12px;
-          transition: all 0.2s ease-in-out;
+          font-weight: 600;
+          transition: all 0.25s ease-in-out;
         }
         
         .filter-pill-inactive {
-          background: #F4F7FE;
+          background: #F8FAFF;
           color: #6B7280;
+          border: 1px solid #E5EAF5;
           border-radius: 12px;
-          transition: all 0.2s ease-in-out;
+          transition: all 0.25s ease-in-out;
         }
         
         .filter-pill-inactive:hover {
+          background: #F0F6FF;
           box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
           transform: translateY(-1px);
         }
@@ -756,18 +760,18 @@ ${productUrl}`;
         .micro-elevation {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
-        /* Landing page matched logo container with depth */
+        /* Perfect landing page matched logo container */
         .shoplynk-avatar {
           width: clamp(64px, 8vw, 128px);
           height: clamp(64px, 8vw, 128px);
           border-radius: 16px;
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(12px);
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(10px);
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-          transition: transform 0.2s ease-in-out;
+          box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+          transition: all 0.25s ease-in-out;
         }
         
         .shoplynk-avatar img {
@@ -818,9 +822,9 @@ ${productUrl}`;
         }
         
         .powered-by-championship {
+          font-size: 14px;
           font-weight: 500;
-          font-size: 0.95rem;
-          color: #2563EB;
+          color: #3B82F6;
           margin-top: 2px;
           letter-spacing: -0.2px;
         }
@@ -966,13 +970,14 @@ ${productUrl}`;
                     onClick={() => setShowPaymentModal(true)}
                     className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: '#F3F8FE',
-                      color: '#1E40AF',
+                      backgroundColor: '#F8FAFF',
+                      color: '#6B7280',
+                      border: '1px solid #E5EAF5',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
                     }}
                     title="View payment methods"
                   >
-                    <CreditCard className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#2563EB' }} />
+                    <CreditCard className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#3B82F6' }} />
                     {paymentMethods.length} Payment Methods
                   </button>
                 )}
@@ -981,25 +986,27 @@ ${productUrl}`;
                     onClick={() => setShowDeliveryModal(true)}
                     className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105"
                     style={{
-                      backgroundColor: '#F3F8FE',
-                      color: '#1E40AF',
+                      backgroundColor: '#F8FAFF',
+                      color: '#6B7280',
+                      border: '1px solid #E5EAF5',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
                     }}
                     title="View delivery options"
                   >
-                    <Truck className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#2563EB' }} />
+                    <Truck className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#3B82F6' }} />
                     {deliveryOptions.length} Delivery Options
                   </button>
                 )}
                 {seller.currency && (
                   <span className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold"
                     style={{
-                      backgroundColor: '#F3F8FE',
-                      color: '#1E40AF',
+                      backgroundColor: '#F8FAFF',
+                      color: '#6B7280',
+                      border: '1px solid #E5EAF5',
                       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
                     }}
                   >
-                    <Globe className="h-5 w-5" style={{ color: '#2563EB' }} />
+                    <Globe className="h-5 w-5" style={{ color: '#3B82F6' }} />
                     {seller.currency} Currency
                   </span>
                 )}

@@ -1,0 +1,122 @@
+Storefront Header + Global Unification
+
+(Governance enforced — scoped for visuals only)
+
+1. Objective
+
+Make the storefront visually identical to the ShopLynk landing page in terms of:
+
+Colors & gradients
+
+Shadows & depth
+
+Typography hierarchy
+
+Button consistency
+
+Unified modern SaaS look
+
+2. Observations from Screenshot
+
+✅ Logo container: Correct square shape, subtle shadows look good.
+
+⚠️ Back button: Slight mismatch vs. landing page CTA gradient and shadow.
+
+⚠️ Pills (category filters): Inactive and active states don’t yet match icy-blue palette.
+
+⚠️ Overall hue: Still leans slightly toward gray; landing page has a cooler, crisp bluish tint.
+
+⚠️ Typography: “Powered by ShopLynk” hierarchy and spacing need alignment.
+
+3. Governance Rules (MUST FOLLOW)
+
+Do not modify business logic, routing, data, or backend integration.
+
+All style tokens must be declared centrally in themeConfig.js or equivalent.
+
+Changes must be responsive and accessibility-compliant.
+
+Perform non-destructive edits — ensure sellers’ storefront content remains intact.
+
+4. Implementation Instructions
+A. Logo Container (Left Header)
+
+Keep current base, just enhance depth slightly:
+
+background: rgba(255, 255, 255, 0.9);
+backdrop-filter: blur(10px);
+box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+border-radius: 16px;
+transition: all 0.25s ease-in-out;
+
+B. “Back to Dashboard” Button (Right Header)
+
+Match landing page gradient + hover feel:
+
+background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
+border-radius: 12px;
+padding: 10px 22px;
+color: #FFFFFF;
+font-weight: 600;
+transition: all 0.25s ease-in-out;
+
+
+Hover state:
+
+box-shadow: 0 10px 18px rgba(59, 130, 246, 0.35);
+transform: translateY(-1px);
+
+C. Category Filter Pills
+Active Pill
+background: #3B82F6;
+color: #FFFFFF;
+box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+font-weight: 600;
+
+Inactive Pills
+background: #F8FAFF;
+color: #6B7280;
+border: 1px solid #E5EAF5;
+
+
+Hover for inactive:
+
+background: #F0F6FF;
+box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+transform: translateY(-1px);
+
+D. Typography Hierarchy
+
+Powered by ShopLynk should visually balance better:
+
+font-size: 14px;
+font-weight: 500;
+color: #3B82F6; /* Match landing page blue */
+margin-top: 2px;
+
+
+Spacing: Ensure 8px gap between title → powered-by → subtitle for symmetry.
+
+E. Global Theme Token Update
+
+Add in themeConfig.js:
+
+const colors = {
+  primaryBlue: '#3B82F6',
+  primaryBlueLight: '#60A5FA',
+  icyBackground: '#F8FBFF',
+  inactivePill: '#F8FAFF',
+  inactiveBorder: '#E5EAF5',
+  inactiveText: '#6B7280'
+};
+
+
+Use these variables for all buttons, pills, highlights.
+
+5. Acceptance Criteria
+
+✅ Storefront top section visually matches the landing page icy-blue theme
+✅ Gradients, buttons, and filters feel unified
+✅ Spacing, shadows, and typography consistent
+✅ No onboarding, seller data, or routing logic affected
