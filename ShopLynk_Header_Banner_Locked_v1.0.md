@@ -39,8 +39,11 @@ This document establishes the locked header/banner token system for ShopLynk sto
 ```css
 --header-spacing-vertical: 4px;   /* Store Name → Powered by text */
 --header-spacing-minimal: 2px;    /* Powered by → Subtitle */
+--header-spacing: 16px;           /* Uniform header padding and gaps */
+--header-elevation: 0px 8px 20px rgba(0, 0, 0, 0.04);
+--header-border-radius: 16px;
 ```
-**Implementation**: Decreased vertical gaps for tighter, more professional layout
+**Implementation**: Decreased vertical gaps for tighter layout, enhanced elevation for premium feel
 
 ### Payment & Delivery Badge Cards
 ```css
@@ -48,11 +51,12 @@ This document establishes the locked header/banner token system for ShopLynk sto
 --badge-card-style-border: 1px solid #e5e7eb;
 --badge-card-style-radius: 12px;
 --badge-card-style-padding: 8px 16px;
---badge-card-style-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+--badge-card-style-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 ```
 **Features**:
-- Matches category pill styling tokens exactly
+- Enhanced shadow to match store logo elevation
 - Perfect baseline alignment with Back to Dashboard CTA
+- Matches category pill styling tokens for consistency
 - Solid white background with neutral border treatment
 
 ### Responsive Scaling
@@ -62,6 +66,48 @@ This document establishes the locked header/banner token system for ShopLynk sto
 ```
 
 ## Component Implementation
+
+### Locked Header Container
+```css
+.header-container-locked {
+  background: var(--header-bg-gradient);
+  border-radius: var(--header-border-radius);
+  box-shadow: var(--header-elevation);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+```
+
+### Perfect Vertical Alignment System
+```css
+.header-row-locked {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--header-spacing);
+  padding: var(--header-spacing);
+}
+
+.store-info-block {
+  display: flex;
+  align-items: center;
+  gap: var(--header-spacing);
+  flex: 1;
+  min-width: 0;
+}
+
+.badges-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cta-block {
+  display: flex;
+  align-items: center;
+}
+```
 
 ### Store Logo Container - Locked Class
 ```css
@@ -126,6 +172,12 @@ This document establishes the locked header/banner token system for ShopLynk sto
   padding: var(--badge-card-style-padding);
   box-shadow: var(--badge-card-style-shadow);
   transition: var(--token-transition-default);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 14px;
+  color: #6B7280;
 }
 
 .payment-delivery-badge:hover {
@@ -210,13 +262,14 @@ All seller and buyer storefront headers must:
 
 ## Implementation Status
 
-### Completed Features
-- ✅ **Background Gradient**: Locked icy-blue header gradient token
-- ✅ **Logo Container**: 1:1 aspect ratio with reduced padding and locked shadow
+### Completed Features - FINAL VERSION
+- ✅ **Background Gradient**: Locked icy-blue header gradient token with 16px border radius
+- ✅ **Logo Container**: 1:1 aspect ratio with reduced 12px padding and enhanced shadow
 - ✅ **Typography System**: Store title, powered-by, and subtitle locked classes
-- ✅ **Badge Styling**: Payment/delivery badges inherit category pill tokens
-- ✅ **Responsive Scaling**: Mobile and tablet scaling with locked factors
-- ✅ **Baseline Alignment**: Perfect alignment with CTA and badge elements
+- ✅ **Badge Styling**: Payment/delivery badges inherit category pill tokens with enhanced shadow
+- ✅ **Perfect Vertical Alignment**: Three-block system (Store Info + Badges + CTA) with baseline alignment
+- ✅ **Responsive Behavior**: Mobile stacking and tablet scaling with locked factors
+- ✅ **Header Container**: Unified locked styling with premium elevation and backdrop blur
 
 ### Token Integration
 - ✅ **CTA Compatibility**: Header tokens align with existing CTA system
