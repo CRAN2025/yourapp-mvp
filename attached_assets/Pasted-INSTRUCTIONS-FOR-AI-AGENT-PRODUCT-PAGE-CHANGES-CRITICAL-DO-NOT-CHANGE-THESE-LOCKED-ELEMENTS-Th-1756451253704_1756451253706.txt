@@ -1,0 +1,84 @@
+INSTRUCTIONS FOR AI AGENT - PRODUCT PAGE CHANGES
+⚠️ CRITICAL: DO NOT CHANGE THESE LOCKED ELEMENTS
+These are working perfectly - DO NOT modify:
+
+✅ Current stock indicator design (green/red badges with count)
+✅ Price display format ($X.XX per unit)
+✅ Category tag system (Electronics, Jewelry & Accessories, etc.)
+✅ Feature badges (Handmade, Eco-friendly, Customizable, Gift Wrap)
+✅ Product image with overlay design
+✅ Heart/favorite icon placement
+✅ Edit and Preview button design and placement
+✅ Overall card layout and spacing
+✅ Color scheme (green/red for stock status)
+✅ Typography and font sizes
+
+🔒 ONLY ADD these specific features WITHOUT breaking existing functionality:
+
+Add "Copy Link" button
+
+Place AFTER the Preview button
+Match existing button styling exactly
+Don't change current button layouts
+
+
+Add view counter text
+
+Place BELOW the feature badges
+Use same subtle gray as existing secondary text
+Small font size, don't disrupt current visual hierarchy
+
+
+Add "Mark as Sold" in More menu
+
+Add to existing menu structure only
+Don't change current menu items
+
+
+Enhance stock = 1 display
+
+Only change the TEXT to "LAST ONE!" when stock = 1
+Keep same red badge styling
+Don't alter the badge component itself
+
+
+Add sold counter
+
+Place next to view counter with pipe separator
+Same gray, same size as view counter
+Don't affect current layout spacing
+
+
+Add Duplicate option
+
+Only add to More menu
+Don't modify existing menu options
+
+
+Add checkbox for bulk mode
+
+Top-left corner, subtle, only visible on hover
+Don't shift any existing elements
+
+
+
+⛔ ABSOLUTELY DO NOT:
+
+Change any colors of existing elements
+Modify spacing or padding
+Alter font sizes of existing text
+Reorganize current button positions
+Modify the card structure
+Change how current stock badges work
+Touch the image display logic
+Alter category or feature badge systems
+
+TEST CHECKLIST AFTER CHANGES:
+
+ All existing features still work exactly as before
+ No visual regression on current design
+ New features are additions only, not replacements
+ Mobile view remains unchanged except for new additions
+ Page load performance not degraded
+
+SUMMARY: Add 7 new features WITHOUT touching anything that currently exists. Think of it as careful surgery - insert new features without disturbing the healthy tissue around them.RetryClaude can make mistakes. Please double-check responses.
