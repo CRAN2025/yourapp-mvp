@@ -708,30 +708,31 @@ ${productUrl}`;
             radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
         }
         
-        /* Perfect landing page CTA button with enhanced interactions */
+        /* Enterprise CTA button matching landing page exactly */
         .primary-button-gradient {
           background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-          box-shadow: 0 8px 18px rgba(59, 130, 246, 0.25);
+          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
           border-radius: 12px;
-          padding: 10px 24px;
+          padding: 12px 28px;
           color: #FFFFFF;
           font-weight: 600;
           transition: all 0.25s ease-in-out;
         }
         
         .primary-button-gradient:hover {
-          box-shadow: 0 12px 22px rgba(59, 130, 246, 0.35);
-          transform: translateY(-1.5px);
+          background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+          box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4);
+          transform: translateY(-2px);
         }
         
-        /* Perfect landing page neutral filter pills */
+        /* Premium landing page style category pills */
         .filter-pill-active {
           background: #3B82F6;
           color: #FFFFFF;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
           border-radius: 12px;
           font-weight: 600;
-          transition: all 0.25s ease-in-out;
+          transition: all 0.2s ease-in-out;
         }
         
         .filter-pill-inactive {
@@ -739,28 +740,30 @@ ${productUrl}`;
           color: #6B7280;
           border: 1px solid #E5EAF5;
           border-radius: 12px;
-          transition: all 0.25s ease-in-out;
+          transition: all 0.2s ease-in-out;
         }
         
         .filter-pill-inactive:hover {
           background: #F3F7FF;
-          box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
           transform: translateY(-1px);
         }
         
-        /* Frosted glass search bar */
+        /* Premium search bar matching landing page inputs */
         .frosted-search {
-          background: rgba(255, 255, 255, 0.75);
-          backdrop-filter: blur(8px);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          background: #FFFFFF;
+          border: 1px solid #E5EAF5;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
           border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
         }
         
         /* Consistent micro-elevations */
         .micro-elevation {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
-        /* Perfect landing page matched logo container */
+        /* Enterprise logo container with enhanced depth */
         .shoplynk-avatar {
           width: clamp(64px, 8vw, 128px);
           height: clamp(64px, 8vw, 128px);
@@ -770,7 +773,8 @@ ${productUrl}`;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+          padding: 16px;
+          box-shadow: 0 6px 16px rgba(59, 130, 246, 0.12);
           transition: all 0.25s ease-in-out;
         }
         
@@ -815,24 +819,24 @@ ${productUrl}`;
         
         /* Icy-blue SaaS typography hierarchy */
         .store-name-championship {
+          font-size: 24px;
           font-weight: 700;
-          font-size: 1.75rem;
           color: #111827;
           line-height: 1.2;
+          margin-bottom: 4px;
         }
         
         .powered-by-championship {
           font-size: 14px;
           font-weight: 500;
           color: #3B82F6;
-          margin-top: 2px;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
           letter-spacing: -0.2px;
         }
         
         .online-store-championship {
+          font-size: 13px;
           font-weight: 400;
-          font-size: 0.85rem;
           color: #6B7280;
           line-height: 1.4;
         }

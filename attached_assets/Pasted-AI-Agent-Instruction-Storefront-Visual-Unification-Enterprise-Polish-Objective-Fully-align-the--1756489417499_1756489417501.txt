@@ -1,0 +1,155 @@
+AI Agent Instruction – Storefront Visual Unification (Enterprise Polish)
+Objective
+
+Fully align the storefront visual design with the ShopLynk landing page for a cohesive, premium, and enterprise-ready user experience. This includes buttons, gradients, backgrounds, typography, shadows, and spacing.
+
+Governance Rules
+
+No functional changes — visuals, styles, and layout polish only.
+
+All tokens must be centralized in themeConfig.js for long-term maintainability.
+
+Match ShopLynk landing page design language for brand consistency.
+
+Accessibility must be preserved — WCAG AA compliant contrast.
+
+Pixel-perfect alignment between landing page and storefront UI.
+
+Design Requirements
+1. Global Background & Hue (Top-Level Layout)
+
+Problem: Storefront still has faint reddish undertones compared to the icy-blue ShopLynk landing page.
+
+Solution: Apply the same landing page gradient globally.
+
+background: linear-gradient(135deg, #F9FBFF 0%, #F3F7FF 100%);
+
+
+Apply to:
+
+Header wrapper
+
+Search/filter bar background
+
+Category filter container
+
+2. Header & Branding Zone
+
+Logo Container
+
+Shape: Keep square (consistent with landing design).
+
+Elevation: Add soft shadow depth.
+
+box-shadow: 0 6px 16px rgba(59, 130, 246, 0.12);
+border-radius: 16px;
+
+
+Padding: 16px for proportional breathing room.
+
+Title Hierarchy
+
+.store-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.powered-by {
+  font-size: 14px;
+  font-weight: 500;
+  color: #3B82F6;
+  margin-bottom: 4px;
+}
+.subtitle {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+3. Back to Dashboard Button
+
+Current issue: Button color and depth don’t match landing CTAs.
+
+Fix: Match ShopLynk landing gradient CTA exactly.
+
+background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+color: #FFFFFF;
+font-weight: 600;
+padding: 12px 28px;
+border-radius: 12px;
+box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+transition: all 0.25s ease-in-out;
+
+
+Hover State
+
+background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4);
+transform: translateY(-2px);
+
+4. Category Pills (Active / Inactive States)
+
+Current: Colors inconsistent and muted.
+
+Target: Match landing-style chip tokens for premium feel.
+
+/* Active */
+.active-pill {
+    background: #3B82F6;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+}
+
+/* Inactive */
+.inactive-pill {
+    background: #F9FAFB;
+    color: #6B7280;
+    border: 1px solid #E5EAF5;
+    transition: all 0.2s ease-in-out;
+}
+
+.inactive-pill:hover {
+    background: #F3F7FF;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+5. Search Bar
+
+Increase visibility slightly by matching the landing page's input styling:
+
+background: #FFFFFF;
+border: 1px solid #E5EAF5;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+border-radius: 12px;
+padding: 12px 16px;
+font-size: 14px;
+
+6. Favorites Badge
+
+Ensure the red accent is consistent across the app.
+
+Use a unified token: #F43F5E (ShopLynk primary alert red).
+
+Add subtle halo shadow for premium pop.
+
+7. Centralize Colors in themeConfig.js
+export const colors = {
+  primary: '#3B82F6',
+  primaryLight: '#60A5FA',
+  backgroundIcy: '#F9FBFF',
+  neutralLight: '#F9FAFB',
+  neutralBorder: '#E5EAF5',
+  neutralText: '#6B7280',
+  accentRed: '#F43F5E'
+};
+
+Acceptance Criteria
+
+✅ Storefront visually matches ShopLynk landing page.
+
+✅ Gradients, buttons, headers, and pills are 100% unified.
+
+✅ Shadows and depth add premium polish.
+
+✅ All tokens are centralized for easier global changes.
+
+✅ Fully responsive + WCAG AA compliant.
