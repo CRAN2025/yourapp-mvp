@@ -751,6 +751,7 @@ ${productUrl}`;
           cursor: pointer;
           box-shadow: var(--control-shadow);
           transition: var(--control-transition);
+          margin-top: 0;
         }
         
         .category-pill .icon {
@@ -813,14 +814,23 @@ ${productUrl}`;
         
         /* Filter Bar Layout */
         .filter-bar {
-          display: grid;
-          grid-template-columns: 1fr auto auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        
+        .filter-bar__left {
+          display: flex;
           align-items: center;
           gap: 12px;
         }
         
-        .filter-bar__section-title {
-          margin-bottom: 8px;
+        .filter-bar__title {
+          font-weight: 600;
+          font-size: 14px;
+          line-height: 1.4;
+          margin: 0;
         }
         
         /* UNIFIED FILTER CONTROL BAR COMPONENTS */
@@ -867,6 +877,7 @@ ${productUrl}`;
           color: #555;
           cursor: pointer;
           transition: var(--control-transition);
+          margin-top: 0;
         }
         
         .sort-dropdown .icon,
@@ -910,6 +921,7 @@ ${productUrl}`;
           color: #555;
           cursor: pointer;
           transition: var(--control-transition);
+          margin-top: 0;
         }
         
         .favorites-chip .icon,
@@ -1364,16 +1376,14 @@ ${productUrl}`;
                 )}
               </div>
 
-              {/* v1.8 Enhanced Filters - Unified Height System */}
-              <div className="filter-bar flex flex-col xl:flex-row gap-6 items-start xl:items-center">
-                {/* v1.8 Category Pills with Pastel Backgrounds */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="filter-bar__section-title text-base font-bold text-slate-700 uppercase tracking-wide flex items-center">
-                      <Filter className="w-5 h-5 mr-3 text-blue-600" />
-                      Categories
-                    </span>
-                  </div>
+              {/* v1.8 Enhanced Filters - Perfect Baseline Alignment */}
+              <div className="filter-bar">
+                {/* Left side: Categories label + pills */}
+                <div className="filter-bar__left">
+                  <span className="filter-bar__title text-slate-700 uppercase tracking-wide flex items-center">
+                    <Filter className="w-5 h-5 mr-3 text-blue-600" />
+                    Categories
+                  </span>
                   <div className="flex flex-wrap gap-4">
                     <Button
                       variant="outline"
@@ -1409,7 +1419,7 @@ ${productUrl}`;
                   </div>
                 </div>
 
-                {/* v1.9 Championship Controls */}
+                {/* Right side: Controls */}
                 <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-56 sort-dropdown border-0"
