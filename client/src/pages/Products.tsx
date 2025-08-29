@@ -126,32 +126,32 @@ export default function Products() {
     }
   };
 
-  // v1.6 Refined stock pill for price container integration
+  // v1.7 Premium stock pill - smaller size for visual hierarchy
   const getStockPill = (quantity: number) => {
     if (quantity === 0) {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
              style={{ backgroundColor: '#EF4444', color: 'white' }}>
           OUT OF STOCK
         </div>
       );
     } else if (quantity === 1) {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
              style={{ backgroundColor: '#EF4444', color: 'white' }}>
           LAST ONE!
         </div>
       );
     } else if (quantity < 10) {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
              style={{ backgroundColor: '#EF4444', color: 'white' }}>
           LOW STOCK
         </div>
       );
     } else {
       return (
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold" 
+        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
              style={{ backgroundColor: '#22C55E', color: 'white' }}>
           IN STOCK
         </div>
@@ -217,10 +217,10 @@ export default function Products() {
   const handleDuplicateProduct = (product: Product) => {
     const duplicatedProduct = {
       ...product,
-      id: undefined, // Will get new ID
+      id: `temp-${Date.now()}`, // Temporary ID for editing
       name: `${product.name} (Copy)`,
     };
-    setEditingProduct(duplicatedProduct as Product);
+    setEditingProduct(duplicatedProduct);
     setShowModal(true);
   };
 
@@ -287,7 +287,7 @@ export default function Products() {
               <Checkbox
                 id="bulk-mode"
                 checked={bulkMode}
-                onCheckedChange={setBulkMode}
+                onCheckedChange={(checked) => setBulkMode(checked === true)}
                 className="opacity-60 hover:opacity-100 transition-opacity"
               />
               <label 
@@ -404,15 +404,15 @@ export default function Products() {
                       )}
                     </div>
                     
-                    {/* v1.6 Split Price & Stock Pills - Evenly Spaced */}
+                    {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
                     <div className="flex items-center gap-3">
-                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full border-2 bg-white"
-                           style={{ borderColor: '#22C55E' }}>
-                        <span className="text-xl font-bold" style={{ color: '#22C55E' }} data-testid={`product-price-${product.id}`}>
+                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full shadow-sm"
+                           style={{ backgroundColor: '#22C55E', color: 'white' }}>
+                        <span className="text-xl font-bold" data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
-                      <div className="flex-1 flex justify-center">
+                      <div className="flex justify-end">
                         {getStockPill(product.quantity)}
                       </div>
                     </div>
@@ -432,33 +432,33 @@ export default function Products() {
                       )}
                     </div>
                     
-                    {/* v1.6 Standardized Feature Pills - Muted Pastel Tones */}
+                    {/* v1.7 Premium Feature Pills - Enhanced Readability */}
                     {(product.isHandmade || product.isCustomizable || product.giftWrapping || product.sustainability) && (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2 mb-1">
                         {product.sustainability && (
                           <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#D1FAE5', color: '#065F46' }}>
+                               style={{ backgroundColor: '#D1FAE5', color: '#047857' }}>
                             <span className="mr-1">🌱</span>
                             Eco-friendly
                           </div>
                         )}
                         {product.isHandmade && (
                           <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#FFEFD5', color: '#9A3412' }}>
+                               style={{ backgroundColor: '#FFEFD5', color: '#C2410C' }}>
                             <span className="mr-1">🎨</span>
                             Handmade
                           </div>
                         )}
                         {product.giftWrapping && (
                           <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#F5E8FF', color: '#7C2D92' }}>
+                               style={{ backgroundColor: '#F5E8FF', color: '#9333EA' }}>
                             <span className="mr-1">🎁</span>
                             Gift Wrap
                           </div>
                         )}
                         {product.isCustomizable && (
                           <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#E0F2FF', color: '#1E40AF' }}>
+                               style={{ backgroundColor: '#E0F2FF', color: '#2563EB' }}>
                             <span className="mr-1">⚙️</span>
                             Customizable
                           </div>
@@ -466,18 +466,19 @@ export default function Products() {
                       </div>
                     )}
                     
-                    {/* v1.5 View Counter and Sold Counter - Below Feature Badges */}
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
+                    <div className="flex items-center gap-3 text-sm font-medium mt-1"
+                         style={{ color: '#6B7280' }}>
                       <span>{getViewCount(product.id)} views</span>
                       <span>|</span>
                       <span>{getSoldCount(product.id)} sold</span>
                     </div>
                     
-                    {/* v1.6 Enhanced Quick Actions - Subtle Shadows & Hover Animations */}
+                    {/* v1.7 Premium Action Buttons - Enhanced Styling */}
                     <div className="flex gap-3 pt-4 border-t border-gray-200">
                       <Button
                         size="sm"
-                        className="flex-1 font-medium transition-all duration-300 border-2 shadow-md hover:shadow-lg hover:scale-105"
+                        className="flex-1 font-medium transition-all duration-300 border-2 shadow-md hover:shadow-lg"
                         style={{ 
                           backgroundColor: '#22C55E', 
                           color: 'white',
@@ -492,7 +493,7 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
+                        className="px-4 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
                         onClick={() => handlePreviewProduct(product)}
                         data-testid={`button-preview-${product.id}`}
                       >
@@ -503,7 +504,7 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-4 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
+                        className="px-4 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
                         onClick={() => handleCopyLink(product)}
                         data-testid={`button-copy-link-${product.id}`}
                       >
@@ -516,7 +517,7 @@ export default function Products() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="px-3 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md hover:scale-105"
+                            className="px-3 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
                             data-testid={`button-more-${product.id}`}
                           >
                             <MoreHorizontal className="w-4 h-4" />
@@ -543,7 +544,7 @@ export default function Products() {
                     </div>
                   </div>
                   
-                  {/* EXPANDABLE PANEL - Collapsed by Default */}
+                  {/* v1.7 Enhanced Show Details Toggle */}
                   <div className="border-t border-gray-200 pt-4">
                     <Button
                       variant="ghost"
@@ -552,13 +553,13 @@ export default function Products() {
                       onClick={() => toggleCardExpansion(product.id)}
                       data-testid={`button-expand-${product.id}`}
                     >
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-semibold" style={{ color: '#374151' }}>
                         {expandedCards.has(product.id) ? 'Hide Details' : 'Show Details'}
                       </span>
                       {expandedCards.has(product.id) ? (
-                        <ChevronUp className="w-4 h-4 text-gray-500" />
+                        <ChevronUp className="w-4 h-4" style={{ color: '#374151' }} />
                       ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                        <ChevronDown className="w-4 h-4" style={{ color: '#374151' }} />
                       )}
                     </Button>
                     
