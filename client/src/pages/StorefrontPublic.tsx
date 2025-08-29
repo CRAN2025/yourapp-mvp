@@ -708,41 +708,41 @@ ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* v1.9 Ultra Premium Full-Width Immersive Header */}
+        {/* v1.9.3 Global Marketplace Standard Header */}
         <FullWidthContainer className="py-8">
-          <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/20 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/40 relative">
-            {/* Championship-level elevation */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white/60 to-blue-50/40 rounded-3xl blur-lg"></div>
+          <div className="backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden border border-white/30 relative"
+            style={{
+              background: 'linear-gradient(135deg, rgba(248, 250, 255, 0.92) 0%, rgba(37, 99, 235, 0.06) 100%)'
+            }}>
+            {/* Lighter airier elevation */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/50 to-blue-50/30 rounded-3xl blur-md"></div>
             
-            {/* Ultra premium layered gradient banner */}
+            {/* Global marketplace gradient banner */}
             <div
-              className="h-36 md:h-40 w-full relative overflow-hidden"
+              className="h-32 md:h-36 w-full relative overflow-hidden"
               style={{
                 background: seller?.coverUrl
-                  ? `linear-gradient(135deg, rgba(248, 250, 255, 0.95) 0%, rgba(37, 99, 235, 0.08) 100%), url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg, #F8FAFF 0%, rgba(37, 99, 235, 0.08) 100%)',
+                  ? `linear-gradient(135deg, rgba(248, 250, 255, 0.92) 0%, rgba(37, 99, 235, 0.06) 100%), url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'linear-gradient(135deg, rgba(248, 250, 255, 0.92) 0%, rgba(37, 99, 235, 0.06) 100%)',
               }}
             >
-              {/* Premium glass overlay with depth */}
-              <div className="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
-              {/* Subtle texture for premium feel */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_35%,rgba(255,255,255,0.15)_0%,transparent_60%)] opacity-80"></div>
+              {/* Subtle glass overlay */}
+              <div className="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
             </div>
 
-            <div className="px-10 pb-10 -mt-10 relative z-10">
+            <div className="px-10 pb-6 -mt-8 relative z-10" style={{ paddingTop: '24px' }}>
               {/* Ultra Premium Header Row */}
               <div className="flex items-center gap-8">
-                {/* v1.9.2 Hybrid Avatar Strategy (96px) */}
-                <div className="relative group" style={{ marginTop: '8px', marginBottom: '8px' }}>
-                  {/* Soft neon ring glow */}
-                  <div className="absolute -inset-3 bg-gradient-to-r from-blue-400/35 via-blue-500/35 to-blue-400/35 rounded-full opacity-70 blur-xl group-hover:opacity-90 transition-all duration-500 animate-pulse"></div>
-                  {/* Outer glow ring */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/40 to-blue-600/40 rounded-full opacity-80 blur-lg"></div>
-                  {/* Championship avatar container with subtle border */}
+                {/* v1.9.3 Finalized Hybrid Avatar Strategy (88px) */}
+                <div className="relative group">
+                  {/* Premium avatar container with global marketplace standard */}
                   <div 
-                    className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-all duration-300 hover:scale-110"
+                    className="relative w-22 h-22 rounded-full bg-white flex items-center justify-center overflow-hidden transition-all duration-300 ease-out hover:scale-105"
                     style={{ 
-                      border: '1px solid #E5E7EB'
+                      width: '88px',
+                      height: '88px',
+                      border: '1px solid rgba(229, 231, 235, 0.5)',
+                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.06)'
                     }}
                   >
                     {seller?.logoUrl ? (
@@ -751,29 +751,33 @@ ${productUrl}`;
                         alt={`${seller.storeName} logo`}
                         className="w-full h-full object-cover rounded-full"
                         style={{ 
-                          minWidth: '200px', 
-                          minHeight: '200px',
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Fallback to ShopLynk logo on error
+                          // Fallback to ShopLynk gradient logo on error
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
                           e.currentTarget.style.objectFit = 'contain';
-                          e.currentTarget.style.padding = '8px';
+                          e.currentTarget.style.padding = '12px';
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)';
                         }}
                       />
                     ) : (
-                      /* ShopLynk logo fallback when no seller avatar */
-                      <img
-                        src={logoUrl}
-                        alt="ShopLynk logo"
-                        className="w-full h-full object-contain rounded-full"
-                        style={{ padding: '8px' }}
-                      />
+                      /* ShopLynk gradient logo fallback when no seller avatar */
+                      <div 
+                        className="w-full h-full rounded-full flex items-center justify-center"
+                        style={{ 
+                          background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)'
+                        }}
+                      >
+                        <img
+                          src={logoUrl}
+                          alt="ShopLynk logo"
+                          className="w-full h-full object-contain"
+                          style={{ padding: '12px' }}
+                        />
+                      </div>
                     )}
-                    {/* Premium inner shadow */}
-                    <div className="absolute inset-0 rounded-full shadow-inner bg-gradient-to-t from-black/8 to-transparent pointer-events-none"></div>
                   </div>
                 </div>
                 
@@ -788,17 +792,22 @@ ${productUrl}`;
                     {seller.storeName}
                   </h1>
                   
-                  {/* v1.9.2 "Powered by ShopLynk" Badge */}
-                  <div className="flex items-center gap-2 mt-1 mb-2 transition-opacity duration-300 hover:opacity-90">
+                  {/* v1.9.3 Premium "Powered by ShopLynk" Badge */}
+                  <div className="flex items-center gap-2 mt-1 mb-2 transition-all duration-300 hover:opacity-80 cursor-pointer">
                     <img 
                       src={logoUrl} 
                       alt="ShopLynk" 
-                      className="w-4 h-4 object-contain"
+                      className="object-contain"
+                      style={{ 
+                        width: '14px',
+                        height: '14px'
+                      }}
                     />
                     <span 
-                      className="font-medium tracking-wide"
+                      className="tracking-wide"
                       style={{ 
                         fontSize: '12px',
+                        fontWeight: 500,
                         color: '#6B7280',
                         fontFamily: 'Inter, sans-serif'
                       }}
@@ -901,28 +910,28 @@ ${productUrl}`;
                 </p>
               )}
 
-              {/* v1.9 Championship Premium CTAs */}
-              <div className="mt-10 flex flex-wrap justify-center gap-6">
+              {/* v1.9.3 Global Marketplace Standard CTAs */}
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
                 {isOwner ? (
                   <a 
                     href="/products" 
-                    className="group inline-flex items-center gap-4 px-10 py-5 rounded-3xl font-bold text-decoration-none cursor-pointer transition-all duration-400 hover:scale-105 backdrop-blur-sm"
+                    className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: 16,
-                      background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+                      gap: 12,
+                      background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
                       color: 'white',
-                      padding: '20px 40px',
-                      borderRadius: 24,
-                      fontWeight: 800,
+                      padding: '16px 32px',
+                      borderRadius: 16,
+                      fontWeight: 700,
                       border: 'none',
                       textDecoration: 'none',
-                      boxShadow: '0 16px 40px rgba(37, 99, 235, 0.5)',
-                      fontSize: '16px'
+                      boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
+                      fontSize: '15px'
                     }}
                   >
-                    <ArrowLeft className="h-6 w-6 transition-transform group-hover:-translate-x-2" />
+                    <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
                     Back to dashboard
                   </a>
                 ) : (
@@ -930,23 +939,23 @@ ${productUrl}`;
                     {seller.whatsappNumber && (
                       <button
                         onClick={handleFloatingChatClick}
-                        className="group inline-flex items-center gap-4 px-10 py-5 rounded-3xl font-semibold transition-all duration-400 hover:scale-105"
+                        className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105"
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 16,
+                          gap: 12,
                           background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
                           color: 'white',
-                          padding: '20px 40px',
-                          borderRadius: 24,
-                          fontWeight: 700,
+                          padding: '16px 32px',
+                          borderRadius: 16,
+                          fontWeight: 600,
                           border: 'none',
                           cursor: 'pointer',
-                          boxShadow: '0 16px 40px rgba(37, 211, 102, 0.5)',
-                          fontSize: '16px'
+                          boxShadow: '0 8px 24px rgba(37, 211, 102, 0.3)',
+                          fontSize: '15px'
                         }}
                       >
-                        <MessageCircle className="h-7 w-7 transition-transform group-hover:scale-110" />
+                        <MessageCircle className="h-5 w-5 transition-transform group-hover:scale-110" />
                         Chat with seller on WhatsApp
                       </button>
                     )}
@@ -954,23 +963,23 @@ ${productUrl}`;
                       href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
                       target="_blank" rel="noopener noreferrer"
                       onClick={() => handleMarketingClick('hero')}
-                      className="group inline-flex items-center gap-4 px-10 py-5 rounded-3xl font-bold transition-all duration-400 hover:scale-105"
+                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-105"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 16,
-                        background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+                        gap: 12,
+                        background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
                         color: 'white',
-                        padding: '20px 40px',
-                        borderRadius: 24,
-                        fontWeight: 800,
+                        padding: '16px 32px',
+                        borderRadius: 16,
+                        fontWeight: 700,
                         border: 'none',
                         textDecoration: 'none',
-                        boxShadow: '0 16px 40px rgba(37, 99, 235, 0.5)',
-                        fontSize: '16px'
+                        boxShadow: '0 8px 24px rgba(79, 70, 229, 0.3)',
+                        fontSize: '15px'
                       }}
                     >
-                      <Sparkles className="h-7 w-7 transition-transform group-hover:scale-110" />
+                      <Sparkles className="h-5 w-5 transition-transform group-hover:scale-110" />
                       Create your free store
                     </a>
                   </>
@@ -992,25 +1001,33 @@ ${productUrl}`;
             <div className="absolute inset-0 backdrop-blur-2xl rounded-3xl"></div>
             <div className="relative z-10">
             <div className="space-y-10">
-              {/* v1.9 Championship Glass Search Bar */}
+              {/* v1.9.3 Global Standard Search Bar */}
               <div className="relative group">
-                {/* Animated glowing blue ring on focus */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-3xl opacity-0 group-focus-within:opacity-30 transition-all duration-500 blur-xl"></div>
-                <div className="absolute inset-0 bg-blue-500/5 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-400"></div>
+                {/* ShopLynk gradient focus border */}
+                <div 
+                  className="absolute -inset-1 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-400"
+                  style={{
+                    background: 'linear-gradient(135deg, #4F46E5 0%, #6366F1 100%)',
+                    padding: '1px'
+                  }}
+                >
+                  <div className="w-full h-full bg-white rounded-2xl"></div>
+                </div>
+                <div className="absolute inset-0 bg-blue-500/3 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
                 
                 {/* Premium search icon */}
-                <Search className="w-7 h-7 absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-all duration-300 group-focus-within:scale-110" />
+                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-all duration-300" />
                 
                 <Input
                   type="text"
                   placeholder="Search for products, brands, or categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-16 pr-16 h-16 text-lg border-0 rounded-2xl transition-all duration-300 placeholder:text-slate-400 font-medium"
+                  className="pl-14 pr-14 h-14 text-base border-0 rounded-2xl transition-all duration-300 placeholder:text-slate-400 font-medium relative z-10"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.55)',
-                    backdropFilter: 'blur(16px)',
-                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.06)'
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.05)'
                   }}
                   data-testid="input-search-products"
                 />
@@ -1020,9 +1037,9 @@ ${productUrl}`;
                     variant="ghost"
                     size="sm"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full hover:bg-slate-100 transition-all duration-300 hover:scale-110"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100 transition-all duration-200 z-20"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </Button>
                 )}
               </div>
