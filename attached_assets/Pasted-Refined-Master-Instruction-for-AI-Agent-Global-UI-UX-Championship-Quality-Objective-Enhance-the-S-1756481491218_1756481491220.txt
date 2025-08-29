@@ -1,0 +1,85 @@
+Refined Master Instruction for AI Agent (Global UI/UX Championship Quality)
+Objective
+
+Enhance the ShopLynk avatar so it:
+
+Displays the logo at a clean, proportional, and highly visible size.
+
+Uses a harmonized avatar background that complements the header.
+
+Removes duplicate rendering under the "Powered by ShopLynk" tagline.
+
+Preserves our premium glassmorphism polish and governance locks.
+
+Key Fixes
+1. Single Logo, Correct Proportion
+
+Use only one ShopLynk logo inside the avatar.
+
+Make the logo occupy 75% of the avatar’s width, centered both vertically and horizontally.
+
+Pull the SVG from /assets/shoplynk-logo.svg for a crisp retina-ready result.
+
+.avatar-logo {
+  width: 75%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+
+🔹 Result → No double logos. The brand feels intentional and visually balanced.
+
+2. Harmonized Avatar Background
+
+Keep a subtle, frosted-glass effect but darker than the header so the logo pops.
+
+Suggested base tone: rgba(250, 250, 255, 0.6), slightly more opaque than the header.
+
+.avatar-container {
+  background: rgba(250, 250, 255, 0.6);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+🔹 Result → The ShopLynk logo will stand out crisply without making the avatar visually heavier.
+
+3. Powered-by Tagline Fix
+
+Remove any secondary rendering of the ShopLynk SVG inside the "Powered by ShopLynk" text line.
+
+Keep the tagline clean and aligned.
+
+.powered-by {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6B7280; /* soft gray */
+  margin-top: 2px;
+  display: inline-block;
+}
+
+4. Governance Compliance
+
+✅ Lock product cards (v1.3.1_UI_UX_WHATSAPP_PER_CARD)
+
+✅ Lock seller console (v1.7_SELLER_CONSOLE_PREMIUM_POLISH)
+
+✅ Lock WhatsApp integrations (v1.9 reserved)
+
+✅ Safe to update public storefront header only
+
+Expected Outcome
+
+ShopLynk logo is now crisp, perfectly scaled, and dominant enough to establish trust.
+
+No double logos, no blurriness.
+
+Avatar background integrates seamlessly with the header, keeping things premium and balanced.
+
+"Powered by ShopLynk" tagline is subtle, clean, and secondary — not fighting the logo.
