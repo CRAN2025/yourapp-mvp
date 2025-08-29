@@ -734,22 +734,22 @@ ${productUrl}`;
           transform: scale(0.98);
         }
         
-        /* CATEGORY PILLS - Primary Control with Locked Tokens */
+        /* CATEGORY PILLS - Primary Control with Global Tokens */
         .category-pill {
-          height: var(--filter-height);
-          padding: var(--filter-padding-y) var(--filter-padding-x);
-          border-radius: var(--filter-radius);
-          font-size: var(--filter-font-size);
-          font-weight: 500;
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
           background: #f8f9fc;
           border: 1px solid #e5e7eb;
           cursor: pointer;
-          transition: var(--filter-transition);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: var(--filter-gap);
+          gap: var(--token-gap);
           color: #555;
           margin-top: 0;
         }
@@ -761,57 +761,60 @@ ${productUrl}`;
         }
         
         .category-pill:hover {
-          transform: scale(1.05);
+          transform: scale(var(--token-hover-scale));
+          filter: brightness(var(--token-hover-brightness));
           background: #f0f4ff;
           border-color: #b3c8ff;
         }
         
         .category-pill.active {
-          background: linear-gradient(135deg, var(--cta-gradient-start), var(--cta-gradient-end));
+          background: var(--token-gradient-primary);
           color: #fff;
           border: none;
-          box-shadow: 0px 5px 18px rgba(80, 155, 255, 0.45);
+          box-shadow: var(--token-shadow-primary);
+          font-weight: 600;
         }
         
         .category-pill.active:hover {
-          transform: scale(1.05);
-          box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
+          transform: scale(var(--token-hover-scale));
+          box-shadow: var(--token-shadow-primary-hover);
         }
         
-        /* Filter pill classes using locked tokens */
+        /* Filter pill classes using global tokens */
         .filter-pill-active {
-          background: linear-gradient(135deg, var(--cta-gradient-start), var(--cta-gradient-end));
+          background: var(--token-gradient-primary);
           color: #FFFFFF;
-          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
-          border-radius: var(--filter-radius);
-          font-weight: 500;
-          transition: var(--filter-transition);
+          box-shadow: var(--token-shadow-primary);
+          border-radius: var(--token-border-radius);
+          font-weight: 600;
+          transition: var(--token-transition-default);
           border: none;
-          height: var(--filter-height);
-          padding: var(--filter-padding-y) var(--filter-padding-x);
-          font-size: var(--filter-font-size);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          font-size: var(--token-font-size);
         }
         
         .filter-pill-active:hover {
-          transform: scale(1.05);
-          box-shadow: 0 7px 20px rgba(80, 155, 255, 0.55);
+          transform: scale(var(--token-hover-scale));
+          box-shadow: var(--token-shadow-primary-hover);
         }
         
         .filter-pill-inactive {
           background: #f8f9fc;
           color: #555;
           border: 1px solid #e5e7eb;
-          border-radius: var(--filter-radius);
-          transition: var(--filter-transition);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-          font-weight: 500;
-          height: var(--filter-height);
-          padding: var(--filter-padding-y) var(--filter-padding-x);
-          font-size: var(--filter-font-size);
+          border-radius: var(--token-border-radius);
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
+          font-weight: var(--token-font-weight);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          font-size: var(--token-font-size);
         }
         
         .filter-pill-inactive:hover {
-          transform: scale(1.05);
+          transform: scale(var(--token-hover-scale));
+          filter: brightness(var(--token-hover-brightness));
           background: #f0f4ff;
           border-color: #b3c8ff;
         }
@@ -837,53 +840,76 @@ ${productUrl}`;
           margin: 0;
         }
         
-        /* LOCKED GLOBAL FILTER BAR TOKENS */
-        /* Unified sizing, spacing, and alignment system */
+        /* GLOBAL DESIGN TOKENS - LOCKED SYSTEM */
+        /* Universal component tokens for categories, filters, favorites, and CTAs */
         :root {
-          /* Global filter tokens - LOCKED */
-          --filter-height: 40px;
-          --filter-radius: 12px;
-          --filter-padding-x: 18px;
-          --filter-padding-y: 8px;
-          --filter-font-size: 14px;
-          --filter-gap: 10px;
-          --filter-transition: all 0.25s ease-in-out;
+          /* Primary gradient token - used for active pills & CTAs */
+          --token-gradient-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           
-          /* Locked CTA gradient tokens */
+          /* Button heights & spacing - uniform across all components */
+          --token-button-height: 36px;
+          --token-button-padding-x: 16px;
+          --token-button-padding-y: 8px;
+          
+          /* Shadows & elevation hierarchy */
+          --token-shadow-primary: 0px 5px 18px rgba(80, 155, 255, 0.45);
+          --token-shadow-primary-hover: 0px 7px 20px rgba(80, 155, 255, 0.55);
+          --token-shadow-secondary: 0px 2px 6px rgba(0, 0, 0, 0.06);
+          
+          /* Interactivity tokens */
+          --token-transition-default: all 0.25s ease-in-out;
+          --token-hover-scale: 1.05;
+          --token-hover-brightness: 1.08;
+          
+          /* Component-specific tokens */
+          --token-badge-danger: #FF3B5C;
+          --token-border-radius: 12px;
+          --token-font-size: 14px;
+          --token-font-weight: 500;
+          --token-gap: 10px;
+          
+          /* Legacy compatibility mappings */
+          --filter-height: var(--token-button-height);
+          --filter-radius: var(--token-border-radius);
+          --filter-padding-x: var(--token-button-padding-x);
+          --filter-padding-y: var(--token-button-padding-y);
+          --filter-font-size: var(--token-font-size);
+          --filter-gap: var(--token-gap);
+          --filter-transition: var(--token-transition-default);
           --cta-gradient-start: #4FA8FF;
           --cta-gradient-end: #5271FF;
-          
-          /* Legacy tokens for backward compatibility */
-          --control-height: var(--filter-height);
-          --control-radius: var(--filter-radius);
-          --control-pad-x: var(--filter-padding-x);
-          --control-gap: var(--filter-gap);
-          --control-font-size: var(--filter-font-size);
+          --control-height: var(--token-button-height);
+          --control-radius: var(--token-border-radius);
+          --control-pad-x: var(--token-button-padding-x);
+          --control-gap: var(--token-gap);
+          --control-font-size: var(--token-font-size);
           --control-line-height: 20px;
           --icon-size: 16px;
-          --control-gradient: linear-gradient(135deg, var(--cta-gradient-start) 0%, var(--cta-gradient-end) 100%);
+          --control-gradient: var(--token-gradient-primary);
           --control-bg-inactive: #f8f9fc;
           --control-border: 1px solid #e5e7eb;
-          --control-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+          --control-shadow: var(--token-shadow-secondary);
           --control-shadow-hover: 0px 5px 15px rgba(80, 155, 255, 0.35);
-          --control-font-weight: 500;
-          --control-transition: var(--filter-transition);
+          --control-font-weight: var(--token-font-weight);
+          --control-transition: var(--token-transition-default);
         }
         
-        /* SORT DROPDOWN - Secondary Control with Locked Tokens */
+        /* SORT DROPDOWN - Secondary Control with Global Tokens */
         .sort-dropdown {
-          height: var(--filter-height);
-          padding: var(--filter-padding-y) var(--filter-padding-x);
-          border-radius: var(--filter-radius);
-          font-size: var(--filter-font-size);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
           background: #fff;
           border: 1px solid #e5e7eb;
           color: #333;
           cursor: pointer;
-          transition: var(--filter-transition);
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
           display: inline-flex;
           align-items: center;
-          gap: var(--filter-gap);
+          gap: var(--token-gap);
           margin-top: 0;
         }
         
@@ -896,51 +922,58 @@ ${productUrl}`;
         
         .sort-dropdown:hover,
         .sort-dropdown:focus {
+          filter: brightness(var(--token-hover-brightness));
           border-color: #b3c8ff;
           box-shadow: 0 0 0 3px rgba(80, 155, 255, 0.2);
         }
         
         /* Legacy unified dropdown for backward compatibility */
         .unified-dropdown {
-          height: var(--filter-height);
-          padding: var(--filter-padding-y) var(--filter-padding-x);
-          border-radius: var(--filter-radius);
-          font-size: var(--filter-font-size);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
           background: #fff;
           border: 1px solid #e5e7eb;
+          box-shadow: var(--token-shadow-secondary);
           color: #333;
           cursor: pointer;
-          transition: var(--filter-transition);
+          transition: var(--token-transition-default);
           display: inline-flex;
           align-items: center;
-          gap: var(--filter-gap);
+          gap: var(--token-gap);
           margin-top: 0;
         }
         
         .unified-dropdown:hover {
+          filter: brightness(var(--token-hover-brightness));
           border-color: #b3c8ff;
           box-shadow: 0 0 0 3px rgba(80, 155, 255, 0.2);
         }
         
-        /* FAVORITES CHIP - Secondary Control with Locked Tokens */
+        /* FAVORITES CHIP - Secondary Control with Global Tokens */
         .favorites-chip {
-          height: var(--filter-height);
-          padding: var(--filter-padding-y) var(--filter-padding-x);
-          border-radius: var(--filter-radius);
-          font-size: var(--filter-font-size);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
           background: #fff;
           border: 1px solid #e5e7eb;
+          box-shadow: var(--token-shadow-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          transition: var(--filter-transition);
+          transition: var(--token-transition-default);
           cursor: pointer;
           color: #333;
           margin-top: 0;
         }
         
         .favorites-chip:hover {
+          filter: brightness(var(--token-hover-brightness));
           background: #f9f9fc;
           border-color: #b3c8ff;
         }
@@ -952,7 +985,7 @@ ${productUrl}`;
         }
         
         .favorites-chip .badge {
-          background: #ff3366;
+          background: var(--token-badge-danger);
           color: #fff;
           font-size: 12px;
           border-radius: 50%;
@@ -967,32 +1000,36 @@ ${productUrl}`;
         
         /* Legacy unified favorites button for backward compatibility */
         .unified-favorites-button {
-          height: var(--filter-height);
-          padding: var(--filter-padding-y) var(--filter-padding-x);
-          border-radius: var(--filter-radius);
-          font-size: var(--filter-font-size);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
           background: #fff;
           border: 1px solid #e5e7eb;
+          box-shadow: var(--token-shadow-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          transition: var(--filter-transition);
+          transition: var(--token-transition-default);
           cursor: pointer;
           color: #333;
           margin-top: 0;
         }
         
         .unified-favorites-button:hover {
+          filter: brightness(var(--token-hover-brightness));
           background: #f9f9fc;
           border-color: #b3c8ff;
         }
         
         .unified-favorites-button.active {
-          background: linear-gradient(135deg, var(--cta-gradient-start), var(--cta-gradient-end));
+          background: var(--token-gradient-primary);
           color: #fff;
           border: none;
-          box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
+          box-shadow: var(--token-shadow-primary);
+          font-weight: 600;
         }
         
         /* Premium search bar matching landing page inputs */
@@ -1462,17 +1499,16 @@ ${productUrl}`;
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-56 sort-dropdown border-0"
                       style={{
-                        height: 'var(--control-height)',
-                        padding: '0 var(--control-pad-x)',
-                        background: 'var(--control-bg-inactive)',
-                        border: 'var(--control-border)',
-                        borderRadius: 'var(--control-radius)',
-                        boxShadow: 'var(--control-shadow)',
-                        fontWeight: 'var(--control-font-weight)',
-                        fontSize: 'var(--control-font-size)',
-                        lineHeight: 'var(--control-line-height)',
-                        color: '#555',
-                        transition: 'var(--control-transition)'
+                        height: 'var(--token-button-height)',
+                        padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                        background: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: 'var(--token-border-radius)',
+                        boxShadow: 'var(--token-shadow-secondary)',
+                        fontWeight: 'var(--token-font-weight)',
+                        fontSize: 'var(--token-font-size)',
+                        color: '#333',
+                        transition: 'var(--token-transition-default)'
                       }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
@@ -1497,29 +1533,27 @@ ${productUrl}`;
                     onClick={() => setShowFavorites(!showFavorites)}
                     className={`favorites-chip border-0 ${showFavorites ? 'active' : ''}`}
                     style={showFavorites ? {
-                      height: 'var(--control-height)',
-                      padding: '0 var(--control-pad-x)',
-                      background: 'var(--control-gradient)',
+                      height: 'var(--token-button-height)',
+                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                      background: 'var(--token-gradient-primary)',
                       color: '#fff',
                       border: 'none',
-                      boxShadow: '0 5px 18px rgba(80, 155, 255, 0.45)',
-                      borderRadius: 'var(--control-radius)',
-                      fontWeight: 'var(--control-font-weight)',
-                      fontSize: 'var(--control-font-size)',
-                      lineHeight: 'var(--control-line-height)',
-                      transition: 'var(--control-transition)'
+                      boxShadow: 'var(--token-shadow-primary)',
+                      borderRadius: 'var(--token-border-radius)',
+                      fontWeight: '600',
+                      fontSize: 'var(--token-font-size)',
+                      transition: 'var(--token-transition-default)'
                     } : {
-                      height: 'var(--control-height)',
-                      padding: '0 var(--control-pad-x)',
-                      background: 'var(--control-bg-inactive)',
-                      color: '#555',
-                      border: 'var(--control-border)',
-                      borderRadius: 'var(--control-radius)',
-                      boxShadow: 'var(--control-shadow)',
-                      fontWeight: 'var(--control-font-weight)',
-                      fontSize: 'var(--control-font-size)',
-                      lineHeight: 'var(--control-line-height)',
-                      transition: 'var(--control-transition)'
+                      height: 'var(--token-button-height)',
+                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                      background: '#fff',
+                      color: '#333',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 'var(--token-border-radius)',
+                      boxShadow: 'var(--token-shadow-secondary)',
+                      fontWeight: 'var(--token-font-weight)',
+                      fontSize: 'var(--token-font-size)',
+                      transition: 'var(--token-transition-default)'
                     }}
                     data-testid="button-toggle-favorites"
                   >
