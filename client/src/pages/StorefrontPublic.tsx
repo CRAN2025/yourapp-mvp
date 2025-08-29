@@ -706,35 +706,39 @@ ${productUrl}`;
         }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
-        {/* v1.8 Premium Light Header / Banner (FULL-WIDTH) */}
+      <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
+        {/* v1.9 Ultra Premium Full-Width Immersive Header */}
         <FullWidthContainer className="py-8">
-          <div className="bg-gradient-to-r from-slate-50 to-blue-50 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden border border-white/30 relative">
-            {/* Subtle elevation shadow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-50/80 to-blue-50/80 rounded-2xl blur-sm"></div>
+          <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50/20 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/40 relative">
+            {/* Championship-level elevation */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/60 to-blue-50/40 rounded-3xl blur-lg"></div>
             
-            {/* Light pastel banner section */}
+            {/* Ultra premium layered gradient banner */}
             <div
-              className="h-32 md:h-36 w-full relative overflow-hidden"
+              className="h-36 md:h-40 w-full relative overflow-hidden"
               style={{
                 background: seller?.coverUrl
-                  ? `linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(234, 242, 255, 0.9) 100%), url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg, #F8FAFC 0%, #EAF2FF 100%)',
+                  ? `linear-gradient(135deg, rgba(248, 250, 255, 0.95) 0%, rgba(37, 99, 235, 0.08) 100%), url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'linear-gradient(135deg, #F8FAFF 0%, rgba(37, 99, 235, 0.08) 100%)',
               }}
             >
-              {/* Soft glass overlay */}
-              <div className="absolute inset-0 bg-white/20 backdrop-blur-sm"></div>
+              {/* Premium glass overlay with depth */}
+              <div className="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
+              {/* Subtle texture for premium feel */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_35%,rgba(255,255,255,0.15)_0%,transparent_60%)] opacity-80"></div>
             </div>
 
-            <div className="px-8 pb-8 -mt-8 relative z-10">
-              {/* Clean Header row with premium spacing */}
-              <div className="flex items-center gap-6">
-                {/* v1.8 Premium store avatar (80px) */}
+            <div className="px-10 pb-10 -mt-10 relative z-10">
+              {/* Ultra Premium Header Row */}
+              <div className="flex items-center gap-8">
+                {/* v1.9 Championship Store Avatar (96px) */}
                 <div className="relative group">
-                  {/* Subtle premium ring shadow */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-400/30 to-blue-500/30 rounded-full opacity-60 blur-md group-hover:opacity-80 transition-opacity duration-300"></div>
-                  {/* Main avatar container */}
-                  <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-3 border-white shadow-xl flex items-center justify-center text-3xl overflow-hidden transition-transform duration-200 hover:scale-105">
+                  {/* Soft neon ring glow */}
+                  <div className="absolute -inset-3 bg-gradient-to-r from-blue-400/35 via-blue-500/35 to-blue-400/35 rounded-full opacity-70 blur-xl group-hover:opacity-90 transition-all duration-500 animate-pulse"></div>
+                  {/* Outer glow ring */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/40 to-blue-600/40 rounded-full opacity-80 blur-lg"></div>
+                  {/* Championship avatar container */}
+                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 border-4 border-white shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-all duration-300 hover:scale-110">
                     {seller?.logoUrl ? (
                       <img
                         src={seller.logoUrl}
@@ -743,18 +747,27 @@ ${productUrl}`;
                         onError={(e) => (e.currentTarget.style.display = 'none')}
                       />
                     ) : '🛍️'}
-                    {/* Subtle inner shadow */}
-                    <div className="absolute inset-0 rounded-full shadow-inner bg-gradient-to-t from-black/5 to-transparent pointer-events-none"></div>
+                    {/* Premium inner shadow */}
+                    <div className="absolute inset-0 rounded-full shadow-inner bg-gradient-to-t from-black/8 to-transparent pointer-events-none"></div>
                   </div>
                 </div>
                 
                 <div className="min-w-0 flex-1">
-                  {/* v1.8 Clean typography hierarchy */}
-                  <h1 className="text-2xl md:text-3xl font-bold truncate text-gray-900 leading-tight">
+                  {/* v1.9 Championship Typography */}
+                  <h1 className="text-3xl md:text-4xl font-extrabold truncate leading-tight" 
+                      style={{ 
+                        color: '#111827',
+                        fontWeight: 800,
+                        letterSpacing: '-0.025em'
+                      }}>
                     {seller.storeName}
                   </h1>
-                  {/* Lighter subtitle for hierarchy */}
-                  <p className="truncate mt-1 text-gray-500 font-medium" style={{ fontSize: '14px' }}>
+                  {/* Ultra-subtle hierarchy subtitle */}
+                  <p className="truncate mt-2 font-medium tracking-wide" 
+                     style={{ 
+                       fontSize: '13px',
+                       color: '#6B7280'
+                     }}>
                     {seller.location || 'Online Store'}
                   </p>
                 </div>
@@ -790,47 +803,47 @@ ${productUrl}`;
                 )}
               </div>
 
-              {/* v1.8 Glass morphism info pills */}
-              <div className="flex flex-wrap items-center gap-3 mt-6">
+              {/* v1.9 Championship Glass Pills */}
+              <div className="flex flex-wrap items-center gap-4 mt-8">
                 {!!paymentMethods.length && (
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 backdrop-blur-sm"
+                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-lg border border-white/20"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
                       color: '#1F2937',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'
                     }}
                     title="View payment methods"
                   >
-                    <CreditCard className="h-4 w-4" />
+                    <CreditCard className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#2563EB' }} />
                     {paymentMethods.length} Payment Methods
                   </button>
                 )}
                 {!!deliveryOptions.length && (
                   <button
                     onClick={() => setShowDeliveryModal(true)}
-                    className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 backdrop-blur-sm"
+                    className="group inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-lg border border-white/20"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
                       color: '#1F2937',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'
                     }}
                     title="View delivery options"
                   >
-                    <Truck className="h-4 w-4" />
+                    <Truck className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#2563EB' }} />
                     {deliveryOptions.length} Delivery Options
                   </button>
                 )}
                 {seller.currency && (
-                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium backdrop-blur-sm"
+                  <span className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-semibold backdrop-blur-lg border border-white/20"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.6)',
                       color: '#1F2937',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)'
                     }}
                   >
-                    <Globe className="h-4 w-4" />
+                    <Globe className="h-5 w-5" style={{ color: '#2563EB' }} />
                     {seller.currency} Currency
                   </span>
                 )}
@@ -843,27 +856,28 @@ ${productUrl}`;
                 </p>
               )}
 
-              {/* Owner read-only view vs buyer CTAs with premium styling */}
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
+              {/* v1.9 Championship Premium CTAs */}
+              <div className="mt-10 flex flex-wrap justify-center gap-6">
                 {isOwner ? (
                   <a 
                     href="/products" 
-                    className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl backdrop-blur-sm"
+                    className="group inline-flex items-center gap-4 px-10 py-5 rounded-3xl font-bold text-decoration-none cursor-pointer transition-all duration-400 hover:scale-105 backdrop-blur-sm"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: 12,
-                      background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                      gap: 16,
+                      background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
                       color: 'white',
-                      padding: '16px 32px',
-                      borderRadius: 16,
-                      fontWeight: 700,
+                      padding: '20px 40px',
+                      borderRadius: 24,
+                      fontWeight: 800,
                       border: 'none',
                       textDecoration: 'none',
-                      boxShadow: '0 12px 32px rgba(37, 99, 235, 0.4)'
+                      boxShadow: '0 16px 40px rgba(37, 99, 235, 0.5)',
+                      fontSize: '16px'
                     }}
                   >
-                    <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+                    <ArrowLeft className="h-6 w-6 transition-transform group-hover:-translate-x-2" />
                     Back to dashboard
                   </a>
                 ) : (
@@ -871,22 +885,23 @@ ${productUrl}`;
                     {seller.whatsappNumber && (
                       <button
                         onClick={handleFloatingChatClick}
-                        className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                        className="group inline-flex items-center gap-4 px-10 py-5 rounded-3xl font-semibold transition-all duration-400 hover:scale-105"
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 12,
+                          gap: 16,
                           background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
                           color: 'white',
-                          padding: '16px 32px',
-                          borderRadius: 16,
+                          padding: '20px 40px',
+                          borderRadius: 24,
                           fontWeight: 700,
                           border: 'none',
                           cursor: 'pointer',
-                          boxShadow: '0 12px 32px rgba(37, 211, 102, 0.4)'
+                          boxShadow: '0 16px 40px rgba(37, 211, 102, 0.5)',
+                          fontSize: '16px'
                         }}
                       >
-                        <MessageCircle className="h-6 w-6 transition-transform group-hover:scale-110" />
+                        <MessageCircle className="h-7 w-7 transition-transform group-hover:scale-110" />
                         Chat with seller on WhatsApp
                       </button>
                     )}
@@ -894,22 +909,23 @@ ${productUrl}`;
                       href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
                       target="_blank" rel="noopener noreferrer"
                       onClick={() => handleMarketingClick('hero')}
-                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                      className="group inline-flex items-center gap-4 px-10 py-5 rounded-3xl font-bold transition-all duration-400 hover:scale-105"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 12,
-                        background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+                        gap: 16,
+                        background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
                         color: 'white',
-                        padding: '16px 32px',
-                        borderRadius: 16,
-                        fontWeight: 700,
+                        padding: '20px 40px',
+                        borderRadius: 24,
+                        fontWeight: 800,
                         border: 'none',
                         textDecoration: 'none',
-                        boxShadow: '0 12px 32px rgba(37, 99, 235, 0.4)'
+                        boxShadow: '0 16px 40px rgba(37, 99, 235, 0.5)',
+                        fontSize: '16px'
                       }}
                     >
-                      <Sparkles className="h-6 w-6 transition-transform group-hover:scale-110" />
+                      <Sparkles className="h-7 w-7 transition-transform group-hover:scale-110" />
                       Create your free store
                     </a>
                   </>
@@ -919,31 +935,38 @@ ${productUrl}`;
           </div>
         </FullWidthContainer>
 
-        {/* v1.8 Clean Glass Search and Filters (FULL-WIDTH MATCH) */}
-        <FullWidthContainer className="py-8">
-          <Card className="p-8 mb-10 backdrop-blur-lg rounded-2xl relative overflow-hidden border border-white/20"
+        {/* v1.9 Championship Glass Search and Filters (EDGE-TO-EDGE MATCH) */}
+        <FullWidthContainer className="py-10">
+          <Card className="p-10 mb-12 backdrop-blur-2xl rounded-3xl relative overflow-hidden border border-white/30"
             style={{
-              background: 'rgba(255, 255, 255, 0.7)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.06)'
+              background: 'rgba(255, 255, 255, 0.55)',
+              boxShadow: '0 16px 48px rgba(0, 0, 0, 0.08)'
             }}>
-            {/* Pure glass morphism background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-slate-50/40 rounded-2xl"></div>
+            {/* Championship glass morphism with depth */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-slate-50/30 rounded-3xl"></div>
+            <div className="absolute inset-0 backdrop-blur-2xl rounded-3xl"></div>
             <div className="relative z-10">
-            <div className="space-y-8">
-              {/* v1.8 Clean Glass Search Bar */}
+            <div className="space-y-10">
+              {/* v1.9 Championship Glass Search Bar */}
               <div className="relative group">
-                {/* Subtle focus effect */}
-                <div className="absolute inset-0 bg-blue-500/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
+                {/* Animated glowing blue ring on focus */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 rounded-3xl opacity-0 group-focus-within:opacity-30 transition-all duration-500 blur-xl"></div>
+                <div className="absolute inset-0 bg-blue-500/5 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-400"></div>
                 
-                {/* Search icon */}
-                <Search className="w-6 h-6 absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-200" />
+                {/* Premium search icon */}
+                <Search className="w-7 h-7 absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-all duration-300 group-focus-within:scale-110" />
                 
                 <Input
                   type="text"
                   placeholder="Search for products, brands, or categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-12 h-14 text-base border border-slate-200/50 focus:border-blue-500 rounded-xl bg-white/80 backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400 shadow-sm focus:shadow-md"
+                  className="pl-16 pr-16 h-16 text-lg border-0 rounded-2xl transition-all duration-300 placeholder:text-slate-400 font-medium"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.55)',
+                    backdropFilter: 'blur(16px)',
+                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.06)'
+                  }}
                   data-testid="input-search-products"
                 />
                 
@@ -952,9 +975,9 @@ ${productUrl}`;
                     variant="ghost"
                     size="sm"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100 transition-all duration-200"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full hover:bg-slate-100 transition-all duration-300 hover:scale-110"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </Button>
                 )}
               </div>
@@ -963,30 +986,30 @@ ${productUrl}`;
               <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
                 {/* v1.8 Category Pills with Pastel Backgrounds */}
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-5">
-                    <span className="text-sm font-semibold text-slate-600 uppercase tracking-wide flex items-center">
-                      <Filter className="w-4 h-4 mr-2 text-blue-600" />
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-base font-bold text-slate-700 uppercase tracking-wide flex items-center">
+                      <Filter className="w-5 h-5 mr-3 text-blue-600" />
                       Categories
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-4">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setCategoryFilter('all')}
-                      className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 hover:scale-105 border-0 ${
+                      className={`rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
                         categoryFilter === 'all' 
-                          ? 'shadow-md' 
-                          : 'shadow-sm hover:shadow-md'
+                          ? 'shadow-xl' 
+                          : 'shadow-sm hover:shadow-lg'
                       }`}
                       style={categoryFilter === 'all' ? {
                         backgroundColor: '#2563EB',
                         color: 'white',
-                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                        boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
                       } : {
-                        backgroundColor: '#F1F5F9',
-                        color: '#475569',
-                        border: '1px solid #E2E8F0'
+                        backgroundColor: '#F3F4F6',
+                        color: '#374151',
+                        border: '1px solid #E5E7EB'
                       }}
                     >
                       All Categories ({products.length})
@@ -1000,19 +1023,19 @@ ${productUrl}`;
                           variant="outline"
                           size="sm"
                           onClick={() => setCategoryFilter(category)}
-                          className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 hover:scale-105 border-0 ${
+                          className={`rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
                             isActive 
-                              ? 'shadow-md' 
-                              : 'shadow-sm hover:shadow-md'
+                              ? 'shadow-xl' 
+                              : 'shadow-sm hover:shadow-lg'
                           }`}
                           style={isActive ? {
                             backgroundColor: '#2563EB',
                             color: 'white',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
                           } : {
-                            backgroundColor: '#F1F5F9',
-                            color: '#475569',
-                            border: '1px solid #E2E8F0'
+                            backgroundColor: '#F3F4F6',
+                            color: '#374151',
+                            border: '1px solid #E5E7EB'
                           }}
                         >
                           {category} ({count})
@@ -1022,22 +1045,23 @@ ${productUrl}`;
                   </div>
                 </div>
 
-                {/* v1.8 Clean Controls */}
-                <div className="flex gap-4 items-center flex-wrap">
+                {/* v1.9 Championship Controls */}
+                <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-48 h-12 rounded-xl border font-medium shadow-sm transition-all duration-200 hover:shadow-md"
+                    <SelectTrigger className="w-56 h-14 rounded-2xl border-0 font-bold shadow-lg transition-all duration-300 hover:scale-105"
                       style={{
                         backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid #E2E8F0'
+                        backdropFilter: 'blur(16px)',
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
                       }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border shadow-lg backdrop-blur-sm"
+                    <SelectContent className="rounded-2xl border-0 shadow-2xl backdrop-blur-xl"
                       style={{
                         backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(8px)',
-                        border: '1px solid #E2E8F0'
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
                       }}>
                       <SelectItem value="newest">🆕 Newest First</SelectItem>
                       <SelectItem value="popular">🔥 Most Popular</SelectItem>
@@ -1047,31 +1071,33 @@ ${productUrl}`;
                     </SelectContent>
                   </Select>
 
-                  {/* v1.8 Clean Favorites Counter */}
+                  {/* v1.9 Championship Favorites with Soft Red Badge */}
                   <Button
                     variant="outline"
                     size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className="h-12 px-6 rounded-xl font-medium transition-all duration-200 hover:scale-105 border shadow-sm"
+                    className="h-14 px-8 rounded-2xl font-bold transition-all duration-300 hover:scale-105 border-0 shadow-lg"
                     style={showFavorites ? {
                       backgroundColor: '#FEF2F2',
                       color: '#DC2626',
-                      border: '1px solid #FECACA',
-                      boxShadow: '0 2px 8px rgba(220, 38, 38, 0.1)'
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 24px rgba(220, 38, 38, 0.2)'
                     } : {
                       backgroundColor: '#F8FAFC',
                       color: '#64748B',
-                      border: '1px solid #E2E8F0',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)'
                     }}
                     data-testid="button-toggle-favorites"
                   >
-                    <Heart className={`w-5 h-5 mr-2 ${showFavorites ? 'fill-current' : ''}`} />
+                    <Heart className={`w-6 h-6 mr-3 transition-transform hover:scale-110 ${showFavorites ? 'fill-current' : ''}`} />
                     Favorites {favorites.size > 0 && (
-                      <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                      <span className="ml-3 inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300 hover:scale-110"
                             style={{
-                              backgroundColor: showFavorites ? '#DC2626' : '#EF4444',
-                              color: 'white'
+                              backgroundColor: '#F43F5E',
+                              opacity: 0.85,
+                              color: 'white',
+                              boxShadow: '0 4px 12px rgba(244, 63, 94, 0.4)'
                             }}>
                         {favorites.size}
                       </span>
