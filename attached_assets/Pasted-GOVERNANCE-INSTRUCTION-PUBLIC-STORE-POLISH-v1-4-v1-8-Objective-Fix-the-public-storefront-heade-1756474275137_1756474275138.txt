@@ -1,0 +1,140 @@
+GOVERNANCE INSTRUCTION — PUBLIC STORE POLISH v1.4 → v1.8
+Objective:
+
+Fix the public storefront header so that its content width matches the filter/search bar width exactly.
+Maintain the gradient background full-bleed, and unify the styling with our landing page brand experience.
+
+Governance Protocols
+
+🔒 Preserve Locked Components
+
+DO NOT modify product cards → v1.3.1_UI_UX_WHATSAPP_PER_CARD is locked.
+
+DO NOT modify seller console styles → v1.7_SELLER_CONSOLE_PREMIUM_POLISH is locked.
+
+DO NOT modify WhatsApp buttons or integration hooks → reserved for v1.9.
+
+✅ Allowed Updates
+
+Public storefront header gradient + container alignment
+
+Search + filter bar visual unification
+
+Shared container alignment (header + filter sections)
+
+Typography, shadows, and padding may be optimized only for header and search filters
+
+Design Specs
+Header Section
+
+Background: Full-width gradient → linear-gradient(135deg,#2563EB 0%,#9333EA 100%)
+
+Container: Same max-width and padding as filter/search bar.
+
+Avatar: Keep 80px circular with premium shadow and border.
+
+Typography:
+
+Store name → text-2xl font-bold text-[#111827]
+
+Subtitle → text-sm text-[#6B7280]
+
+Action Pills (Payment Methods / Delivery): Keep existing premium style, rounded-xl, shadows.
+
+Back Button: Maintain gradient style; align right edge with filter bar content.
+
+Search + Filters
+
+Container Width: Must match header exactly.
+
+Padding: Same horizontal padding (px-6 or 24px) across both sections.
+
+Category Pills: No changes beyond width alignment.
+
+Favorites Badge & Sorting Dropdown: Keep styles untouched.
+
+Implementation Instructions
+Option A — Tailwind Setup (Preferred)
+
+Use a shared responsive container for both header and filter/search bar:
+
+1. Update tailwind.config.js:
+module.exports = {
+  theme: {
+    container: {
+      center: true,
+      padding: '24px',             // matches filters spacing
+      screens: {
+        sm: '640px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1120px',              // MUST match filter width
+        '2xl': '1120px'
+      }
+    }
+  }
+}
+
+2. Apply Container to Header & Filter Sections:
+{/* Full-width gradient header */}
+<section className="w-screen bg-gradient-to-r from-[#2563EB] to-[#9333EA] py-8">
+  <div className="container">
+    {/* header avatar, store name, payment pills, back button */}
+  </div>
+</section>
+
+{/* Filter + Search */}
+<section className="py-5">
+  <div className="container">
+    {/* search bar, categories, sort, favorites */}
+  </div>
+</section>
+
+Option B — Plain CSS Alternative
+:root {
+  --store-max: 1120px;    /* must match filter max-width */
+  --store-pad: 24px;
+}
+
+/* Shared layout */
+.store-container {
+  width: 100%;
+  max-width: var(--store-max);
+  padding-left: var(--store-pad);
+  padding-right: var(--store-pad);
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+/* Header gradient */
+.store-header {
+  width: 100vw;
+  background: linear-gradient(135deg,#2563EB 0%,#9333EA 100%);
+  padding: 32px 0;
+}
+
+
+Then apply .store-container to both header and filter wrappers.
+
+AI Execution Notes
+
+If alignment still fails, inspect nested wrappers:
+
+Remove hidden max-w-*, w-[…], or flex constraints inside the header card.
+
+Ensure box-sizing: border-box applies globally.
+
+Confirm left and right edges of header content match perfectly with filter/search bar edges across all breakpoints.
+
+Versioning
+
+This update introduces v1.8_PUBLIC_STORE_PREMIUM_POLISH.
+
+Locks preserved for:
+
+v1.3.1_UI_UX_WHATSAPP_PER_CARD ✅
+
+v1.7_SELLER_CONSOLE_PREMIUM_POLISH ✅
+
+Future v1.9 WhatsApp actions ✅
