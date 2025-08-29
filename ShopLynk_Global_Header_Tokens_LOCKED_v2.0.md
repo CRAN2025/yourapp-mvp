@@ -213,15 +213,22 @@ This document establishes the FINAL global header token system for all ShopLynk 
 1. Use `.header-container-locked` for header wrapper
 2. Apply `.header-row-locked` for three-zone layout
 3. Use `.store-title-locked`, `.powered-by-locked`, `.store-subtitle-locked` classes
-4. Apply `.payment-delivery-badge` for all badges
-5. Style CTAs with `var(--cta-primary-style)` token
+4. Conditionally render `.store-description-locked` only when `seller.storeDescription` exists
+5. Apply `.payment-delivery-badge` for all badges
+6. Style CTAs with `var(--cta-primary-style)` token
 
 ### For Buyer Storefronts
 1. Inherit all global tokens exactly as defined
 2. Use same `.header-container-locked` structure
-3. Apply identical typography classes
+3. Apply identical typography classes including conditional description
 4. Maintain same badge styling with `.payment-delivery-badge`
 5. Use same CTA token system for consistency
+
+### Dynamic Description Requirements
+- **Data Source**: Pull from `seller.storeDescription` field directly
+- **Conditional Rendering**: Only display when description exists (no empty gaps)
+- **Reactivity**: Updates automatically when seller modifies description
+- **No Fallbacks**: Never display placeholder or hardcoded content
 
 ### Responsive Behavior
 ```css
