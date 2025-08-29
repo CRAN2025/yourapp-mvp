@@ -812,17 +812,19 @@ ${productUrl}`;
         /* Global design tokens for consistent visual language */
         :root {
           --control-radius: 12px;
+          --control-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          --control-bg-inactive: #f8f9fc;
+          --control-border: 1px solid #e5e7eb;
           --control-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
           --control-shadow-hover: 0px 5px 15px rgba(80, 155, 255, 0.35);
-          --control-gradient-active: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           --control-font-weight: 500;
           --control-transition: all 0.25s ease-in-out;
         }
         
         /* Unified Dropdown Styling */
         .unified-dropdown {
-          background: #f8f9fc;
-          border: 1px solid #e5e7eb;
+          background: var(--control-bg-inactive);
+          border: var(--control-border);
           border-radius: var(--control-radius);
           box-shadow: var(--control-shadow);
           font-weight: var(--control-font-weight);
@@ -837,11 +839,11 @@ ${productUrl}`;
           background: #f0f4ff;
           border-color: #b3c8ff;
           box-shadow: var(--control-shadow-hover);
-          transform: scale(1.02);
+          transform: scale(1.03);
         }
         
         .unified-dropdown.active {
-          background: var(--control-gradient-active);
+          background: var(--control-gradient);
           color: #fff;
           border: none;
           box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
@@ -849,8 +851,8 @@ ${productUrl}`;
         
         /* Unified Favorites Button */
         .unified-favorites-button {
-          background: #f8f9fc;
-          border: 1px solid #e5e7eb;
+          background: var(--control-bg-inactive);
+          border: var(--control-border);
           border-radius: var(--control-radius);
           box-shadow: var(--control-shadow);
           font-weight: var(--control-font-weight);
@@ -872,7 +874,7 @@ ${productUrl}`;
         }
         
         .unified-favorites-button.active {
-          background: var(--control-gradient-active);
+          background: var(--control-gradient);
           color: #fff;
           border: none;
           box-shadow: 0 5px 18px rgba(80, 155, 255, 0.45);
@@ -1345,16 +1347,17 @@ ${productUrl}`;
                 {/* v1.9 Championship Controls */}
                 <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-56 h-14 border-0 transition-all duration-300 unified-dropdown"
+                    <SelectTrigger className="w-56 h-14 border-0 unified-dropdown"
                       style={{
-                        backgroundColor: '#f8f9fc',
-                        border: '1px solid #e5e7eb',
+                        background: 'var(--control-bg-inactive)',
+                        border: 'var(--control-border)',
                         borderRadius: 'var(--control-radius)',
                         boxShadow: 'var(--control-shadow)',
                         fontWeight: 'var(--control-font-weight)',
                         fontSize: '14px',
                         color: '#555',
-                        padding: '10px 16px'
+                        padding: '10px 16px',
+                        transition: 'var(--control-transition)'
                       }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
@@ -1377,21 +1380,23 @@ ${productUrl}`;
                     variant="outline"
                     size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className={`h-14 px-8 transition-all duration-300 border-0 unified-favorites-button ${showFavorites ? 'active' : ''}`}
+                    className={`h-14 px-8 border-0 unified-favorites-button ${showFavorites ? 'active' : ''}`}
                     style={showFavorites ? {
-                      background: 'var(--control-gradient-active)',
+                      background: 'var(--control-gradient)',
                       color: '#fff',
                       border: 'none',
                       boxShadow: '0 5px 18px rgba(80, 155, 255, 0.45)',
                       borderRadius: 'var(--control-radius)',
-                      fontWeight: 'var(--control-font-weight)'
+                      fontWeight: 'var(--control-font-weight)',
+                      transition: 'var(--control-transition)'
                     } : {
-                      background: '#f8f9fc',
+                      background: 'var(--control-bg-inactive)',
                       color: '#555',
-                      border: '1px solid #e5e7eb',
+                      border: 'var(--control-border)',
                       borderRadius: 'var(--control-radius)',
                       boxShadow: 'var(--control-shadow)',
-                      fontWeight: 'var(--control-font-weight)'
+                      fontWeight: 'var(--control-font-weight)',
+                      transition: 'var(--control-transition)'
                     }}
                     data-testid="button-toggle-favorites"
                   >
