@@ -107,10 +107,10 @@ export default function StorefrontPublic() {
     
     try {
       await trackInteraction({
-        type: 'whatsapp_cta_viewed',
+        type: 'wa_click',
         sellerId,
         productId,
-        metadata: { location: 'card' },
+        metadata: { location: 'card', action: 'whatsapp_cta_viewed' },
       });
     } catch (error) {
       console.warn('Failed to track WhatsApp CTA view:', error);
@@ -458,10 +458,10 @@ export default function StorefrontPublic() {
       // Track blocked attempt for analytics
       try {
         await trackInteraction({
-          type: 'whatsapp_cta_missing_number',
+          type: 'wa_click',
           sellerId: sellerId!,
           productId: product.id,
-          metadata: { location: 'card', reason: 'no_whatsapp_number' },
+          metadata: { location: 'card', action: 'whatsapp_cta_missing_number', reason: 'no_whatsapp_number' },
         });
       } catch (error) {
         console.warn('Failed to track blocked WhatsApp attempt:', error);
@@ -472,11 +472,12 @@ export default function StorefrontPublic() {
     try {
       // Enhanced analytics tracking per specification
       await trackInteraction({
-        type: 'whatsapp_cta_clicked',
+        type: 'wa_click',
         sellerId,
         productId: product.id,
         metadata: {
           location: 'card',
+          action: 'whatsapp_cta_clicked',
           productName: product.name,
           productPrice: product.price,
           category: product.category,
@@ -1132,8 +1133,7 @@ ${productUrl}`;
                             style={{
                               backgroundColor: '#25D366',
                               borderRadius: '10px',
-                              boxShadow: '0 2px 6px rgba(37, 211, 102, 0.25)',
-                              focusRingColor: 'rgba(37, 211, 102, 0.5)'
+                              boxShadow: '0 2px 6px rgba(37, 211, 102, 0.25)'
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
