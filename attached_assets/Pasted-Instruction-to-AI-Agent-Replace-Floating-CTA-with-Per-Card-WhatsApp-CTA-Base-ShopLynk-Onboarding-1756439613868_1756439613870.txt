@@ -1,0 +1,90 @@
+Instruction to AI Agent — Replace Floating CTA with Per-Card WhatsApp CTA
+
+Base: ShopLynk_Onboarding_Settings_v1.3_UI_UX_WHATSAPP_CARD
+Create: ShopLynk_Onboarding_Settings_v1.3.1_UI_UX_WHATSAPP_PER_CARD
+
+What to change
+
+Remove the floating WhatsApp FAB
+
+Disable/hide any global/floating WhatsApp button on catalog/grid pages.
+
+Scope: marketplace product list & category pages only (do not touch details page CTA).
+
+Add a WhatsApp CTA on every product card
+
+Component: CardWhatsAppCTA
+
+Placement: directly below the price & badges and above “View Details.”
+
+Width/height/radius: match “View Details” button (full card width, same height, radius 10px).
+
+Style: bg #25D366, white label “Contact Seller”, WhatsApp icon left.
+Hover: darken ~6%; Active: darken ~10%; Focus ring 2px rgba(37,211,102,.5).
+
+Behavior
+
+Click opens WhatsApp:
+
+Mobile → https://wa.me/{E164}?text={encodedMessage}
+
+Desktop → https://web.whatsapp.com/send?phone={E164}&text={encodedMessage}
+
+Prefill message: Hi {seller_first_name}, I'm interested in "{product_title}" on ShopLynk. (+ product link if available).
+
+Open in new tab.
+
+Visibility rules
+
+Show only if seller has a valid E.164 WhatsApp number.
+
+If missing:
+
+Public grid: do not render the button (reserve space to avoid layout jump).
+
+Seller console preview: render disabled with tooltip “Add a WhatsApp number in Settings.”
+
+Out-of-stock handling
+
+Keep button enabled (buyers may ask). If qty <= 0, show a subtle caption under the button:
+“Currently out of stock — message seller for availability.”
+
+Accessibility
+
+aria-label="Contact seller about {product_title} on WhatsApp"
+
+Keyboard focusable; icon aria-hidden="true".
+
+Contrast AA for text on green background.
+
+Analytics
+
+whatsapp_cta_viewed {product_id, seller_id, location:"card"}
+
+whatsapp_cta_clicked {product_id, seller_id, location:"card"}
+
+whatsapp_cta_missing_number {product_id, seller_id} (if hidden due to no number)
+
+Performance & layout
+
+No layout shift: reserve button height in skeleton/loading state.
+
+Responsive: works on mobile/tablet/desktop; label wraps gracefully.
+
+Do not modify any other v1.2 UI tokens or spacing.
+
+Acceptance criteria (must all pass)
+
+No floating FAB present on catalog pages.
+
+Every product card with a valid number shows the green Contact Seller button above “View Details.”
+
+Click opens WhatsApp with the correct seller & prefilled message on both mobile and desktop.
+
+Cards without a number do not show the button (public), but show disabled/tooltip in seller console.
+
+No visual regressions to price, badges, shadows, or spacing.
+
+One-line command to run
+
+“Unlock v1.3, remove the floating WhatsApp FAB on catalog pages, and add the per-card WhatsApp CTA exactly as specified above; then provide desktop + mobile screenshots for products with/without numbers. Do not alter any other UI.”
