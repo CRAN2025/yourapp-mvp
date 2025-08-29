@@ -705,30 +705,48 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Enterprise-grade logo container with dynamic scaling */
+        /* Championship logo container with enhanced scaling */
         .logo-container {
-          width: clamp(70px, 8vw, 90px);
-          height: clamp(70px, 8vw, 90px);
+          width: clamp(80px, 9vw, 100px);
+          height: clamp(80px, 9vw, 100px);
           background-color: #fff;
           border-radius: 50%;
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
           display: flex;
           justify-content: center;
           align-items: center;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          transition: transform 0.2s ease-in-out;
         }
         
         .logo-container img {
-          max-width: 80%;
+          width: 80%;
           height: auto;
           object-fit: contain;
         }
         
-        /* Enterprise tagline with brand blue */
-        .powered-by {
-          font-size: 14px;
+        .logo-container:hover {
+          transform: scale(1.04);
+        }
+        
+        /* Championship typography hierarchy */
+        .store-name-championship {
+          font-weight: 700;
+          font-size: clamp(24px, 4vw, 28px);
+          color: #111827;
+          line-height: 1.2;
+        }
+        
+        .powered-by-championship {
           font-weight: 500;
+          font-size: 16px;
           color: #2563EB;
-          margin-top: 2px;
+          margin-top: 1px;
+        }
+        
+        .online-store-championship {
+          font-weight: 400;
+          font-size: 14px;
+          color: #6B7280;
         }
         
         /* Enterprise responsive logo scaling handled by clamp */
@@ -785,23 +803,23 @@ ${productUrl}`;
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
-                          // Enterprise ShopLynk fallback
+                          // Championship ShopLynk fallback
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
                           e.currentTarget.className = '';
-                          e.currentTarget.style.maxWidth = '80%';
+                          e.currentTarget.style.width = '80%';
                           e.currentTarget.style.height = 'auto';
                           e.currentTarget.style.objectFit = 'contain';
                           e.currentTarget.style.borderRadius = '0';
                         }}
                       />
                     ) : (
-                      /* Enterprise ShopLynk logo */
+                      /* Championship ShopLynk logo */
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
                         style={{ 
-                          maxWidth: '80%',
+                          width: '80%',
                           height: 'auto',
                           objectFit: 'contain'
                         }}
@@ -811,29 +829,18 @@ ${productUrl}`;
                 </div>
                 
                 <div className="min-w-0 flex-1">
-                  {/* v1.9 Championship Typography */}
-                  <h1 className="text-3xl md:text-4xl font-extrabold truncate leading-tight" 
-                      style={{ 
-                        color: '#111827',
-                        fontWeight: 800,
-                        letterSpacing: '-0.025em'
-                      }}>
+                  {/* Championship Typography Hierarchy */}
+                  <h1 className="store-name-championship mb-0 truncate">
                     {seller.storeName}
                   </h1>
                   
-                  {/* Enterprise "Powered by ShopLynk" Styling */}
-                  <div className="mt-1 mb-2">
-                    <span className="powered-by">
-                      Powered by ShopLynk
-                    </span>
+                  {/* Championship "Powered by ShopLynk" Typography */}
+                  <div className="powered-by-championship">
+                    Powered by ShopLynk
                   </div>
                   
-                  {/* Ultra-subtle hierarchy subtitle */}
-                  <p className="truncate font-medium tracking-wide" 
-                     style={{ 
-                       fontSize: '13px',
-                       color: '#6B7280'
-                     }}>
+                  {/* Championship subtitle */}
+                  <p className="online-store-championship truncate mt-1">
                     {seller.location || 'Online Store'}
                   </p>
                 </div>
