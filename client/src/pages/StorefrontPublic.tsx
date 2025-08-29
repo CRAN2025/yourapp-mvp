@@ -1416,6 +1416,13 @@ ${productUrl}`;
                         {seller.storeDescription}
                       </div>
                     )}
+                    {/* Debug: Check if description exists but is empty */}
+                    {console.log('Seller data for description debug:', { 
+                      storeDescription: seller.storeDescription, 
+                      hasDescription: !!seller.storeDescription,
+                      storeName: seller.storeName,
+                      allSellerKeys: Object.keys(seller)
+                    })}
                     <p className="store-subtitle-locked truncate">
                       {seller.location || 'Online Store'}
                     </p>
