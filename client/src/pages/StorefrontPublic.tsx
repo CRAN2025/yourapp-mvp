@@ -1098,14 +1098,14 @@ Product Link: ${productUrl}`;
                                 {formatPrice(product.price)}
                               </span>
                             </div>
-                            <div className="space-y-1">
-                              <Badge variant="secondary" className="text-xs">
+                            <div className="space-y-2">
+                              <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-800 text-white text-xs font-medium">
                                 📦 {product.category}
-                              </Badge>
+                              </div>
                               {product.subcategory && (
-                                <Badge variant="outline" className="text-xs">
+                                <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-600 text-white text-xs font-medium ml-2">
                                   {product.subcategory}
-                                </Badge>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -1157,56 +1157,89 @@ Product Link: ${productUrl}`;
                         )}
                       </div>
 
-                      {/* Stock indicator for limited stock */}
+                      {/* Premium limited stock warning */}
                       {product.quantity <= 10 && (
-                        <div className="pt-2 border-t border-gray-100">
-                          <Badge variant="destructive" className="text-xs">
-                            ⚠️ Limited Stock — Only {product.quantity} Left
-                          </Badge>
+                        <div className="pt-3 border-t border-slate-100">
+                          <div className="inline-flex items-center px-3 py-2 rounded-lg text-xs font-bold tracking-wide" 
+                               style={{ backgroundColor: '#E63946', color: 'white' }}>
+                            <span className="mr-2 text-sm">⚠️</span>
+                            LIMITED STOCK — ONLY {product.quantity} LEFT
+                          </div>
                         </div>
                       )}
 
-                      {/* Product attributes and badges */}
-                      {(product.color || product.size || product.material || product.isHandmade || product.isCustomizable || product.sustainability) && (
-                        <div className="flex flex-wrap gap-1 pt-3 border-t border-gray-100">
-                          {product.color && (
-                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-200">
+                      {/* Premium attribute badges - limit to 3-4 most important */}
+                      {(() => {
+                        const attributeBadges = [];
+                        const specialBadges = [];
+                        
+                        // Priority attributes (max 3)
+                        if (product.color && attributeBadges.length < 3) {
+                          attributeBadges.push(
+                            <div key="color" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
                               🎨 {product.color}
-                            </span>
-                          )}
-                          {product.size && (
-                            <span className="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-200">
+                            </div>
+                          );
+                        }
+                        if (product.size && attributeBadges.length < 3) {
+                          attributeBadges.push(
+                            <div key="size" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
                               📏 {product.size}
-                            </span>
-                          )}
-                          {product.material && (
-                            <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded border border-green-200">
+                            </div>
+                          );
+                        }
+                        if (product.material && attributeBadges.length < 3) {
+                          attributeBadges.push(
+                            <div key="material" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
                               🧵 {product.material}
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Special feature badges */}
-                      {(product.isHandmade || product.isCustomizable || product.sustainability) && (
-                        <div className="flex flex-wrap gap-1 pt-2">
-                          {product.isHandmade && (
-                            <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                            </div>
+                          );
+                        }
+                        
+                        // Special feature badges (separate section)
+                        if (product.isHandmade) {
+                          specialBadges.push(
+                            <div key="handmade" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
                               🎨 Handmade
-                            </Badge>
-                          )}
-                          {product.isCustomizable && (
-                            <Badge variant="outline" className="text-xs bg-indigo-50 text-indigo-700 border-indigo-200">
+                            </div>
+                          );
+                        }
+                        if (product.isCustomizable) {
+                          specialBadges.push(
+                            <div key="customizable" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
                               ⚙️ Customizable
-                            </Badge>
-                          )}
-                          {product.sustainability && (
-                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                              🌱 {product.sustainability}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
+                            </div>
+                          );
+                        }
+                        if (product.sustainability && specialBadges.length < 2) {
+                          specialBadges.push(
+                            <div key="sustainability" className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#2ECC71', color: '#FFFFFF' }}>
+                              🌱 Eco-friendly
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <>
+                            {attributeBadges.length > 0 && (
+                              <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
+                                {attributeBadges}
+                              </div>
+                            )}
+                            {specialBadges.length > 0 && (
+                              <div className="flex flex-wrap gap-2 pt-2">
+                                {specialBadges}
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </CardContent>
                   </div>
                 </Card>
@@ -1506,51 +1539,61 @@ Product Link: ${productUrl}`;
                           {selectedProduct.name}
                         </h2>
                         <div className="flex items-center gap-3 flex-wrap">
-                          <Badge variant="secondary" className="px-3 py-1">
+                          <div className="inline-flex items-center px-4 py-2 rounded-lg bg-slate-800 text-white text-sm font-semibold">
                             📦 {selectedProduct.category}
-                          </Badge>
+                          </div>
                           {(selectedProduct as any).subcategory && (
-                            <Badge variant="outline" className="px-3 py-1">
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-600 text-white text-sm font-medium">
                               {(selectedProduct as any).subcategory}
-                            </Badge>
+                            </div>
                           )}
                           {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                            <Badge className="bg-green-500 text-white px-3 py-1">
-                              🆕 NEW ARRIVAL
-                            </Badge>
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-sm font-semibold">
+                              🆕 New Arrival
+                            </div>
                           )}
                         </div>
                       </div>
                     </div>
                     
                     <div className="lg:text-right space-y-2">
-                      <div className="text-3xl lg:text-4xl font-bold text-green-600">
+                      <div className="text-3xl lg:text-4xl font-bold" style={{ color: '#27AE60' }}>
                         {formatPrice(selectedProduct.price)}
                       </div>
-                      <div className="text-sm text-gray-500">per unit</div>
+                      <div className="text-sm text-slate-500 font-medium">per unit</div>
                     </div>
                   </div>
                   
-                  {/* Stock Status */}
-                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <div className={`w-6 h-6 rounded-full shadow-lg ${
-                      selectedProduct.quantity > 10 ? 'bg-emerald-500' :
-                      selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}>
-                      <div className="w-full h-full rounded-full animate-pulse opacity-50"></div>
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-semibold text-lg text-gray-800">
-                        {selectedProduct.quantity > 10 ? '✅ In Stock & Ready to Ship' :
-                         selectedProduct.quantity > 0 ? `⚠️ Limited Stock - Only ${selectedProduct.quantity} Left` : 
-                         '❌ Currently Out of Stock'}
-                      </span>
-                      <p className="text-gray-600 mt-1 text-sm">
-                        {selectedProduct.quantity > 0 
-                          ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available for immediate purchase`
-                          : 'Contact seller for restocking information'
-                        }
-                      </p>
+                  {/* Premium Stock Status */}
+                  <div className="p-5 rounded-2xl border-2" style={{
+                    backgroundColor: selectedProduct.quantity > 10 ? '#E8F5E8' : 
+                                   selectedProduct.quantity > 0 ? '#FFF4E6' : '#FFE6E6',
+                    borderColor: selectedProduct.quantity > 10 ? '#27AE60' : 
+                                selectedProduct.quantity > 0 ? '#F39C12' : '#E63946'
+                  }}>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg ${
+                        selectedProduct.quantity > 10 ? 'bg-emerald-500' :
+                        selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}>
+                        <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold text-lg" style={{
+                          color: selectedProduct.quantity > 10 ? '#27AE60' : 
+                                 selectedProduct.quantity > 0 ? '#D68910' : '#C0392B'
+                        }}>
+                          {selectedProduct.quantity > 10 ? '✅ In Stock & Ready to Ship' :
+                           selectedProduct.quantity > 0 ? `⚠️ Limited Stock — Only ${selectedProduct.quantity} Left` : 
+                           '❌ Currently Out of Stock'}
+                        </div>
+                        <p className="text-slate-600 mt-1 text-sm font-medium">
+                          {selectedProduct.quantity > 0 
+                            ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available for immediate purchase`
+                            : 'Contact seller for restocking information'
+                          }
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1568,86 +1611,158 @@ Product Link: ${productUrl}`;
                   </div>
                 )}
                 
-                {/* Product Attributes */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    { label: 'Brand', value: selectedProduct.brand, icon: '🏷️' },
-                    { label: 'Condition', value: selectedProduct.condition, icon: '⭐' },
-                    { label: 'Size', value: selectedProduct.size, icon: '📏' },
-                    { label: 'Color', value: selectedProduct.color, icon: '🎨' },
-                    { label: 'Material', value: selectedProduct.material, icon: '🧵' },
-                    { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
-                    { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
-                    { label: 'Processing Time', value: (selectedProduct as any).processingTime, icon: '⏱️' },
-                    { label: 'Ships From', value: (selectedProduct as any).shipsFrom, icon: '✈️' },
-                    { label: 'Occasion', value: (selectedProduct as any).occasion, icon: '🎉' },
-                    { label: 'Age Group', value: (selectedProduct as any).targetAgeGroup, icon: '👥' },
-                  ].filter(item => item.value).map((item, index) => (
-                    <div key={index} className="p-4 bg-white rounded-lg border border-gray-200">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-2xl">{item.icon}</span>
-                        <span className="text-sm font-medium text-gray-500 uppercase">
-                          {item.label}
-                        </span>
-                      </div>
-                      <p className="font-semibold text-lg text-gray-800 capitalize">{item.value}</p>
+                {/* Attributes Section */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                      <span className="text-2xl">📋</span>
+                      Product Attributes
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {[
+                        { label: 'Brand', value: selectedProduct.brand, icon: '🏷️' },
+                        { label: 'Condition', value: selectedProduct.condition, icon: '⭐' },
+                        { label: 'Size', value: selectedProduct.size, icon: '📏' },
+                        { label: 'Color', value: selectedProduct.color, icon: '🎨' },
+                        { label: 'Material', value: selectedProduct.material, icon: '🧵' },
+                        { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
+                        { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
+                      ].filter(item => item.value).map((item, index) => (
+                        <div key={index} className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                              {item.label}
+                            </span>
+                          </div>
+                          <p className="font-bold text-lg text-slate-800 capitalize">{item.value}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Shipping & Logistics Section */}
+                  {((selectedProduct as any).processingTime || (selectedProduct as any).shipsFrom) && (
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">🚚</span>
+                        Shipping & Processing
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(selectedProduct as any).processingTime && (
+                          <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">⏱️</span>
+                              <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                                Processing Time
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-blue-800">{(selectedProduct as any).processingTime}</p>
+                          </div>
+                        )}
+                        {(selectedProduct as any).shipsFrom && (
+                          <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">✈️</span>
+                              <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">
+                                Ships From
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-indigo-800">{(selectedProduct as any).shipsFrom}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Occasion & Age Group Section */}
+                  {((selectedProduct as any).occasion || (selectedProduct as any).targetAgeGroup) && (
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">🎯</span>
+                        Suitable For
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(selectedProduct as any).occasion && (
+                          <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">🎉</span>
+                              <span className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
+                                Occasion
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-purple-800 capitalize">{(selectedProduct as any).occasion}</p>
+                          </div>
+                        )}
+                        {(selectedProduct as any).targetAgeGroup && (
+                          <div className="p-4 bg-pink-50 rounded-xl border border-pink-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">👥</span>
+                              <span className="text-xs font-semibold text-pink-700 uppercase tracking-wide">
+                                Age Group
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-pink-800 capitalize">{(selectedProduct as any).targetAgeGroup}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Additional Information Sections */}
+                {/* Product Policies Section */}
                 <div className="space-y-6">
-                  {/* Personalization Options */}
-                  {(selectedProduct as any).personalizationOptions && (
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <span className="text-2xl">✏️</span>
-                        Personalization Options
-                      </h3>
-                      <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                        <p className="text-gray-700">{(selectedProduct as any).personalizationOptions}</p>
-                      </div>
-                    </div>
-                  )}
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                      <span className="text-2xl">📋</span>
+                      Product Policies
+                    </h3>
+                    <div className="space-y-4">
+                      {/* Personalization Options */}
+                      {(selectedProduct as any).personalizationOptions && (
+                        <div className="p-5 bg-indigo-50 rounded-2xl border-l-4 border-indigo-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">✏️</span>
+                            <h4 className="text-lg font-bold text-indigo-800">Personalization Options</h4>
+                          </div>
+                          <p className="text-indigo-700 font-medium leading-relaxed">{(selectedProduct as any).personalizationOptions}</p>
+                        </div>
+                      )}
 
-                  {/* Care Instructions */}
-                  {(selectedProduct as any).careInstructions && (
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <span className="text-2xl">🧼</span>
-                        Care Instructions
-                      </h3>
-                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                        <p className="text-gray-700">{(selectedProduct as any).careInstructions}</p>
-                      </div>
-                    </div>
-                  )}
+                      {/* Care Instructions */}
+                      {(selectedProduct as any).careInstructions && (
+                        <div className="p-5 bg-blue-50 rounded-2xl border-l-4 border-blue-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">🧼</span>
+                            <h4 className="text-lg font-bold text-blue-800">Care Instructions</h4>
+                          </div>
+                          <p className="text-blue-700 font-medium leading-relaxed">{(selectedProduct as any).careInstructions}</p>
+                        </div>
+                      )}
 
-                  {/* Sustainability */}
-                  {(selectedProduct as any).sustainability && (
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <span className="text-2xl">🌱</span>
-                        Sustainability
-                      </h3>
-                      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                        <p className="text-gray-700">{(selectedProduct as any).sustainability}</p>
-                      </div>
-                    </div>
-                  )}
+                      {/* Sustainability */}
+                      {(selectedProduct as any).sustainability && (
+                        <div className="p-5 bg-green-50 rounded-2xl border-l-4 border-green-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">🌱</span>
+                            <h4 className="text-lg font-bold text-green-800">Sustainability</h4>
+                          </div>
+                          <p className="text-green-700 font-medium leading-relaxed">{(selectedProduct as any).sustainability}</p>
+                        </div>
+                      )}
 
-                  {/* Warranty */}
-                  {(selectedProduct as any).warranty && (
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <span className="text-2xl">🛡️</span>
-                        Warranty
-                      </h3>
-                      <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                        <p className="text-gray-700">{(selectedProduct as any).warranty}</p>
-                      </div>
+                      {/* Warranty */}
+                      {(selectedProduct as any).warranty && (
+                        <div className="p-5 bg-purple-50 rounded-2xl border-l-4 border-purple-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">🛡️</span>
+                            <h4 className="text-lg font-bold text-purple-800">Warranty</h4>
+                          </div>
+                          <p className="text-purple-700 font-medium leading-relaxed">{(selectedProduct as any).warranty}</p>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 {/* Special Features */}

@@ -1,0 +1,228 @@
+Instruction to AI Agent — UI/UX Enhancement Phase
+Step 1 — Lock Current Version
+
+Lock the existing stable release:
+
+ShopLynk_Onboarding_Settings_v1.1_PRODUCT_DISPLAY
+
+
+Do not make further edits to this version.
+
+Preserve all recent fixes, missing field additions, and routing logic.
+
+Set it as the baseline.
+
+Step 2 — Start New Version
+
+Create a new branch/version for this enhancement:
+
+ShopLynk_Onboarding_Settings_v1.2_UI_UX
+
+
+This version focuses only on UI and UX improvements. No functional logic should change.
+Everything must look beautiful, consistent, and premium.
+
+Step 3 — UI/UX Goals
+
+Deliver a world-class visual experience across:
+
+Seller Console → Product View
+
+Public Product Cards (Summary)
+
+Public Product Details (Full View)
+
+Make the entire interface clean, modern, consistent, and intuitive.
+
+Step 4 — UI/UX Improvements Required
+A) Product Cards (Public Storefront)
+
+Goals:
+
+Elegant, clean, and premium feel
+
+Consistent badge colors, typography, and spacing
+
+Visual hierarchy: price → category → attributes → badges
+
+Changes to Apply:
+
+Unify Badge Colors
+
+Badge Type	Color Code	Style
+Stock Warning	#E63946	White bold text, all caps, ⚠️ icon
+Sustainability	#2ECC71	Subtle pastel green with dark green text
+Handmade / Customizable / Gift Wrap	#F5F5F5 background, neutral pastel icons	
+Size / Color / Material	Use light gray background #F1F3F5, consistent font	
+Category/Subcategory	Keep in dark neutral for contrast	
+
+Typography & Labels
+
+Use sentence case for all labels:
+
+✅ “Eco-friendly”
+
+❌ “eco friendly”
+
+Consistent font weight & size across badges.
+
+Icon & Text Alignment
+
+Vertically center icons and labels within badges.
+
+Ensure consistent left/right padding.
+
+Badge Limit per Card
+
+Show max 3–4 badges on the product card.
+
+Prioritize most relevant:
+
+Color
+
+Size
+
+Material
+
+Handmade / Sustainability (if present)
+
+Show all other attributes inside View Details.
+
+“Limited Stock” Badge
+
+Place above badges for visibility.
+
+Consistent size & color across all products:
+
+⚠️ LIMITED STOCK — ONLY X LEFT
+
+
+Use bright red (#E63946) with bold white text.
+
+B) Product Details (Public Full View)
+
+Goals:
+
+Group related information under clean sections.
+
+Avoid clutter and maintain breathing space between sections.
+
+New Layout Recommendations:
+
+Top Section
+
+Product Name + Category/Subcategory
+
+Price in bold #27AE60 green
+
+Limited stock badge (if applicable)
+
+Attributes Section
+
+Color, Size, Material badges (clean style)
+
+Sustainability badge, if set
+
+Special Features Section
+
+Handmade
+
+Customizable
+
+Gift Wrapping
+
+Made-to-Order
+
+Product Policies Section
+
+Personalization Options
+
+Care Instructions
+
+Warranty
+
+Return Policy
+
+Ships From
+
+Occasion & Age Group Section
+
+Show badges or grouped labels if entered.
+
+C) Seller Console (Product View)
+
+Goals:
+
+Show every entered field clearly.
+
+Use the same badge color system as the public view for consistency.
+
+Group fields visually under sections, like:
+
+Inventory & Pricing → Price, Quantity in Stock
+
+Classification → Category, Subcategory
+
+Attributes → Size, Color, Material
+
+Features → Handmade, Customizable, Gift Wrapping
+
+Policies → Care Instructions, Warranty, Return Policy
+
+Step 5 — UX Rules
+
+Do not break existing flows:
+
+Seller onboarding
+
+Product creation/editing
+
+Buyer details page navigation
+
+Use mobile-first responsive design.
+
+Match styles across seller console and public views for a unified ShopLynk brand.
+
+Step 6 — Testing Requirements
+
+Before release:
+
+Verify all badges are styled consistently.
+
+Test across multiple categories and product variations:
+
+Electronics
+
+Jewelry
+
+Fashion
+(Ensure fields display only if populated)
+
+Validate spacing, alignment, and typography on:
+
+Desktop
+
+Tablet
+
+Mobile
+
+Step 7 — Deliverables
+
+Updated UI implemented on ShopLynk_Onboarding_Settings_v1.2_UI_UX
+
+Side-by-side before/after screenshots for:
+
+Seller console
+
+Public product cards
+
+Public product details
+
+Confirmation that no existing functionality is broken.
+
+Final Agent Instruction
+
+“Lock v1.1_PRODUCT_DISPLAY and create v1.2_UI_UX.
+In v1.2_UI_UX, implement a premium UI/UX refresh for product cards, seller console views, and product details pages.
+Focus on badge consistency, elegant typography, clean spacing, visual hierarchy, and responsive layouts.
+Keep existing data, routing, and logic intact — do not break what’s already working.”

@@ -312,56 +312,116 @@ export default function Products() {
                     )}
                   </div>
                   
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xl font-bold text-foreground" data-testid={`product-price-${product.id}`}>
-                      {formatPrice(product.price)}
-                    </span>
-                    <div className="flex flex-col items-end gap-1">
-                      <Badge variant="outline">{product.category}</Badge>
+                  {/* Premium Header with Price and Category */}
+                  <div className="flex items-center justify-between mb-6 p-4 bg-slate-50 rounded-xl border-l-4 border-emerald-400">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-bold" style={{ color: '#27AE60' }} data-testid={`product-price-${product.id}`}>
+                        {formatPrice(product.price)}
+                      </span>
+                      <div className="text-sm text-slate-600 font-medium">per unit</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-800 text-white text-sm font-semibold">
+                        📦 {product.category}
+                      </div>
                       {product.subcategory && (
-                        <Badge variant="secondary" className="text-xs">{product.subcategory}</Badge>
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-600 text-white text-xs font-medium">
+                          {product.subcategory}
+                        </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Additional Missing Fields for Seller Console */}
-                  <div className="space-y-2 mb-4">
-                    {/* Quantity in Stock - Enhanced display */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-muted-foreground">Stock:</span>
-                      <Badge variant={product.quantity <= 10 ? "destructive" : "outline"} className="text-xs">
-                        {product.quantity} units available
-                      </Badge>
+                  {/* Premium Seller Console Sections */}
+                  <div className="space-y-4 mb-6">
+                    
+                    {/* Inventory & Pricing Section */}
+                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                      <h4 className="text-sm font-bold text-emerald-800 mb-3 flex items-center gap-2">
+                        <span className="text-lg">📊</span>
+                        Inventory & Pricing
+                      </h4>
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide" 
+                             style={{ 
+                               backgroundColor: product.quantity <= 10 ? '#E63946' : '#27AE60', 
+                               color: 'white' 
+                             }}>
+                          {product.quantity <= 10 ? '⚠️ LOW STOCK' : '✅ IN STOCK'} — {product.quantity} UNITS
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Missing Fields Section */}
-                    {product.personalizationOptions && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Personalization:</span>
-                        <Badge variant="outline" className="text-xs">✏️ {product.personalizationOptions}</Badge>
+                    {/* Product Features Section */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <span className="text-lg">⭐</span>
+                        Features & Services
+                      </h4>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        {/* Special Features */}
+                        <div className="space-y-2">
+                          {product.isHandmade && (
+                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
+                              🎨 Handmade
+                            </div>
+                          )}
+                          {product.isCustomizable && (
+                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
+                              ⚙️ Customizable
+                            </div>
+                          )}
+                          {product.giftWrapping && (
+                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F5F5F5', color: '#6C757D' }}>
+                              🎁 Gift Wrap
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Sustainability */}
+                        <div className="space-y-2">
+                          {product.sustainability && (
+                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#2ECC71', color: '#FFFFFF' }}>
+                              🌱 Eco-friendly
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Customer Information Section */}
+                    {(product.personalizationOptions || product.careInstructions || product.targetAgeGroup) && (
+                      <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                        <h4 className="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2">
+                          <span className="text-lg">👥</span>
+                          Customer Information
+                        </h4>
+                        <div className="space-y-2">
+                          {product.targetAgeGroup && (
+                            <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium" 
+                                 style={{ backgroundColor: '#F1F3F5', color: '#495057' }}>
+                              👥 {product.targetAgeGroup}
+                            </div>
+                          )}
+                          {product.personalizationOptions && (
+                            <div className="text-xs text-blue-700 mt-2">
+                              <span className="font-semibold">✏️ Personalization:</span> {product.personalizationOptions}
+                            </div>
+                          )}
+                          {product.careInstructions && (
+                            <div className="text-xs text-blue-700 mt-2">
+                              <span className="font-semibold">🧼 Care:</span> {product.careInstructions}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
 
-                    {product.careInstructions && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Care:</span>
-                        <Badge variant="outline" className="text-xs">🧼 {product.careInstructions}</Badge>
-                      </div>
-                    )}
-
-                    {product.sustainability && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Sustainability:</span>
-                        <Badge variant="outline" className="text-xs">🌱 {product.sustainability}</Badge>
-                      </div>
-                    )}
-
-                    {product.targetAgeGroup && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-muted-foreground">Age Group:</span>
-                        <Badge variant="secondary" className="text-xs">👥 {product.targetAgeGroup}</Badge>
-                      </div>
-                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button
