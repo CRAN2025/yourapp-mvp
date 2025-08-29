@@ -705,24 +705,22 @@ ${productUrl}`;
             radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
             radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
-        /* Premium ShopLynk avatar with refined scaling */
+        /* Premium ShopLynk avatar with enhanced scaling */
         .shoplynk-avatar {
-          width: clamp(96px, 8vw, 120px);
-          height: clamp(96px, 8vw, 120px);
-          border-radius: 18px;
-          background-color: #FFFFFF;
+          width: clamp(104px, 8vw, 128px);
+          height: clamp(104px, 8vw, 128px);
+          border-radius: 20px;
+          background-color: #fff;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 
-            0 8px 24px rgba(0, 0, 0, 0.06),
-            0 4px 8px rgba(0, 0, 0, 0.03);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06),
+                      0 4px 12px rgba(0, 0, 0, 0.03);
           transition: transform 0.2s ease-in-out;
         }
         
         .shoplynk-avatar img {
-          width: 80%;
-          max-width: 88px;
+          width: 82%;
           height: auto;
           object-fit: contain;
         }
@@ -731,22 +729,31 @@ ${productUrl}`;
           transform: scale(1.04);
         }
         
-        /* Consistent seller avatar framing system */
+        /* Unified seller avatar framing system */
         .seller-avatar {
-          width: clamp(80px, 7vw, 100px);
-          height: clamp(80px, 7vw, 100px);
-          border-radius: 16px;
+          width: clamp(104px, 8vw, 128px);
+          height: clamp(104px, 8vw, 128px);
+          border-radius: 20px;
           background-color: #fff;
           display: flex;
           justify-content: center;
           align-items: center;
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
         }
         
         .seller-avatar img {
-          width: 80%;
+          width: 82%;
           height: auto;
           object-fit: contain;
+        }
+        
+        /* Premium tagline styling */
+        .powered-by {
+          font-size: 14px;
+          font-weight: 500;
+          color: #2563eb;
+          margin-top: 2px;
+          letter-spacing: -0.2px;
         }
         
         /* Championship typography hierarchy */
@@ -758,10 +765,11 @@ ${productUrl}`;
         }
         
         .powered-by-championship {
+          font-size: 14px;
           font-weight: 500;
-          font-size: 16px;
-          color: #2563EB;
-          margin-top: 1px;
+          color: #2563eb;
+          margin-top: 2px;
+          letter-spacing: -0.2px;
         }
         
         .online-store-championship {
@@ -820,7 +828,7 @@ ${productUrl}`;
                         alt={`${seller.storeName} logo`}
                         className="seller-avatar"
                         style={{ 
-                          borderRadius: '16px',
+                          borderRadius: '20px',
                           imageRendering: 'crisp-edges'
                         }}
                         onError={(e) => {
@@ -828,8 +836,7 @@ ${productUrl}`;
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
                           e.currentTarget.className = '';
-                          e.currentTarget.style.width = '80%';
-                          e.currentTarget.style.maxWidth = '88px';
+                          e.currentTarget.style.width = '82%';
                           e.currentTarget.style.height = 'auto';
                           e.currentTarget.style.objectFit = 'contain';
                           e.currentTarget.style.borderRadius = '0';
@@ -841,8 +848,7 @@ ${productUrl}`;
                         src={logoUrl}
                         alt="ShopLynk logo"
                         style={{ 
-                          width: '80%',
-                          maxWidth: '88px',
+                          width: '82%',
                           height: 'auto',
                           objectFit: 'contain'
                         }}
