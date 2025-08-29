@@ -707,120 +707,132 @@ ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 bg-mesh">
-        {/* v1.8 Premium Header / Banner (FULL-BLEED) */}
+        {/* v1.8 Premium Glass Morphism Header / Banner (FULL-BLEED) */}
         <FullBleedSection>
-          <div className="bg-white/95 rounded-2xl shadow-xl overflow-hidden">
-            {/* Premium gradient banner matching landing page */}
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20 relative">
+            {/* Subtle glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-3xl blur-xl"></div>
+            
+            {/* Premium gradient banner with enhanced glass effect */}
             <div
-              className="h-40 md:h-48 w-full relative"
+              className="h-44 md:h-52 w-full relative overflow-hidden"
               style={{
                 background: seller?.coverUrl
                   ? `url(${seller.coverUrl}) center/cover no-repeat`
                   : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               }}
             >
-              {/* Gradient overlay for better text contrast */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
+              {/* Enhanced glass overlay with blur */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/30 to-purple-600/30 backdrop-blur-sm"></div>
+              {/* Subtle texture overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1)_0%,transparent_50%)] opacity-60"></div>
             </div>
 
-            <div className="px-6 pb-6 -mt-8">
-              {/* Enhanced Header row */}
-              <div className="flex items-center gap-6">
-                {/* v1.8 Larger circular store avatar with premium styling */}
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 border-4 border-white shadow-xl flex items-center justify-center text-3xl relative overflow-hidden">
-                  {seller?.logoUrl ? (
-                    <img
-                      src={seller.logoUrl}
-                      alt={seller.storeName}
-                      className="w-full h-full object-cover rounded-full"
-                      onError={(e) => (e.currentTarget.style.display = 'none')}
-                    />
-                  ) : '🛍️'}
-                  {/* Subtle shadow ring */}
-                  <div className="absolute inset-0 rounded-full shadow-inner pointer-events-none"></div>
+            <div className="px-8 pb-8 -mt-10 relative z-10">
+              {/* Enhanced Header row with premium spacing */}
+              <div className="flex items-center gap-8">
+                {/* v1.8 Enhanced store avatar with halo glow */}
+                <div className="relative group">
+                  {/* Halo glow effect */}
+                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 rounded-full opacity-75 blur-lg group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* Main avatar container */}
+                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 border-4 border-white shadow-2xl flex items-center justify-center text-4xl overflow-hidden transition-transform duration-300 hover:scale-105">
+                    {seller?.logoUrl ? (
+                      <img
+                        src={seller.logoUrl}
+                        alt={seller.storeName}
+                        className="w-full h-full object-cover rounded-full"
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                      />
+                    ) : '🛍️'}
+                    {/* Enhanced inner shadow */}
+                    <div className="absolute inset-0 rounded-full shadow-inner bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
+                  </div>
                 </div>
                 
                 <div className="min-w-0 flex-1">
-                  {/* v1.8 Enhanced store title */}
-                  <h1 className="text-2xl font-bold truncate" style={{ color: '#111827' }}>
+                  {/* v1.8 Premium typography with enhanced hierarchy */}
+                  <h1 className="text-3xl md:text-4xl font-bold truncate bg-gradient-to-r from-slate-800 to-slate-700 bg-clip-text text-transparent leading-tight">
                     {seller.storeName}
                   </h1>
-                  {/* v1.8 Muted subtitle */}
-                  <p className="truncate" style={{ color: '#6B7280', fontSize: '14px', fontWeight: '500' }}>
+                  {/* Enhanced subtitle with improved spacing */}
+                  <p className="truncate mt-2 text-slate-600 font-medium tracking-wide" style={{ fontSize: '15px' }}>
                     {seller.location || 'Online Store'}
                   </p>
                 </div>
                 
-                {/* v1.8 Optional CTAs: Follow Store / Share Store pills, right aligned */}
+                {/* v1.8 Premium CTAs with glass morphism */}
                 {!isOwner && (
-                  <div className="hidden md:flex items-center gap-3">
+                  <div className="hidden md:flex items-center gap-4">
                     <button
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105"
+                      className="group inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm border"
                       style={{
-                        backgroundColor: '#F3F4F6',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
                         color: '#374151',
-                        border: '1px solid #E5E7EB'
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
                       }}
                     >
-                      <UserPlus className="h-4 w-4" />
+                      <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                       Follow Store
                     </button>
                     <button
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105"
+                      className="group inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm border"
                       style={{
-                        backgroundColor: '#F3F4F6',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
                         color: '#374151',
-                        border: '1px solid #E5E7EB'
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
                       }}
                     >
-                      <Share2 className="h-4 w-4" />
+                      <Share2 className="h-4 w-4 transition-transform group-hover:scale-110" />
                       Share Store
                     </button>
                   </div>
                 )}
               </div>
 
-              {/* v1.8 Enhanced Payment/Delivery Pills */}
-              <div className="flex flex-wrap items-center gap-3 mt-6">
+              {/* v1.8 Premium glass morphism pills */}
+              <div className="flex flex-wrap items-center gap-4 mt-8">
                 {!!paymentMethods.length && (
                   <button
                     onClick={() => setShowPaymentModal(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 shadow-sm"
+                    className="group inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-md border border-white/30"
                     style={{
-                      backgroundColor: '#EBF4FF',
+                      backgroundColor: 'rgba(235, 244, 255, 0.9)',
                       color: '#1E40AF',
-                      border: '1px solid #DBEAFE'
+                      boxShadow: '0 8px 24px rgba(30, 64, 175, 0.15)'
                     }}
                     title="View payment methods"
                   >
-                    <CreditCard className="h-4 w-4" />
+                    <CreditCard className="h-5 w-5 transition-transform group-hover:scale-110" />
                     {paymentMethods.length} Payment Methods
                   </button>
                 )}
                 {!!deliveryOptions.length && (
                   <button
                     onClick={() => setShowDeliveryModal(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 shadow-sm"
+                    className="group inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-md border border-white/30"
                     style={{
-                      backgroundColor: '#F0FDF4',
+                      backgroundColor: 'rgba(240, 253, 244, 0.9)',
                       color: '#166534',
-                      border: '1px solid #DCFCE7'
+                      boxShadow: '0 8px 24px rgba(22, 101, 52, 0.15)'
                     }}
                     title="View delivery options"
                   >
-                    <Truck className="h-4 w-4" />
+                    <Truck className="h-5 w-5 transition-transform group-hover:scale-110" />
                     {deliveryOptions.length} Delivery Options
                   </button>
                 )}
                 {seller.currency && (
-                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium shadow-sm"
+                  <span className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl text-sm font-semibold backdrop-blur-md border border-white/30"
                     style={{
-                      backgroundColor: '#F8FAFC',
+                      backgroundColor: 'rgba(248, 250, 252, 0.9)',
                       color: '#475569',
-                      border: '1px solid #E2E8F0'
+                      boxShadow: '0 8px 24px rgba(71, 85, 105, 0.1)'
                     }}
                   >
-                    <Globe className="h-4 w-4" />
+                    <Globe className="h-5 w-5" />
                     {seller.currency} Currency
                   </span>
                 )}
@@ -833,47 +845,50 @@ ${productUrl}`;
                 </p>
               )}
 
-              {/* Owner read-only view vs buyer CTAs */}
-              <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {/* Owner read-only view vs buyer CTAs with premium styling */}
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
                 {isOwner ? (
                   <a 
                     href="/products" 
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105 shadow-lg"
+                    className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl backdrop-blur-sm"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: 8,
+                      gap: 12,
                       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       color: 'white',
-                      padding: '12px 24px',
-                      borderRadius: 12,
+                      padding: '16px 32px',
+                      borderRadius: 16,
                       fontWeight: 700,
                       border: 'none',
-                      textDecoration: 'none'
+                      textDecoration: 'none',
+                      boxShadow: '0 12px 32px rgba(102, 126, 234, 0.4)'
                     }}
                   >
-                    ← Back to dashboard
+                    <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+                    Back to dashboard
                   </a>
                 ) : (
                   <>
                     {seller.whatsappNumber && (
                       <button
                         onClick={handleFloatingChatClick}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                        className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl"
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 8,
-                          background: '#25D366',
+                          gap: 12,
+                          background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
                           color: 'white',
-                          padding: '12px 24px',
-                          borderRadius: 12,
+                          padding: '16px 32px',
+                          borderRadius: 16,
                           fontWeight: 700,
                           border: 'none',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          boxShadow: '0 12px 32px rgba(37, 211, 102, 0.4)'
                         }}
                       >
-                        <MessageCircle className="h-5 w-5" />
+                        <MessageCircle className="h-6 w-6 transition-transform group-hover:scale-110" />
                         Chat with seller on WhatsApp
                       </button>
                     )}
@@ -881,21 +896,23 @@ ${productUrl}`;
                       href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
                       target="_blank" rel="noopener noreferrer"
                       onClick={() => handleMarketingClick('hero')}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border font-bold transition-all duration-300 hover:scale-105 shadow-lg"
+                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-2xl"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 8,
+                        gap: 12,
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                         color: 'white',
-                        padding: '12px 24px',
-                        borderRadius: 12,
+                        padding: '16px 32px',
+                        borderRadius: 16,
                         fontWeight: 700,
                         border: 'none',
-                        textDecoration: 'none'
+                        textDecoration: 'none',
+                        boxShadow: '0 12px 32px rgba(102, 126, 234, 0.4)'
                       }}
                     >
-                      ✨ Create your free store
+                      <Sparkles className="h-6 w-6 transition-transform group-hover:scale-110" />
+                      Create your free store
                     </a>
                   </>
                 )}
@@ -904,30 +921,40 @@ ${productUrl}`;
           </div>
         </FullBleedSection>
 
-        {/* v1.8 Premium Search and Filters */}
-        <FullWidthContainer className="py-8">
-          <Card className="p-8 mb-10 bg-white/95 backdrop-blur-xl shadow-2xl border-0 rounded-3xl">
-            <div className="space-y-8">
-              {/* v1.8 Glass-style Search Bar */}
+        {/* v1.8 Premium Floating Glass Search and Filters */}
+        <FullWidthContainer className="py-12">
+          <Card className="p-10 mb-12 bg-white/90 backdrop-blur-2xl shadow-[0_32px_64px_rgba(0,0,0,0.12)] border border-white/30 rounded-3xl relative overflow-hidden">
+            {/* Floating glass effect background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/20 rounded-3xl"></div>
+            <div className="relative z-10">
+            <div className="space-y-10">
+              {/* v1.8 Premium Glow Search Bar */}
               <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl opacity-0 group-focus-within:opacity-15 transition-all duration-500 shadow-lg"></div>
-                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
+                {/* Enhanced glow effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 rounded-3xl opacity-0 group-focus-within:opacity-25 transition-all duration-700 blur-xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-500"></div>
+                
+                {/* Search icon with animation */}
+                <Search className="w-7 h-7 absolute left-6 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-all duration-300 group-focus-within:scale-110" />
+                
                 <Input
                   type="text"
                   placeholder="Search for products, brands, or categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-14 pr-6 h-16 text-lg border-2 border-slate-200 focus:border-blue-500 rounded-2xl bg-white/90 backdrop-blur-sm transition-all duration-300 placeholder:text-slate-400 shadow-lg focus:shadow-xl"
+                  className="relative pl-16 pr-14 h-18 text-lg border-2 border-slate-200/50 focus:border-blue-500 rounded-3xl bg-white/95 backdrop-blur-md transition-all duration-300 placeholder:text-slate-400 shadow-xl focus:shadow-2xl font-medium"
+                  style={{ height: '72px' }}
                   data-testid="input-search-products"
                 />
+                
                 {searchQuery && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full hover:bg-slate-100 transition-all duration-200 hover:scale-110"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </Button>
                 )}
               </div>
@@ -936,31 +963,31 @@ ${productUrl}`;
               <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
                 {/* v1.8 Category Pills with Pastel Backgrounds */}
                 <div className="flex-1">
-                  <div className="flex items-center gap-4 mb-4">
-                    <span className="text-sm font-bold text-slate-700 uppercase tracking-wide flex items-center">
-                      <Filter className="w-4 h-4 mr-2 text-blue-600" />
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-base font-bold text-slate-700 uppercase tracking-wide flex items-center">
+                      <Filter className="w-5 h-5 mr-3 text-blue-600" />
                       Categories
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-4">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setCategoryFilter('all')}
-                      className={`rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105 shadow-sm ${
+                      className={`group rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
                         categoryFilter === 'all' 
-                          ? 'shadow-lg' 
-                          : 'hover:shadow-md'
+                          ? 'shadow-xl hover:shadow-2xl' 
+                          : 'shadow-md hover:shadow-lg'
                       }`}
                       style={categoryFilter === 'all' ? {
-                        backgroundColor: '#2563EB',
+                        background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
                         color: 'white',
-                        border: 'none',
-                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                        boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
                       } : {
-                        backgroundColor: '#F8FAFC',
+                        backgroundColor: 'rgba(248, 250, 252, 0.8)',
                         color: '#475569',
-                        border: '1px solid #E2E8F0'
+                        backdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(226, 232, 240, 0.5)'
                       }}
                     >
                       All Categories ({products.length})
@@ -974,20 +1001,20 @@ ${productUrl}`;
                           variant="outline"
                           size="sm"
                           onClick={() => setCategoryFilter(category)}
-                          className={`rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105 shadow-sm ${
+                          className={`group rounded-2xl px-8 py-4 font-bold transition-all duration-300 hover:scale-105 border-0 ${
                             isActive 
-                              ? 'shadow-lg' 
-                              : 'hover:shadow-md'
+                              ? 'shadow-xl hover:shadow-2xl' 
+                              : 'shadow-md hover:shadow-lg'
                           }`}
                           style={isActive ? {
-                            backgroundColor: '#2563EB',
+                            background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
                             color: 'white',
-                            border: 'none',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
+                            boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
                           } : {
-                            backgroundColor: '#F1F5F9',
+                            backgroundColor: 'rgba(241, 245, 249, 0.8)',
                             color: '#475569',
-                            border: '1px solid #E2E8F0'
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(226, 232, 240, 0.5)'
                           }}
                         >
                           {category} ({count})
@@ -997,13 +1024,24 @@ ${productUrl}`;
                   </div>
                 </div>
 
-                {/* v1.8 Enhanced Controls */}
-                <div className="flex gap-4 items-center flex-wrap">
+                {/* v1.8 Premium Controls with floating style */}
+                <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-48 h-12 rounded-xl border-2 border-slate-200 focus:border-blue-500 font-semibold bg-white/90 backdrop-blur-sm shadow-lg">
+                    <SelectTrigger className="w-56 h-14 rounded-2xl border-0 font-bold shadow-xl transition-all duration-300 hover:scale-105"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        backdropFilter: 'blur(12px)',
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                      }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-2 border-slate-200 bg-white/95 backdrop-blur-sm shadow-xl">
+                    <SelectContent className="rounded-2xl border-0 shadow-2xl backdrop-blur-xl"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                      }}>
                       <SelectItem value="newest">🆕 Newest First</SelectItem>
                       <SelectItem value="popular">🔥 Most Popular</SelectItem>
                       <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
@@ -1012,29 +1050,34 @@ ${productUrl}`;
                     </SelectContent>
                   </Select>
 
-                  {/* v1.8 Soft Pastel Pill Badge for Favorites */}
+                  {/* v1.8 Premium Favorites Counter with softer pastels */}
                   <Button
                     variant="outline"
                     size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className="h-12 px-6 rounded-xl font-semibold transition-all duration-300 hover:scale-105 shadow-lg"
+                    className="group h-14 px-8 rounded-2xl font-bold transition-all duration-300 hover:scale-105 border-0 shadow-xl"
                     style={showFavorites ? {
-                      backgroundColor: '#FEF2F2',
+                      background: 'linear-gradient(135deg, rgba(254, 242, 242, 0.9) 0%, rgba(252, 231, 243, 0.9) 100%)',
                       color: '#DC2626',
-                      border: '2px solid #FECACA'
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 24px rgba(220, 38, 38, 0.2)'
                     } : {
-                      backgroundColor: '#F8FAFC',
+                      backgroundColor: 'rgba(248, 250, 252, 0.9)',
                       color: '#64748B',
-                      border: '2px solid #E2E8F0'
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 24px rgba(100, 116, 139, 0.1)'
                     }}
                     data-testid="button-toggle-favorites"
                   >
-                    <Heart className={`w-5 h-5 mr-2 ${showFavorites ? 'fill-current' : ''}`} />
+                    <Heart className={`w-6 h-6 mr-3 transition-transform group-hover:scale-110 ${showFavorites ? 'fill-current' : ''}`} />
                     Favorites {favorites.size > 0 && (
-                      <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                      <span className="ml-3 inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-transform group-hover:scale-110"
                             style={{
-                              backgroundColor: showFavorites ? '#DC2626' : '#EF4444',
-                              color: 'white'
+                              background: showFavorites 
+                                ? 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)' 
+                                : 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
+                              color: 'white',
+                              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
                             }}>
                         {favorites.size}
                       </span>
@@ -1043,6 +1086,7 @@ ${productUrl}`;
                 </div>
               </div>
             </div>
+          </div>
           </Card>
 
           {/* Enhanced Results Summary */}
