@@ -868,22 +868,21 @@ ${productUrl}`;
           --token-font-weight: 500;
           --token-gap: 10px;
           
-          /* LOCKED HEADER TOKENS - FINAL VERSION */
+          /* LOCKED HEADER TOKENS - SELLER FINAL */
           --header-bg-gradient: linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%);
-          --store-logo-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          --header-layout: 24px; /* Vertical padding for banner */
           --store-title-font: 22px;
           --store-title-weight: 700;
           --store-title-color: #111827;
+          --store-logo-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
           --badge-card-style-bg: #ffffff;
           --badge-card-style-border: 1px solid #e5e7eb;
           --badge-card-style-radius: 12px;
           --badge-card-style-padding: 8px 16px;
           --badge-card-style-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          --cta-primary-style: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           --header-spacing-vertical: 4px;
           --header-spacing-minimal: 2px;
-          --header-spacing: 16px; /* Uniform header padding */
-          --header-elevation: 0px 8px 20px rgba(0, 0, 0, 0.04);
-          --header-border-radius: 16px;
           
           /* Responsive tokens */
           --store-title-font-tablet: 20px;
@@ -1147,12 +1146,12 @@ ${productUrl}`;
           letter-spacing: -0.2px;
         }
         
-        /* LOCKED STORE TITLE TYPOGRAPHY */
+        /* LOCKED TYPOGRAPHY HIERARCHY - FINAL */
         .store-title-locked {
-          font-size: var(--store-title-font);
-          font-weight: var(--store-title-weight);
-          color: var(--store-title-color);
-          line-height: 1.2;
+          font-size: 22px;
+          font-weight: 700;
+          color: #111827;
+          line-height: 28px;
           margin-bottom: var(--header-spacing-vertical);
         }
         
@@ -1160,6 +1159,7 @@ ${productUrl}`;
           font-size: 14px;
           font-weight: 500;
           color: #3B82F6;
+          line-height: 20px;
           margin-bottom: var(--header-spacing-minimal);
           letter-spacing: -0.2px;
         }
@@ -1168,7 +1168,7 @@ ${productUrl}`;
           font-size: 13px;
           font-weight: 400;
           color: #6B7280;
-          line-height: 1.4;
+          line-height: 20px;
         }
         
         /* Legacy typography classes for backward compatibility */
@@ -1227,32 +1227,34 @@ ${productUrl}`;
           filter: brightness(var(--token-hover-brightness));
         }
         
-        /* LOCKED HEADER CONTAINER */
+        /* LOCKED HEADER CONTAINER - FINAL */
         .header-container-locked {
           background: var(--header-bg-gradient);
-          border-radius: var(--header-border-radius);
-          box-shadow: var(--header-elevation);
+          border-radius: 16px;
+          box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.05);
           backdrop-filter: blur(8px);
           border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
-        /* PERFECT VERTICAL ALIGNMENT */
+        /* PERFECT THREE-ZONE ALIGNMENT */
         .header-row-locked {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: var(--header-spacing);
-          padding: var(--header-spacing);
+          padding: 24px;
+          gap: 20px;
         }
         
+        /* LEFT ZONE: Logo + Store Info */
         .store-info-block {
           display: flex;
           align-items: center;
-          gap: var(--header-spacing);
+          gap: 12px;
           flex: 1;
           min-width: 0;
         }
         
+        /* MIDDLE ZONE: Payment/Delivery Badges */
         .badges-block {
           display: flex;
           align-items: center;
@@ -1260,9 +1262,11 @@ ${productUrl}`;
           flex-wrap: wrap;
         }
         
+        /* RIGHT ZONE: Single CTA */
         .cta-block {
           display: flex;
           align-items: center;
+          flex-shrink: 0;
         }
         
         /* RESPONSIVE BEHAVIOR - LOCKED TOKENS */
@@ -1430,15 +1434,16 @@ ${productUrl}`;
                   ) : (
                     <Button
                       asChild
-                      className="primary-button-gradient px-8 py-3 rounded-2xl text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
                       style={{
-                        background: 'var(--token-gradient-primary)',
-                        boxShadow: 'var(--token-shadow-primary)',
-                        border: 'none'
+                        background: 'var(--cta-primary-style)',
+                        color: 'white',
+                        border: 'none',
+                        boxShadow: '0 4px 12px rgba(79, 168, 255, 0.3)'
                       }}
                     >
                       <Link to="/products">
-                        <ArrowLeft className="h-5 w-5 mr-2" />
+                        <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Dashboard
                       </Link>
                     </Button>
@@ -1446,90 +1451,14 @@ ${productUrl}`;
                 </div>
               </div>
 
-              {/* Store Description */}
+              {/* Store Description - Below Header */}
               {seller.storeDescription && (
-                <div className="px-4 pb-4">
-                  <p className="text-center" style={{ color: '#64748B', fontSize: '15px', lineHeight: '1.6' }}>
+                <div className="mt-4 text-center">
+                  <p style={{ color: '#64748B', fontSize: '15px', lineHeight: '1.6' }}>
                     {seller.storeDescription}
                   </p>
                 </div>
               )}
-
-              {/* Global Marketplace Standard CTAs */}
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
-                {isOwner ? (
-                  <a 
-                    href="/products" 
-                    className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-decoration-none cursor-pointer transition-all duration-300 hover:scale-105 primary-button-gradient"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
-                      color: 'white',
-                      padding: '16px 32px',
-                      borderRadius: 16,
-                      fontWeight: 700,
-                      border: 'none',
-                      textDecoration: 'none',
-                      boxShadow: '0 4px 6px rgba(59, 130, 246, 0.25)',
-                      fontSize: '15px'
-                    }}
-                  >
-                    <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-                    Back to dashboard
-                  </a>
-                ) : (
-                  <>
-                    {seller.whatsappNumber && (
-                      <button
-                        onClick={handleFloatingChatClick}
-                        className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 12,
-                          background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                          color: 'white',
-                          padding: '16px 32px',
-                          borderRadius: 16,
-                          fontWeight: 600,
-                          border: 'none',
-                          cursor: 'pointer',
-                          boxShadow: '0 8px 24px rgba(37, 211, 102, 0.3)',
-                          fontSize: '15px'
-                        }}
-                      >
-                        <MessageCircle className="h-5 w-5 transition-transform group-hover:scale-110" />
-                        Chat with seller on WhatsApp
-                      </button>
-                    )}
-                    <a
-                      href={`${SHOPLINK_MARKETING_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
-                      target="_blank" rel="noopener noreferrer"
-                      onClick={() => handleMarketingClick('hero')}
-                      className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 hover:scale-105 primary-button-gradient"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
-                        color: 'white',
-                        padding: '16px 32px',
-                        borderRadius: 16,
-                        fontWeight: 700,
-                        border: 'none',
-                        textDecoration: 'none',
-                        boxShadow: '0 4px 6px rgba(59, 130, 246, 0.25)',
-                        fontSize: '15px'
-                      }}
-                    >
-                      <Sparkles className="h-5 w-5 transition-transform group-hover:scale-110" />
-                      Create your free store
-                    </a>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         </FullWidthContainer>
