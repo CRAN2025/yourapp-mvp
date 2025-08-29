@@ -1098,9 +1098,16 @@ Product Link: ${productUrl}`;
                                 {formatPrice(product.price)}
                               </span>
                             </div>
-                            <Badge variant="secondary" className="text-xs">
-                              📦 {product.category}
-                            </Badge>
+                            <div className="space-y-1">
+                              <Badge variant="secondary" className="text-xs">
+                                📦 {product.category}
+                              </Badge>
+                              {product.subcategory && (
+                                <Badge variant="outline" className="text-xs">
+                                  {product.subcategory}
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1150,8 +1157,17 @@ Product Link: ${productUrl}`;
                         )}
                       </div>
 
-                      {/* Product attributes */}
-                      {(product.color || product.size || product.material) && (
+                      {/* Stock indicator for limited stock */}
+                      {product.quantity <= 10 && (
+                        <div className="pt-2 border-t border-gray-100">
+                          <Badge variant="destructive" className="text-xs">
+                            ⚠️ Limited Stock — Only {product.quantity} Left
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Product attributes and badges */}
+                      {(product.color || product.size || product.material || product.isHandmade || product.isCustomizable || product.sustainability) && (
                         <div className="flex flex-wrap gap-1 pt-3 border-t border-gray-100">
                           {product.color && (
                             <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-200">
@@ -1167,6 +1183,27 @@ Product Link: ${productUrl}`;
                             <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded border border-green-200">
                               🧵 {product.material}
                             </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Special feature badges */}
+                      {(product.isHandmade || product.isCustomizable || product.sustainability) && (
+                        <div className="flex flex-wrap gap-1 pt-2">
+                          {product.isHandmade && (
+                            <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                              🎨 Handmade
+                            </Badge>
+                          )}
+                          {product.isCustomizable && (
+                            <Badge variant="outline" className="text-xs bg-indigo-50 text-indigo-700 border-indigo-200">
+                              ⚙️ Customizable
+                            </Badge>
+                          )}
+                          {product.sustainability && (
+                            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                              🌱 {product.sustainability}
+                            </Badge>
                           )}
                         </div>
                       )}
@@ -1468,10 +1505,15 @@ Product Link: ${productUrl}`;
                         <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">
                           {selectedProduct.name}
                         </h2>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 flex-wrap">
                           <Badge variant="secondary" className="px-3 py-1">
                             📦 {selectedProduct.category}
                           </Badge>
+                          {(selectedProduct as any).subcategory && (
+                            <Badge variant="outline" className="px-3 py-1">
+                              {(selectedProduct as any).subcategory}
+                            </Badge>
+                          )}
                           {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
                             <Badge className="bg-green-500 text-white px-3 py-1">
                               🆕 NEW ARRIVAL
@@ -1536,6 +1578,10 @@ Product Link: ${productUrl}`;
                     { label: 'Material', value: selectedProduct.material, icon: '🧵' },
                     { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
                     { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
+                    { label: 'Processing Time', value: (selectedProduct as any).processingTime, icon: '⏱️' },
+                    { label: 'Ships From', value: (selectedProduct as any).shipsFrom, icon: '✈️' },
+                    { label: 'Occasion', value: (selectedProduct as any).occasion, icon: '🎉' },
+                    { label: 'Age Group', value: (selectedProduct as any).targetAgeGroup, icon: '👥' },
                   ].filter(item => item.value).map((item, index) => (
                     <div key={index} className="p-4 bg-white rounded-lg border border-gray-200">
                       <div className="flex items-center gap-3 mb-2">
@@ -1547,6 +1593,61 @@ Product Link: ${productUrl}`;
                       <p className="font-semibold text-lg text-gray-800 capitalize">{item.value}</p>
                     </div>
                   ))}
+                </div>
+
+                {/* Additional Information Sections */}
+                <div className="space-y-6">
+                  {/* Personalization Options */}
+                  {(selectedProduct as any).personalizationOptions && (
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <span className="text-2xl">✏️</span>
+                        Personalization Options
+                      </h3>
+                      <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                        <p className="text-gray-700">{(selectedProduct as any).personalizationOptions}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Care Instructions */}
+                  {(selectedProduct as any).careInstructions && (
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <span className="text-2xl">🧼</span>
+                        Care Instructions
+                      </h3>
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-gray-700">{(selectedProduct as any).careInstructions}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sustainability */}
+                  {(selectedProduct as any).sustainability && (
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <span className="text-2xl">🌱</span>
+                        Sustainability
+                      </h3>
+                      <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-gray-700">{(selectedProduct as any).sustainability}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Warranty */}
+                  {(selectedProduct as any).warranty && (
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <span className="text-2xl">🛡️</span>
+                        Warranty
+                      </h3>
+                      <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <p className="text-gray-700">{(selectedProduct as any).warranty}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Special Features */}

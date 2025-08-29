@@ -316,7 +316,52 @@ export default function Products() {
                     <span className="text-xl font-bold text-foreground" data-testid={`product-price-${product.id}`}>
                       {formatPrice(product.price)}
                     </span>
-                    <Badge variant="outline">{product.category}</Badge>
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge variant="outline">{product.category}</Badge>
+                      {product.subcategory && (
+                        <Badge variant="secondary" className="text-xs">{product.subcategory}</Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Additional Missing Fields for Seller Console */}
+                  <div className="space-y-2 mb-4">
+                    {/* Quantity in Stock - Enhanced display */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium text-muted-foreground">Stock:</span>
+                      <Badge variant={product.quantity <= 10 ? "destructive" : "outline"} className="text-xs">
+                        {product.quantity} units available
+                      </Badge>
+                    </div>
+
+                    {/* Missing Fields Section */}
+                    {product.personalizationOptions && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Personalization:</span>
+                        <Badge variant="outline" className="text-xs">✏️ {product.personalizationOptions}</Badge>
+                      </div>
+                    )}
+
+                    {product.careInstructions && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Care:</span>
+                        <Badge variant="outline" className="text-xs">🧼 {product.careInstructions}</Badge>
+                      </div>
+                    )}
+
+                    {product.sustainability && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Sustainability:</span>
+                        <Badge variant="outline" className="text-xs">🌱 {product.sustainability}</Badge>
+                      </div>
+                    )}
+
+                    {product.targetAgeGroup && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-muted-foreground">Age Group:</span>
+                        <Badge variant="secondary" className="text-xs">👥 {product.targetAgeGroup}</Badge>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button
