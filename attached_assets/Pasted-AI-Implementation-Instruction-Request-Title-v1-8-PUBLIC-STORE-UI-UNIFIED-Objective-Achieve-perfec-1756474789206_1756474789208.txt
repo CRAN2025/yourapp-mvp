@@ -1,0 +1,81 @@
+AI Implementation Instruction
+
+Request Title: v1.8_PUBLIC_STORE_UI_UNIFIED
+Objective: Achieve perfect alignment by making the store header box and the filter/search bar container full-width, matching the gradient background edge-to-edge while preserving governance locks.
+
+Step-by-Step Implementation
+1. Header Box (Store Info Section)
+
+Current Issue: The header content box is narrower than the gradient background due to max-width constraints.
+
+Required Fix:
+
+Set the header container to:
+
+width: 100%;
+max-width: 100%;
+
+
+Maintain consistent internal padding for large screens:
+
+padding-left: 1.5rem; /* px-6 */
+padding-right: 1.5rem;
+@media (min-width: 768px) {
+  padding-left: 3rem; /* md:px-12 */
+  padding-right: 3rem;
+}
+
+
+Keep the gradient background unchanged — this adjustment is for the content inside.
+
+2. Search & Filter Bar Container
+
+Current Issue: The search/filter bar container is slightly wider than the header box but still not edge-to-edge.
+
+Required Fix:
+
+Apply the exact same full-width rule:
+
+width: 100%;
+max-width: 100%;
+
+
+Use matching responsive paddings so it visually aligns perfectly with the header box.
+
+3. Maintain Visual Hierarchy
+
+Ensure the gradient background stays full-bleed.
+
+Ensure header + filter sections span the same width.
+
+Ensure equal padding and spacing on all screen sizes for symmetry.
+
+No shadows or background changes are introduced — keep current styles, only expand width.
+
+4. Preserve Governance Locks 🔒
+
+Do NOT modify these areas:
+
+Product cards → Locked under v1.3.1_UI_UX_WHATSAPP_PER_CARD
+
+No size, typography, or functional edits.
+
+Seller console → Locked under v1.7_SELLER_CONSOLE_PREMIUM_POLISH
+
+Do not touch dashboards, pricing pills, or views.
+
+WhatsApp integration → Reserved for v1.9_WHATSAPP_CTA_PHASE
+
+Do not alter button placements or logic.
+
+5. Success Criteria
+
+Header info section = full-width ✅
+
+Search/filter bar container = full-width ✅
+
+Both visually align edge-to-edge with the gradient ✅
+
+Consistent paddings & responsive behavior ✅
+
+No regressions in product cards, WhatsApp flows, or console UI ✅
