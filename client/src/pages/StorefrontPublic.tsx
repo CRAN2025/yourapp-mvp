@@ -1153,11 +1153,24 @@ Product Link: ${productUrl}`;
                         ) : (
                           <>
                             <Button
-                              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
+                              className="flex-1 text-white font-medium transition-all duration-200 hover:shadow-lg"
                               size="sm"
+                              style={{
+                                backgroundColor: '#25D366',
+                                borderRadius: '10px',
+                                boxShadow: '0 2px 6px rgba(37, 211, 102, 0.25)'
+                              }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleContactProduct(product);
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#1DB854';
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 211, 102, 0.35)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#25D366';
+                                e.currentTarget.style.boxShadow = '0 2px 6px rgba(37, 211, 102, 0.25)';
                               }}
                               data-testid={`button-contact-${product.id}`}
                             >
