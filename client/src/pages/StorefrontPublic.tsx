@@ -910,9 +910,11 @@ ${productUrl}`;
           
           /* SHOPLYNK GLOBAL TOKEN SYSTEM - ENTERPRISE GOVERNANCE */
           
-          /* A. BRAND & ACCENT COLORS */
+          /* A. BRAND & ACCENT COLORS - CROSS-COMPONENT HARMONY */
           --brand-primary: #2563EB;
+          --brand-secondary: #3B82F6;
           --brand-green: #25D366;
+          --brand-grey: #F3F4F6;
           --brand-red: #EF4444;
           --brand-gold: #FACC15;
           --neutral-100: #FFFFFF;
@@ -921,22 +923,32 @@ ${productUrl}`;
           --text-primary: #111827;
           --text-secondary: #6B7280;
           
-          /* B. TYPOGRAPHY */
+          /* B. TYPOGRAPHY - UNIFIED HIERARCHY */
+          --font-store-name: 24px;
+          --font-store-subtitle: 16px;
+          --font-description: 14px;
+          --font-action-label: 14px;
           --font-title-lg: 16px;
           --font-subtitle: 14px;
           --font-price: 18px;
           --font-pill: 13px;
           --font-badge: 12px;
           
-          /* C. SPACING */
+          /* C. SPACING - UNIFIED LAYOUT */
+          --header-padding: 20px 24px;
+          --action-spacing: 12px;
+          --store-info-gap: 8px;
+          --banner-min-height: 140px;
           --card-padding: 16px;
           --pill-padding: 4px 12px;
           --cta-padding: 12px 16px;
           --badge-padding: 3px 8px;
           
-          /* D. SHADOWS & ELEVATION */
+          /* D. SHADOWS & ELEVATION - ENTERPRISE CONSISTENCY */
+          --elevation-header: 0 2px 6px rgba(0, 0, 0, 0.08);
           --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.08);
           --elevation-mid: 0 2px 6px rgba(0, 0, 0, 0.12);
+          --elevation-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
           --elevation-high: 0 4px 12px rgba(0, 0, 0, 0.18);
           
           /* LEGACY SUPPORT TOKENS */
@@ -1570,42 +1582,42 @@ ${productUrl}`;
         }
         
         /* GLOBAL STORE TITLE FONT - LOCKED TYPOGRAPHY */
-        /* LOCKED TYPOGRAPHY SYSTEM - GLOBAL HEADER TOKENS */
+        /* ENTERPRISE TYPOGRAPHY SYSTEM - GLOBAL HEADER TOKENS */
         .store-title-locked {
-          font-size: var(--store-name-size);
-          font-weight: var(--store-name-weight);
-          color: var(--text-primary);
+          font-size: var(--font-store-name);
+          font-weight: 700;
+          color: var(--neutral-100);
           line-height: 1.2;
-          margin-bottom: 4px;
+          margin-bottom: var(--store-info-gap);
         }
         
         .powered-by-locked {
-          font-size: var(--powered-by-size);
-          font-weight: var(--powered-by-weight);
-          color: var(--brand-link);
+          font-size: var(--font-store-subtitle);
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.9);
           line-height: 20px;
-          margin-bottom: var(--space-2);
+          margin-bottom: var(--store-info-gap);
           letter-spacing: -0.2px;
         }
         
         .powered-by-locked a {
-          color: var(--brand-link);
+          color: rgba(255, 255, 255, 0.9);
           text-decoration: none;
           transition: color 0.2s ease;
         }
         
         .powered-by-locked a:hover {
-          color: #2563EB;
+          color: var(--neutral-100);
           text-decoration: underline;
         }
         
         .store-description-locked {
-          font-size: var(--description-size);
-          font-weight: var(--description-weight);
-          color: var(--text-secondary);
+          font-size: var(--font-description);
+          font-weight: 400;
+          color: rgba(255, 255, 255, 0.85);
           line-height: 1.4;
-          margin-top: var(--space-2);
-          margin-bottom: var(--space-2);
+          margin-top: var(--store-info-gap);
+          margin-bottom: var(--store-info-gap);
           overflow: hidden;
           text-overflow: ellipsis;
           display: -webkit-box;
@@ -1614,9 +1626,9 @@ ${productUrl}`;
         }
         
         .store-subtitle-locked {
-          font-size: var(--meta-size);
-          font-weight: var(--meta-weight);
-          color: var(--text-tertiary);
+          font-size: var(--font-action-label);
+          font-weight: 400;
+          color: rgba(255, 255, 255, 0.75);
           line-height: 18px;
         }
         
@@ -1662,66 +1674,141 @@ ${productUrl}`;
           border-radius: 50%;
         }
         
-        /* LOCKED BADGE SYSTEM - GLOBAL TOKENS */
+        /* ENTERPRISE BADGE SYSTEM - PAYMENT & DELIVERY PILLS */
         .payment-delivery-badge {
-          background: var(--badge-card-style-bg);
-          border-radius: var(--badge-card-style-radius);
-          box-shadow: var(--badge-card-style-shadow);
-          padding: 10px 16px;
-          transition: var(--token-transition-default);
+          background: var(--neutral-100);
+          border-radius: 12px;
+          box-shadow: var(--elevation-low);
+          padding: var(--pill-padding);
+          transition: all 0.2s ease;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
           font-weight: 500;
-          font-size: var(--badge-card-style-font-size);
-          color: var(--text-secondary);
+          font-size: var(--font-action-label);
+          color: var(--text-primary);
           cursor: pointer;
-          border: 1px solid rgba(0, 0, 0, 0.05);
+          border: 1px solid var(--neutral-200);
           white-space: nowrap;
         }
         
         .payment-delivery-badge:hover {
-          box-shadow: var(--badge-card-style-hover-shadow);
+          background: #F9FAFB;
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          box-shadow: var(--elevation-mid);
           transform: translateY(-1px);
         }
         
+        .payment-delivery-badge:active {
+          background: #DBEAFE;
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          box-shadow: var(--elevation-mid);
+        }
+        
         .payment-delivery-badge svg {
-          width: var(--badge-card-style-icon-size);
-          height: var(--badge-card-style-icon-size);
-          color: var(--brand-link);
+          width: 18px;
+          height: 18px;
+          color: var(--brand-primary);
           flex-shrink: 0;
         }
         
-        /* HEADER CONTAINER v1.1 - LOCKED TOKEN SYSTEM */
-        .header-container-locked {
-          background: var(--bg-surface-scrim);
-          border-radius: var(--radius-16);
-          box-shadow: var(--shadow-xl-soft);
+        /* ENTERPRISE CTA BUTTONS - BACK TO DASHBOARD */
+        .enterprise-cta-primary {
+          background: var(--brand-primary);
+          color: var(--neutral-100);
+          border: none;
+          border-radius: 8px;
+          font-size: var(--font-action-label);
+          font-weight: 600;
+          padding: var(--cta-padding);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: var(--elevation-header);
+          text-decoration: none;
+        }
+        
+        .enterprise-cta-primary:hover {
+          background: var(--brand-secondary);
+          box-shadow: var(--elevation-hover);
+          transform: translateY(-1px);
+        }
+        
+        .enterprise-cta-primary:active {
+          background: #1E3A8A;
+          transform: translateY(0);
+          box-shadow: var(--elevation-header);
+        }
+        
+        /* ENTERPRISE SECONDARY CTA - FOLLOW/SHARE */
+        .enterprise-cta-secondary {
+          background: rgba(255, 255, 255, 0.9);
+          color: var(--text-primary);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          font-size: var(--font-action-label);
+          font-weight: 600;
+          padding: var(--cta-padding);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
           backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.6);
-          padding: var(--space-8) var(--space-10);
+          box-shadow: var(--elevation-low);
+        }
+        
+        .enterprise-cta-secondary:hover {
+          background: var(--neutral-100);
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          box-shadow: var(--elevation-mid);
+          transform: translateY(-1px);
+        }
+        
+        .enterprise-cta-secondary:active {
+          background: #F3F4F6;
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          transform: translateY(0);
+        }
+        
+        /* ENTERPRISE HEADER CONTAINER - GLOBAL TOKEN SYSTEM */
+        .header-container-locked {
+          background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-primary) 100%);
+          border-radius: 16px;
+          box-shadow: var(--elevation-header);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: var(--header-padding);
+          min-height: var(--banner-min-height);
+          color: var(--neutral-100);
         }
         
         @media (max-width: 768px) {
           .header-container-locked {
-            padding: var(--space-6);
+            padding: 16px 20px;
           }
         }
         
-        /* HEADER LAYOUT v1.1 - THREE ZONE ALIGNMENT */
+        /* ENTERPRISE HEADER LAYOUT - TOKEN-DRIVEN ALIGNMENT */
         .header-row-locked {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 20px;
+          gap: var(--action-spacing);
         }
         
-        /* HEADER v1.1 THREE-ZONE LAYOUT */
+        /* ENTERPRISE THREE-ZONE LAYOUT - TOKEN SYSTEM */
         .store-info-block {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: var(--store-info-gap);
           flex: 1;
           min-width: 0;
         }
@@ -1729,7 +1816,7 @@ ${productUrl}`;
         .badges-block {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: var(--action-spacing);
           flex-wrap: wrap;
         }
         
@@ -1911,50 +1998,21 @@ ${productUrl}`;
                   )}
                 </div>
 
-                {/* RIGHT ZONE: Single CTA */}
+                {/* RIGHT ZONE: Enterprise CTA */}
                 <div className="cta-block">
                   {!isOwner ? (
                     <div className="hidden md:flex items-center gap-3">
-                      <button
-                        className="group inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm border"
-                        style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                          color: '#374151',
-                          border: '1px solid rgba(255, 255, 255, 0.3)',
-                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
-                        }}
-                      >
+                      <button className="enterprise-cta-secondary">
                         <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
                         Follow Store
                       </button>
-                      <button
-                        className="group inline-flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm border"
-                        style={{
-                          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                          color: '#374151',
-                          border: '1px solid rgba(255, 255, 255, 0.3)',
-                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
-                        }}
-                      >
+                      <button className="enterprise-cta-secondary">
                         <Share2 className="h-4 w-4 transition-transform group-hover:scale-110" />
                         Share Store
                       </button>
                     </div>
                   ) : (
-                    <Link
-                      to="/products"
-                      className="group inline-flex items-center gap-2 transition-all duration-300 hover:scale-105"
-                      style={{
-                        background: 'var(--brand-gradient)',
-                        color: 'white',
-                        padding: 'var(--cta-primary-padding)',
-                        borderRadius: 'var(--cta-primary-radius)',
-                        fontSize: 'var(--cta-primary-font-size)',
-                        fontWeight: 'var(--cta-primary-font-weight)',
-                        boxShadow: '0 4px 12px rgba(79, 168, 255, 0.3)',
-                        textDecoration: 'none'
-                      }}
-                    >
+                    <Link to="/products" className="enterprise-cta-primary">
                       <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
                       Back to Dashboard
                     </Link>
