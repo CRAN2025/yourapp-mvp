@@ -1900,139 +1900,230 @@ ${productUrl}`;
           }
         }
         
+        /* LOCKED HEADER BASELINE - TOKEN SYSTEM */
+        .locked-header-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px 24px;
+          background: var(--surface-elevated, #FFFFFF);
+          border-radius: 16px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .locked-header-content {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 24px;
+        }
+        
+        .store-identity-block {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .store-logo-wrapper {
+          flex-shrink: 0;
+        }
+        
+        .locked-store-logo {
+          width: 64px;
+          height: 64px;
+          border-radius: 16px;
+          object-fit: cover;
+        }
+        
+        .locked-avatar-fallback {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 24px;
+          font-weight: 600;
+        }
+        
+        .store-text-block {
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .locked-store-name {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--text-primary, #111827);
+          margin: 0 0 4px 0;
+          line-height: 1.2;
+        }
+        
+        .locked-powered-by {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--text-secondary, #6B7280);
+          margin-bottom: 8px;
+        }
+        
+        .locked-store-description {
+          font-size: 14px;
+          color: var(--text-subtle, #9CA3AF);
+          line-height: 1.4;
+        }
+        
+        .seller-actions-block {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        
+        .action-pills {
+          display: flex;
+          gap: 12px;
+        }
+        
+        .locked-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          background: var(--surface-elevated, #FFFFFF);
+          border: 1px solid var(--border-default, #E5E7EB);
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--text-primary, #111827);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .locked-pill:hover {
+          background: #F9FAFB;
+          border-color: var(--brand-primary, #2563EB);
+          color: var(--brand-primary, #2563EB);
+        }
+        
+        .locked-primary-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          height: 40px;
+          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          text-decoration: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .locked-primary-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(79, 168, 255, 0.3);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+          .locked-header-content {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+          }
+          
+          .store-identity-block {
+            justify-content: center;
+            text-align: center;
+          }
+          
+          .seller-actions-block {
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+          }
+        }
+        
         /* Enterprise responsive logo scaling handled by clamp */
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* Enterprise-Grade Header */}
-        <FullWidthContainer className="py-8">
-          <div className="header-container-locked overflow-hidden relative">
-            
-            {/* Enterprise glass elevation banner - TOKEN INHERITANCE */}
-            <div
-              className="h-32 md:h-36 w-full relative overflow-hidden"
-              style={{
-                background: seller?.coverUrl
-                  ? `var(--color-header-bg), url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'var(--color-header-bg)',
-              }}
-            >
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
-            </div>
-
-            {/* PERFECT VERTICAL ALIGNMENT HEADER ROW */}
-            <div className="relative z-10 -mt-8">
-              <div className="header-row-locked">
-                {/* LEFT ZONE: Logo + Store Identity */}
-                <div className="store-info-block">
-                  {/* Store Logo Container */}
-                  <div className="store-logo-container">
-                    {seller?.logoUrl ? (
-                      <img
-                        src={seller.logoUrl}
-                        alt={seller.storeName}
-                        decoding="async"
-                        width="96"
-                        height="96"
-                        onError={(e) => {
-                          e.currentTarget.src = logoUrl;
-                          e.currentTarget.alt = 'ShopLynk logo';
-                        }}
-                      />
-                    ) : (
-                      <img
-                        src={logoUrl}
-                        alt="ShopLynk logo"
-                        decoding="async"
-                        width="96"
-                        height="96"
-                      />
-                    )}
-                  </div>
-                  
-                  {/* Store Title Info */}
-                  <div className="min-w-0 flex-1">
-                    <h1 className="store-title-locked">
-                      {seller.storeName}
-                    </h1>
-                    <div className="powered-by-locked">
-                      <Link href={SHOPLINK_MARKETING_URL} target="_blank" rel="noopener noreferrer">
-                        Powered by ShopLynk
-                      </Link>
-                    </div>
-                    {seller.storeDescription && seller.storeDescription.trim() ? (
-                      <div className="store-description-locked">
-                        {seller.storeDescription}
-                      </div>
-                    ) : (
-                      <div className="store-subtitle-locked">
-                        Online Store
-                      </div>
-                    )}
-                    {seller.location && (
-                      <div className="store-subtitle-locked">
-                        {seller.location}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* MIDDLE ZONE: Payment/Delivery Pills */}
-                <div className="badges-block">
-                  {!!paymentMethods.length && (
-                    <button
-                      onClick={() => setShowPaymentModal(true)}
-                      className="payment-delivery-badge group gap-3"
-                      title="View payment methods"
-                    >
-                      <CreditCard className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#3B82F6' }} />
-                      {paymentMethods.length} Payment Methods
-                    </button>
-                  )}
-                  {!!deliveryOptions.length && (
-                    <button
-                      onClick={() => setShowDeliveryModal(true)}
-                      className="payment-delivery-badge group gap-3"
-                      title="View delivery options"
-                    >
-                      <Truck className="h-5 w-5 transition-transform group-hover:scale-110" style={{ color: '#3B82F6' }} />
-                      {deliveryOptions.length} Delivery Options
-                    </button>
-                  )}
-                  {seller.currency && (
-                    <span className="payment-delivery-badge gap-3">
-                      <Globe className="h-5 w-5" style={{ color: '#3B82F6' }} />
-                      {seller.currency} Currency
-                    </span>
-                  )}
-                </div>
-
-                {/* RIGHT ZONE: Enterprise CTA */}
-                <div className="cta-block">
-                  {!isOwner ? (
-                    <div className="hidden md:flex items-center gap-3">
-                      <button className="enterprise-cta-secondary">
-                        <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
-                        Follow Store
-                      </button>
-                      <button className="enterprise-cta-secondary">
-                        <Share2 className="h-4 w-4 transition-transform group-hover:scale-110" />
-                        Share Store
-                      </button>
-                    </div>
+        {/* LOCKED HEADER BASELINE - Token-Driven */}
+        <div className="py-8">
+          <div className="locked-header-container">
+            <div className="locked-header-content">
+              
+              {/* LEFT BLOCK: Store Identity */}
+              <div className="store-identity-block">
+                <div className="store-logo-wrapper">
+                  {seller?.logoUrl ? (
+                    <img
+                      src={seller.logoUrl}
+                      alt={`${seller.storeName || 'Store'} logo`}
+                      className="locked-store-logo"
+                    />
                   ) : (
-                    <Link to="/products" className="enterprise-cta-primary">
-                      <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                      Back to Dashboard
-                    </Link>
+                    <div className="locked-store-logo locked-avatar-fallback">
+                      {(seller?.storeName || 'S').charAt(0).toUpperCase()}
+                    </div>
                   )}
+                </div>
+
+                <div className="store-text-block">
+                  <h1 className="locked-store-name">
+                    {seller?.storeName || 'Store Name'}
+                  </h1>
+                  <div className="locked-powered-by">
+                    <a href="/" className="hover:underline">
+                      Powered by ShopLynk
+                    </a>
+                  </div>
+                  <div className="locked-store-description">
+                    {seller?.storeDescription || 'Maybe there was no description here before'}
+                  </div>
                 </div>
               </div>
 
+              {/* RIGHT BLOCK: Seller Actions Only */}
+              {isOwner && (
+                <div className="seller-actions-block">
+                  {/* Pills */}
+                  <div className="action-pills">
+                    {!!paymentMethods.length && (
+                      <button
+                        onClick={() => setShowPaymentModal(true)}
+                        className="locked-pill"
+                        title="View payment methods"
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        {paymentMethods.length} Payment Methods
+                      </button>
+                    )}
+                    {!!deliveryOptions.length && (
+                      <button
+                        onClick={() => setShowDeliveryModal(true)}
+                        className="locked-pill"
+                        title="View delivery options"
+                      >
+                        <Truck className="h-4 w-4" />
+                        {deliveryOptions.length} Delivery Options
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Primary CTA */}
+                  <Link to="/products" className="locked-primary-cta">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Dashboard
+                  </Link>
+                </div>
+              )}
 
             </div>
           </div>
-        </FullWidthContainer>
+        </div>
 
         {/* v1.9.4 Clean Global Search and Filters */}
         <FullWidthContainer className="py-10">

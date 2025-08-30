@@ -1,0 +1,151 @@
+AI Instruction — Header Rollback (No Changes to Products)
+Objective
+
+Revert the Storefront header (seller view within console) and Public Store header (buyer view) to the previously locked baseline while keeping the product section unchanged.
+
+Scope
+
+In scope
+
+Seller Storefront page header (within console shell)
+
+Public Store header (buyer view)
+
+Token usage and visual consistency
+
+Out of scope
+
+Product cards, tags, badges, stock banners, buttons
+
+Filters, search, sorting, favorites
+
+Pagination and data fetching
+
+What to Change
+1) Replace current headers with the locked component
+
+Use the previously approved header spec:
+
+Layout
+
+Background: var(--surface/elevated) with var(--elevation/2) shadow.
+
+Container: respect the console grid, not edge-to-edge.
+
+max-width: var(--container/content-width); (locked to 1200px)
+
+margin: 0 auto;
+
+padding: var(--space/5) var(--space/6);
+
+Left block
+
+Store Logo: 64px (tokenized)
+
+width/height: var(--brand/logo-size); = 64px
+
+Rounded 16px or brand-default
+
+Store Name: bold, single line
+
+“Powered by ShopLynk” secondary label under name
+
+Description: dynamic (from store profile), fallback to
+“Maybe there was no description here before”
+(use subtle text color token)
+
+Right block (seller storefront only)
+
+Pills (neutral):
+
+6 Payment Methods
+
+4 Delivery Options
+
+Primary CTA (gradient-blue):
+
+Back to Dashboard
+
+Remove:
+
+View Public Store (obsolete)
+
+Edit Store (not approved)
+
+Public store (buyer)
+
+Same header visuals (logo/name/powered-by/description)
+
+No pills, no buttons (no seller controls)
+
+Same container width/padding as seller header for consistency.
+
+2) Enforce the token system (locked values)
+Element	Token	Value
+Logo size	--brand/logo-size	64px
+Primary CTA height	--cta/primary/height	40px
+Pill radius	--chip/pill/radius	20px
+Pill padding X	--chip/pill/padding-x	12px
+Container max width	--container/content-width	1200px
+Surface color	--surface/elevated	(theme default)
+Shadow	--elevation/2	(theme default)
+Subtle text	--text/subtle-color	(theme default)
+Spacing (outer)	--space/5 / --space/6	(theme default)
+
+Important: No one-off CSS that overrides these tokens. The header must render identically in both views (minus seller-only actions).
+
+3) Governance / Cleanup
+
+Remove the View Public Store button from seller header.
+
+Remove the Edit Store button from seller header.
+
+Ensure public store header does not show any actions.
+
+Ensure the header aligns with console header and page shell (no edge-to-edge header panel).
+
+Keep the “Back to Dashboard” CTA styling exactly as previously locked (gradient, height, radius).
+
+File/Component Hints (adapt to your codebase)
+
+SellerStorefrontHeader.tsx / StorefrontHeader.vue → replace with locked header component
+
+PublicStoreHeader.tsx / BuyerHeader.vue → reuse same component; hide actions via mode="buyer"
+
+tokens.css / theme.css → ensure tokens above exist and are not locally overridden
+
+Remove any temporary “blue full-width header” variant styles
+
+Acceptance Criteria
+
+Seller Storefront header (inside console) shows:
+
+Logo 64px, Name, Powered by, Description (with fallback text)
+
+Pills: 6 Payment Methods, 4 Delivery Options
+
+Primary CTA: Back to Dashboard
+
+No “View Public Store”, no “Edit Store”
+
+Header panel width matches console content grid (not edge-to-edge)
+
+Public Store header (buyer) shows:
+
+Logo 64px, Name, Powered by, Description
+
+No pills, no CTAs
+
+Identical sizing, spacing, and alignment to seller header
+
+Tokens are used. No inline hardcoded sizes. Shared tokens govern both seller and buyer.
+
+No regressions in:
+
+Product cards, CTAs, badges
+
+Filters, search, favorites
+
+Stock banners (e.g., “LIMITED STOCK”)
+
+Category pills
