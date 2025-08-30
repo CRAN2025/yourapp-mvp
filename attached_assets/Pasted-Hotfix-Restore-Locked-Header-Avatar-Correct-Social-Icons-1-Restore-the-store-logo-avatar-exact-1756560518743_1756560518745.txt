@@ -1,0 +1,112 @@
+Hotfix — Restore Locked Header Avatar + Correct Social Icons
+1) Restore the store logo/avatar (exactly as locked)
+
+Source of truth
+
+Use profile.logoUrl if present.
+
+Fallback: monogram avatar generated from store name initials (not the system default “G” tile).
+
+Avatar tokens (locked)
+
+/* Avatar (logo) */
+.header-avatar {
+  width: var(--avatar/size-lg, 96px);
+  height: var(--avatar/size-lg, 96px);
+  border-radius: var(--radius/2xl, 16px);
+  overflow: hidden;
+  border: 1px solid var(--surface/border, rgba(16,24,40,.08));
+  box-shadow: var(--shadow/md, 0 4px 14px rgba(16,24,40,.08));
+  background: var(--surface/elevated, #fff);
+  flex: 0 0 auto;
+}
+
+/* Monogram fallback (when no logoUrl) */
+.header-avatar--fallback {
+  display: grid;
+  place-items: center;
+  font: var(--text/brand-lg, 700 28px/1 system-ui, -apple-system, Segoe UI);
+  color: var(--brand/primary-600);
+  background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0)),
+              var(--brand/primary-50);
+}
+
+
+Implementation notes
+
+Preserve the 96×96 size (or your project’s --avatar/size-lg value); do not use the square purple tile.
+
+Monogram should be derived from store name (“Grow Up” → “GU”), not a single “G”.
+
+Keep current spacing: avatar to text block gap = var(--space/4, 16px).
+
+2) Fix social icons to match our quiet, icon-only spec
+
+Use stroke icons (not filled). If you’re using Lucide/Feather: stroke-width: 1.75 (or 1.5 depending on set).
+
+Icon buttons (quiet)
+
+.header-social {
+  display: inline-flex;
+  gap: var(--space/2, 8px);
+  margin-top: var(--space/2, 8px); /* sits under description */
+  flex-wrap: wrap;
+}
+
+.header-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; /* min hit area */
+  height: 32px;
+  border-radius: var(--radius/full, 999px);
+  color: var(--text/secondary, #667085);
+  background: transparent;
+  transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
+  outline: none;
+}
+
+.header-social a:hover {
+  color: var(--brand/primary-600);
+  background: var(--brand/primary-50);
+}
+
+.header-social a:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus/ring, rgba(66,153,225,.6));
+}
+
+.header-social svg {
+  width: 18px; /* 16–18px is acceptable; keep consistent */
+  height: 18px;
+  stroke-width: 1.75;
+}
+
+/* Optional: fine-tune baseline alignment with the text block */
+.header-meta { /* the block that contains Powered by + description + social */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space/2, 8px);
+}
+
+
+Accessibility
+
+Each link must include: aria-label="Open Instagram profile", title="Instagram", target="_blank", rel="noopener noreferrer".
+
+Render only networks with valid URLs (we already added normalization earlier).
+
+Order
+
+Instagram → TikTok → Facebook.
+
+3) Quick checklist (acceptance)
+
+ Avatar shows uploaded logoUrl at 96×96, rounded 16px, thin border, soft shadow.
+
+ With no logoUrl, a monogram avatar is rendered (not a purple “G” tile).
+
+ Social icons are stroke style, 18px, quiet circular buttons, correct hover/focus, and only visible when data exists.
+
+ Spacing under “Powered by ShopLynk” → description → social row matches tokens (8px gaps), no extra vertical bloat.
+
+ No layout shifts elsewhere; “Back to Dashboard”, “Payment Methods”, “Delivery Options” remain unchanged.
