@@ -1,0 +1,121 @@
+Instruction to AI Agent — Lock ShopLynk Header / Banner System Tokens
+
+Objective:
+Lock the ShopLynk storefront header/banner into the global design token architecture to ensure enterprise-grade consistency across seller and buyer storefronts.
+This governance must unify the header, filter controls, and product cards into one cohesive, reusable system.
+
+1. Scope & Impact
+
+Apply these tokens globally to:
+
+Storefront headers ✅
+
+Store identity blocks (logo, name, powered-by) ✅
+
+Store description ✅
+
+Action buttons (Back to Dashboard, Payments, Delivery Options) ✅
+
+Filter pills and layout controls ✅
+
+Guarantee visual, typographic, and spacing consistency across all ShopLynk UIs.
+
+2. Token Implementation
+A. Brand & Accent Colors
+
+These tokens must match the locked palette used in product cards for cross-component harmony.
+
+--brand-primary: #2563EB;      /* Active CTAs, selected pills, header actions */
+--brand-secondary: #3B82F6;    /* Hover gradients, banner highlights */
+--brand-green: #25D366;        /* WhatsApp-style Contact Seller consistency */
+--brand-grey: #F3F4F6;         /* Inactive neutral buttons */
+--brand-red: #EF4444;          /* Warnings, errors, status indicators */
+--neutral-100: #FFFFFF;        /* Header background */
+--neutral-200: #E5E7EB;        /* Borders & outlines */
+--neutral-300: #D1D5DB;        /* Subtle dividers */
+--text-primary: #111827;       /* Store names */
+--text-secondary: #6B7280;     /* Subtitles, descriptions */
+
+B. Typography
+
+Ensure all header elements inherit from global font tokens.
+
+--font-store-name: 24px;       /* Prominent store identity */
+--font-store-subtitle: 16px;   /* "Powered by ShopLynk" line */
+--font-description: 14px;      /* Store description */
+--font-action-label: 14px;     /* Back to Dashboard, Payment, Delivery */
+
+C. Spacing & Layout
+--header-padding: 20px 24px;
+--action-spacing: 12px;
+--store-info-gap: 8px;
+--banner-min-height: 140px;
+
+D. Shadows & Elevation
+--elevation-header: 0 2px 6px rgba(0, 0, 0, 0.08);
+--elevation-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+
+3. Interactive States
+A. Back to Dashboard CTA
+State	BG Color	Text Color	Shadow
+Default	--brand-primary	#FFFFFF	--elevation-header
+Hover	--brand-secondary	#FFFFFF	--elevation-hover
+Active	#1E3A8A	#FFFFFF	Locked
+B. Payment & Delivery Option Pills
+State	BG Color	Border	Text Color	Shadow
+Default	#FFFFFF	#E5E7EB	#374151	Low
+Hover	#F9FAFB	#2563EB	#2563EB	Mid
+Active	#DBEAFE	#2563EB	#2563EB	Mid
+C. Category / Filter Pills
+State	BG Color	Border	Text Color	Shadow
+Default	#FFFFFF	#E5E7EB	#374151	None
+Hover	#EFF6FF	#2563EB	#2563EB	Low
+Active	#DBEAFE	#2563EB	#2563EB	Locked
+4. Dynamic Store Description
+Rules:
+
+Description content must always be fetched dynamically from the store metadata.
+
+No placeholder or hardcoded defaults allowed.
+
+If no description exists → hide the element entirely to preserve layout integrity.
+
+5. Governance Rules
+
+Locked tokens only → no arbitrary CSS overrides.
+
+Unified system → header buttons, pills, and banners must inherit token values.
+
+Changes require review to preserve consistency with product cards and filters.
+
+Forbidden:
+
+Using fixed hex codes.
+
+Introducing local, component-specific styles.
+
+Modifying store identity spacing manually.
+
+6. Acceptance Criteria
+
+Header and banner scale seamlessly across seller & buyer storefronts.
+
+Store identity, description, action buttons, and category filters visually balance.
+
+Hover, active, and focus states match exactly across all top-level CTAs.
+
+The UI visually aligns with enterprise-grade design standards.
+
+7. Deliverables
+
+Update header-tokens.css within the ShopLynk global theme config.
+
+Apply token-driven architecture to:
+
+Seller header banners
+
+Buyer header banners
+
+Responsive layouts.
+
+Validate in Storybook snapshots for pixel-perfect reproducibility.
