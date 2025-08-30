@@ -890,12 +890,306 @@ ${productUrl}`;
           --meta-size: 14px;
           --meta-weight: 400;
           
+          /* PRODUCT CARD TYPOGRAPHY - LOCKED v1.1 */
+          --sl-font-md-semibold: 16px;
+          --sl-font-sm-medium: 14px;
+          --sl-font-xs-medium: 12px;
+          --sl-text-success: #059669;
+          --sl-text-muted: #6B7280;
+          --sl-icon-muted: #9CA3AF;
+          --sl-status-favorite: #EF4444;
+          
           /* COLOR TOKENS - LOCKED GLOBAL PALETTE */
           --text-primary: #111827;
           --text-secondary: #6B7280;
           --text-tertiary: #9CA3AF;
           --brand-link: #3B82F6;
           --brand-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          
+          /* PRODUCT CARD v1.1 - LOCKED TOKEN SYSTEM */
+          --sl-surface-elevated: #ffffff;
+          --sl-radius-2xl: 16px;
+          --sl-radius-xl: 12px;
+          --sl-radius-lg: 8px;
+          --sl-radius-md: 6px;
+          --sl-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+          --sl-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          --sl-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          --sl-space-4: 16px;
+          --sl-space-3: 12px;
+          --sl-space-2: 8px;
+          --sl-skeleton: #f3f4f6;
+          
+          /* BADGE TOKENS - LOCKED v1.1 */
+          --sl-badge-info-bg: #DBEAFE;
+          --sl-badge-info-fg: #1E40AF;
+          --sl-badge-warn-bg: #FEF3C7;
+          --sl-badge-warn-fg: #92400E;
+          
+          /* CTA TOKENS - LOCKED v1.1 */
+          --sl-accent-green-bg: #DCFCE7;
+          --sl-accent-green-fg: #166534;
+          --sl-control-bg: #F9FAFB;
+          --sl-control-fg: #374151;
+          --sl-control-border: #E5E7EB;
+          
+          /* TAG TOKENS - LOCKED v1.1 */
+          --sl-tag-bg: #F3F4F6;
+          --sl-tag-fg: #6B7280;
+        }
+        
+        /* PRODUCT CARD v1.1 - LOCKED COMPONENT SYSTEM */
+        .product-card-v11 {
+          background: var(--sl-surface-elevated);
+          border-radius: var(--sl-radius-2xl);
+          box-shadow: var(--sl-shadow-lg);
+          transition: all 0.3s ease;
+          overflow: hidden;
+        }
+        
+        .product-card-v11:hover {
+          transform: translateY(-3px);
+          box-shadow: var(--sl-shadow-xl);
+        }
+        
+        /* Image Section */
+        .product-image-container {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .product-image-wrapper {
+          aspect-ratio: 1;
+          position: relative;
+          background: var(--sl-skeleton);
+        }
+        
+        .product-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: var(--sl-radius-xl) var(--sl-radius-xl) 0 0;
+        }
+        
+        .product-favorite-btn {
+          position: absolute;
+          top: var(--sl-space-2);
+          right: var(--sl-space-2);
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: white;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: var(--sl-shadow-md);
+          transition: all 0.2s ease;
+        }
+        
+        .product-favorite-btn:hover {
+          transform: scale(1.1);
+        }
+        
+        .product-favorite-idle {
+          color: var(--sl-icon-muted);
+        }
+        
+        .product-favorite-active {
+          color: var(--sl-status-favorite);
+          fill: currentColor;
+        }
+        
+        /* Badge System v1.1 */
+        .product-badges-overlay {
+          position: absolute;
+          bottom: var(--sl-space-2);
+          left: var(--sl-space-2);
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+        }
+        
+        .product-badge-new {
+          background: var(--sl-badge-info-bg);
+          color: var(--sl-badge-info-fg);
+          font-size: var(--sl-font-xs-medium);
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: var(--sl-radius-lg);
+        }
+        
+        .product-badge-limited {
+          background: var(--sl-badge-warn-bg);
+          color: var(--sl-badge-warn-fg);
+          font-size: var(--sl-font-xs-medium);
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: var(--sl-radius-lg);
+        }
+        
+        .product-badge-featured {
+          background: linear-gradient(135deg, #FFD700, #FFA500);
+          color: #8B4513;
+          font-size: var(--sl-font-xs-medium);
+          font-weight: 600;
+          padding: 2px 8px;
+          border-radius: var(--sl-radius-lg);
+        }
+        
+        /* Content Section */
+        .product-card-content {
+          padding: var(--sl-space-4);
+          display: flex;
+          flex-direction: column;
+          gap: var(--sl-space-3);
+        }
+        
+        .product-title-section {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        
+        .product-title {
+          font-size: var(--sl-font-md-semibold);
+          font-weight: 600;
+          color: var(--text-primary);
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        
+        .product-brand {
+          font-size: var(--sl-font-sm-medium);
+          font-weight: 500;
+          color: var(--sl-text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .product-price-section {
+          display: flex;
+          align-items: center;
+          gap: var(--sl-space-2);
+        }
+        
+        .product-price {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--sl-text-success);
+        }
+        
+        .product-compare-price {
+          font-size: 14px;
+          color: var(--sl-text-muted);
+          text-decoration: line-through;
+        }
+        
+        .product-category-section {
+          display: flex;
+          gap: var(--sl-space-2);
+          flex-wrap: wrap;
+        }
+        
+        .product-category-pill {
+          background: #2C3E50;
+          color: white;
+          font-size: var(--sl-font-xs-medium);
+          font-weight: 600;
+          padding: 6px 12px;
+          border-radius: var(--sl-radius-md);
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        
+        /* CTA Section */
+        .product-cta-section {
+          display: flex;
+          flex-direction: column;
+          gap: var(--sl-space-2);
+          padding-top: var(--sl-space-3);
+          border-top: 1px solid #E5E7EB;
+        }
+        
+        .product-cta-primary {
+          width: 100%;
+          background: var(--sl-accent-green-bg);
+          color: var(--sl-accent-green-fg);
+          border: none;
+          border-radius: var(--sl-radius-lg);
+          font-size: var(--sl-font-md-semibold);
+          font-weight: 600;
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: var(--sl-space-2);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .product-cta-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: var(--sl-shadow-md);
+          background: #D1F7C7;
+        }
+        
+        .product-cta-secondary {
+          width: 100%;
+          background: var(--sl-control-bg);
+          color: var(--sl-control-fg);
+          border: 1px solid var(--sl-control-border);
+          border-radius: var(--sl-radius-lg);
+          font-size: var(--sl-font-md-semibold);
+          font-weight: 600;
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: var(--sl-space-2);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .product-cta-secondary:hover {
+          transform: translateY(-1px);
+          box-shadow: var(--sl-shadow-md);
+          background: #F3F4F6;
+        }
+        
+        .product-warning-badge {
+          width: 100%;
+          border-radius: var(--sl-radius-md);
+          border: 1px solid #FCD34D;
+          background: #FEF3C7;
+          padding: 8px 12px;
+          font-size: var(--sl-font-xs-medium);
+          font-weight: 500;
+          color: #92400E;
+          text-align: center;
+        }
+        
+        /* Attributes Section */
+        .product-attributes-section {
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+        }
+        
+        .product-attribute-tag {
+          background: var(--sl-tag-bg);
+          color: var(--sl-tag-fg);
+          font-size: var(--sl-font-xs-medium);
+          font-weight: 500;
+          padding: 4px 8px;
+          border-radius: var(--sl-radius-md);
+        }
           
           /* BADGE CARD STYLE - GLOBAL */
           --badge-card-style-bg: #FFFFFF;
@@ -1833,155 +2127,115 @@ ${productUrl}`;
               {filteredProducts.map((product) => (
                 <Card
                   key={product.id}
-                  className="group cursor-pointer border-0 overflow-hidden transition-all duration-200 hover:shadow-xl"
-                  style={{ 
-                    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
-                    borderRadius: '14px'
-                  }}
+                  className="product-card-v11 group cursor-pointer border-0 overflow-hidden"
                   onClick={() => handleProductView(product)}
                   data-testid={`card-product-${product.id}`}
                 >
-                  <div className="relative overflow-hidden">
+                  <div className="product-image-container">
                     {/* Product image */}
-                    <div className="aspect-square relative bg-gray-100">
+                    <div className="product-image-wrapper">
                       <img
                         src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className="product-image"
                         onLoad={(e) => handleImageLoad(product.id, e)}
                         onError={handleImageError}
                         loading="lazy"
+                        decoding="async"
                       />
                       
-                      {/* Quality warning */}
-                      {lowResImages[product.id] && (
-                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-                          <Info className="h-3 w-3" />
-                          Low Res
-                        </div>
-                      )}
-                      
-                      {/* Favorite button - hidden for owners */}
+                      {/* Favorite button - top right */}
                       {!isOwner && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-50 rounded-full shadow-md"
+                        <button
+                          className="product-favorite-btn"
                           onClick={(e) => toggleFavorite(product.id, e)}
+                          aria-pressed={favorites.has(product.id)}
                           data-testid={`button-favorite-${product.id}`}
                         >
                           <Heart
                             className={`h-4 w-4 ${
                               favorites.has(product.id)
-                                ? 'fill-red-500 text-red-500'
-                                : 'text-slate-600 hover:text-red-500'
+                                ? 'product-favorite-active'
+                                : 'product-favorite-idle'
                             }`}
                           />
-                        </Button>
+                        </button>
                       )}
 
-                      {/* Product badges */}
-                      <div className="absolute bottom-2 left-2 flex gap-1">
-                        {product.features?.includes('featured') && (
-                          <Badge className="bg-yellow-500 text-white text-xs px-2 py-1 rounded">
-                            ⭐ Featured
-                          </Badge>
-                        )}
+                      {/* v1.1 Product badges - top left overlay */}
+                      <div className="product-badges-overlay">
                         {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                          <Badge className="bg-green-500 text-white text-xs px-2 py-1 rounded">
-                            🆕 New
-                          </Badge>
+                          <span className="product-badge-new">
+                            New
+                          </span>
                         )}
                         {product.quantity < 5 && (
-                          <Badge className="bg-red-500 text-white text-xs px-2 py-1 rounded">
-                            📍 Limited
-                          </Badge>
+                          <span className="product-badge-limited">
+                            Limited Stock
+                          </span>
+                        )}
+                        {product.features?.includes('featured') && (
+                          <span className="product-badge-featured">
+                            Featured
+                          </span>
                         )}
                       </div>
                     </div>
 
-                    {/* Product info */}
-                    <CardContent style={{ 
-                      paddingTop: '16px', 
-                      paddingBottom: '16px', 
-                      paddingLeft: '14px', 
-                      paddingRight: '14px' 
-                    }} className="space-y-3">
-                      {/* Product name and brand */}
-                      <div className="space-y-2">
-                        <h3 className="font-semibold text-lg line-clamp-2" style={{ color: '#1F2937' }}>
+                    {/* v1.1 Product info with token-driven layout */}
+                    <CardContent className="product-card-content">
+                      {/* Product title & brand */}
+                      <div className="product-title-section">
+                        <h3 className="product-title">
                           {product.name}
                         </h3>
                         {product.brand && (
-                          <p className="text-sm text-gray-500 uppercase">
+                          <p className="product-brand">
                             {product.brand}
                           </p>
                         )}
                       </div>
 
-                      {/* Price and category */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-3">
-                              <span className="text-xl font-bold" style={{ color: '#27AE60' }}>
-                                {formatPrice(product.price)}
-                              </span>
-                            </div>
-                            <div className="space-y-2">
-                              <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
-                                   style={{ backgroundColor: '#2C3E50', color: 'white' }}>
-                                <span className="mr-1.5 text-sm flex items-center">📦</span>
-                                {product.category}
-                              </div>
-                              {product.subcategory && (
-                                <div className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ml-2" 
-                                     style={{ backgroundColor: '#2C3E50', color: 'white' }}>
-                                  {product.subcategory}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                      {/* Price row */}
+                      <div className="product-price-section">
+                        <span className="product-price">
+                          {formatPrice(product.price)}
+                        </span>
+                        {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
+                          <span className="product-compare-price">
+                            {formatPrice((product as any).compareAtPrice)}
+                          </span>
+                        )}
                       </div>
 
-                      {/* Per-card WhatsApp CTA per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
-                      <div className="space-y-2 pt-3 border-t border-gray-200">
-                        {/* WhatsApp Contact Button - appears for all users when seller has valid number */}
+                      {/* Category pills row - reuse global tokens */}
+                      <div className="product-category-section">
+                        <span className="product-category-pill">
+                          📦 {product.category}
+                        </span>
+                        {product.subcategory && (
+                          <span className="product-category-pill">
+                            {product.subcategory}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* v1.1 CTAs - Token-driven buttons */}
+                      <div className="product-cta-section">
+                        {/* Primary CTA - Contact Seller */}
                         {seller?.whatsappNumber ? (
-                          <Button
-                            className="w-full text-white font-medium transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
-                            size="sm"
-                            style={{
-                              backgroundColor: '#25D366',
-                              borderRadius: '10px',
-                              boxShadow: '0 2px 6px rgba(37, 211, 102, 0.25)'
-                            }}
+                          <button
+                            className="product-cta-primary"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleContactProduct(product);
                             }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#1DB854';
-                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 211, 102, 0.35)';
-                              trackWhatsAppView(product.id);
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#25D366';
-                              e.currentTarget.style.boxShadow = '0 2px 6px rgba(37, 211, 102, 0.25)';
-                            }}
-                            onFocus={(e) => {
-                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 211, 102, 0.35), 0 0 0 2px rgba(37, 211, 102, 0.5)';
-                            }}
-                            onBlur={(e) => {
-                              e.currentTarget.style.boxShadow = '0 2px 6px rgba(37, 211, 102, 0.25)';
-                            }}
                             aria-label={`Contact seller about ${product.name} on WhatsApp`}
                             data-testid={`button-whatsapp-${product.id}`}
                           >
-                            <MessageCircle className="h-4 w-4 mr-2" aria-hidden="true" />
+                            <MessageCircle className="h-4 w-4" aria-hidden="true" />
                             Contact Seller
-                          </Button>
+                          </button>
                         ) : isOwner ? (
                           // Seller console preview - disabled button with tooltip
                           <div className="relative group">
