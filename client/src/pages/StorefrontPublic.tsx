@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter } from 'lucide-react';
+import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Settings, Edit3 } from 'lucide-react';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
 import { openWhatsApp, createWhatsAppMessage } from '@/lib/utils/whatsapp';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
+import { useAuthContext } from '@/context/AuthContext';
 import type { Product, Seller } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +45,7 @@ const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
 export default function StorefrontPublic() {
   const [, params] = useRoute('/store/:sellerId');
   const { toast } = useToast();
+  const { user: currentUser } = useAuthContext();
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +66,51 @@ export default function StorefrontPublic() {
 
   const sellerId = params?.sellerId;
   const [location] = useLocation();
+
+  // SEO Meta Tags - Dynamic setup for each store
+  useEffect(() => {
+    if (seller) {
+      // Set page title
+      document.title = `${seller.storeName} – ShopLynk`;
+      
+      // Set meta description
+      let metaDescription = document.querySelector('meta[name="description"]');
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta');
+        metaDescription.setAttribute('name', 'description');
+        document.head.appendChild(metaDescription);
+      }
+      metaDescription.setAttribute('content', seller.storeDescription?.slice(0, 160) || `${seller.storeName} - Premium products on ShopLynk`);
+      
+      // Set canonical URL
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonical);
+      }
+      canonical.href = `${window.location.origin}/store/${sellerId}`;
+      
+      // Open Graph tags
+      const setOGTag = (property: string, content: string) => {
+        let tag = document.querySelector(`meta[property="${property}"]`);
+        if (!tag) {
+          tag = document.createElement('meta');
+          tag.setAttribute('property', property);
+          document.head.appendChild(tag);
+        }
+        tag.setAttribute('content', content);
+      };
+      
+      setOGTag('og:title', `${seller.storeName} – ShopLynk`);
+      setOGTag('og:description', seller.storeDescription?.slice(0, 160) || `${seller.storeName} - Premium products on ShopLynk`);
+      setOGTag('og:url', `${window.location.origin}/store/${sellerId}`);
+      setOGTag('og:type', 'website');
+      if (seller.logoUrl) {
+        setOGTag('og:image', seller.logoUrl);
+      }
+    }
+  }, [seller, sellerId]);
 
   // Owner detection and anonymous authentication for events
   useEffect(() => {
@@ -2021,9 +2068,22 @@ ${productUrl}`;
                   )}
                 </div>
 
-                {/* RIGHT ZONE: Enterprise CTA */}
+                {/* RIGHT ZONE: Role-Aware CTAs */}
                 <div className="cta-block">
-                  {!isOwner ? (
+                  {currentUser?.uid === sellerId ? (
+                    // Store Owner Toolbar
+                    <div className="flex items-center gap-3">
+                      <Link to="/products" className="enterprise-cta-primary">
+                        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                        Back to Dashboard
+                      </Link>
+                      <Link to="/settings" className="enterprise-cta-secondary">
+                        <Settings className="h-4 w-4" />
+                        Edit Store
+                      </Link>
+                    </div>
+                  ) : (
+                    // Buyer/Public View
                     <div className="hidden md:flex items-center gap-3">
                       <button className="enterprise-cta-secondary">
                         <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
@@ -2034,11 +2094,6 @@ ${productUrl}`;
                         Share Store
                       </button>
                     </div>
-                  ) : (
-                    <Link to="/products" className="enterprise-cta-primary">
-                      <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                      Back to Dashboard
-                    </Link>
                   )}
                 </div>
               </div>

@@ -1,0 +1,186 @@
+Unify Storefront: Make Preview the Canonical Public Store
+Goal
+
+Use the existing preview page as the single source of truth for the storefront (both seller and buyer views). Remove duplicate “public preview” logic and wire the seller console Storefront tab directly to the canonical public route.
+
+1) Route & Component Unification
+
+Current (likely)
+
+Seller preview: /dashboard/storefront (or similar)
+
+Public storefront: /store/:storeSlug (or /:storeSlug)
+
+Change
+
+Canonical public route: /store/:storeSlug
+
+Replace its page/component to use the preview implementation.
+
+Actions
+
+Move/rename the preview page component to the public route:
+
+From: apps/web/pages/dashboard/storefront/PreviewStorefront.tsx (example)
+
+To: apps/web/pages/store/[storeSlug]/index.tsx
+
+Name it: StorefrontPage
+
+Ensure no seller-only assumptions exist in the component; make behavior depend on role (see §3).
+
+Acceptance
+
+Navigating to /store/<slug> renders exactly the UI we finalized (locked header + category pills + cards).
+
+2) Remove Duplicate “View Public Store” and Console Clone
+
+Actions
+
+Remove any duplicate “public preview” pages and routes.
+
+In the seller dashboard sidebar/topbar:
+
+Replace internal console “Storefront” view with a link to /store/:storeSlug (same tab).
+
+Remove “View Public Store” buttons completely.
+
+Acceptance
+
+There is only one storefront UI in the codebase.
+
+Sidebar “Storefront” opens /store/:storeSlug.
+
+3) Role-aware UI (same page for seller & buyer)
+
+Actions
+
+On /store/:storeSlug, detect if the current user owns the store (server or client check).
+
+If owner, render a small, non-intrusive Seller Toolbar (optional, non-blocking), e.g.:
+
+“Back to Dashboard”
+
+“Edit Store Settings” (opens dashboard)
+
+If not owner or unauthenticated, render pure buyer view.
+
+Acceptance
+
+Owners see subtle admin affordances; buyers don’t.
+
+No layout shifts or extra headers; the locked header remains unchanged.
+
+4) Data & Description Binding
+
+Actions
+
+Ensure store description, name, and logo are loaded from the store record used in production (not mocked).
+
+Keep “Powered by ShopLynk” and description as implemented.
+
+Preserve semantic tokens and the now-locked header/banner/styling.
+
+Acceptance
+
+The header matches the locked version pixel-for-pixel.
+
+Description updates reflect immediately on /store/:storeSlug.
+
+5) Design Governance (Keep Locked Tokens)
+
+Enforce
+
+CTA button uses global tokens we locked:
+
+--cta-bg-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%)
+
+--cta-radius: 12px
+
+--cta-shadow: 0 8px 24px rgba(80, 155, 255, 0.35)
+
+Category pills use locked tokens (active gradient + hover scale).
+
+Do not introduce new blues; use existing token family.
+
+“Newest First” & “Favorites” chips remain at the same top alignment and height as category pills (we confirmed).
+
+Acceptance
+
+Visual parity with the last approved screenshots.
+
+6) SEO / Meta
+
+Actions
+
+On /store/:storeSlug: add SEO tags
+
+<title>{storeName} – ShopLynk</title>
+
+<meta name="description" content={store.description.slice(0, 160)} />
+
+<link rel="canonical" href="https://shoplynk.app/store/{storeSlug}" />
+
+OpenGraph basic tags (og:title, og:description, og:image = store logo if present)
+
+Acceptance
+
+View source shows proper <title>, canonical, and OG tags.
+
+Page is indexable.
+
+7) Redirects & Cleanup
+
+Actions
+
+Redirect old preview route → /store/:storeSlug (301).
+
+Remove leftover preview-specific styles/components.
+
+Update internal links (e.g., share buttons) to use /store/:storeSlug.
+
+Acceptance
+
+Hitting the old preview route lands on the canonical storefront.
+
+8) QA Checklist
+
+ Seller dashboard → “Storefront” opens /store/:storeSlug (same UI as buyers).
+
+ Public (logged out) can view /store/:storeSlug (no admin UI).
+
+ Header matches locked visuals (spacing, type scale, description, action chips).
+
+ Category pills active/hover feel correct (scale, gradient, shadow).
+
+ “Contact Seller” button uses WhatsApp green accent or governed token per product card rules.
+
+ Product tags, badges, stock alerts, and “View details” behave identically to the approved card design.
+
+ No duplicate storefront code paths remain.
+
+ Lighthouse: no critical regressions.
+
+9) Rollout & Safety
+
+Actions
+
+Add a short-lived feature flag storefront_unified=true (default ON in staging, then prod).
+
+Keep a kill switch to temporarily restore old route (fallback redirect to old preview) if needed.
+
+Acceptance
+
+Safe rollback path documented in the release notes.
+
+10) Documentation
+
+Append to ShopLynk_Header_Banner_LOCKED_FINAL.md:
+
+“Canonical Storefront Routing: /store/:storeSlug”
+
+“Seller Console Storefront link behavior”
+
+“No duplicate preview routes”
+
+Token references & don’ts list (unchanged)
