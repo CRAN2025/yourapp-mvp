@@ -1958,7 +1958,7 @@ ${productUrl}`;
         .store-identity-block {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: var(--space-4, 16px);
           flex: 1;
           min-width: 0;
         }
@@ -1967,21 +1967,27 @@ ${productUrl}`;
           flex-shrink: 0;
         }
         
-        .locked-store-logo {
-          width: 64px;
-          height: 64px;
-          border-radius: 16px;
+        /* Avatar (logo) */
+        .header-avatar {
+          width: var(--avatar-size-lg, 96px);
+          height: var(--avatar-size-lg, 96px);
+          border-radius: var(--radius-2xl, 16px);
+          overflow: hidden;
+          border: 1px solid var(--surface-border, rgba(16,24,40,.08));
+          box-shadow: var(--shadow-md, 0 4px 14px rgba(16,24,40,.08));
+          background: var(--surface-elevated, #fff);
+          flex: 0 0 auto;
           object-fit: cover;
         }
         
-        .locked-avatar-fallback {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 24px;
-          font-weight: 600;
+        /* Monogram fallback (when no logoUrl) */
+        .header-avatar--fallback {
+          display: grid;
+          place-items: center;
+          font: var(--text-brand-lg, 700 28px/1 system-ui, -apple-system, Segoe UI);
+          color: var(--brand-primary-600, #2563EB);
+          background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0)),
+                      var(--brand-primary-50, #EFF6FF);
         }
         
         .store-text-block {
@@ -2017,62 +2023,48 @@ ${productUrl}`;
           overflow: hidden;
         }
         
-        /* Social Links Row */
-        .social-links-row {
-          display: inline-flex;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 8px;
+        /* Header meta block */
+        .header-meta {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-2, 8px);
         }
         
-        .social-link {
+        /* Social Links Row (quiet style) */
+        .header-social {
+          display: inline-flex;
+          gap: var(--space-2, 8px);
+          margin-top: var(--space-2, 8px);
+          flex-wrap: wrap;
+        }
+        
+        .header-social a {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          min-width: 32px;
-          min-height: 32px;
-          padding: 8px;
-          border-radius: 8px;
-          transition: all 0.2s ease;
+          width: 32px;
+          height: 32px;
+          border-radius: var(--radius-full, 999px);
+          color: var(--text-secondary, #667085);
+          background: transparent;
+          transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
+          outline: none;
           text-decoration: none;
         }
         
-        .social-link-instagram {
-          color: #E4405F;
+        .header-social a:hover {
+          color: var(--brand-primary-600, #2563EB);
+          background: var(--brand-primary-50, #EFF6FF);
         }
         
-        .social-link-instagram:hover {
-          color: #C13584;
-          background: rgba(228, 64, 95, 0.1);
+        .header-social a:focus-visible {
+          box-shadow: 0 0 0 2px var(--focus-ring, rgba(66,153,225,.6));
         }
         
-        .social-link-tiktok {
-          color: #000000;
-        }
-        
-        .social-link-tiktok:hover {
-          color: #FF0050;
-          background: rgba(255, 0, 80, 0.1);
-        }
-        
-        .social-link-facebook {
-          color: #1877F2;
-        }
-        
-        .social-link-facebook:hover {
-          color: #166FE5;
-          background: rgba(24, 119, 242, 0.1);
-        }
-        
-        .social-link:focus {
-          outline: 2px solid var(--brand-primary-500, #3B82F6);
-          outline-offset: 2px;
-        }
-        
-        .social-icon {
-          width: 16px;
-          height: 16px;
+        .header-social svg {
+          width: 18px;
+          height: 18px;
+          stroke-width: 1.75;
         }
         
         .seller-actions-block {
@@ -2170,23 +2162,19 @@ ${productUrl}`;
                       src={seller.logoUrl}
                       alt={seller.storeName}
                       decoding="async"
-                      width="64"
-                      height="64"
-                      className="locked-store-logo"
+                      className="header-avatar"
                       onError={(e) => {
                         e.currentTarget.src = logoUrl;
                         e.currentTarget.alt = 'ShopLynk logo';
                       }}
                     />
                   ) : (
-                    <img
-                      src={logoUrl}
-                      alt="ShopLynk logo"
-                      decoding="async"
-                      width="64"
-                      height="64"
-                      className="locked-store-logo"
-                    />
+                    <div className="header-avatar header-avatar--fallback">
+                      {seller?.storeName 
+                        ? seller.storeName.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2)
+                        : 'SL'
+                      }
+                    </div>
                   )}
                 </div>
 
@@ -2194,68 +2182,62 @@ ${productUrl}`;
                   <h1 className="locked-store-name">
                     {seller?.storeName || 'Store Name'}
                   </h1>
-                  <div className="locked-powered-by">
-                    <a href="/" className="hover:underline">
-                      Powered by ShopLynk
-                    </a>
+                  
+                  <div className="header-meta">
+                    <div className="locked-powered-by">
+                      <a href="/" className="hover:underline">
+                        Powered by ShopLynk
+                      </a>
+                    </div>
+                    
+                    {/* Conditional Description Block */}
+                    {seller?.storeDescription && seller.storeDescription.trim() && (
+                      <div className="store-description-block">
+                        {seller.storeDescription}
+                      </div>
+                    )}
+                    
+                    {/* Conditional Social Links Row */}
+                    {(seller?.socialMedia?.instagram || seller?.socialMedia?.tiktok || seller?.socialMedia?.facebook) && (
+                      <div className="header-social">
+                        {seller.socialMedia.instagram && (
+                          <a
+                            href={normalizeUrl(seller.socialMedia.instagram, 'instagram')}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Open Instagram profile"
+                            title="Instagram"
+                          >
+                            <Instagram />
+                          </a>
+                        )}
+                        {seller.socialMedia.tiktok && (
+                          <a
+                            href={normalizeUrl(seller.socialMedia.tiktok, 'tiktok')}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Open TikTok profile"
+                            title="TikTok"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                              <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
+                            </svg>
+                          </a>
+                        )}
+                        {seller.socialMedia.facebook && (
+                          <a
+                            href={normalizeUrl(seller.socialMedia.facebook, 'facebook')}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Open Facebook profile"
+                            title="Facebook"
+                          >
+                            <Facebook />
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* Conditional Description Block */}
-                  {seller?.storeDescription && seller.storeDescription.trim() && (
-                    <div className="store-description-block">
-                      {seller.storeDescription}
-                    </div>
-                  )}
-                  
-                  {/* Conditional Social Links Row */}
-                  {(seller?.socialMedia?.instagram || seller?.socialMedia?.tiktok || seller?.socialMedia?.facebook) && (
-                    <div className="social-links-row">
-                      {seller.socialMedia.instagram && (
-                        <a
-                          href={normalizeUrl(seller.socialMedia.instagram, 'instagram')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="social-link social-link-instagram"
-                          aria-label="Open Instagram profile"
-                          title="Instagram"
-                        >
-                          <svg className="social-icon" viewBox="0 0 24 24" fill="none">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" strokeWidth="2"/>
-                            <path d="m16 11.37 0 .63-4 0-4 0 0-.63c0-2.2 1.8-4 4-4s4 1.8 4 4z" fill="currentColor"/>
-                            <path d="m7 7h1.5M16.5 7H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                          </svg>
-                        </a>
-                      )}
-                      {seller.socialMedia.tiktok && (
-                        <a
-                          href={normalizeUrl(seller.socialMedia.tiktok, 'tiktok')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="social-link social-link-tiktok"
-                          aria-label="Open TikTok profile"
-                          title="TikTok"
-                        >
-                          <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-1.032-.086 6.97 6.97 0 0 0-4.888 1.935c-2.174 2.143-2.188 5.681-.033 7.848a6.97 6.97 0 0 0 9.861.001 6.958 6.958 0 0 0 2.045-4.95V7.978a8.19 8.19 0 0 0 3.28 2.555v-3.847z"/>
-                          </svg>
-                        </a>
-                      )}
-                      {seller.socialMedia.facebook && (
-                        <a
-                          href={normalizeUrl(seller.socialMedia.facebook, 'facebook')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="social-link social-link-facebook"
-                          aria-label="Open Facebook profile"
-                          title="Facebook"
-                        >
-                          <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                          </svg>
-                        </a>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
 
