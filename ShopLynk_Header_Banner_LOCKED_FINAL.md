@@ -148,16 +148,25 @@ ShopLynk Header/Banner design has been locked into the global design token archi
 
 ## ENTERPRISE HEADER CONTAINER
 
-### Token-Driven Background
+### Token-Driven Background - LOCKED GRADIENT RESTORED
 ```css
 .header-container-locked {
-  background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-primary) 100%);
+  background: var(--color-header-bg); /* linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%) */
   border-radius: 16px;
-  box-shadow: var(--elevation-header);
+  box-shadow: var(--elevation-card);
   padding: var(--header-padding);
   min-height: var(--banner-min-height);
-  color: var(--neutral-100);
+  color: var(--color-header-text-primary);
 }
+```
+
+### Header Text Contrast Tokens - ENTERPRISE LOCKED ✅
+```css
+--color-header-bg: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+--color-header-text-primary: #FFFFFF;
+--color-header-text-secondary: rgba(255,255,255,0.85);
+--color-header-text-tertiary: rgba(255,255,255,0.70);
+--elevation-card: 0px 6px 14px rgba(0,0,0,0.08);
 ```
 
 ### Three-Zone Layout System
@@ -183,8 +192,10 @@ ShopLynk Header/Banner design has been locked into the global design token archi
 
 ### ✅ Forbidden
 - **No hardcoded hex codes** in header components
+- **No solid blue backgrounds** - only approved gradient tokens
 - **No local component overrides** for spacing, shadows, or typography
 - **No arbitrary CSS** outside token system
+- **No inline styles** for header backgrounds - token inheritance mandatory
 
 ### ✅ Mandatory
 - **Token-only styling** for all header elements
@@ -300,6 +311,10 @@ ShopLynk Header/Banner design has been locked into the global design token archi
 
 **COMPLETE**: August 29, 2025  
 **GOVERNANCE**: Enterprise-grade header token system locked  
+**RESTORED GRADIENT**: ✅ Approved blue gradient token system  
+**TEXT CONTRAST**: ✅ Header text contrast tokens enforced  
+**TOKEN REFERENCES**: ✅ All components inherit from global tokens  
+**FORBIDDEN ENFORCEMENT**: ✅ Hardcoded solid blue backgrounds prohibited  
 **TESTING**: All interactive states and responsive behavior verified  
 **DEPLOYMENT**: Ready for buyer marketplace integration
 

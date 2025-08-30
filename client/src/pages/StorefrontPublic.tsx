@@ -923,6 +923,14 @@ ${productUrl}`;
           --text-primary: #111827;
           --text-secondary: #6B7280;
           
+          /* HEADER BACKGROUND - LOCKED GRADIENT */
+          --color-header-bg: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          
+          /* HEADER TEXT CONTRAST TOKENS */
+          --color-header-text-primary: #FFFFFF;
+          --color-header-text-secondary: rgba(255,255,255,0.85);
+          --color-header-text-tertiary: rgba(255,255,255,0.70);
+          
           /* B. TYPOGRAPHY - UNIFIED HIERARCHY */
           --font-store-name: 24px;
           --font-store-subtitle: 16px;
@@ -945,6 +953,7 @@ ${productUrl}`;
           --badge-padding: 3px 8px;
           
           /* D. SHADOWS & ELEVATION - ENTERPRISE CONSISTENCY */
+          --elevation-card: 0px 6px 14px rgba(0,0,0,0.08);
           --elevation-header: 0 2px 6px rgba(0, 0, 0, 0.08);
           --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.08);
           --elevation-mid: 0 2px 6px rgba(0, 0, 0, 0.12);
@@ -1582,11 +1591,11 @@ ${productUrl}`;
         }
         
         /* GLOBAL STORE TITLE FONT - LOCKED TYPOGRAPHY */
-        /* ENTERPRISE TYPOGRAPHY SYSTEM - GLOBAL HEADER TOKENS */
+        /* ENTERPRISE TYPOGRAPHY SYSTEM - CONTRAST TOKEN INHERITANCE */
         .store-title-locked {
           font-size: var(--font-store-name);
           font-weight: 700;
-          color: var(--neutral-100);
+          color: var(--color-header-text-primary);
           line-height: 1.2;
           margin-bottom: var(--store-info-gap);
         }
@@ -1594,27 +1603,27 @@ ${productUrl}`;
         .powered-by-locked {
           font-size: var(--font-store-subtitle);
           font-weight: 500;
-          color: rgba(255, 255, 255, 0.9);
+          color: var(--color-header-text-secondary);
           line-height: 20px;
           margin-bottom: var(--store-info-gap);
           letter-spacing: -0.2px;
         }
         
         .powered-by-locked a {
-          color: rgba(255, 255, 255, 0.9);
+          color: var(--color-header-text-secondary);
           text-decoration: none;
           transition: color 0.2s ease;
         }
         
         .powered-by-locked a:hover {
-          color: var(--neutral-100);
+          color: var(--color-header-text-primary);
           text-decoration: underline;
         }
         
         .store-description-locked {
           font-size: var(--font-description);
           font-weight: 400;
-          color: rgba(255, 255, 255, 0.85);
+          color: var(--color-header-text-secondary);
           line-height: 1.4;
           margin-top: var(--store-info-gap);
           margin-bottom: var(--store-info-gap);
@@ -1628,7 +1637,7 @@ ${productUrl}`;
         .store-subtitle-locked {
           font-size: var(--font-action-label);
           font-weight: 400;
-          color: rgba(255, 255, 255, 0.75);
+          color: var(--color-header-text-tertiary);
           line-height: 18px;
         }
         
@@ -1715,10 +1724,10 @@ ${productUrl}`;
           flex-shrink: 0;
         }
         
-        /* ENTERPRISE CTA BUTTONS - BACK TO DASHBOARD */
+        /* ENTERPRISE CTA BUTTONS - TOKEN INHERITANCE */
         .enterprise-cta-primary {
           background: var(--brand-primary);
-          color: var(--neutral-100);
+          color: var(--color-header-text-primary);
           border: none;
           border-radius: 8px;
           font-size: var(--font-action-label);
@@ -1729,7 +1738,7 @@ ${productUrl}`;
           gap: 8px;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: var(--elevation-header);
+          box-shadow: var(--elevation-card);
           text-decoration: none;
         }
         
@@ -1742,10 +1751,10 @@ ${productUrl}`;
         .enterprise-cta-primary:active {
           background: #1E3A8A;
           transform: translateY(0);
-          box-shadow: var(--elevation-header);
+          box-shadow: var(--elevation-card);
         }
         
-        /* ENTERPRISE SECONDARY CTA - FOLLOW/SHARE */
+        /* ENTERPRISE SECONDARY CTA - CONTRAST TOKEN INHERITANCE */
         .enterprise-cta-secondary {
           background: rgba(255, 255, 255, 0.9);
           color: var(--text-primary);
@@ -1760,14 +1769,14 @@ ${productUrl}`;
           cursor: pointer;
           transition: all 0.2s ease;
           backdrop-filter: blur(8px);
-          box-shadow: var(--elevation-low);
+          box-shadow: var(--elevation-card);
         }
         
         .enterprise-cta-secondary:hover {
-          background: var(--neutral-100);
+          background: var(--color-header-text-primary);
           border-color: var(--brand-primary);
           color: var(--brand-primary);
-          box-shadow: var(--elevation-mid);
+          box-shadow: var(--elevation-hover);
           transform: translateY(-1px);
         }
         
@@ -1778,16 +1787,16 @@ ${productUrl}`;
           transform: translateY(0);
         }
         
-        /* ENTERPRISE HEADER CONTAINER - GLOBAL TOKEN SYSTEM */
+        /* ENTERPRISE HEADER CONTAINER - LOCKED GRADIENT TOKEN */
         .header-container-locked {
-          background: linear-gradient(135deg, var(--brand-secondary) 0%, var(--brand-primary) 100%);
+          background: var(--color-header-bg);
           border-radius: 16px;
-          box-shadow: var(--elevation-header);
+          box-shadow: var(--elevation-card);
           backdrop-filter: blur(8px);
           border: 1px solid rgba(255, 255, 255, 0.2);
           padding: var(--header-padding);
           min-height: var(--banner-min-height);
-          color: var(--neutral-100);
+          color: var(--color-header-text-primary);
         }
         
         @media (max-width: 768px) {
@@ -1899,13 +1908,13 @@ ${productUrl}`;
         <FullWidthContainer className="py-8">
           <div className="header-container-locked overflow-hidden relative">
             
-            {/* Integrated glass elevation banner */}
+            {/* Enterprise glass elevation banner - TOKEN INHERITANCE */}
             <div
               className="h-32 md:h-36 w-full relative overflow-hidden"
               style={{
                 background: seller?.coverUrl
-                  ? `var(--header-bg-gradient), url(${seller.coverUrl}) center/cover no-repeat`
-                  : 'var(--header-bg-gradient)',
+                  ? `var(--color-header-bg), url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'var(--color-header-bg)',
               }}
             >
               <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
