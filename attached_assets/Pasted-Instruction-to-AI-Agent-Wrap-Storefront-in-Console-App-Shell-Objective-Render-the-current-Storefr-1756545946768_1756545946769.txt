@@ -1,0 +1,76 @@
+Instruction to AI Agent — Wrap Storefront in Console App-Shell
+Objective
+
+Render the current Storefront page inside the seller console’s global app-shell so it uses the same header/menus as Products, Orders, Analytics, and Settings. No separate preview or duplicate routes—just integrate this page into the console chrome.
+
+Required Changes
+
+Use the shared App-Shell
+
+Wrap the Storefront page component with the existing app-shell (the same one used by Products, Orders, etc.).
+
+The global header must include:
+
+ShopLynk logo (links to /products)
+
+Nav items: Products, Storefront, Orders, Analytics, Settings
+
+Utilities: notifications bell, user avatar menu
+
+Mark Storefront as the active nav item when on /storefront.
+
+Keep the locked storefront content exactly as designed
+
+Below the console header, render the approved (locked) banner/header section and category/search row (including Payment/Delivery chips).
+
+Keep all locked tokens (colors, radii, elevation, motion) and styles for:
+
+CTA (gradient family, hover/active motion)
+
+Category pills (active gradient matches CTA)
+
+Chips, badge, shadows, spacing
+
+Remove redundant “Back to Dashboard” in the banner
+
+The global header already provides navigation. If a secondary action is needed, add “View Public Store” as a small link in the banner that opens the public URL in a new tab (if applicable).
+
+Responsiveness & Accessibility
+
+Header is sticky with existing tokenized elevation; mobile collapses the nav to the menu.
+
+aria-current="page" on the active Storefront nav item.
+
+Maintain focus rings (token --focus/outline) and keyboard order: header → filters → cards.
+
+Implementation Notes
+
+Route: ensure /storefront renders like:
+
+// routes/storefront.tsx
+export default function StorefrontRoute() {
+  return (
+    <AppShell active="storefront">
+      <StorefrontPage />  {/* the locked design */}
+    </AppShell>
+  );
+}
+
+
+Do not add or alter any token values—only consume the existing locked tokens.
+
+Do not introduce any alternate header—reuse the console HeaderBar component.
+
+Acceptance Criteria
+
+ Visiting /storefront shows the same console header/menus as Products/Orders.
+
+ Storefront nav is highlighted (desktop & mobile).
+
+ The storefront banner, chips, category pills, and CTAs match the locked visuals.
+
+ No “Back to Dashboard” button in the banner.
+
+ Keyboard navigation + focus states work; header is sticky; layout is responsive.
+
+That’s it—no route consolidation needed, just wrap the current page in the console shell and keep all locked styling intact
