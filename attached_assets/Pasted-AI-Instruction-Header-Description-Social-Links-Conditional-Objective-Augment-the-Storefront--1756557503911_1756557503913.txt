@@ -1,0 +1,196 @@
+AI Instruction — Header: Description + Social Links (Conditional)
+Objective
+
+Augment the Storefront Header (seller view and public/buyer view) to:
+
+Show the store description (from profile/settings) if present.
+
+Show social media links (Instagram, TikTok, Facebook) if present.
+
+Preserve all previously locked header tokens, spacing, and layout.
+
+Do not modify product grid, filters, pills, or CTAs.
+
+Data Contract (read-only)
+
+Use existing profile/store settings; do not add new storage. Read from whichever map exists in your codebase; normalize to:
+
+type StoreProfile = {
+  name: string
+  logoUrl?: string
+  description?: string // text, optional
+  social?: {
+    instagram?: string // full URL or @handle
+    tiktok?: string    // full URL or @handle
+    facebook?: string  // full URL or page name/ID
+  }
+}
+
+
+Normalization rules (frontend):
+
+If value looks like a handle (e.g., @brand, brand), convert to a full URL:
+
+Instagram → https://instagram.com/<handle>
+
+TikTok → https://www.tiktok.com/@<handle-without-@>
+
+Facebook → https://facebook.com/<handle>
+
+If value already starts with http, use as-is.
+
+Trim whitespace; ignore empty strings after trimming.
+
+UI Placement (header only)
+
+Insert both elements in the left block under “Powered by ShopLynk”:
+
+[Logo 64px]  [Store Name (H1)]
+             [Powered by ShopLynk]
+             [Description (if present)]
+             [Social links row (if any present)]
+
+
+Conditional rendering:
+
+If description is present → render description block.
+
+If any of instagram|tiktok|facebook are present → render social row.
+
+If none exist → render nothing (no placeholder, no empty space gap beyond normal spacing).
+
+Styles & Tokens (re-use locked system)
+
+Container/layout — unchanged (already locked).
+
+Description block
+
+Typography: var(--text/body-md); color: var(--text/subtle-color).
+
+Max width: 62ch; line clamp: 2 on desktop, 3 on mobile (avoid vertical bloat).
+
+Spacing:
+
+Margin-top from “Powered by” → var(--space/2).
+
+Margin-bottom before social row (when present) → var(--space/2).
+
+Social row
+
+Shown only when at least one link exists.
+
+Layout: horizontal row, inline-flex, wrap on small screens.
+
+Gap: var(--space/2) between icons; var(--space/3) between icon+text (if label shown).
+
+Default: show icon-only with accessible labels (space efficient); expose titles on hover via tooltip.
+
+Icon size: var(--icon/size-sm) = 16px or 18px (match your icon set).
+
+Icon button hit-area: min 32×32px; padding: var(--space/2).
+
+Color:
+
+Default: var(--brand/neutral-700) on light background (or your neutral-strong).
+
+Hover/focus: var(--brand/primary-500); underline off (icon only).
+
+Active: var(--brand/primary-600).
+
+Background: none (no chip); stay visually quiet.
+
+Accessibility
+
+Each anchor must include:
+
+aria-label="Open <Network> profile"
+
+title="<Network>"
+
+target="_blank" rel="noopener noreferrer"
+
+Keyboard focus ring: use var(--focus/ring) tokens; visible 2px ring.
+
+Order (left-to-right)
+
+Instagram
+
+TikTok
+
+Facebook
+
+Component API (suggested)
+
+Extend the shared header component—no forked variants.
+
+<StoreHeader
+  mode="seller|buyer"
+  profile={storeProfile}
+/>
+
+
+Where StoreHeader internally:
+
+Normalizes profile.social to full URLs.
+
+Conditionally renders <Description> and <SocialLinks> blocks.
+
+Uses tokens for spacing/typography.
+
+URL Validation & Safety
+
+For each social link:
+
+Strip whitespace.
+
+If missing scheme, prepend correct scheme (https://).
+
+For handle-to-URL conversion, escape/encode handle segments.
+
+Block javascript/data URLs. Render nothing if invalid after normalization.
+
+Do not allow inline HTML in description; render as plain text. If you support formatting, sanitize with a trusted HTML sanitizer before render.
+
+Analytics (optional, if available)
+
+Fire analytics.track('store_social_click', { network: 'instagram'|'tiktok'|'facebook' }) on click—only if your analytics client already exists. No new libs.
+
+QA / Acceptance
+
+Seller & Public views
+
+ Description appears when present; hidden when absent.
+
+ Social icons appear only for networks with values; correct order; correct URLs.
+
+ No layout shift when one/both blocks are missing.
+
+ Header spacing unchanged; still uses locked container width/margins.
+
+ Product area, filters, pills, CTAs totally unchanged.
+
+A11y
+
+ Icons tabbable; visible focus ring.
+
+ Screen reader announces “Open Instagram profile,” etc.
+
+ target="_blank" uses rel="noopener noreferrer".
+
+Responsive
+
+ On <480px, description line-clamps to 3 lines; icons wrap neatly.
+
+ No overflow or overlapping elements.
+
+Do NOT Change
+
+Product cards, tags, badges, CTAs
+
+Filter bar, sorting, favorites
+
+Pills (6 Payment Methods, 4 Delivery Options)
+
+Back to Dashboard button
+
+Any tokens outside the added elements
