@@ -1,0 +1,83 @@
+Instruction to AI Agent — Lock Product Card Visual Tokens
+
+Objective:
+Lock the finalized ShopLynk product card design system into global tokens to ensure styling consistency across seller and buyer storefront views.
+
+Scope
+
+Applies to all product cards in seller and buyer storefronts.
+
+Tokens are non-editable unless unlocked by governance.
+
+Tokens override any local hardcoded CSS or component-level styles.
+
+Global Tokens to Lock
+1. Primary Action (WhatsApp CTA Button)
+Property	Token Name	Value
+Background Color	CTA_PRIMARY	#25D366 (WhatsApp green)
+Text Color	CTA_TEXT_PRIMARY	#FFFFFF
+Hover Color	CTA_PRIMARY_HOVER	#1DBF56 (slightly darker green)
+Border Radius	CTA_RADIUS	12px
+Font Weight	CTA_FONT_WEIGHT	600
+
+Usage: Contact Seller button only.
+
+2. Secondary Action (View Details Button)
+Property	Token Name	Value
+Background	CTA_SECONDARY	#FFFFFF
+Border	CTA_SECONDARY_BORDER	1px solid #E5E7EB
+Text Color	CTA_SECONDARY_TEXT	#111827
+Hover	CTA_SECONDARY_HOVER	#F9FAFB
+3. Category Pills
+Property	Token Name	Value
+Background	CATEGORY_PILL_BG	#F3F7FF (light blue fill)
+Border	CATEGORY_PILL_BORDER	1px solid #C7D7FF
+Text Color	CATEGORY_PILL_TEXT	#2563EB (ShopLynk blue)
+Border Radius	CATEGORY_PILL_RADIUS	18px
+
+Usage: Always outlined/light style for all categories.
+
+4. Status Badges
+4.1 Eco-friendly
+Property	Token Name	Value
+Background	STATUS_POSITIVE_BG	#D1FADF
+Text Color	STATUS_POSITIVE_TEXT	#037E3A
+4.2 Limited Stock
+Property	Token Name	Value
+Background	STATUS_NEGATIVE_BG	#F87171 (red)
+Text Color	STATUS_NEGATIVE_TEXT	#FFFFFF
+5. Price Styling
+Property	Token Name	Value
+Text Color	PRICE_POSITIVE	#16A34A (green)
+Font Weight	PRICE_WEIGHT	700
+Font Size	PRICE_SIZE	16px
+6. Spacing & Alignment
+Component	Vertical Spacing	Horizontal Spacing
+Between Pills & CTA	16px	N/A
+Between Title & Price	8px	N/A
+Inside CTA Buttons	12px	16px
+Card Padding	20px	20px
+Governance Rules
+✅ Allowed:
+
+Dynamic badges can show or hide based on product data.
+
+Text and images remain dynamic.
+
+Cards scale responsively.
+
+⛔ Forbidden:
+
+Do not hardcode any button, pill, or badge color.
+
+Do not locally override shadows, radii, or hover styles.
+
+Do not alter vertical/horizontal spacing per component.
+
+Expected Outcome
+
+Product cards look identical across seller and buyer views.
+
+Tokens control all future UI updates for product cards.
+
+Global system ensures that adding new components won’t break visual hierarchy.

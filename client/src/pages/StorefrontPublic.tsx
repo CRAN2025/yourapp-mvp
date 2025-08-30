@@ -908,49 +908,64 @@ ${productUrl}`;
           --brand-link: #3B82F6;
           --brand-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           
-          /* UPDATED GOVERNANCE - WHATSAPP-FIRST BRANDING */
-          --token-whatsapp-primary: #25D366;
-          --token-whatsapp-hover: #1DB854;
-          --token-brand-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
-          --token-brand-light: #E0EFFF;
-          --token-color-secondary: #6B7280;
-          --token-danger: #EF4444;
-          --token-success: #059669;
-          --token-success-light: #DCFCE7;
-          --token-font-size-price: 20px;
-          --token-font-size-title: 17px;
-          --token-font-size-label: 14px;
-          --token-spacing-xs: 8px;
-          --token-spacing-sm: 12px;
-          --token-spacing-md: 16px;
-          --token-border-radius: 12px;
+          /* LOCKED GLOBAL TOKENS - PRODUCT CARD GOVERNANCE */
+          
+          /* 1. PRIMARY ACTION - WHATSAPP CTA */
+          --CTA_PRIMARY: #25D366;
+          --CTA_TEXT_PRIMARY: #FFFFFF;
+          --CTA_PRIMARY_HOVER: #1DBF56;
+          --CTA_RADIUS: 12px;
+          --CTA_FONT_WEIGHT: 600;
+          
+          /* 2. SECONDARY ACTION - VIEW DETAILS */
+          --CTA_SECONDARY: #FFFFFF;
+          --CTA_SECONDARY_BORDER: 1px solid #E5E7EB;
+          --CTA_SECONDARY_TEXT: #111827;
+          --CTA_SECONDARY_HOVER: #F9FAFB;
+          
+          /* 3. CATEGORY PILLS */
+          --CATEGORY_PILL_BG: #F3F7FF;
+          --CATEGORY_PILL_BORDER: 1px solid #C7D7FF;
+          --CATEGORY_PILL_TEXT: #2563EB;
+          --CATEGORY_PILL_RADIUS: 18px;
+          
+          /* 4. STATUS BADGES */
+          --STATUS_POSITIVE_BG: #D1FADF;
+          --STATUS_POSITIVE_TEXT: #037E3A;
+          --STATUS_NEGATIVE_BG: #F87171;
+          --STATUS_NEGATIVE_TEXT: #FFFFFF;
+          
+          /* 5. PRICE STYLING */
+          --PRICE_POSITIVE: #16A34A;
+          --PRICE_WEIGHT: 700;
+          --PRICE_SIZE: 16px;
+          
+          /* 6. SPACING & ALIGNMENT */
+          --CARD_PADDING: 20px;
+          --CTA_VERTICAL_SPACING: 16px;
+          --TITLE_PRICE_SPACING: 8px;
+          --CTA_INTERNAL_PADDING: 12px 16px;
+          
+          /* LEGACY SUPPORT TOKENS */
           --token-surface-elevated: #ffffff;
           --token-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
           --token-shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.12);
-          
-          /* REFINED SEMANTIC TOKENS - WHATSAPP-FIRST */
-          --token-badge-new: #DBEAFE;
-          --token-badge-new-text: #1E40AF;
-          --token-badge-eco: var(--token-success-light);
-          --token-badge-eco-text: #166534;
-          --token-badge-stock: #FEE2E2;
-          --token-badge-stock-text: #DC2626;
-          --token-pill-category: var(--token-brand-light);
-          --token-pill-category-text: #1E40AF;
-          --token-pill-inactive: #F3F4F6;
-          --token-pill-inactive-text: var(--token-color-secondary);
-          --token-button-secondary-bg: #F9FAFB;
-          --token-button-secondary-border: #E5E7EB;
-          --token-button-secondary-text: #374151;
+          --token-font-weight-bold: 700;
+          --token-font-weight-semibold: 600;
+          --token-font-weight-medium: 500;
+          --token-font-weight-normal: 400;
+          --token-text-primary: #111827;
+          --token-text-muted: #9CA3AF;
         }
         
-        /* PRODUCT CARD GOVERNANCE - GLOBAL TOKEN SYSTEM */
+        /* LOCKED PRODUCT CARD CONTAINER */
         .product-card-v11 {
           background: var(--token-surface-elevated);
-          border-radius: var(--token-border-radius);
+          border-radius: var(--CTA_RADIUS);
           box-shadow: var(--token-shadow-soft);
           transition: all 0.3s ease;
           overflow: hidden;
+          padding: var(--CARD_PADDING);
         }
         
         .product-card-v11:hover {
@@ -974,13 +989,13 @@ ${productUrl}`;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          border-radius: var(--token-border-radius) var(--token-border-radius) 0 0;
+          border-radius: var(--CTA_RADIUS) var(--CTA_RADIUS) 0 0;
         }
         
         .product-favorite-btn {
           position: absolute;
-          top: var(--token-spacing-xs);
-          right: var(--token-spacing-xs);
+          top: 8px;
+          right: 8px;
           width: 32px;
           height: 32px;
           border-radius: 50%;
@@ -1003,56 +1018,52 @@ ${productUrl}`;
         }
         
         .product-favorite-active {
-          color: var(--token-danger);
+          color: var(--STATUS_NEGATIVE_BG);
           fill: currentColor;
         }
         
-        /* GOVERNANCE BADGE SYSTEM */
+        /* LOCKED STATUS BADGE SYSTEM */
         .product-badges-overlay {
           position: absolute;
-          bottom: var(--token-spacing-xs);
-          left: var(--token-spacing-xs);
+          bottom: 8px;
+          left: 8px;
           display: flex;
           gap: 4px;
           flex-wrap: wrap;
         }
         
         .product-badge-new {
-          background: var(--token-badge-new);
-          color: var(--token-badge-new-text);
-          font-size: var(--token-font-size-label);
-          font-weight: var(--token-font-weight-semibold);
-          padding: 4px var(--token-spacing-xs);
-          border-radius: var(--token-border-radius);
+          background: #DBEAFE;
+          color: #1E40AF;
           font-size: 12px;
+          font-weight: var(--CTA_FONT_WEIGHT);
+          padding: 4px 8px;
+          border-radius: var(--CTA_RADIUS);
         }
         
         .product-badge-limited {
-          background: var(--token-badge-stock);
-          color: var(--token-badge-stock-text);
-          font-size: var(--token-font-size-label);
-          font-weight: var(--token-font-weight-semibold);
-          padding: 4px var(--token-spacing-xs);
-          border-radius: var(--token-border-radius);
+          background: var(--STATUS_NEGATIVE_BG);
+          color: var(--STATUS_NEGATIVE_TEXT);
           font-size: 12px;
+          font-weight: var(--CTA_FONT_WEIGHT);
+          padding: 4px 8px;
+          border-radius: var(--CTA_RADIUS);
         }
         
         .product-badge-eco {
-          background: var(--token-badge-eco);
-          color: var(--token-badge-eco-text);
-          font-size: var(--token-font-size-label);
-          font-weight: var(--token-font-weight-semibold);
-          padding: 4px var(--token-spacing-xs);
-          border-radius: var(--token-border-radius);
+          background: var(--STATUS_POSITIVE_BG);
+          color: var(--STATUS_POSITIVE_TEXT);
           font-size: 12px;
+          font-weight: var(--CTA_FONT_WEIGHT);
+          padding: 4px 8px;
+          border-radius: var(--CTA_RADIUS);
         }
         
-        /* CONTENT SECTION - GOVERNANCE SPACING */
+        /* LOCKED CONTENT SECTION */
         .product-card-content {
-          padding: var(--token-spacing-md);
           display: flex;
           flex-direction: column;
-          gap: var(--token-spacing-sm);
+          gap: var(--TITLE_PRICE_SPACING);
         }
         
         .product-title-section {
@@ -1061,9 +1072,9 @@ ${productUrl}`;
           gap: 4px;
         }
         
-        /* ENHANCED TYPOGRAPHY HIERARCHY - STRONGER WEIGHT */
+        /* LOCKED PRODUCT TITLE */
         .product-title {
-          font-size: var(--token-font-size-title);
+          font-size: 17px;
           font-weight: var(--token-font-weight-bold);
           color: var(--token-text-primary);
           line-height: 1.3;
@@ -1073,188 +1084,181 @@ ${productUrl}`;
           -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
+          margin-bottom: var(--TITLE_PRICE_SPACING);
         }
         
         .product-brand {
-          font-size: var(--token-font-size-label);
+          font-size: 14px;
           font-weight: var(--token-font-weight-medium);
-          color: var(--token-text-secondary);
+          color: #6B7280;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
         
-        /* ENHANCED PRICE HIERARCHY - STRONGER TYPOGRAPHY */
+        /* LOCKED PRICE STYLING */
         .product-price-section {
           display: flex;
           align-items: center;
-          gap: var(--token-spacing-xs);
+          gap: 8px;
         }
         
         .product-price {
-          font-size: var(--token-font-size-price);
-          font-weight: var(--token-font-weight-bold);
-          color: var(--token-success);
+          font-size: var(--PRICE_SIZE);
+          font-weight: var(--PRICE_WEIGHT);
+          color: var(--PRICE_POSITIVE);
           letter-spacing: -0.02em;
         }
         
         .product-compare-price {
-          font-size: var(--token-font-size-label);
+          font-size: 14px;
           color: var(--token-text-muted);
           text-decoration: line-through;
         }
         
         .product-discount-badge {
-          background: var(--token-danger);
-          color: white;
+          background: var(--STATUS_NEGATIVE_BG);
+          color: var(--STATUS_NEGATIVE_TEXT);
           font-size: 12px;
-          font-weight: var(--token-font-weight-semibold);
+          font-weight: var(--CTA_FONT_WEIGHT);
           padding: 2px 6px;
           border-radius: 4px;
-          margin-left: var(--token-spacing-xs);
+          margin-left: 8px;
         }
         
-        /* CATEGORY PILLS - SOFTER BRAND HIERARCHY */
+        /* LOCKED CATEGORY PILLS */
         .product-category-section {
           display: flex;
-          gap: var(--token-spacing-xs);
+          gap: 8px;
           flex-wrap: wrap;
+          margin: var(--TITLE_PRICE_SPACING) 0;
         }
         
         .product-category-pill {
-          background: var(--token-pill-category);
-          color: var(--token-pill-category-text);
-          font-size: var(--token-font-size-label);
+          background: var(--CATEGORY_PILL_BG);
+          color: var(--CATEGORY_PILL_TEXT);
+          font-size: 14px;
           font-weight: var(--token-font-weight-medium);
-          padding: 6px var(--token-spacing-sm);
-          border-radius: var(--token-border-radius);
+          padding: 6px 12px;
+          border-radius: var(--CATEGORY_PILL_RADIUS);
+          border: var(--CATEGORY_PILL_BORDER);
           display: inline-flex;
           align-items: center;
           gap: 4px;
           transition: all 0.2s ease;
           cursor: pointer;
-          border: 1px solid rgba(30, 64, 175, 0.2);
         }
         
         .product-category-pill:hover {
           transform: translateY(-1px);
-          background: var(--token-brand-primary);
-          color: white;
-          border-color: transparent;
+          background: #E0EFFF;
+          border-color: #A3C7FF;
         }
         
-        /* GOVERNANCE CTA SYSTEM */
+        /* LOCKED CTA SYSTEM */
         .product-cta-section {
           display: flex;
           flex-direction: column;
-          gap: var(--token-spacing-xs);
-          padding-top: var(--token-spacing-sm);
-          border-top: 1px solid var(--token-button-secondary-border);
+          gap: 8px;
+          margin-top: var(--CTA_VERTICAL_SPACING);
+          padding-top: var(--CTA_VERTICAL_SPACING);
+          border-top: 1px solid #E5E7EB;
         }
         
-        /* PRIMARY CTA - WHATSAPP-FIRST IDENTITY */
+        /* LOCKED PRIMARY CTA - WHATSAPP */
         .product-cta-primary {
           width: 100%;
-          background: var(--token-whatsapp-primary);
-          color: white;
+          background: var(--CTA_PRIMARY);
+          color: var(--CTA_TEXT_PRIMARY);
           border: none;
-          border-radius: var(--token-border-radius);
-          font-size: var(--token-font-size-label);
-          font-weight: var(--token-font-weight-semibold);
-          padding: var(--token-spacing-sm) var(--token-spacing-md);
+          border-radius: var(--CTA_RADIUS);
+          font-size: 14px;
+          font-weight: var(--CTA_FONT_WEIGHT);
+          padding: var(--CTA_INTERNAL_PADDING);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: var(--token-spacing-xs);
+          gap: 8px;
           cursor: pointer;
           transition: all 0.2s ease;
           box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
         }
         
         .product-cta-primary:hover {
-          background: var(--token-whatsapp-hover);
+          background: var(--CTA_PRIMARY_HOVER);
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
         }
         
+        /* LOCKED SECONDARY CTA - VIEW DETAILS */
         .product-cta-secondary {
           width: 100%;
-          background: var(--token-button-secondary-bg);
-          color: var(--token-button-secondary-text);
-          border: 1px solid var(--token-button-secondary-border);
-          border-radius: var(--token-border-radius);
-          font-size: var(--token-font-size-label);
-          font-weight: var(--token-font-weight-semibold);
-          padding: var(--token-spacing-sm) var(--token-spacing-md);
+          background: var(--CTA_SECONDARY);
+          color: var(--CTA_SECONDARY_TEXT);
+          border: var(--CTA_SECONDARY_BORDER);
+          border-radius: var(--CTA_RADIUS);
+          font-size: 14px;
+          font-weight: var(--CTA_FONT_WEIGHT);
+          padding: var(--CTA_INTERNAL_PADDING);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: var(--token-spacing-xs);
+          gap: 8px;
           cursor: pointer;
           transition: all 0.2s ease;
         }
         
         .product-cta-secondary:hover {
           transform: translateY(-1px);
-          box-shadow: var(--token-shadow-soft);
-          background: #F3F4F6;
+          background: var(--CTA_SECONDARY_HOVER);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
         
         .product-warning-badge {
           width: 100%;
-          border-radius: var(--sl-radius-md);
+          border-radius: var(--CTA_RADIUS);
           border: 1px solid #FCD34D;
           background: #FEF3C7;
-          padding: 8px 12px;
-          font-size: var(--sl-font-xs-medium);
+          padding: var(--CTA_INTERNAL_PADDING);
+          font-size: 12px;
           font-weight: 500;
           color: #92400E;
           text-align: center;
         }
         
-        /* ATTRIBUTES - GOVERNANCE SEMANTIC SYSTEM */
+        /* LOCKED ATTRIBUTES SYSTEM */
         .product-attributes-section {
           display: flex;
           gap: 4px;
           flex-wrap: wrap;
           align-items: center;
+          margin-top: var(--TITLE_PRICE_SPACING);
         }
         
         .product-attribute-tag {
-          background: var(--token-pill-inactive);
-          color: var(--token-pill-inactive-text);
+          background: #F3F4F6;
+          color: #6B7280;
           font-size: 12px;
-          font-weight: var(--token-font-weight-medium);
-          padding: 4px var(--token-spacing-xs);
-          border-radius: var(--token-border-radius);
+          font-weight: var(--token-font-weight-normal);
+          padding: 4px 8px;
+          border-radius: var(--CTA_RADIUS);
           display: inline-flex;
           align-items: center;
           gap: 4px;
-        }
-        
-        .product-attribute-eco {
-          background: var(--token-badge-eco);
-          color: var(--token-badge-eco-text);
-        }
-        
-        .product-attribute-stock-warning {
-          background: var(--token-badge-stock);
-          color: var(--token-badge-stock-text);
-        }
-        
-        /* TERTIARY INFORMATION STYLING */
-        .product-attribute-tag {
           opacity: 0.85;
-          font-weight: var(--token-font-weight-normal);
         }
         
         .product-attribute-eco {
-          opacity: 1;
+          background: var(--STATUS_POSITIVE_BG);
+          color: var(--STATUS_POSITIVE_TEXT);
           font-weight: var(--token-font-weight-medium);
+          opacity: 1;
         }
         
         .product-attribute-stock-warning {
-          opacity: 1;
+          background: var(--STATUS_NEGATIVE_BG);
+          color: var(--STATUS_NEGATIVE_TEXT);
           font-weight: var(--token-font-weight-medium);
+          opacity: 1;
         }
           
           /* BADGE CARD STYLE - GLOBAL */
