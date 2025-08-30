@@ -279,14 +279,7 @@ export default function StorefrontPublic() {
           return;
         }
         
-        console.log('🐛 DEBUG - Loaded seller data:', { 
-          sellerId, 
-          sellerData, 
-          storeDescription: sellerData.storeDescription,
-          hasStoreDescription: !!sellerData.storeDescription,
-          storeDescriptionType: typeof sellerData.storeDescription,
-          allKeys: Object.keys(sellerData)
-        });
+
         setSeller(sellerData);
 
         // Load products from public store with enhanced filtering
@@ -876,22 +869,24 @@ ${productUrl}`;
           --token-font-weight: 500;
           --token-gap: 10px;
           
-          /* GLOBAL HEADER TOKENS - LOCKED FOR ALL STOREFRONTS */
-          --header-layout: 24px; /* Vertical padding + baseline alignment */
-          --header-bg-gradient: linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%);
-          --header-spacing-logo-badges: 16px; /* Gap between logo block and badges */
-          --header-spacing-badges-cta: 20px; /* Gap between badges and CTA */
+          /* HEADER LAYOUT TOKENS v1.1 - LOCKED FOR ALL STOREFRONTS */
+          --bg-surface-scrim: linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%);
+          --space-8: 32px;
+          --space-10: 40px;
+          --space-6: 24px;
+          --space-2: 8px;
+          --radius-16: 16px;
+          --shadow-xl-soft: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          --size-96: 96px;
+          --size-80: 80px;
           
-          /* STORE TITLE FONT - GLOBAL */
-          --store-title-font: 22px;
-          --store-title-weight: 700;
-          --store-title-color: #111827;
-          --store-subtitle-font: 13px;
-          --store-subtitle-color: #6B7280;
-          --store-powered-by-font: 14px;
-          --store-powered-by-color: #3B82F6;
-          --store-description-font: 14px;
-          --store-description-color: #6B7280;
+          /* TYPOGRAPHY TOKENS v1.1 - GLOBAL */
+          --font-display-xl: 24px;
+          --font-body-sm: 14px;
+          --text-primary: #111827;
+          --text-secondary: #6B7280;
+          --text-tertiary: #9CA3AF;
+          --brand-500: #3B82F6;
           
           /* BADGE CARD STYLE - GLOBAL */
           --badge-card-style-bg: #FFFFFF;
@@ -1118,18 +1113,25 @@ ${productUrl}`;
           transform: scale(var(--token-hover-scale));
         }
         
-        /* Legacy avatar classes for backward compatibility */
+        /* LOGO v1.1 - LOCKED TOKEN SIZING */
         .shoplynk-avatar {
-          width: clamp(64px, 8vw, 128px);
-          height: clamp(64px, 8vw, 128px);
-          border-radius: 16px;
+          width: var(--size-96);
+          height: var(--size-96);
+          border-radius: var(--radius-16);
           background: #FFFFFF;
           display: flex;
           justify-content: center;
           align-items: center;
           padding: 12px;
-          box-shadow: var(--store-logo-shadow);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
           transition: var(--token-transition-default);
+        }
+        
+        @media (max-width: 768px) {
+          .shoplynk-avatar {
+            width: var(--size-80);
+            height: var(--size-80);
+          }
         }
         
         .shoplynk-avatar img {
@@ -1144,15 +1146,22 @@ ${productUrl}`;
         }
         
         .seller-avatar {
-          width: clamp(64px, 8vw, 128px);
-          height: clamp(64px, 8vw, 128px);
-          border-radius: 16px;
+          width: var(--size-96);
+          height: var(--size-96);
+          border-radius: var(--radius-16);
           background-color: #fff;
           display: flex;
           justify-content: center;
           align-items: center;
           padding: 12px;
-          box-shadow: var(--store-logo-shadow);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        @media (max-width: 768px) {
+          .seller-avatar {
+            width: var(--size-80);
+            height: var(--size-80);
+          }
         }
         
         .seller-avatar img {
@@ -1172,37 +1181,37 @@ ${productUrl}`;
         }
         
         /* GLOBAL STORE TITLE FONT - LOCKED TYPOGRAPHY */
+        /* HEADER v1.1 - TYPOGRAPHY LOCKED CLASSES */
         .store-title-locked {
-          font-size: var(--store-title-font);
-          font-weight: var(--store-title-weight);
-          color: var(--store-title-color);
-          line-height: 28px;
+          font-size: var(--font-display-xl);
+          font-weight: 700;
+          color: var(--text-primary);
+          line-height: 1.2;
           margin-bottom: 4px;
         }
         
         .powered-by-locked {
-          font-size: var(--store-powered-by-font);
-          font-weight: 500;
-          color: var(--store-powered-by-color);
+          font-size: var(--font-body-sm);
+          font-weight: 600;
+          color: var(--brand-500);
           line-height: 20px;
-          margin-bottom: 2px;
+          margin-bottom: var(--space-2);
           letter-spacing: -0.2px;
         }
         
         .store-subtitle-locked {
-          font-size: var(--store-subtitle-font);
+          font-size: var(--font-body-sm);
           font-weight: 400;
-          color: var(--store-subtitle-color);
+          color: var(--text-tertiary);
           line-height: 20px;
         }
         
         .store-description-locked {
-          font-size: var(--store-description-font);
+          font-size: var(--font-body-sm);
           font-weight: 400;
-          color: var(--store-description-color);
+          color: var(--text-secondary);
           line-height: 1.5;
-          margin-top: 4px;
-          max-width: 70%;
+          margin-top: var(--space-2);
           overflow: hidden;
           text-overflow: ellipsis;
           display: -webkit-box;
@@ -1210,10 +1219,9 @@ ${productUrl}`;
           -webkit-box-orient: vertical;
         }
         
-        @media (max-width: 767px) {
+        @media (max-width: 768px) {
           .store-description-locked {
             -webkit-line-clamp: 1;
-            max-width: 100%;
           }
         }
         
@@ -1279,47 +1287,70 @@ ${productUrl}`;
           height: var(--badge-card-style-icon-size);
         }
         
-        /* LOCKED HEADER CONTAINER - FINAL */
+        /* HEADER CONTAINER v1.1 - LOCKED TOKEN SYSTEM */
         .header-container-locked {
-          background: var(--header-bg-gradient);
-          border-radius: 16px;
-          box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.05);
+          background: var(--bg-surface-scrim);
+          border-radius: var(--radius-16);
+          box-shadow: var(--shadow-xl-soft);
           backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          padding: var(--space-8) var(--space-10);
         }
         
-        /* GLOBAL HEADER LAYOUT - LOCKED BASELINE ALIGNMENT */
+        @media (max-width: 768px) {
+          .header-container-locked {
+            padding: var(--space-6);
+          }
+        }
+        
+        /* HEADER LAYOUT v1.1 - THREE ZONE ALIGNMENT */
         .header-row-locked {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: var(--header-layout);
-          gap: var(--header-spacing-badges-cta);
+          gap: 20px;
         }
         
-        /* LEFT ZONE: Logo + Store Info */
+        /* HEADER v1.1 THREE-ZONE LAYOUT */
         .store-info-block {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 16px;
           flex: 1;
           min-width: 0;
         }
         
-        /* MIDDLE ZONE: Payment/Delivery Badges */
         .badges-block {
           display: flex;
           align-items: center;
           gap: 12px;
           flex-wrap: wrap;
-          margin-left: var(--header-spacing-logo-badges);
         }
         
-        /* RIGHT ZONE: Single CTA */
         .cta-block {
           display: flex;
           align-items: center;
           flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+          .header-row-locked {
+            flex-direction: column;
+            gap: 16px;
+            align-items: stretch;
+          }
+          
+          .store-info-block {
+            justify-content: center;
+          }
+          
+          .badges-block {
+            justify-content: center;
+          }
+          
+          .cta-block {
+            justify-content: center;
+          }
         }
         
         /* RESPONSIVE BEHAVIOR - LOCKED TOKENS */
@@ -1390,14 +1421,17 @@ ${productUrl}`;
             {/* PERFECT VERTICAL ALIGNMENT HEADER ROW */}
             <div className="relative z-10 -mt-8">
               <div className="header-row-locked">
-                {/* Store Info Block */}
+                {/* LEFT ZONE: Logo + Store Identity */}
                 <div className="store-info-block">
                   {/* Store Logo Container */}
                   <div className="store-logo-container">
                     {seller?.logoUrl ? (
                       <img
                         src={seller.logoUrl}
-                        alt={`${seller.storeName} logo`}
+                        alt={seller.storeName}
+                        decoding="async"
+                        width="96"
+                        height="96"
                         onError={(e) => {
                           e.currentTarget.src = logoUrl;
                           e.currentTarget.alt = 'ShopLynk logo';
@@ -1407,30 +1441,35 @@ ${productUrl}`;
                       <img
                         src={logoUrl}
                         alt="ShopLynk logo"
+                        decoding="async"
+                        width="96"
+                        height="96"
                       />
                     )}
                   </div>
                   
                   {/* Store Title Info */}
                   <div className="min-w-0 flex-1">
-                    <h1 className="store-title-locked mb-0 truncate">
+                    <h1 className="store-title-locked">
                       {seller.storeName}
                     </h1>
                     <div className="powered-by-locked">
-                      Powered by ShopLynk
+                      <Link href={SHOPLINK_MARKETING_URL} target="_blank" rel="noopener noreferrer">
+                        Powered by ShopLynk
+                      </Link>
                     </div>
-                    {seller.storeDescription && (
+                    {seller.storeDescription && seller.storeDescription.trim() && (
                       <div className="store-description-locked">
                         {seller.storeDescription}
                       </div>
                     )}
-                    <p className="store-subtitle-locked truncate">
+                    <div className="store-subtitle-locked">
                       {seller.location || 'Online Store'}
-                    </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Badges Block - Perfect Baseline Alignment */}
+                {/* MIDDLE ZONE: Payment/Delivery Pills */}
                 <div className="badges-block">
                   {!!paymentMethods.length && (
                     <button
@@ -1460,7 +1499,7 @@ ${productUrl}`;
                   )}
                 </div>
 
-                {/* CTA Block - Perfect Baseline Alignment */}
+                {/* RIGHT ZONE: Single CTA */}
                 <div className="cta-block">
                   {!isOwner ? (
                     <div className="hidden md:flex items-center gap-3">

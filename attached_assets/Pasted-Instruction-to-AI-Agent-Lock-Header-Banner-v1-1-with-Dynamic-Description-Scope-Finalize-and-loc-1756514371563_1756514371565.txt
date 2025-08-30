@@ -1,0 +1,130 @@
+Instruction to AI Agent — Lock Header/Banner v1.1 (with Dynamic Description)
+Scope
+
+Finalize and lock the store header/banner for the Seller View (and reuse in Buyer View), using global tokens only.
+
+Data contract (read-only)
+StoreHeaderData {
+  name: string                // required
+  description?: string | null // optional, can be empty
+  logoUrl: string             // required (fallback to brand mark if broken)
+  paymentsCount: number       // required
+  deliveriesCount: number     // required
+}
+
+Layout & Hierarchy (left → right)
+
+Logo → 2) Store name → 3) Powered by ShopLynk → 4) Description (optional)
+Right-aligned: Payment methods pill, Delivery options pill, CTA (Back to Dashboard)
+
+Styling (use global tokens already locked)
+
+Header container
+
+Background: --bg-surface-scrim (icy gradient, same family as CTA)
+
+Padding: --space-8 top/bottom, --space-10 sides (responsive: --space-6 on mobile)
+
+Radius: --radius-16
+
+Shadow: --shadow-xl-soft
+
+Logo
+
+Size: --size-96 desktop, --size-80 mobile
+
+Shape: --radius-16
+
+Border: none; soft ambient shadow only
+
+Store name
+
+Font: --font-display-xl (weight 700)
+
+Color: --text-primary
+
+Powered by ShopLynk
+
+Font: --font-body-sm (weight 600)
+
+Color: --brand-500 (locked)
+
+Click target: wraps “ShopLynk” or the whole phrase per current behavior
+
+Description (dynamic)
+
+Show only if description is non-empty.
+
+Font: --font-body-sm (400)
+
+Color: --text-secondary
+
+Max width: same column as store name; do not exceed name wrap width
+
+Truncation: 2 lines desktop, 1 line mobile (line-clamp)
+
+Spacing: --space-2 above “Online Store” or next meta line
+
+Meta line (“Online Store”)
+
+Font: --font-body-sm
+
+Color: --text-tertiary
+
+Pills (left-side row)
+
+Keep current locked styles (radius 12px, subtle elevation, hover scale 1.05, active gradient echoing CTA)
+
+Do not alter spacing; match category pill patterns
+
+CTA (Back to Dashboard)
+
+Use locked CTA token set (gradient, radius, hover/active, shadow)
+
+Right aligned; use responsive wrap before overlapping content
+
+Behavior
+
+Description
+
+If empty → do not render the description element; do not reserve space; no placeholder strings.
+
+When present → line-clamp + ellipsis as above.
+
+Responsive
+
+At <= 768px: stack primary identity (logo + text) above controls; keep internal spacing via tokens; ensure no overflow.
+
+Accessibility
+
+Logo alt: store name
+
+Landmark role: banner
+
+Heading semantics: Store name is h1 on the storefront page
+
+Focus order: identity area → pills → CTA
+
+Performance
+
+Prevent layout shift when description toggles: container uses intrinsic content height; no fixed min-height beyond padding
+
+Lazy-load logo with decoding="async"; set width/height to avoid CLS
+
+Governance
+
+Use only global tokens for colors, spacing, radius, shadows, and typography (as locked).
+
+Do not change gradients, CTA tokens, or pill tokens.
+
+Ensure this component is reused for Buyer View via the same props contract.
+
+Acceptance Criteria
+
+✅ Description appears only when provided; hides cleanly when absent.
+
+✅ Visual parity with the latest screenshot (identity left, controls right).
+
+✅ No overlaps or drift across breakpoints.
+
+✅ Reusable component exported for Seller + Buyer views.
