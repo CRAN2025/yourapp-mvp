@@ -880,13 +880,22 @@ ${productUrl}`;
           --size-96: 96px;
           --size-80: 80px;
           
-          /* TYPOGRAPHY TOKENS v1.1 - GLOBAL */
-          --font-display-xl: 24px;
-          --font-body-sm: 14px;
+          /* TYPOGRAPHY TOKENS - LOCKED GLOBAL SYSTEM */
+          --store-name-size: 24px;
+          --store-name-weight: 700;
+          --powered-by-size: 16px;
+          --powered-by-weight: 500;
+          --description-size: 15px;
+          --description-weight: 400;
+          --meta-size: 14px;
+          --meta-weight: 400;
+          
+          /* COLOR TOKENS - LOCKED GLOBAL PALETTE */
           --text-primary: #111827;
           --text-secondary: #6B7280;
           --text-tertiary: #9CA3AF;
-          --brand-500: #3B82F6;
+          --brand-link: #3B82F6;
+          --brand-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           
           /* BADGE CARD STYLE - GLOBAL */
           --badge-card-style-bg: #FFFFFF;
@@ -1181,37 +1190,42 @@ ${productUrl}`;
         }
         
         /* GLOBAL STORE TITLE FONT - LOCKED TYPOGRAPHY */
-        /* HEADER v1.1 - TYPOGRAPHY LOCKED CLASSES */
+        /* LOCKED TYPOGRAPHY SYSTEM - GLOBAL HEADER TOKENS */
         .store-title-locked {
-          font-size: var(--font-display-xl);
-          font-weight: 700;
+          font-size: var(--store-name-size);
+          font-weight: var(--store-name-weight);
           color: var(--text-primary);
           line-height: 1.2;
           margin-bottom: 4px;
         }
         
         .powered-by-locked {
-          font-size: var(--font-body-sm);
-          font-weight: 600;
-          color: var(--brand-500);
+          font-size: var(--powered-by-size);
+          font-weight: var(--powered-by-weight);
+          color: var(--brand-link);
           line-height: 20px;
           margin-bottom: var(--space-2);
           letter-spacing: -0.2px;
         }
         
-        .store-subtitle-locked {
-          font-size: var(--font-body-sm);
-          font-weight: 400;
-          color: var(--text-tertiary);
-          line-height: 20px;
+        .powered-by-locked a {
+          color: var(--brand-link);
+          text-decoration: none;
+          transition: color 0.2s ease;
+        }
+        
+        .powered-by-locked a:hover {
+          color: #2563EB;
+          text-decoration: underline;
         }
         
         .store-description-locked {
-          font-size: var(--font-body-sm);
-          font-weight: 400;
+          font-size: var(--description-size);
+          font-weight: var(--description-weight);
           color: var(--text-secondary);
-          line-height: 1.5;
+          line-height: 1.4;
           margin-top: var(--space-2);
+          margin-bottom: var(--space-2);
           overflow: hidden;
           text-overflow: ellipsis;
           display: -webkit-box;
@@ -1219,9 +1233,17 @@ ${productUrl}`;
           -webkit-box-orient: vertical;
         }
         
+        .store-subtitle-locked {
+          font-size: var(--meta-size);
+          font-weight: var(--meta-weight);
+          color: var(--text-tertiary);
+          line-height: 18px;
+        }
+        
         @media (max-width: 768px) {
           .store-description-locked {
             -webkit-line-clamp: 1;
+            font-size: 14px;
           }
         }
         
@@ -1260,21 +1282,23 @@ ${productUrl}`;
           border-radius: 50%;
         }
         
-        /* GLOBAL BADGE CARD STYLE - LOCKED FOR ALL BADGES */
+        /* LOCKED BADGE SYSTEM - GLOBAL TOKENS */
         .payment-delivery-badge {
           background: var(--badge-card-style-bg);
           border-radius: var(--badge-card-style-radius);
           box-shadow: var(--badge-card-style-shadow);
-          padding: 8px 16px;
+          padding: 10px 16px;
           transition: var(--token-transition-default);
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          gap: 8px;
           font-weight: 500;
           font-size: var(--badge-card-style-font-size);
-          color: #6B7280;
+          color: var(--text-secondary);
           cursor: pointer;
-          border: none;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          white-space: nowrap;
         }
         
         .payment-delivery-badge:hover {
@@ -1285,6 +1309,8 @@ ${productUrl}`;
         .payment-delivery-badge svg {
           width: var(--badge-card-style-icon-size);
           height: var(--badge-card-style-icon-size);
+          color: var(--brand-link);
+          flex-shrink: 0;
         }
         
         /* HEADER CONTAINER v1.1 - LOCKED TOKEN SYSTEM */
@@ -1458,14 +1484,20 @@ ${productUrl}`;
                         Powered by ShopLynk
                       </Link>
                     </div>
-                    {seller.storeDescription && seller.storeDescription.trim() && (
+                    {seller.storeDescription && seller.storeDescription.trim() ? (
                       <div className="store-description-locked">
                         {seller.storeDescription}
                       </div>
+                    ) : (
+                      <div className="store-subtitle-locked">
+                        Online Store
+                      </div>
                     )}
-                    <div className="store-subtitle-locked">
-                      {seller.location || 'Online Store'}
-                    </div>
+                    {seller.location && (
+                      <div className="store-subtitle-locked">
+                        {seller.location}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1529,33 +1561,23 @@ ${productUrl}`;
                       </button>
                     </div>
                   ) : (
-                    <Button
-                      asChild
+                    <Link
+                      to="/products"
+                      className="group inline-flex items-center gap-2 transition-all duration-300 hover:scale-105"
                       style={{
-                        background: 'var(--cta-primary-style)',
+                        background: 'var(--brand-gradient)',
                         color: 'white',
-                        border: 'none',
-                        fontSize: 'var(--cta-primary-font-size)',
-                        fontWeight: 'var(--cta-primary-font-weight)',
                         padding: 'var(--cta-primary-padding)',
                         borderRadius: 'var(--cta-primary-radius)',
-                        transition: 'all 0.3s ease',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = 'var(--cta-primary-hover-shadow)';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(79, 168, 255, 0.3)';
-                        e.currentTarget.style.transform = 'scale(1)';
+                        fontSize: 'var(--cta-primary-font-size)',
+                        fontWeight: 'var(--cta-primary-font-weight)',
+                        boxShadow: '0 4px 12px rgba(79, 168, 255, 0.3)',
+                        textDecoration: 'none'
                       }}
                     >
-                      <Link to="/products">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Dashboard
-                      </Link>
-                    </Button>
+                      <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                      Back to Dashboard
+                    </Link>
                   )}
                 </div>
               </div>
