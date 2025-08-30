@@ -1,0 +1,100 @@
+Instruction to AI Agent — Restore Header to Locked Spec
+
+Goal: Revert the storefront header to the previously locked configuration in
+ShopLynk_Header_Banner_LOCKED_FINAL.md, without touching category pills or product cards.
+
+1) Source of truth
+
+Use the locked tokens + structure from: ShopLynk_Header_Banner_LOCKED_FINAL.md.
+
+Do not introduce any new hardcoded colors or gradients.
+
+2) Tokens to re-apply (must be these exact values)
+:root {
+  /* Surface + gradient */
+  --sl-header-surface: #ffffff;
+  --sl-header-gradient-start: #ffffff;
+  --sl-header-gradient-end: #f8faff;
+
+  /* Elevation + border */
+  --sl-header-shadow: 0 12px 30px rgba(22, 34, 51, 0.06);
+  --sl-header-border: 1px solid rgba(15, 23, 42, 0.06);
+  --sl-header-radius: 20px;
+
+  /* Typography */
+  --sl-header-title: #0f172a;
+  --sl-header-subtle: #64748b;
+  --sl-header-link: #2563eb; /* brand link (Powered by) */
+
+  /* Actions */
+  --sl-chip-surface: #ffffff;
+  --sl-chip-border: 1px solid rgba(15, 23, 42, 0.08);
+  --sl-chip-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+  --sl-chip-radius: 12px;
+
+  /* CTA (locked family) */
+  --sl-cta-gradient-start: #4fa8ff;
+  --sl-cta-gradient-end: #5271ff;
+  --sl-cta-text: #ffffff;
+}
+
+3) Header container (re-apply layout + visuals)
+.store-header {
+  background: linear-gradient(180deg, var(--sl-header-gradient-start), var(--sl-header-gradient-end));
+  border: var(--sl-header-border);
+  border-radius: var(--sl-header-radius);
+  box-shadow: var(--sl-header-shadow);
+  padding: 32px 32px 28px;
+}
+
+.store-header__title { color: var(--sl-header-title); }
+.store-header__subtitle,
+.store-header__description { color: var(--sl-header-subtle); }
+
+.store-header__actions .chip {
+  background: var(--sl-chip-surface);
+  border: var(--sl-chip-border);
+  border-radius: var(--sl-chip-radius);
+  box-shadow: var(--sl-chip-shadow);
+}
+
+.store-header__cta {
+  background: linear-gradient(135deg, var(--sl-cta-gradient-start), var(--sl-cta-gradient-end));
+  color: var(--sl-cta-text);
+  border: none;
+  border-radius: 12px;
+}
+
+4) Hard DO NOTs (blockers)
+
+Do not set the header to any solid blue banner (e.g., #2F6AFD, #2563EB) as a container background.
+
+Do not override the gradient tokens above.
+
+Do not change the CTA gradient family (we already locked this).
+
+Do not alter category pills, filters, favorites, or product cards.
+
+5) Data bindings (keep as locked)
+
+Store description pulls from store metadata (no hardcoding).
+
+“Powered by ShopLynk” stays link-styled using --sl-header-link.
+
+Action chips (Payment Methods / Delivery Options / Back) use the chip style, not CTA style.
+
+6) Validation checklist (must pass)
+
+Header surface is light gradient (white → soft icy blue), not solid blue.
+
+Container shows subtle border + soft elevation.
+
+Title/metadata readable on light background.
+
+Action chips look like elevated pills; only the CTA uses the brand gradient.
+
+Categories bar and product grid remain unchanged.
+
+7) Guardrail rule
+
+Add a linter rule or style guard to reject any future change that sets .store-header { background: <solid blue>; } or overwrites --sl-header-* tokens with non-locked values.
