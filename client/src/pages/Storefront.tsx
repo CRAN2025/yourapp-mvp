@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'wouter';
 import { ref, onValue, off, get } from 'firebase/database';
-import { ExternalLink, Eye, Search, Heart, RefreshCw, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, ChevronDown } from 'lucide-react';
+import { ExternalLink, Eye, Search, Heart, RefreshCw, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, ChevronDown, MessageCircle } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -101,7 +101,13 @@ export default function Storefront() {
 
   // Enhanced interaction tracking
   const handleInteraction = (action: string, productId?: string) => {
-    trackInteraction(action);
+    if (action === 'contact_whatsapp') {
+      trackInteraction({ 
+        type: 'wa_click', 
+        sellerId: user?.uid || '',
+        productId
+      });
+    }
   };
 
   // WhatsApp contact handler with notification
@@ -226,7 +232,7 @@ export default function Storefront() {
 
   return (
     <DashboardLayout>
-      <style jsx>{`
+      <style>{`
         /* LOCKED HEADER TOKENS - ENTERPRISE GOVERNANCE */
         .header-container-locked {
           background: linear-gradient(180deg, var(--sl-header-gradient-start) 0%, var(--sl-header-gradient-end) 100%);
