@@ -2033,19 +2033,36 @@ ${productUrl}`;
           min-width: 32px;
           min-height: 32px;
           padding: 8px;
-          color: var(--brand-neutral-700, #374151);
           border-radius: 8px;
           transition: all 0.2s ease;
           text-decoration: none;
         }
         
-        .social-link:hover {
-          color: var(--brand-primary-500, #3B82F6);
-          background: var(--surface-elevated, #F9FAFB);
+        .social-link-instagram {
+          color: #E4405F;
         }
         
-        .social-link:active {
-          color: var(--brand-primary-600, #2563EB);
+        .social-link-instagram:hover {
+          color: #C13584;
+          background: rgba(228, 64, 95, 0.1);
+        }
+        
+        .social-link-tiktok {
+          color: #000000;
+        }
+        
+        .social-link-tiktok:hover {
+          color: #FF0050;
+          background: rgba(255, 0, 80, 0.1);
+        }
+        
+        .social-link-facebook {
+          color: #1877F2;
+        }
+        
+        .social-link-facebook:hover {
+          color: #166FE5;
+          background: rgba(24, 119, 242, 0.1);
         }
         
         .social-link:focus {
@@ -2151,13 +2168,25 @@ ${productUrl}`;
                   {seller?.logoUrl ? (
                     <img
                       src={seller.logoUrl}
-                      alt={`${seller.storeName || 'Store'} logo`}
+                      alt={seller.storeName}
+                      decoding="async"
+                      width="64"
+                      height="64"
                       className="locked-store-logo"
+                      onError={(e) => {
+                        e.currentTarget.src = logoUrl;
+                        e.currentTarget.alt = 'ShopLynk logo';
+                      }}
                     />
                   ) : (
-                    <div className="locked-store-logo locked-avatar-fallback">
-                      {(seller?.storeName || 'S').charAt(0).toUpperCase()}
-                    </div>
+                    <img
+                      src={logoUrl}
+                      alt="ShopLynk logo"
+                      decoding="async"
+                      width="64"
+                      height="64"
+                      className="locked-store-logo"
+                    />
                   )}
                 </div>
 
@@ -2186,11 +2215,15 @@ ${productUrl}`;
                           href={normalizeUrl(seller.socialMedia.instagram, 'instagram')}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="social-link"
+                          className="social-link social-link-instagram"
                           aria-label="Open Instagram profile"
                           title="Instagram"
                         >
-                          <Instagram className="social-icon" />
+                          <svg className="social-icon" viewBox="0 0 24 24" fill="none">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" strokeWidth="2"/>
+                            <path d="m16 11.37 0 .63-4 0-4 0 0-.63c0-2.2 1.8-4 4-4s4 1.8 4 4z" fill="currentColor"/>
+                            <path d="m7 7h1.5M16.5 7H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                          </svg>
                         </a>
                       )}
                       {seller.socialMedia.tiktok && (
@@ -2198,12 +2231,12 @@ ${productUrl}`;
                           href={normalizeUrl(seller.socialMedia.tiktok, 'tiktok')}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="social-link"
+                          className="social-link social-link-tiktok"
                           aria-label="Open TikTok profile"
                           title="TikTok"
                         >
                           <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19.321 5.562a5.122 5.122 0 0 1-.443-.258 6.228 6.228 0 0 1-1.137-.966c-.849-.849-1.204-1.864-1.204-2.338v-.5c0-.276-.224-.5-.5-.5h-3c-.276 0-.5.224-.5.5v11c0 1.378-1.122 2.5-2.5 2.5s-2.5-1.122-2.5-2.5 1.122-2.5 2.5-2.5c.173 0 .342.018.5.052V7.5c0-.276-.224-.5-.5-.5-.195 0-.391.015-.588.044-2.623.389-4.662 2.644-4.662 5.456 0 3.038 2.462 5.5 5.5 5.5s5.5-2.462 5.5-5.5V8.562c.915.703 2.054 1.122 3.287 1.122.276 0 .5-.224.5-.5v-3c0-.276-.224-.5-.5-.5-.433 0-.855-.075-1.253-.622z"/>
+                            <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-1.032-.086 6.97 6.97 0 0 0-4.888 1.935c-2.174 2.143-2.188 5.681-.033 7.848a6.97 6.97 0 0 0 9.861.001 6.958 6.958 0 0 0 2.045-4.95V7.978a8.19 8.19 0 0 0 3.28 2.555v-3.847z"/>
                           </svg>
                         </a>
                       )}
@@ -2212,11 +2245,13 @@ ${productUrl}`;
                           href={normalizeUrl(seller.socialMedia.facebook, 'facebook')}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="social-link"
+                          className="social-link social-link-facebook"
                           aria-label="Open Facebook profile"
                           title="Facebook"
                         >
-                          <Facebook className="social-icon" />
+                          <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                          </svg>
                         </a>
                       )}
                     </div>
