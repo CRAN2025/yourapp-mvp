@@ -908,31 +908,35 @@ ${productUrl}`;
           --brand-link: #3B82F6;
           --brand-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           
-          /* PRODUCT CARD GOVERNANCE - GLOBAL TOKEN ALIGNMENT */
-          --token-color-primary: #3B82F6;
+          /* UPDATED GOVERNANCE - WHATSAPP-FIRST BRANDING */
+          --token-whatsapp-primary: #25D366;
+          --token-whatsapp-hover: #1DB854;
+          --token-brand-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          --token-brand-light: #E0EFFF;
           --token-color-secondary: #6B7280;
-          --token-color-danger: #EF4444;
-          --token-color-success: #059669;
+          --token-danger: #EF4444;
+          --token-success: #059669;
+          --token-success-light: #DCFCE7;
           --token-font-size-price: 20px;
-          --token-font-size-title: 16px;
+          --token-font-size-title: 17px;
           --token-font-size-label: 14px;
           --token-spacing-xs: 8px;
           --token-spacing-sm: 12px;
           --token-spacing-md: 16px;
           --token-border-radius: 12px;
-          --token-button-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           --token-surface-elevated: #ffffff;
           --token-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
           --token-shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.12);
           
-          /* SEMANTIC TOKENS - GOVERNANCE SYSTEM */
+          /* REFINED SEMANTIC TOKENS - WHATSAPP-FIRST */
           --token-badge-new: #DBEAFE;
           --token-badge-new-text: #1E40AF;
-          --token-badge-eco: #DCFCE7;
+          --token-badge-eco: var(--token-success-light);
           --token-badge-eco-text: #166534;
           --token-badge-stock: #FEE2E2;
           --token-badge-stock-text: #DC2626;
-          --token-pill-gradient: var(--token-button-primary);
+          --token-pill-category: var(--token-brand-light);
+          --token-pill-category-text: #1E40AF;
           --token-pill-inactive: #F3F4F6;
           --token-pill-inactive-text: var(--token-color-secondary);
           --token-button-secondary-bg: #F9FAFB;
@@ -999,7 +1003,7 @@ ${productUrl}`;
         }
         
         .product-favorite-active {
-          color: var(--token-color-danger);
+          color: var(--token-danger);
           fill: currentColor;
         }
         
@@ -1057,12 +1061,13 @@ ${productUrl}`;
           gap: 4px;
         }
         
-        /* TYPOGRAPHY HIERARCHY - GOVERNANCE ALIGNED */
+        /* ENHANCED TYPOGRAPHY HIERARCHY - STRONGER WEIGHT */
         .product-title {
           font-size: var(--token-font-size-title);
           font-weight: var(--token-font-weight-bold);
           color: var(--token-text-primary);
-          line-height: 1.4;
+          line-height: 1.3;
+          letter-spacing: -0.01em;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -1078,7 +1083,7 @@ ${productUrl}`;
           letter-spacing: 0.5px;
         }
         
-        /* PRICE HIERARCHY - GOVERNANCE SYSTEM */
+        /* ENHANCED PRICE HIERARCHY - STRONGER TYPOGRAPHY */
         .product-price-section {
           display: flex;
           align-items: center;
@@ -1088,7 +1093,8 @@ ${productUrl}`;
         .product-price {
           font-size: var(--token-font-size-price);
           font-weight: var(--token-font-weight-bold);
-          color: var(--token-color-success);
+          color: var(--token-success);
+          letter-spacing: -0.02em;
         }
         
         .product-compare-price {
@@ -1098,7 +1104,7 @@ ${productUrl}`;
         }
         
         .product-discount-badge {
-          background: var(--token-color-danger);
+          background: var(--token-danger);
           color: white;
           font-size: 12px;
           font-weight: var(--token-font-weight-semibold);
@@ -1107,7 +1113,7 @@ ${productUrl}`;
           margin-left: var(--token-spacing-xs);
         }
         
-        /* CATEGORY PILLS - GOVERNANCE GRADIENT SYSTEM */
+        /* CATEGORY PILLS - SOFTER BRAND HIERARCHY */
         .product-category-section {
           display: flex;
           gap: var(--token-spacing-xs);
@@ -1115,10 +1121,10 @@ ${productUrl}`;
         }
         
         .product-category-pill {
-          background: var(--token-pill-gradient);
-          color: white;
+          background: var(--token-pill-category);
+          color: var(--token-pill-category-text);
           font-size: var(--token-font-size-label);
-          font-weight: var(--token-font-weight-semibold);
+          font-weight: var(--token-font-weight-medium);
           padding: 6px var(--token-spacing-sm);
           border-radius: var(--token-border-radius);
           display: inline-flex;
@@ -1126,11 +1132,14 @@ ${productUrl}`;
           gap: 4px;
           transition: all 0.2s ease;
           cursor: pointer;
+          border: 1px solid rgba(30, 64, 175, 0.2);
         }
         
         .product-category-pill:hover {
           transform: translateY(-1px);
-          box-shadow: var(--token-shadow-soft);
+          background: var(--token-brand-primary);
+          color: white;
+          border-color: transparent;
         }
         
         /* GOVERNANCE CTA SYSTEM */
@@ -1142,9 +1151,10 @@ ${productUrl}`;
           border-top: 1px solid var(--token-button-secondary-border);
         }
         
+        /* PRIMARY CTA - WHATSAPP-FIRST IDENTITY */
         .product-cta-primary {
           width: 100%;
-          background: var(--token-button-primary);
+          background: var(--token-whatsapp-primary);
           color: white;
           border: none;
           border-radius: var(--token-border-radius);
@@ -1157,12 +1167,13 @@ ${productUrl}`;
           gap: var(--token-spacing-xs);
           cursor: pointer;
           transition: all 0.2s ease;
+          box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
         }
         
         .product-cta-primary:hover {
+          background: var(--token-whatsapp-hover);
           transform: translateY(-1px);
-          box-shadow: var(--token-shadow-hover);
-          filter: brightness(1.05);
+          box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
         }
         
         .product-cta-secondary {
@@ -1228,6 +1239,22 @@ ${productUrl}`;
         .product-attribute-stock-warning {
           background: var(--token-badge-stock);
           color: var(--token-badge-stock-text);
+        }
+        
+        /* TERTIARY INFORMATION STYLING */
+        .product-attribute-tag {
+          opacity: 0.85;
+          font-weight: var(--token-font-weight-normal);
+        }
+        
+        .product-attribute-eco {
+          opacity: 1;
+          font-weight: var(--token-font-weight-medium);
+        }
+        
+        .product-attribute-stock-warning {
+          opacity: 1;
+          font-weight: var(--token-font-weight-medium);
         }
           
           /* BADGE CARD STYLE - GLOBAL */
