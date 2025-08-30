@@ -126,7 +126,7 @@ function Router() {
       </Route>
       <Route path="/storefront">
         <AppGuard>
-          <StorefrontRedirect />
+          <Storefront />
         </AppGuard>
       </Route>
       <Route path="/upgrade">
