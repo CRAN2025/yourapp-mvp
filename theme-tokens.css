@@ -18,6 +18,14 @@
   --neutral-300: #D1D5DB;        /* Subtle dividers */
   --text-primary: #111827;       /* Product names & titles */
   --text-secondary: #6B7280;     /* Brands, subtitles, and muted labels */
+  
+  /* HEADER BACKGROUND - LOCKED GRADIENT */
+  --color-header-bg: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+  
+  /* HEADER TEXT CONTRAST TOKENS */
+  --color-header-text-primary: #FFFFFF;
+  --color-header-text-secondary: rgba(255,255,255,0.85);
+  --color-header-text-tertiary: rgba(255,255,255,0.70);
 
   /* === B. TYPOGRAPHY === */
   --font-store-name: 24px;       /* Prominent store identity */
@@ -41,6 +49,7 @@
   --badge-padding: 3px 8px;
 
   /* === D. SHADOWS & ELEVATION === */
+  --elevation-card: 0px 6px 14px rgba(0,0,0,0.08);
   --elevation-header: 0 2px 6px rgba(0, 0, 0, 0.08);
   --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.08);
   --elevation-mid: 0 2px 6px rgba(0, 0, 0, 0.12);
