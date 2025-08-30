@@ -44,6 +44,19 @@ function AppRouter() {
   return null;
 }
 
+// Storefront Redirect - redirects to canonical public storefront
+function StorefrontRedirect() {
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
+  
+  if (user?.uid) {
+    navigate(`/store/${user.uid}`, { replace: true });
+  } else {
+    navigate('/products', { replace: true });
+  }
+  return null;
+}
+
 function Router() {
   return (
     <Switch>
@@ -113,7 +126,7 @@ function Router() {
       </Route>
       <Route path="/storefront">
         <AppGuard>
-          <Storefront />
+          <StorefrontRedirect />
         </AppGuard>
       </Route>
       <Route path="/upgrade">
