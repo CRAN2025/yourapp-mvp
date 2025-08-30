@@ -1,0 +1,100 @@
+Instruction to AI Agent — Lock Product Card Tokens Globally
+
+Objective:
+Lock the finalized ShopLynk Product Card UI design into a global token-driven system for enterprise-grade consistency across seller and buyer storefronts.
+
+Steps for the AI Agent
+1. Scope & Impact
+
+Apply these tokens platform-wide to all product cards:
+
+Seller storefronts ✅
+
+Buyer storefronts ✅
+
+Any derived reusable components ✅
+
+Ensure cross-view consistency: colors, typography, spacing, shadows, hover states.
+
+2. Token Implementation
+
+Integrate the following semantic tokens into the global theme file:
+
+A. Brand & Accent Colors
+--brand-primary: #2563EB;      /* Category pills & highlights */
+--brand-green: #25D366;        /* WhatsApp-style Contact Seller CTA */
+--brand-red: #EF4444;          /* Limited stock warning */
+--brand-gold: #FACC15;         /* Premium curated products */
+--neutral-100: #FFFFFF;        /* Card background */
+--neutral-200: #E5E7EB;        /* Borders & outlines */
+--neutral-300: #D1D5DB;        /* Subtle dividers */
+--text-primary: #111827;       /* Product names & titles */
+--text-secondary: #6B7280;     /* Brands, subtitles, and muted labels */
+
+B. Typography
+--font-title-lg: 16px;         /* Product title */
+--font-subtitle: 14px;         /* Brand name */
+--font-price: 18px;            /* Pricing emphasis */
+--font-pill: 13px;             /* Category tags */
+--font-badge: 12px;            /* Warnings, stock, eco */
+
+C. Spacing
+--card-padding: 16px;
+--pill-padding: 4px 12px;
+--cta-padding: 12px 16px;
+--badge-padding: 3px 8px;
+
+D. Shadows & Elevation
+--elevation-low: 0 1px 3px rgba(0, 0, 0, 0.08);
+--elevation-mid: 0 2px 6px rgba(0, 0, 0, 0.12);
+--elevation-high: 0 4px 12px rgba(0, 0, 0, 0.18);
+
+3. Interactive States
+Contact Seller Button
+State	BG Color	Text Color	Shadow
+Default	#25D366	#FFFFFF	--elevation-mid
+Hover	#22C55E	#FFFFFF	--elevation-high
+Active	#16A34A	#FFFFFF	Locked
+View Details Button
+State	BG Color	Border	Text Color	Shadow
+Default	#FFFFFF	#E5E7EB	#111827	None
+Hover	#F9FAFB	#E5E7EB	#111827	Low
+Active	#F3F4F6	#E5E7EB	#111827	Low
+Category Pills
+State	BG Color	Border	Text	Shadow
+Default	#FFFFFF	#2563EB	#2563EB	None
+Hover	#EFF6FF	#2563EB	#2563EB	None
+Active	#DBEAFE	#2563EB	#2563EB	None
+4. Governance Rules
+
+Forbidden: No direct hex usage in any future PRs.
+
+Mandatory: Use the locked tokens for all derived components.
+
+Strict Inheritance: Pills, CTAs, eco-badges, and warning badges must inherit from tokens.
+
+Approval Required: New variants, badge types, or color themes require design review.
+
+5. Acceptance Criteria
+
+Product cards look pixel-perfect across:
+
+Seller storefront
+
+Buyer storefront
+
+Mobile & responsive views
+
+Hover, active, and badge states behave exactly as locked.
+
+Cross-page interactivity follows semantic tokens only.
+
+WhatsApp-inspired Contact Seller CTA green is preserved globally.
+
+6. Deliverable
+
+Update theme-tokens.css / global config to reflect these tokens.
+
+Migrate existing product cards to the token system.
+
+Enforce tokens via linting rules and storybook snapshots.
