@@ -1,0 +1,174 @@
+Instruction to AI Agent — ShopLynk Product Card v1.1 (Finalized for Governance)
+
+Objective: Upgrade current product cards for Seller View to be token-driven, visually balanced, and reusable for Buyer View without altering the functional structure.
+
+Current Gaps Observed
+
+From the screenshot:
+
+Badge inconsistency → “New” badges vs “Limited Stock” have different sizing, weight, and alignment.
+
+CTA styling mismatch → “Contact Seller” and “View Details” don’t follow ShopLynk’s pill token family.
+
+Category & attribute pills → Backgrounds, shadows, and font weights aren’t harmonized with our global category pills.
+
+Visual hierarchy → Too much visual weight on secondary actions vs product title & price.
+
+Spacing issues → Uneven gaps between image, title, CTAs, and attribute tags.
+
+Refined Component Layout
+Visual Hierarchy
+[Product Image + Optional Badges + Favorite Icon]
+[Product Title]       ← Strongest typography weight
+[Brand Name]         ← Muted subheading style
+[Price Row]          ← Primary price + optional compare-at
+[Category Pills Row] ← Reuse global pill tokens
+[Primary CTA]        ← Contact Seller (tokenized, neutral green)
+[Secondary CTA]      ← View Details (tokenized neutral button)
+[Attributes Row]     ← Consistent tokenized attribute tags
+
+Design Tokens to Use
+Card Container
+
+Background: var(--sl-surface-elevated)
+
+Radius: var(--sl-radius-2xl)
+
+Shadow: var(--sl-shadow-lg)
+
+Padding: var(--sl-space-4)
+
+Gap between sections: var(--sl-space-3)
+
+Hover: transform: translateY(-3px); box-shadow: var(--sl-shadow-xl);
+
+Product Image
+
+Aspect ratio: 1:1 (object-fit: cover)
+
+Border radius: var(--sl-radius-xl)
+
+Placeholder: background: var(--sl-skeleton)
+
+Optional Favorite Icon:
+
+Idle: color: var(--sl-icon-muted)
+
+Active: color: var(--sl-status-favorite)
+
+Badges (Top-Left Overlay)
+
+“New” badge:
+
+BG: var(--sl-badge-info-bg)
+
+FG: var(--sl-badge-info-fg)
+
+“Limited Stock” badge:
+
+BG: var(--sl-badge-warn-bg)
+
+FG: var(--sl-badge-warn-fg)
+
+Font: var(--sl-font-xs-medium)
+
+Padding: 2px 8px
+
+Border-radius: var(--sl-radius-lg)
+
+Product Title & Brand
+
+Title:
+
+Font: var(--sl-font-md-semibold)
+
+Color: var(--sl-text-primary)
+
+2-line clamp with ellipsis
+
+Brand Name:
+
+Font: var(--sl-font-sm-medium)
+
+Color: var(--sl-text-muted)
+
+Price Row
+
+Primary price: var(--sl-text-success)
+
+Compare-at price: var(--sl-text-muted); text-decoration: line-through; margin-left: var(--sl-space-2)
+
+Font sizes follow ShopLynk typography tokens
+
+Category Pills (Existing Tags)
+
+Reuse locked category pill token system.
+
+Consistent spacing and shadows.
+
+Neutral styling for inactive categories, gradient highlight for active.
+
+CTAs
+Primary CTA — “Contact Seller”
+
+Background: var(--sl-accent-green-bg)
+
+Color: var(--sl-accent-green-fg)
+
+Border-radius: var(--sl-radius-lg)
+
+Font: var(--sl-font-md-semibold)
+
+Hover: Slight lift (transform: translateY(-1px); box-shadow: var(--sl-shadow-md))
+
+Secondary CTA — “View Details”
+
+Background: var(--sl-control-bg)
+
+Color: var(--sl-control-fg)
+
+Border: 1px solid var(--sl-control-border)
+
+Same size, padding, and radius as Contact Seller for visual harmony.
+
+Attributes Row (Tags at Bottom)
+
+BG: var(--sl-tag-bg)
+
+Color: var(--sl-tag-fg)
+
+Radius: var(--sl-radius-md)
+
+Font: var(--sl-font-xs-medium)
+
+Even vertical alignment, consistent gap: var(--sl-space-2)
+
+Behavior & Accessibility
+
+Skeleton state → Grey box placeholders for images, title, and price
+
+Empty image fallback → Neutral gradient
+
+Images: loading="lazy" + decoding="async"
+
+Favorite button uses aria-pressed
+
+Price announces discount percentage where applicable
+
+Governance Rules
+
+Zero hardcoded colors → All from global tokens
+
+Zero fixed px spacings → Use var(--sl-space-*) tokens
+
+Reusability → Same card is shared between Seller and Buyer View; Buyer View only swaps CTA labels (“Contact Seller” → “Add to Cart”)
+
+Lock candidate after delivery → Product Card v1.1 will become ShopLynk_ProductCard_LOCKED_FINAL.md
+
+Key Visual Changes Compared to Screenshot
+Area	Current State	New Approach (v1.1)
+Badge consistency	Mixed sizing & colors	Unified using token families
+CTA styling	Contact Seller too strong vs View Details	Harmonized button sizing, neutral View CTA
+Category pills	Off-tone vs global tokens	Reuse locked global pill system
+Attributes	Inconsistent tags	Token-driven soft tags
+Shadows & hover	Not consistent	Unified hover + elevation
