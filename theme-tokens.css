@@ -20,6 +20,10 @@
   --text-secondary: #6B7280;     /* Brands, subtitles, and muted labels */
 
   /* === B. TYPOGRAPHY === */
+  --font-store-name: 24px;       /* Prominent store identity */
+  --font-store-subtitle: 16px;   /* "Powered by ShopLynk" line */
+  --font-description: 14px;      /* Store description */
+  --font-action-label: 14px;     /* Back to Dashboard, Payment, Delivery */
   --font-title-lg: 16px;         /* Product title */
   --font-subtitle: 14px;         /* Brand name */
   --font-price: 18px;            /* Pricing emphasis */
@@ -27,18 +31,84 @@
   --font-badge: 12px;            /* Warnings, stock, eco */
 
   /* === C. SPACING === */
+  --header-padding: 20px 24px;
+  --action-spacing: 12px;
+  --store-info-gap: 8px;
+  --banner-min-height: 140px;
   --card-padding: 16px;
   --pill-padding: 4px 12px;
   --cta-padding: 12px 16px;
   --badge-padding: 3px 8px;
 
   /* === D. SHADOWS & ELEVATION === */
+  --elevation-header: 0 2px 6px rgba(0, 0, 0, 0.08);
   --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.08);
   --elevation-mid: 0 2px 6px rgba(0, 0, 0, 0.12);
+  --elevation-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
   --elevation-high: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
-/* === INTERACTIVE STATES === */
+/* === HEADER ENTERPRISE CTA STATES === */
+
+/* Back to Dashboard - Primary CTA */
+.enterprise-cta-primary {
+  background: var(--brand-primary);
+  color: var(--neutral-100);
+  box-shadow: var(--elevation-header);
+}
+
+.enterprise-cta-primary:hover {
+  background: #3B82F6;
+  box-shadow: var(--elevation-hover);
+}
+
+.enterprise-cta-primary:active {
+  background: #1E3A8A;
+}
+
+/* Follow/Share - Secondary CTAs */
+.enterprise-cta-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-primary);
+  box-shadow: var(--elevation-low);
+}
+
+.enterprise-cta-secondary:hover {
+  background: var(--neutral-100);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  box-shadow: var(--elevation-mid);
+}
+
+.enterprise-cta-secondary:active {
+  background: #F3F4F6;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+/* Payment & Delivery Pills */
+.payment-delivery-badge {
+  background: var(--neutral-100);
+  border: 1px solid var(--neutral-200);
+  color: var(--text-primary);
+  box-shadow: var(--elevation-low);
+}
+
+.payment-delivery-badge:hover {
+  background: #F9FAFB;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  box-shadow: var(--elevation-mid);
+}
+
+.payment-delivery-badge:active {
+  background: #DBEAFE;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+/* === PRODUCT CARD INTERACTIVE STATES === */
 
 /* Contact Seller Button States */
 .cta-contact-seller {
