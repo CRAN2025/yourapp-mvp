@@ -19,23 +19,13 @@
   --text-primary: #111827;       /* Product names & titles */
   --text-secondary: #6B7280;     /* Brands, subtitles, and muted labels */
   
-  /* LOCKED HEADER TOKENS - RESTORED SPECIFICATION */
-  --sl-header-surface: #ffffff;
-  --sl-header-gradient-start: #ffffff;
-  --sl-header-gradient-end: #f8faff;
-  --sl-header-shadow: 0 12px 30px rgba(22, 34, 51, 0.06);
-  --sl-header-border: 1px solid rgba(15, 23, 42, 0.06);
-  --sl-header-radius: 20px;
-  --sl-header-title: #0f172a;
-  --sl-header-subtle: #64748b;
-  --sl-header-link: #2563eb;
-  --sl-chip-surface: #ffffff;
-  --sl-chip-border: 1px solid rgba(15, 23, 42, 0.08);
-  --sl-chip-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
-  --sl-chip-radius: 12px;
-  --sl-cta-gradient-start: #4fa8ff;
-  --sl-cta-gradient-end: #5271ff;
-  --sl-cta-text: #ffffff;
+  /* HEADER BACKGROUND - LOCKED GRADIENT */
+  --color-header-bg: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+  
+  /* HEADER TEXT CONTRAST TOKENS */
+  --color-header-text-primary: #FFFFFF;
+  --color-header-text-secondary: rgba(255,255,255,0.85);
+  --color-header-text-tertiary: rgba(255,255,255,0.70);
 
   /* === B. TYPOGRAPHY === */
   --font-store-name: 24px;       /* Prominent store identity */
@@ -69,35 +59,62 @@
 
 /* === HEADER ENTERPRISE CTA STATES === */
 
-/* LOCKED HEADER STYLES - RESTORED SPECIFICATION */
-
-/* Header Container */
-.store-header {
-  background: linear-gradient(180deg, var(--sl-header-gradient-start), var(--sl-header-gradient-end));
-  border: var(--sl-header-border);
-  border-radius: var(--sl-header-radius);
-  box-shadow: var(--sl-header-shadow);
+/* Back to Dashboard - Primary CTA */
+.enterprise-cta-primary {
+  background: var(--brand-primary);
+  color: var(--neutral-100);
+  box-shadow: var(--elevation-header);
 }
 
-/* Typography */
-.store-header__title { color: var(--sl-header-title); }
-.store-header__subtitle,
-.store-header__description { color: var(--sl-header-subtle); }
-
-/* Action Chips */
-.store-header__actions .chip {
-  background: var(--sl-chip-surface);
-  border: var(--sl-chip-border);
-  border-radius: var(--sl-chip-radius);
-  box-shadow: var(--sl-chip-shadow);
+.enterprise-cta-primary:hover {
+  background: #3B82F6;
+  box-shadow: var(--elevation-hover);
 }
 
-/* Primary CTA */
-.store-header__cta {
-  background: linear-gradient(135deg, var(--sl-cta-gradient-start), var(--sl-cta-gradient-end));
-  color: var(--sl-cta-text);
-  border: none;
-  border-radius: 12px;
+.enterprise-cta-primary:active {
+  background: #1E3A8A;
+}
+
+/* Follow/Share - Secondary CTAs */
+.enterprise-cta-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-primary);
+  box-shadow: var(--elevation-low);
+}
+
+.enterprise-cta-secondary:hover {
+  background: var(--neutral-100);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  box-shadow: var(--elevation-mid);
+}
+
+.enterprise-cta-secondary:active {
+  background: #F3F4F6;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+/* Payment & Delivery Pills */
+.payment-delivery-badge {
+  background: var(--neutral-100);
+  border: 1px solid var(--neutral-200);
+  color: var(--text-primary);
+  box-shadow: var(--elevation-low);
+}
+
+.payment-delivery-badge:hover {
+  background: #F9FAFB;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  box-shadow: var(--elevation-mid);
+}
+
+.payment-delivery-badge:active {
+  background: #DBEAFE;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
 }
 
 /* === PRODUCT CARD INTERACTIVE STATES === */

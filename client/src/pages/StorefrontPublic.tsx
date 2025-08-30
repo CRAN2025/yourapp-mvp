@@ -2,13 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Settings, Edit3 } from 'lucide-react';
+import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter } from 'lucide-react';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
 import { openWhatsApp, createWhatsAppMessage } from '@/lib/utils/whatsapp';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
-import { useAuthContext } from '@/context/AuthContext';
 import type { Product, Seller } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,7 +44,6 @@ const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
 export default function StorefrontPublic() {
   const [, params] = useRoute('/store/:sellerId');
   const { toast } = useToast();
-  const { user: currentUser } = useAuthContext();
   const [seller, setSeller] = useState<Seller | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,51 +64,6 @@ export default function StorefrontPublic() {
 
   const sellerId = params?.sellerId;
   const [location] = useLocation();
-
-  // SEO Meta Tags - Dynamic setup for each store
-  useEffect(() => {
-    if (seller) {
-      // Set page title
-      document.title = `${seller.storeName} – ShopLynk`;
-      
-      // Set meta description
-      let metaDescription = document.querySelector('meta[name="description"]');
-      if (!metaDescription) {
-        metaDescription = document.createElement('meta');
-        metaDescription.setAttribute('name', 'description');
-        document.head.appendChild(metaDescription);
-      }
-      metaDescription.setAttribute('content', seller.storeDescription?.slice(0, 160) || `${seller.storeName} - Premium products on ShopLynk`);
-      
-      // Set canonical URL
-      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-      if (!canonical) {
-        canonical = document.createElement('link');
-        canonical.setAttribute('rel', 'canonical');
-        document.head.appendChild(canonical);
-      }
-      canonical.href = `${window.location.origin}/store/${sellerId}`;
-      
-      // Open Graph tags
-      const setOGTag = (property: string, content: string) => {
-        let tag = document.querySelector(`meta[property="${property}"]`);
-        if (!tag) {
-          tag = document.createElement('meta');
-          tag.setAttribute('property', property);
-          document.head.appendChild(tag);
-        }
-        tag.setAttribute('content', content);
-      };
-      
-      setOGTag('og:title', `${seller.storeName} – ShopLynk`);
-      setOGTag('og:description', seller.storeDescription?.slice(0, 160) || `${seller.storeName} - Premium products on ShopLynk`);
-      setOGTag('og:url', `${window.location.origin}/store/${sellerId}`);
-      setOGTag('og:type', 'website');
-      if (seller.logoUrl) {
-        setOGTag('og:image', seller.logoUrl);
-      }
-    }
-  }, [seller, sellerId]);
 
   // Owner detection and anonymous authentication for events
   useEffect(() => {
@@ -970,23 +923,13 @@ ${productUrl}`;
           --text-primary: #111827;
           --text-secondary: #6B7280;
           
-          /* LOCKED HEADER TOKENS - RESTORED SPECIFICATION */
-          --sl-header-surface: #ffffff;
-          --sl-header-gradient-start: #ffffff;
-          --sl-header-gradient-end: #f8faff;
-          --sl-header-shadow: 0 12px 30px rgba(22, 34, 51, 0.06);
-          --sl-header-border: 1px solid rgba(15, 23, 42, 0.06);
-          --sl-header-radius: 20px;
-          --sl-header-title: #0f172a;
-          --sl-header-subtle: #64748b;
-          --sl-header-link: #2563eb;
-          --sl-chip-surface: #ffffff;
-          --sl-chip-border: 1px solid rgba(15, 23, 42, 0.08);
-          --sl-chip-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
-          --sl-chip-radius: 12px;
-          --sl-cta-gradient-start: #4fa8ff;
-          --sl-cta-gradient-end: #5271ff;
-          --sl-cta-text: #ffffff;
+          /* HEADER BACKGROUND - LOCKED GRADIENT */
+          --color-header-bg: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          
+          /* HEADER TEXT CONTRAST TOKENS */
+          --color-header-text-primary: #FFFFFF;
+          --color-header-text-secondary: rgba(255,255,255,0.85);
+          --color-header-text-tertiary: rgba(255,255,255,0.70);
           
           /* B. TYPOGRAPHY - UNIFIED HIERARCHY */
           --font-store-name: 24px;
@@ -1648,42 +1591,39 @@ ${productUrl}`;
         }
         
         /* GLOBAL STORE TITLE FONT - LOCKED TYPOGRAPHY */
-        /* LOCKED TYPOGRAPHY SYSTEM - RESTORED SPECIFICATION */
-        .store-header__title,
+        /* ENTERPRISE TYPOGRAPHY SYSTEM - CONTRAST TOKEN INHERITANCE */
         .store-title-locked {
           font-size: var(--font-store-name);
           font-weight: 700;
-          color: var(--sl-header-title);
+          color: var(--color-header-text-primary);
           line-height: 1.2;
           margin-bottom: var(--store-info-gap);
         }
         
-        .store-header__subtitle,
         .powered-by-locked {
           font-size: var(--font-store-subtitle);
           font-weight: 500;
-          color: var(--sl-header-subtle);
+          color: var(--color-header-text-secondary);
           line-height: 20px;
           margin-bottom: var(--store-info-gap);
           letter-spacing: -0.2px;
         }
         
         .powered-by-locked a {
-          color: var(--sl-header-link);
+          color: var(--color-header-text-secondary);
           text-decoration: none;
           transition: color 0.2s ease;
         }
         
         .powered-by-locked a:hover {
-          color: var(--sl-header-link);
+          color: var(--color-header-text-primary);
           text-decoration: underline;
         }
         
-        .store-header__description,
         .store-description-locked {
           font-size: var(--font-description);
           font-weight: 400;
-          color: var(--sl-header-subtle);
+          color: var(--color-header-text-secondary);
           line-height: 1.4;
           margin-top: var(--store-info-gap);
           margin-bottom: var(--store-info-gap);
@@ -1697,7 +1637,7 @@ ${productUrl}`;
         .store-subtitle-locked {
           font-size: var(--font-action-label);
           font-weight: 400;
-          color: var(--sl-header-subtle);
+          color: var(--color-header-text-tertiary);
           line-height: 18px;
         }
         
@@ -1743,13 +1683,11 @@ ${productUrl}`;
           border-radius: 50%;
         }
         
-        /* LOCKED CHIP SYSTEM - RESTORED SPECIFICATION */
-        .store-header__actions .chip,
+        /* ENTERPRISE BADGE SYSTEM - PAYMENT & DELIVERY PILLS */
         .payment-delivery-badge {
-          background: var(--sl-chip-surface);
-          border: var(--sl-chip-border);
-          border-radius: var(--sl-chip-radius);
-          box-shadow: var(--sl-chip-shadow);
+          background: var(--neutral-100);
+          border-radius: 12px;
+          box-shadow: var(--elevation-low);
           padding: var(--pill-padding);
           transition: all 0.2s ease;
           display: inline-flex;
@@ -1758,8 +1696,9 @@ ${productUrl}`;
           gap: 8px;
           font-weight: 500;
           font-size: var(--font-action-label);
-          color: var(--sl-header-title);
+          color: var(--text-primary);
           cursor: pointer;
+          border: 1px solid var(--neutral-200);
           white-space: nowrap;
         }
         
@@ -1785,13 +1724,12 @@ ${productUrl}`;
           flex-shrink: 0;
         }
         
-        /* LOCKED CTA SYSTEM - RESTORED SPECIFICATION */
-        .store-header__cta,
+        /* ENTERPRISE CTA BUTTONS - TOKEN INHERITANCE */
         .enterprise-cta-primary {
-          background: linear-gradient(135deg, var(--sl-cta-gradient-start), var(--sl-cta-gradient-end));
-          color: var(--sl-cta-text);
+          background: var(--brand-primary);
+          color: var(--color-header-text-primary);
           border: none;
-          border-radius: 12px;
+          border-radius: 8px;
           font-size: var(--font-action-label);
           font-weight: 600;
           padding: var(--cta-padding);
@@ -1805,23 +1743,23 @@ ${productUrl}`;
         }
         
         .enterprise-cta-primary:hover {
-          background: linear-gradient(135deg, #5BB2FF, #6B81FF);
+          background: var(--brand-secondary);
           box-shadow: var(--elevation-hover);
           transform: translateY(-1px);
         }
         
         .enterprise-cta-primary:active {
-          background: linear-gradient(135deg, #4799E5, #4A62E5);
+          background: #1E3A8A;
           transform: translateY(0);
           box-shadow: var(--elevation-card);
         }
         
-        /* LOCKED SECONDARY CTA - CHIP STYLE */
+        /* ENTERPRISE SECONDARY CTA - CONTRAST TOKEN INHERITANCE */
         .enterprise-cta-secondary {
-          background: var(--sl-chip-surface);
-          color: var(--sl-header-title);
-          border: var(--sl-chip-border);
-          border-radius: var(--sl-chip-radius);
+          background: rgba(255, 255, 255, 0.9);
+          color: var(--text-primary);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
           font-size: var(--font-action-label);
           font-weight: 600;
           padding: var(--cta-padding);
@@ -1830,11 +1768,12 @@ ${productUrl}`;
           gap: 8px;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: var(--sl-chip-shadow);
+          backdrop-filter: blur(8px);
+          box-shadow: var(--elevation-card);
         }
         
         .enterprise-cta-secondary:hover {
-          background: #F9FAFB;
+          background: var(--color-header-text-primary);
           border-color: var(--brand-primary);
           color: var(--brand-primary);
           box-shadow: var(--elevation-hover);
@@ -1848,23 +1787,16 @@ ${productUrl}`;
           transform: translateY(0);
         }
         
-        /* LOCKED HEADER CONTAINER - RESTORED SPECIFICATION */
-        .store-header {
-          background: linear-gradient(180deg, var(--sl-header-gradient-start), var(--sl-header-gradient-end));
-          border: var(--sl-header-border);
-          border-radius: var(--sl-header-radius);
-          box-shadow: var(--sl-header-shadow);
-          padding: 32px 32px 28px;
-        }
-        
-        /* For backward compatibility */
+        /* ENTERPRISE HEADER CONTAINER - LOCKED GRADIENT TOKEN */
         .header-container-locked {
-          background: linear-gradient(180deg, var(--sl-header-gradient-start), var(--sl-header-gradient-end));
-          border: var(--sl-header-border);
-          border-radius: var(--sl-header-radius);
-          box-shadow: var(--sl-header-shadow);
-          padding: 32px 32px 28px;
-          backdrop-filter: none;
+          background: var(--color-header-bg);
+          border-radius: 16px;
+          box-shadow: var(--elevation-card);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: var(--header-padding);
+          min-height: var(--banner-min-height);
+          color: var(--color-header-text-primary);
         }
         
         @media (max-width: 768px) {
@@ -1976,9 +1908,16 @@ ${productUrl}`;
         <FullWidthContainer className="py-8">
           <div className="header-container-locked overflow-hidden relative">
             
-            {/* Locked header banner - NO COVER URL SUPPORT */}
-            <div className="h-32 md:h-36 w-full relative overflow-hidden">
-              {/* Header stays as locked gradient only */}
+            {/* Enterprise glass elevation banner - TOKEN INHERITANCE */}
+            <div
+              className="h-32 md:h-36 w-full relative overflow-hidden"
+              style={{
+                background: seller?.coverUrl
+                  ? `var(--color-header-bg), url(${seller.coverUrl}) center/cover no-repeat`
+                  : 'var(--color-header-bg)',
+              }}
+            >
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
             </div>
 
             {/* PERFECT VERTICAL ALIGNMENT HEADER ROW */}
@@ -2068,22 +2007,9 @@ ${productUrl}`;
                   )}
                 </div>
 
-                {/* RIGHT ZONE: Role-Aware CTAs */}
+                {/* RIGHT ZONE: Enterprise CTA */}
                 <div className="cta-block">
-                  {currentUser?.uid === sellerId ? (
-                    // Store Owner Toolbar
-                    <div className="flex items-center gap-3">
-                      <Link to="/products" className="enterprise-cta-primary">
-                        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                        Back to Dashboard
-                      </Link>
-                      <Link to="/settings" className="enterprise-cta-secondary">
-                        <Settings className="h-4 w-4" />
-                        Edit Store
-                      </Link>
-                    </div>
-                  ) : (
-                    // Buyer/Public View
+                  {!isOwner ? (
                     <div className="hidden md:flex items-center gap-3">
                       <button className="enterprise-cta-secondary">
                         <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110" />
@@ -2094,6 +2020,11 @@ ${productUrl}`;
                         Share Store
                       </button>
                     </div>
+                  ) : (
+                    <Link to="/products" className="enterprise-cta-primary">
+                      <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                      Back to Dashboard
+                    </Link>
                   )}
                 </div>
               </div>
