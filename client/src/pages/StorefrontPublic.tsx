@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter } from 'lucide-react';
+import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook } from 'lucide-react';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -22,6 +22,44 @@ import logoUrl from '@/assets/logo.png';
 
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
+
+// URL normalization for social media links
+const normalizeUrl = (value: string, platform: 'instagram' | 'tiktok' | 'facebook'): string => {
+  if (!value || typeof value !== 'string') return '';
+  
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  
+  // Block unsafe URLs
+  if (trimmed.toLowerCase().startsWith('javascript:') || trimmed.toLowerCase().startsWith('data:')) {
+    return '';
+  }
+  
+  // If already a full URL, use as-is
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  
+  // Handle-to-URL conversion
+  let handle = trimmed;
+  if (handle.startsWith('@')) {
+    handle = handle.slice(1);
+  }
+  
+  // Escape handle for URL safety
+  const encodedHandle = encodeURIComponent(handle);
+  
+  switch (platform) {
+    case 'instagram':
+      return `https://instagram.com/${encodedHandle}`;
+    case 'tiktok':
+      return `https://www.tiktok.com/@${encodedHandle}`;
+    case 'facebook':
+      return `https://facebook.com/${encodedHandle}`;
+    default:
+      return '';
+  }
+};
 
 // --- v1.8 Full-Width Container System for Edge-to-Edge Alignment ---
 const FullWidthContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
@@ -1966,10 +2004,58 @@ ${productUrl}`;
           margin-bottom: 8px;
         }
         
-        .locked-store-description {
+        /* Store Description Block */
+        .store-description-block {
           font-size: 14px;
           color: var(--text-subtle, #9CA3AF);
           line-height: 1.4;
+          margin-top: 8px;
+          max-width: 62ch;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        
+        /* Social Links Row */
+        .social-links-row {
+          display: inline-flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 8px;
+        }
+        
+        .social-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 32px;
+          min-height: 32px;
+          padding: 8px;
+          color: var(--brand-neutral-700, #374151);
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          text-decoration: none;
+        }
+        
+        .social-link:hover {
+          color: var(--brand-primary-500, #3B82F6);
+          background: var(--surface-elevated, #F9FAFB);
+        }
+        
+        .social-link:active {
+          color: var(--brand-primary-600, #2563EB);
+        }
+        
+        .social-link:focus {
+          outline: 2px solid var(--brand-primary-500, #3B82F6);
+          outline-offset: 2px;
+        }
+        
+        .social-icon {
+          width: 16px;
+          height: 16px;
         }
         
         .seller-actions-block {
@@ -2044,6 +2130,10 @@ ${productUrl}`;
             flex-direction: column;
             gap: 12px;
           }
+          
+          .store-description-block {
+            -webkit-line-clamp: 3;
+          }
         }
         
         /* Enterprise responsive logo scaling handled by clamp */
@@ -2080,9 +2170,57 @@ ${productUrl}`;
                       Powered by ShopLynk
                     </a>
                   </div>
-                  <div className="locked-store-description">
-                    {seller?.storeDescription || 'Maybe there was no description here before'}
-                  </div>
+                  
+                  {/* Conditional Description Block */}
+                  {seller?.storeDescription && seller.storeDescription.trim() && (
+                    <div className="store-description-block">
+                      {seller.storeDescription}
+                    </div>
+                  )}
+                  
+                  {/* Conditional Social Links Row */}
+                  {(seller?.socialMedia?.instagram || seller?.socialMedia?.tiktok || seller?.socialMedia?.facebook) && (
+                    <div className="social-links-row">
+                      {seller.socialMedia.instagram && (
+                        <a
+                          href={normalizeUrl(seller.socialMedia.instagram, 'instagram')}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="social-link"
+                          aria-label="Open Instagram profile"
+                          title="Instagram"
+                        >
+                          <Instagram className="social-icon" />
+                        </a>
+                      )}
+                      {seller.socialMedia.tiktok && (
+                        <a
+                          href={normalizeUrl(seller.socialMedia.tiktok, 'tiktok')}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="social-link"
+                          aria-label="Open TikTok profile"
+                          title="TikTok"
+                        >
+                          <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.321 5.562a5.122 5.122 0 0 1-.443-.258 6.228 6.228 0 0 1-1.137-.966c-.849-.849-1.204-1.864-1.204-2.338v-.5c0-.276-.224-.5-.5-.5h-3c-.276 0-.5.224-.5.5v11c0 1.378-1.122 2.5-2.5 2.5s-2.5-1.122-2.5-2.5 1.122-2.5 2.5-2.5c.173 0 .342.018.5.052V7.5c0-.276-.224-.5-.5-.5-.195 0-.391.015-.588.044-2.623.389-4.662 2.644-4.662 5.456 0 3.038 2.462 5.5 5.5 5.5s5.5-2.462 5.5-5.5V8.562c.915.703 2.054 1.122 3.287 1.122.276 0 .5-.224.5-.5v-3c0-.276-.224-.5-.5-.5-.433 0-.855-.075-1.253-.622z"/>
+                          </svg>
+                        </a>
+                      )}
+                      {seller.socialMedia.facebook && (
+                        <a
+                          href={normalizeUrl(seller.socialMedia.facebook, 'facebook')}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="social-link"
+                          aria-label="Open Facebook profile"
+                          title="Facebook"
+                        >
+                          <Facebook className="social-icon" />
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
