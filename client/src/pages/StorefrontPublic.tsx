@@ -908,43 +908,36 @@ ${productUrl}`;
           --brand-link: #3B82F6;
           --brand-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
           
-          /* LOCKED GLOBAL TOKENS - PRODUCT CARD GOVERNANCE */
+          /* SHOPLYNK GLOBAL TOKEN SYSTEM - ENTERPRISE GOVERNANCE */
           
-          /* 1. PRIMARY ACTION - WHATSAPP CTA */
-          --CTA_PRIMARY: #25D366;
-          --CTA_TEXT_PRIMARY: #FFFFFF;
-          --CTA_PRIMARY_HOVER: #1DBF56;
-          --CTA_RADIUS: 12px;
-          --CTA_FONT_WEIGHT: 600;
+          /* A. BRAND & ACCENT COLORS */
+          --brand-primary: #2563EB;
+          --brand-green: #25D366;
+          --brand-red: #EF4444;
+          --brand-gold: #FACC15;
+          --neutral-100: #FFFFFF;
+          --neutral-200: #E5E7EB;
+          --neutral-300: #D1D5DB;
+          --text-primary: #111827;
+          --text-secondary: #6B7280;
           
-          /* 2. SECONDARY ACTION - VIEW DETAILS */
-          --CTA_SECONDARY: #FFFFFF;
-          --CTA_SECONDARY_BORDER: 1px solid #E5E7EB;
-          --CTA_SECONDARY_TEXT: #111827;
-          --CTA_SECONDARY_HOVER: #F9FAFB;
+          /* B. TYPOGRAPHY */
+          --font-title-lg: 16px;
+          --font-subtitle: 14px;
+          --font-price: 18px;
+          --font-pill: 13px;
+          --font-badge: 12px;
           
-          /* 3. CATEGORY PILLS */
-          --CATEGORY_PILL_BG: #F3F7FF;
-          --CATEGORY_PILL_BORDER: 1px solid #C7D7FF;
-          --CATEGORY_PILL_TEXT: #2563EB;
-          --CATEGORY_PILL_RADIUS: 18px;
+          /* C. SPACING */
+          --card-padding: 16px;
+          --pill-padding: 4px 12px;
+          --cta-padding: 12px 16px;
+          --badge-padding: 3px 8px;
           
-          /* 4. STATUS BADGES */
-          --STATUS_POSITIVE_BG: #D1FADF;
-          --STATUS_POSITIVE_TEXT: #037E3A;
-          --STATUS_NEGATIVE_BG: #F87171;
-          --STATUS_NEGATIVE_TEXT: #FFFFFF;
-          
-          /* 5. PRICE STYLING */
-          --PRICE_POSITIVE: #16A34A;
-          --PRICE_WEIGHT: 700;
-          --PRICE_SIZE: 16px;
-          
-          /* 6. SPACING & ALIGNMENT */
-          --CARD_PADDING: 20px;
-          --CTA_VERTICAL_SPACING: 16px;
-          --TITLE_PRICE_SPACING: 8px;
-          --CTA_INTERNAL_PADDING: 12px 16px;
+          /* D. SHADOWS & ELEVATION */
+          --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.08);
+          --elevation-mid: 0 2px 6px rgba(0, 0, 0, 0.12);
+          --elevation-high: 0 4px 12px rgba(0, 0, 0, 0.18);
           
           /* LEGACY SUPPORT TOKENS */
           --token-surface-elevated: #ffffff;
@@ -958,19 +951,19 @@ ${productUrl}`;
           --token-text-muted: #9CA3AF;
         }
         
-        /* LOCKED PRODUCT CARD CONTAINER */
+        /* ENTERPRISE PRODUCT CARD CONTAINER */
         .product-card-v11 {
-          background: var(--token-surface-elevated);
-          border-radius: var(--CTA_RADIUS);
-          box-shadow: var(--token-shadow-soft);
+          background: var(--neutral-100);
+          border-radius: 12px;
+          box-shadow: var(--elevation-low);
           transition: all 0.3s ease;
           overflow: hidden;
-          padding: var(--CARD_PADDING);
+          padding: var(--card-padding);
         }
         
         .product-card-v11:hover {
           transform: translateY(-2px);
-          box-shadow: var(--token-shadow-hover);
+          box-shadow: var(--elevation-high);
         }
         
         /* Image Section */
@@ -989,7 +982,7 @@ ${productUrl}`;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          border-radius: var(--CTA_RADIUS) var(--CTA_RADIUS) 0 0;
+          border-radius: 12px 12px 0 0;
         }
         
         .product-favorite-btn {
@@ -999,13 +992,13 @@ ${productUrl}`;
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          background: white;
+          background: var(--neutral-100);
           border: none;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          box-shadow: var(--token-shadow-soft);
+          box-shadow: var(--elevation-low);
           transition: all 0.2s ease;
         }
         
@@ -1018,11 +1011,11 @@ ${productUrl}`;
         }
         
         .product-favorite-active {
-          color: var(--STATUS_NEGATIVE_BG);
+          color: var(--brand-red);
           fill: currentColor;
         }
         
-        /* LOCKED STATUS BADGE SYSTEM */
+        /* ENTERPRISE STATUS BADGE SYSTEM */
         .product-badges-overlay {
           position: absolute;
           bottom: 8px;
@@ -1034,36 +1027,45 @@ ${productUrl}`;
         
         .product-badge-new {
           background: #DBEAFE;
-          color: #1E40AF;
-          font-size: 12px;
-          font-weight: var(--CTA_FONT_WEIGHT);
-          padding: 4px 8px;
-          border-radius: var(--CTA_RADIUS);
+          color: var(--brand-primary);
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
         }
         
         .product-badge-limited {
-          background: var(--STATUS_NEGATIVE_BG);
-          color: var(--STATUS_NEGATIVE_TEXT);
-          font-size: 12px;
-          font-weight: var(--CTA_FONT_WEIGHT);
-          padding: 4px 8px;
-          border-radius: var(--CTA_RADIUS);
+          background: var(--brand-red);
+          color: var(--neutral-100);
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
         }
         
         .product-badge-eco {
-          background: var(--STATUS_POSITIVE_BG);
-          color: var(--STATUS_POSITIVE_TEXT);
-          font-size: 12px;
-          font-weight: var(--CTA_FONT_WEIGHT);
-          padding: 4px 8px;
-          border-radius: var(--CTA_RADIUS);
+          background: #DCFCE7;
+          color: #166534;
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
         }
         
-        /* LOCKED CONTENT SECTION */
+        .product-badge-premium {
+          background: var(--brand-gold);
+          color: #92400E;
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
+        }
+        
+        /* ENTERPRISE CONTENT SECTION */
         .product-card-content {
           display: flex;
           flex-direction: column;
-          gap: var(--TITLE_PRICE_SPACING);
+          gap: 8px;
         }
         
         .product-title-section {
@@ -1072,11 +1074,11 @@ ${productUrl}`;
           gap: 4px;
         }
         
-        /* LOCKED PRODUCT TITLE */
+        /* ENTERPRISE PRODUCT TITLE */
         .product-title {
-          font-size: 17px;
-          font-weight: var(--token-font-weight-bold);
-          color: var(--token-text-primary);
+          font-size: var(--font-title-lg);
+          font-weight: 700;
+          color: var(--text-primary);
           line-height: 1.3;
           letter-spacing: -0.01em;
           display: -webkit-box;
@@ -1084,18 +1086,18 @@ ${productUrl}`;
           -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
-          margin-bottom: var(--TITLE_PRICE_SPACING);
+          margin-bottom: 8px;
         }
         
         .product-brand {
-          font-size: 14px;
-          font-weight: var(--token-font-weight-medium);
-          color: #6B7280;
+          font-size: var(--font-subtitle);
+          font-weight: 500;
+          color: var(--text-secondary);
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
         
-        /* LOCKED PRICE STYLING */
+        /* ENTERPRISE PRICE STYLING */
         .product-price-section {
           display: flex;
           align-items: center;
@@ -1103,44 +1105,44 @@ ${productUrl}`;
         }
         
         .product-price {
-          font-size: var(--PRICE_SIZE);
-          font-weight: var(--PRICE_WEIGHT);
-          color: var(--PRICE_POSITIVE);
+          font-size: var(--font-price);
+          font-weight: 700;
+          color: #16A34A;
           letter-spacing: -0.02em;
         }
         
         .product-compare-price {
-          font-size: 14px;
-          color: var(--token-text-muted);
+          font-size: var(--font-subtitle);
+          color: var(--text-secondary);
           text-decoration: line-through;
         }
         
         .product-discount-badge {
-          background: var(--STATUS_NEGATIVE_BG);
-          color: var(--STATUS_NEGATIVE_TEXT);
-          font-size: 12px;
-          font-weight: var(--CTA_FONT_WEIGHT);
+          background: var(--brand-red);
+          color: var(--neutral-100);
+          font-size: var(--font-badge);
+          font-weight: 600;
           padding: 2px 6px;
           border-radius: 4px;
           margin-left: 8px;
         }
         
-        /* LOCKED CATEGORY PILLS */
+        /* ENTERPRISE CATEGORY PILLS */
         .product-category-section {
           display: flex;
           gap: 8px;
           flex-wrap: wrap;
-          margin: var(--TITLE_PRICE_SPACING) 0;
+          margin: 8px 0;
         }
         
         .product-category-pill {
-          background: var(--CATEGORY_PILL_BG);
-          color: var(--CATEGORY_PILL_TEXT);
-          font-size: 14px;
-          font-weight: var(--token-font-weight-medium);
-          padding: 6px 12px;
-          border-radius: var(--CATEGORY_PILL_RADIUS);
-          border: var(--CATEGORY_PILL_BORDER);
+          background: var(--neutral-100);
+          color: var(--brand-primary);
+          font-size: var(--font-pill);
+          font-weight: 500;
+          padding: var(--pill-padding);
+          border-radius: 18px;
+          border: 1px solid var(--brand-primary);
           display: inline-flex;
           align-items: center;
           gap: 4px;
@@ -1149,56 +1151,65 @@ ${productUrl}`;
         }
         
         .product-category-pill:hover {
+          background: #EFF6FF;
           transform: translateY(-1px);
-          background: #E0EFFF;
-          border-color: #A3C7FF;
         }
         
-        /* LOCKED CTA SYSTEM */
+        .product-category-pill:active {
+          background: #DBEAFE;
+        }
+        
+        /* ENTERPRISE CTA SYSTEM */
         .product-cta-section {
           display: flex;
           flex-direction: column;
           gap: 8px;
-          margin-top: var(--CTA_VERTICAL_SPACING);
-          padding-top: var(--CTA_VERTICAL_SPACING);
-          border-top: 1px solid #E5E7EB;
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px solid var(--neutral-200);
         }
         
-        /* LOCKED PRIMARY CTA - WHATSAPP */
+        /* ENTERPRISE PRIMARY CTA - CONTACT SELLER */
         .product-cta-primary {
           width: 100%;
-          background: var(--CTA_PRIMARY);
-          color: var(--CTA_TEXT_PRIMARY);
+          background: var(--brand-green);
+          color: var(--neutral-100);
           border: none;
-          border-radius: var(--CTA_RADIUS);
-          font-size: 14px;
-          font-weight: var(--CTA_FONT_WEIGHT);
-          padding: var(--CTA_INTERNAL_PADDING);
+          border-radius: 8px;
+          font-size: var(--font-subtitle);
+          font-weight: 600;
+          padding: var(--cta-padding);
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
           cursor: pointer;
           transition: all 0.2s ease;
-          box-shadow: 0 2px 8px rgba(37, 211, 102, 0.25);
+          box-shadow: var(--elevation-mid);
         }
         
         .product-cta-primary:hover {
-          background: var(--CTA_PRIMARY_HOVER);
+          background: #22C55E;
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+          box-shadow: var(--elevation-high);
         }
         
-        /* LOCKED SECONDARY CTA - VIEW DETAILS */
+        .product-cta-primary:active {
+          background: #16A34A;
+          transform: translateY(0);
+          box-shadow: var(--elevation-mid);
+        }
+        
+        /* ENTERPRISE SECONDARY CTA - VIEW DETAILS */
         .product-cta-secondary {
           width: 100%;
-          background: var(--CTA_SECONDARY);
-          color: var(--CTA_SECONDARY_TEXT);
-          border: var(--CTA_SECONDARY_BORDER);
-          border-radius: var(--CTA_RADIUS);
-          font-size: 14px;
-          font-weight: var(--CTA_FONT_WEIGHT);
-          padding: var(--CTA_INTERNAL_PADDING);
+          background: var(--neutral-100);
+          color: var(--text-primary);
+          border: 1px solid var(--neutral-200);
+          border-radius: 8px;
+          font-size: var(--font-subtitle);
+          font-weight: 600;
+          padding: var(--cta-padding);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1208,39 +1219,44 @@ ${productUrl}`;
         }
         
         .product-cta-secondary:hover {
+          background: #F9FAFB;
           transform: translateY(-1px);
-          background: var(--CTA_SECONDARY_HOVER);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          box-shadow: var(--elevation-low);
+        }
+        
+        .product-cta-secondary:active {
+          background: #F3F4F6;
+          transform: translateY(0);
         }
         
         .product-warning-badge {
           width: 100%;
-          border-radius: var(--CTA_RADIUS);
-          border: 1px solid #FCD34D;
+          border-radius: 8px;
+          border: 1px solid var(--brand-gold);
           background: #FEF3C7;
-          padding: var(--CTA_INTERNAL_PADDING);
-          font-size: 12px;
+          padding: var(--cta-padding);
+          font-size: var(--font-badge);
           font-weight: 500;
           color: #92400E;
           text-align: center;
         }
         
-        /* LOCKED ATTRIBUTES SYSTEM */
+        /* ENTERPRISE ATTRIBUTES SYSTEM */
         .product-attributes-section {
           display: flex;
           gap: 4px;
           flex-wrap: wrap;
           align-items: center;
-          margin-top: var(--TITLE_PRICE_SPACING);
+          margin-top: 8px;
         }
         
         .product-attribute-tag {
           background: #F3F4F6;
-          color: #6B7280;
-          font-size: 12px;
-          font-weight: var(--token-font-weight-normal);
-          padding: 4px 8px;
-          border-radius: var(--CTA_RADIUS);
+          color: var(--text-secondary);
+          font-size: var(--font-badge);
+          font-weight: 400;
+          padding: var(--badge-padding);
+          border-radius: 6px;
           display: inline-flex;
           align-items: center;
           gap: 4px;
@@ -1248,16 +1264,16 @@ ${productUrl}`;
         }
         
         .product-attribute-eco {
-          background: var(--STATUS_POSITIVE_BG);
-          color: var(--STATUS_POSITIVE_TEXT);
-          font-weight: var(--token-font-weight-medium);
+          background: #DCFCE7;
+          color: #166534;
+          font-weight: 500;
           opacity: 1;
         }
         
         .product-attribute-stock-warning {
-          background: var(--STATUS_NEGATIVE_BG);
-          color: var(--STATUS_NEGATIVE_TEXT);
-          font-weight: var(--token-font-weight-medium);
+          background: var(--brand-red);
+          color: var(--neutral-100);
+          font-weight: 500;
           opacity: 1;
         }
           
