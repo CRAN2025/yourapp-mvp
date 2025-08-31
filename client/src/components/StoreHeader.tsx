@@ -35,25 +35,26 @@ export default function StoreHeader({
     <section className="sl-store-header" aria-label="Store header">
       <style>{`
         .sl-store-header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 32px 0;
+          background: #FFFFFF;
+          border-bottom: 1px solid #E5E7EB;
+          padding: 24px 0;
+          width: 100%;
         }
         
         .sl-store-header__inner {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 0 24px;
+          padding: 0 16px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          gap: 24px;
+          gap: 32px;
         }
         
         .sl-store-header__left {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 20px;
           flex: 1;
           min-width: 0;
         }
@@ -63,28 +64,27 @@ export default function StoreHeader({
         }
         
         .sl-store-header__logo img {
-          width: 96px;
-          height: 96px;
-          border-radius: 16px;
+          width: 72px;
+          height: 72px;
+          border-radius: 12px;
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
+          border: 1px solid #E5E7EB;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           background: #fff;
           object-fit: cover;
         }
         
         .sl-store-header__avatar {
-          width: 96px;
-          height: 96px;
-          border-radius: 16px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
-          background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,0.8)),
-                      #f8fafc;
+          width: 72px;
+          height: 72px;
+          border-radius: 12px;
+          border: 1px solid #E5E7EB;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
           display: grid;
           place-items: center;
-          font: 700 28px/1 system-ui, -apple-system, "Segoe UI";
-          color: #2563eb;
+          font: 700 24px/1 system-ui, -apple-system, "Segoe UI";
+          color: #1D4ED8;
         }
         
         .sl-store-header__avatar::before {
@@ -94,29 +94,30 @@ export default function StoreHeader({
         .sl-store-header__meta {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 6px;
           min-width: 0;
         }
         
         .sl-store-header__title {
-          font-size: 24px;
+          font-size: 28px;
           font-weight: 700;
           line-height: 1.2;
           margin: 0;
-          color: white;
+          color: #111827;
         }
         
         .sl-store-header__powered {
           font-size: 14px;
-          color: rgba(255, 255, 255, 0.8);
+          color: #6B7280;
+          font-weight: 500;
         }
         
         .sl-store-header__desc {
-          font-size: 14px;
-          color: rgba(255, 255, 255, 0.9);
-          line-height: 1.4;
+          font-size: 16px;
+          color: #4B5563;
+          line-height: 1.5;
           margin: 0;
-          max-width: 62ch;
+          max-width: 60ch;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -125,8 +126,8 @@ export default function StoreHeader({
         
         .sl-store-header__socials {
           display: inline-flex;
-          gap: 8px;
-          margin-top: 4px;
+          gap: 12px;
+          margin-top: 8px;
           flex-wrap: wrap;
         }
         
@@ -134,29 +135,33 @@ export default function StoreHeader({
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
-          height: 32px;
-          border-radius: 999px;
-          color: rgba(255, 255, 255, 0.7);
-          background: transparent;
-          transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
+          width: 40px;
+          height: 40px;
+          border-radius: 8px;
+          color: #1D4ED8;
+          background: #F8FAFC;
+          border: 1px solid #E5E7EB;
+          transition: all .2s ease;
           outline: none;
           text-decoration: none;
         }
         
         .sl-social:hover {
-          color: white;
-          background: rgba(255, 255, 255, 0.1);
+          color: #FFFFFF;
+          background: #1D4ED8;
+          border-color: #1D4ED8;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
         }
         
         .sl-social:focus-visible {
-          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+          box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.3);
         }
         
         .sl-store-header__right {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 16px;
           flex-wrap: wrap;
         }
         
@@ -164,34 +169,36 @@ export default function StoreHeader({
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 8px 12px;
-          background: rgba(255, 255, 255, 0.15);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 20px;
+          padding: 10px 16px;
+          background: #F8FAFC;
+          border: 1px solid #E5E7EB;
+          border-radius: 8px;
           font-size: 14px;
           font-weight: 500;
-          color: white;
+          color: #374151;
           cursor: pointer;
           transition: all 0.2s ease;
           text-decoration: none;
         }
         
         .sl-chip:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.3);
+          background: #F1F5F9;
+          border-color: #D1D5DB;
+          color: #1F2937;
         }
         
         .sl-chip__icon {
           flex-shrink: 0;
+          color: #6B7280;
         }
         
         .sl-cta {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 12px 16px;
-          height: 40px;
-          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          padding: 12px 20px;
+          height: 44px;
+          background: #1D4ED8;
           color: white;
           border: none;
           border-radius: 8px;
@@ -200,11 +207,13 @@ export default function StoreHeader({
           text-decoration: none;
           cursor: pointer;
           transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba(29, 78, 216, 0.15);
         }
         
         .sl-cta:hover {
+          background: #1E40AF;
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(79, 168, 255, 0.3);
+          box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
         }
         
         .sl-cta__icon {
@@ -212,16 +221,33 @@ export default function StoreHeader({
         }
         
         /* Responsive */
+        @media (max-width: 1024px) {
+          .sl-store-header__inner {
+            padding: 0 20px;
+            gap: 24px;
+          }
+        }
+        
         @media (max-width: 768px) {
+          .sl-store-header {
+            padding: 20px 0;
+          }
+          
           .sl-store-header__inner {
             flex-direction: column;
             align-items: stretch;
-            gap: 16px;
+            gap: 20px;
+            padding: 0 16px;
           }
           
           .sl-store-header__left {
             justify-content: center;
             text-align: center;
+            gap: 16px;
+          }
+          
+          .sl-store-header__title {
+            font-size: 24px;
           }
           
           .sl-store-header__right {
@@ -232,6 +258,27 @@ export default function StoreHeader({
           
           .sl-store-header__desc {
             -webkit-line-clamp: 3;
+            font-size: 15px;
+          }
+          
+          .sl-social {
+            width: 36px;
+            height: 36px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .sl-store-header__inner {
+            padding: 0 12px;
+          }
+          
+          .sl-store-header__left {
+            flex-direction: column;
+            gap: 12px;
+          }
+          
+          .sl-store-header__title {
+            font-size: 22px;
           }
         }
       `}</style>
@@ -325,43 +372,43 @@ export default function StoreHeader({
 /** --- tiny inline SVGs (monochrome; inherit currentColor) --- */
 const CARD_ICON = (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="1.6"/>
+    <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="2"/>
     <rect x="3.8" y="9" width="16.4" height="1.6" rx=".8" fill="currentColor"/>
   </svg>
 );
 
 const TRUCK_ICON = (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path d="M3 7h11v8H3z" stroke="currentColor" strokeWidth="1.6"/>
-    <path d="M14 10h4l3 3v2h-7" stroke="currentColor" strokeWidth="1.6"/>
-    <circle cx="7" cy="18" r="2" stroke="currentColor" strokeWidth="1.6"/>
-    <circle cx="18" cy="18" r="2" stroke="currentColor" strokeWidth="1.6"/>
+    <path d="M3 7h11v8H3z" stroke="currentColor" strokeWidth="2"/>
+    <path d="M14 10h4l3 3v2h-7" stroke="currentColor" strokeWidth="2"/>
+    <circle cx="7" cy="18" r="2" stroke="currentColor" strokeWidth="2"/>
+    <circle cx="18" cy="18" r="2" stroke="currentColor" strokeWidth="2"/>
   </svg>
 );
 
 const BACK_ICON = (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path d="M10 19l-7-7 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M3 12h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+    <path d="M10 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 12h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
   </svg>
 );
 
 const IG_ICON = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.6"/>
-    <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.6"/>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="2"/>
+    <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2"/>
     <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/>
   </svg>
 );
 
 const TT_ICON = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path d="M15 4v4a5 5 0 0 0 5 5v3a8 8 0 1 1-8-8h1V4h2z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M15 4v4a5 5 0 0 0 5 5v3a8 8 0 1 1-8-8h1V4h2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 const FB_ICON = (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v3H8v3h3v6h3v-6h3l1-3h-4V9z" fill="currentColor"/>
   </svg>
 );
