@@ -500,6 +500,251 @@ export default function Storefront() {
         .micro-elevation {
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
+
+        /* PRODUCT CARD v1.1 - Complete CSS from StorefrontPublic */
+        .product-card-v11 {
+          background: linear-gradient(135deg, #FFFFFF 0%, #FDFDFD 100%);
+          border-radius: 24px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: hidden;
+          position: relative;
+          border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .product-card-v11:hover {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+          border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .product-image-container {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .product-image-wrapper {
+          position: relative;
+          width: 100%;
+          height: 240px;
+          overflow: hidden;
+          background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+        }
+
+        .product-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card-v11:hover .product-image {
+          transform: scale(1.08);
+        }
+
+        .product-favorite-btn {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          z-index: 10;
+        }
+
+        .product-favorite-btn:hover {
+          background: rgba(255, 255, 255, 1);
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-favorite-active {
+          color: #EF4444;
+          fill: #EF4444;
+        }
+
+        .product-favorite-idle {
+          color: #6B7280;
+          fill: none;
+        }
+
+        .product-badges-overlay {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          z-index: 5;
+        }
+
+        .product-badge-new {
+          background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .product-badge-limited {
+          background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .product-badge-featured {
+          background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .product-card-content {
+          padding: 20px;
+        }
+
+        .product-title-section {
+          margin-bottom: 12px;
+        }
+
+        .product-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #111827;
+          line-height: 1.3;
+          margin: 0 0 4px 0;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .product-brand {
+          font-size: 13px;
+          color: #6B7280;
+          font-weight: 500;
+          margin: 0;
+        }
+
+        .product-price-section {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .product-price {
+          font-size: 20px;
+          font-weight: 800;
+          color: #111827;
+        }
+
+        .product-compare-price {
+          font-size: 14px;
+          color: #9CA3AF;
+          text-decoration: line-through;
+        }
+
+        .product-discount-badge {
+          background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+          color: white;
+          padding: 2px 6px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+        }
+
+        .product-category-section {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+
+        .product-category-pill {
+          background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+          color: #374151;
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 500;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .product-cta-section {
+          display: flex;
+          gap: 8px;
+        }
+
+        .product-cta-primary {
+          flex: 1;
+          background: linear-gradient(135deg, #25D366 0%, #22C55E 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .product-cta-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .product-cta-secondary {
+          background: rgba(59, 130, 246, 0.1);
+          color: #2563EB;
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .product-cta-secondary:hover {
+          background: rgba(59, 130, 246, 0.15);
+          border-color: rgba(59, 130, 246, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .product-cta-secondary:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
       `}</style>
       
       <DashboardLayout>
@@ -728,86 +973,224 @@ export default function Storefront() {
           </Card>
         </FullWidthContainer>
 
-        {/* Products Grid */}
-        {filteredProducts.length === 0 ? (
-          <EmptyState
-            icon={<Eye className="w-16 h-16" />}
-            title="No products to display"
-            description={
-              products.length === 0
-                ? "Add products to your catalog to see how they'll appear to customers."
-                : "No products match your search criteria."
-            }
-            action={{
-              label: "Manage Products",
-              onClick: () => window.location.href = '/products',
-            }}
-          />
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group rounded-2xl border border-white/40"
-                style={{
-                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%)',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
-                }}>
-                <div className="relative">
-                  <img
-                    src={getProductImageUrl(product)}
-                    alt={product.name}
-                    className="w-full h-64 object-cover rounded-t-2xl"
-                    loading="lazy"
-                  />
-                  <div className="absolute top-3 right-3">
-                    <Badge variant="secondary" className="bg-white/90 text-foreground font-semibold px-3 py-1">
-                      {formatPrice(product.price)}
-                    </Badge>
-                  </div>
-                  {product.quantity <= 10 && (
-                    <div className="absolute bottom-3 left-3">
-                      <Badge variant="outline" className="bg-yellow-50 border-yellow-200 text-yellow-800 font-medium">
-                        Only {product.quantity} left
-                      </Badge>
+          {/* Enhanced Results Summary from StorefrontPublic */}
+          {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
+            <div className="mb-8">
+              <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-slate-800">
+                      Found {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''}
+                    </h3>
+                    <div className="flex flex-wrap gap-2 text-sm text-slate-600">
+                      {searchQuery && (
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          Search: "{searchQuery}"
+                        </Badge>
+                      )}
+                      {categoryFilter !== 'all' && (
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          Category: {categoryFilter}
+                        </Badge>
+                      )}
+                      {showFavorites && (
+                        <Badge variant="secondary" className="bg-red-100 text-red-800">
+                          <Heart className="w-3 h-3 mr-1" />
+                          Favorites Only
+                        </Badge>
+                      )}
                     </div>
-                  )}
+                  </div>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity"
-                    data-testid={`button-favorite-preview-${product.id}`}
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setShowFavorites(false);
+                    }}
+                    className="text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl font-semibold"
                   >
-                    <Heart className="w-4 h-4 text-gray-400" />
+                    Clear Filters
                   </Button>
                 </div>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-3 line-clamp-2">
-                    {product.name}
-                  </h3>
-                  {product.description && (
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3 leading-relaxed">
-                      {product.description}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xl font-bold text-foreground">
-                      {formatPrice(product.price)}
-                    </span>
-                    <Badge variant="outline" className="font-medium">{product.category}</Badge>
-                  </div>
-                  
-                  {/* Enhanced WhatsApp Button Preview */}
-                  <Button 
-                    className="w-full bg-success text-success-foreground hover:bg-success/90 font-medium py-3"
-                    disabled
-                    data-testid={`button-whatsapp-preview-${product.id}`}
-                  >
-                    💬 Contact on WhatsApp
-                  </Button>
-                </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
+
+          {/* Product Grid from StorefrontPublic */}
+          {filteredProducts.length === 0 ? (
+            <Card className="p-8 text-center">
+              <EmptyState
+                icon={<Search className="h-20 w-20 text-slate-400" />}
+                title={searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
+                description={
+                  searchQuery || categoryFilter !== 'all' || showFavorites
+                    ? "Try adjusting your search or filters to find what you're looking for."
+                    : "Add products to your catalog to see how they'll appear to customers."
+                }
+                action={
+                  (searchQuery || categoryFilter !== 'all' || showFavorites) ? {
+                    label: "Clear All Filters",
+                    onClick: () => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setShowFavorites(false);
+                    }
+                  } : {
+                    label: "Manage Products",
+                    onClick: () => window.location.href = '/products',
+                  }
+                }
+              />
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredProducts.map((product) => (
+                <Card
+                  key={product.id}
+                  className="product-card-v11 group cursor-pointer border-0 overflow-hidden"
+                  onClick={() => handleProductView(product)}
+                  data-testid={`card-product-${product.id}`}
+                >
+                  <div className="product-image-container">
+                    {/* Product image */}
+                    <div className="product-image-wrapper">
+                      <img
+                        src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+                        alt={product.name}
+                        className="product-image"
+                        onLoad={(e) => handleImageLoad(product.id, e)}
+                        onError={handleImageError}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      
+                      {/* Favorite button - top right */}
+                      <button
+                        className="product-favorite-btn"
+                        onClick={(e) => toggleFavorite(product.id, e)}
+                        aria-pressed={favorites.has(product.id)}
+                        data-testid={`button-favorite-${product.id}`}
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${
+                            favorites.has(product.id)
+                              ? 'product-favorite-active'
+                              : 'product-favorite-idle'
+                          }`}
+                        />
+                      </button>
+
+                      {/* v1.1 Product badges - top left overlay */}
+                      <div className="product-badges-overlay">
+                        {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                          <span className="product-badge-new">
+                            New
+                          </span>
+                        )}
+                        {product.quantity < 5 && (
+                          <span className="product-badge-limited">
+                            Limited Stock
+                          </span>
+                        )}
+                        {product.features?.includes('featured') && (
+                          <span className="product-badge-featured">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* v1.1 Product info with token-driven layout */}
+                    <CardContent className="product-card-content">
+                      {/* Product title & brand */}
+                      <div className="product-title-section">
+                        <h3 className="product-title">
+                          {product.name}
+                        </h3>
+                        {product.brand && (
+                          <p className="product-brand">
+                            {product.brand}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Price row */}
+                      <div className="product-price-section">
+                        <span className="product-price">
+                          {formatPrice(product.price)}
+                        </span>
+                        {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
+                          <>
+                            <span className="product-compare-price">
+                              {formatPrice((product as any).compareAtPrice)}
+                            </span>
+                            <span className="product-discount-badge">
+                              -{Math.round((((product as any).compareAtPrice - product.price) / (product as any).compareAtPrice) * 100)}%
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Category pills row - reuse global tokens */}
+                      <div className="product-category-section">
+                        <span className="product-category-pill">
+                          📦 {product.category}
+                        </span>
+                        {product.subcategory && (
+                          <span className="product-category-pill">
+                            {product.subcategory}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* v1.1 CTAs - Token-driven buttons */}
+                      <div className="product-cta-section">
+                        {/* Primary CTA - Contact Seller (Preview Mode) */}
+                        {seller?.whatsappNumber ? (
+                          <button
+                            className="product-cta-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContactProduct(product);
+                            }}
+                            aria-label={`Preview: Contact seller about ${product.name} on WhatsApp`}
+                            data-testid={`button-whatsapp-${product.id}`}
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            Contact Seller
+                          </button>
+                        ) : (
+                          <button
+                            className="product-cta-secondary"
+                            disabled
+                            data-testid={`button-whatsapp-disabled-${product.id}`}
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            WhatsApp Required
+                          </button>
+                        )}
+
+                        {/* Secondary CTA - View Details */}
+                        <button
+                          className="product-cta-secondary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleProductView(product);
+                          }}
+                          aria-label={`View details for ${product.name}`}
+                          data-testid={`button-details-${product.id}`}
+                        >
+                          <Eye className="w-4 h-4" />
+                          Preview
+                        </button>
+                      </div>
+                    </CardContent>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </DashboardLayout>
     </>
