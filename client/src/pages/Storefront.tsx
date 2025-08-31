@@ -87,8 +87,7 @@ export default function Storefront() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
-  const [showFavorites, setShowFavorites] = useState(false);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  // Removed favorites functionality - sellers shouldn't favorite their own products
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -130,20 +129,7 @@ export default function Storefront() {
     target.src = PLACEHOLDER_IMAGE;
   };
 
-  // Memoized favorites key
-  const favKey = useMemo(() => `shoplink_favorites_${user?.uid}`, [user?.uid]);
-
-  // Load favorites with enhanced error handling
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(favKey);
-      setFavorites(saved ? new Set(JSON.parse(saved)) : new Set());
-    } catch (error) {
-      console.warn('Failed to load favorites from localStorage:', error);
-      setFavorites(new Set());
-      localStorage.removeItem(favKey);
-    }
-  }, [favKey]);
+  // Favorites functionality removed for seller preview mode
 
   // Load products from Firebase
   useEffect(() => {
@@ -201,9 +187,8 @@ export default function Storefront() {
         );
       
       const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
-      const matchesFavorites = !showFavorites || favorites.has(product.id);
       
-      return matchesSearch && matchesCategory && matchesFavorites;
+      return matchesSearch && matchesCategory;
     });
 
     // Enhanced sorting
@@ -232,7 +217,7 @@ export default function Storefront() {
     }
 
     return filtered;
-  }, [products, searchQuery, categoryFilter, showFavorites, favorites, sortBy]);
+  }, [products, searchQuery, categoryFilter, sortBy]);
 
   // Enhanced category extraction
   const categories = useMemo(() => {
@@ -246,44 +231,7 @@ export default function Storefront() {
       .map(([category]) => category);
   }, [products]);
 
-  // Enhanced favorite toggling
-  const toggleFavorite = async (productId: string, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    
-    const newFavorites = new Set(favorites);
-    const isAdding = !newFavorites.has(productId);
-    
-    if (isAdding) {
-      newFavorites.add(productId);
-    } else {
-      newFavorites.delete(productId);
-    }
-    
-    setFavorites(newFavorites);
-    
-    // Advanced animation
-    if (e?.target) {
-      const button = (e.target as HTMLElement).closest('button');
-      if (button) {
-        button.style.transform = 'scale(0.85)';
-        button.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        setTimeout(() => {
-          button.style.transform = 'scale(1.15)';
-          setTimeout(() => {
-            button.style.transform = 'scale(1)';
-            button.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-          }, 120);
-        }, 100);
-      }
-    }
-    
-    try {
-      localStorage.setItem(favKey, JSON.stringify(Array.from(newFavorites)));
-    } catch (error) {
-      console.warn('Failed to save favorites:', error);
-    }
-  };
+  // Favorites functionality removed for seller preview mode
 
   // Enhanced payment and delivery data processing
   const paymentMethods = useMemo(() => {
@@ -1146,14 +1094,14 @@ export default function Storefront() {
         <div className="min-h-screen" style={{
           background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
         }}>
-          {/* Store Header Component */}
+          {/* Store Header Component - Preview Mode (No Back Button) */}
           <StoreHeader
             name={seller?.storeName || 'Store Name'}
             logoUrl={seller?.logoUrl}
             description={seller?.storeDescription}
             paymentCount={paymentMethods.length}
             deliveryCount={deliveryOptions.length}
-            onBack={() => window.location.href = '/dashboard'}
+            onBack={() => {}} // Empty function for preview mode
             socials={{
               instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
               tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
@@ -1230,25 +1178,15 @@ export default function Storefront() {
                     </SelectContent>
                   </Select>
 
-                  <button
-                    onClick={() => setShowFavorites(!showFavorites)}
-                    className={`ultimate-favorites ${
-                      showFavorites ? 'ultimate-favorites-active' : ''
-                    }`}
-                  >
-                    <Heart className={`w-7 h-7 ${showFavorites ? 'fill-current' : ''}`} />
-                    Favorites
-                    {favorites.size > 0 && (
-                      <span className="ultimate-favorites-badge">
-                        {favorites.size}
-                      </span>
-                    )}
-                  </button>
+                  <div className="px-6 py-3 bg-blue-50 text-blue-700 rounded-2xl border-2 border-blue-200 font-semibold text-sm">
+                    <Eye className="w-4 h-4 inline mr-2" />
+                    Preview Mode
+                  </div>
                 </div>
               </div>
 
               {/* Enhanced Results Summary */}
-              {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
+              {(searchQuery || categoryFilter !== 'all') && (
                 <div className="mb-16">
                   <div className="p-10 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-200 backdrop-blur-xl relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-indigo-100/20"></div>
@@ -1270,19 +1208,13 @@ export default function Storefront() {
                               {categoryFilter}
                             </span>
                           )}
-                          {showFavorites && (
-                            <span className="inline-flex items-center gap-3 px-6 py-3 bg-red-100 text-red-800 rounded-full font-bold text-sm backdrop-blur-xl">
-                              <Heart className="w-4 h-4 fill-current" />
-                              Favorites Only
-                            </span>
-                          )}
+
                         </div>
                       </div>
                       <button
                         onClick={() => {
                           setSearchQuery('');
                           setCategoryFilter('all');
-                          setShowFavorites(false);
                         }}
                         className="ultimate-clear-btn"
                       >
@@ -1298,20 +1230,19 @@ export default function Storefront() {
                 <div className="ultimate-empty">
                   <Search className="w-24 h-24 text-slate-400 mx-auto mb-8" />
                   <h3 className="text-4xl font-bold text-slate-800 mb-4">
-                    {searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products in preview"}
+                    {searchQuery || categoryFilter !== 'all' ? "No products match your filters" : "No products in preview"}
                   </h3>
                   <p className="text-xl text-slate-600 leading-relaxed mb-8">
-                    {searchQuery || categoryFilter !== 'all' || showFavorites
+                    {searchQuery || categoryFilter !== 'all'
                       ? "Try adjusting your search or filters to find what you're looking for."
                       : "Add products to your catalog to see how they'll appear to customers."
                     }
                   </p>
-                  {(searchQuery || categoryFilter !== 'all' || showFavorites) ? (
+                  {(searchQuery || categoryFilter !== 'all') ? (
                     <button
                       onClick={() => {
                         setSearchQuery('');
                         setCategoryFilter('all');
-                        setShowFavorites(false);
                       }}
                       className="ultimate-clear-btn"
                     >
@@ -1382,22 +1313,7 @@ export default function Storefront() {
                             <Share2 className="w-5 h-5" />
                           </button>
                         </div>
-                        
-                        {/* Favorite Button */}
-                        <button
-                          className="ultimate-favorite-btn"
-                          onClick={(e) => toggleFavorite(product.id, e)}
-                          aria-pressed={favorites.has(product.id)}
-                          title={favorites.has(product.id) ? "Remove from favorites" : "Add to favorites"}
-                        >
-                          <Heart
-                            className={`w-6 h-6 transition-all duration-300 ${
-                              favorites.has(product.id)
-                                ? 'fill-current text-red-500'
-                                : 'text-slate-400'
-                            }`}
-                          />
-                        </button>
+
 
                         {/* Product Badges */}
                         <div className="ultimate-badge-overlay">
