@@ -81,6 +81,9 @@ const ProductCardSkeleton = () => (
 
 export default function Storefront() {
   const { user, seller } = useAuthContext();
+  
+  // Check if current user is the store owner
+  const isOwner = user && seller && user.uid === seller.id;
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1160,6 +1163,32 @@ export default function Storefront() {
               facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
             }}
           />
+
+          {/* Store Preview Banner for Sellers */}
+          {isOwner && (
+            <FullWidthContainer className="pt-8">
+              <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-xl border-0 overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <Globe className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold">Store Preview Mode</h2>
+                        <p className="text-blue-100 text-sm">This is how your customers see your store</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Badge className="bg-white/20 text-white border-white/30">
+                        Public View
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </FullWidthContainer>
+          )}
 
           <FullWidthContainer>
             {/* Ultimate Search and Filter System */}
