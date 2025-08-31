@@ -1,0 +1,468 @@
+import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'wouter';
+import { ref, onValue, off, get } from 'firebase/database';
+import { ExternalLink, Eye, Search, Heart, RefreshCw, X, MessageCircle, ChevronDown, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook, ArrowUpRight, Loader2 } from 'lucide-react';
+import StoreHeader from '@/components/StoreHeader';
+import { database } from '@/lib/firebase';
+import { useAuthContext } from '@/context/AuthContext';
+import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
+import { mirrorAllSellerData } from '@/lib/utils/dataMirror';
+import { trackInteraction } from '@/lib/utils/analytics';
+import { openWhatsApp, createWhatsAppMessage } from '@/lib/utils/whatsapp';
+import type { Product, Seller } from '@shared/schema';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import DashboardLayout from '@/components/Layout/DashboardLayout';
+import EmptyState from '@/components/EmptyState';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { useToast } from '@/hooks/use-toast';
+
+// URL normalization for social media links
+const normalizeUrl = (value: string, platform: 'instagram' | 'tiktok' | 'facebook'): string => {
+  if (!value || typeof value !== 'string') return '';
+  
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  
+  if (trimmed.toLowerCase().startsWith('javascript:') || trimmed.toLowerCase().startsWith('data:')) {
+    return '';
+  }
+  
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  
+  let handle = trimmed;
+  if (handle.startsWith('@')) {
+    handle = handle.slice(1);
+  }
+  
+  const encodedHandle = encodeURIComponent(handle);
+  
+  switch (platform) {
+    case 'instagram':
+      return `https://instagram.com/${encodedHandle}`;
+    case 'tiktok':
+      return `https://www.tiktok.com/@${encodedHandle}`;
+    case 'facebook':
+      return `https://facebook.com/${encodedHandle}`;
+    default:
+      return '';
+  }
+};
+
+// Championship Full-Width Container
+const FullWidthContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+  <div className={`w-full max-w-[1800px] mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ${className}`}>
+    {children}
+  </div>
+);
+
+// Advanced Skeleton Loading Component
+const ProductCardSkeleton = () => (
+  <div className="championship-card-skeleton">
+    <div className="championship-skeleton-image"></div>
+    <div className="championship-skeleton-content">
+      <div className="championship-skeleton-title"></div>
+      <div className="championship-skeleton-brand"></div>
+      <div className="championship-skeleton-price"></div>
+      <div className="championship-skeleton-category"></div>
+      <div className="championship-skeleton-buttons">
+        <div className="championship-skeleton-btn-primary"></div>
+        <div className="championship-skeleton-btn-secondary"></div>
+      </div>
+    </div>
+  </div>
+);
+
+export default function Storefront() {
+  const { user, seller } = useAuthContext();
+  const { toast } = useToast();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
+  const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
+  const [isPublishing, setIsPublishing] = useState(false);
+  
+  // Advanced loading states
+  const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({});
+  const [cardLoadingStates, setCardLoadingStates] = useState<Record<string, boolean>>({});
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+
+  // Enhanced image quality detection
+  const MIN_WIDTH = 800;
+  const MIN_HEIGHT = 600;
+  
+  const handleImageLoad = (productId: string, e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    setImageLoadingStates(prev => ({ ...prev, [productId]: false }));
+    
+    if (img.naturalWidth < MIN_WIDTH || img.naturalHeight < MIN_HEIGHT) {
+      setLowResImages(prev => ({ ...prev, [productId]: true }));
+    }
+  };
+
+  const handleImageStart = (productId: string) => {
+    setImageLoadingStates(prev => ({ ...prev, [productId]: true }));
+  };
+
+  const PLACEHOLDER_IMAGE = '/placeholder-product.png';
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.currentTarget;
+    const productId = target.getAttribute('data-product-id');
+    if (productId) {
+      setImageLoadingStates(prev => ({ ...prev, [productId]: false }));
+    }
+    target.src = PLACEHOLDER_IMAGE;
+  };
+
+  // Memoized favorites key
+  const favKey = useMemo(() => `shoplink_favorites_${user?.uid}`, [user?.uid]);
+
+  // Load favorites with enhanced error handling
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(favKey);
+      setFavorites(saved ? new Set(JSON.parse(saved)) : new Set());
+    } catch (error) {
+      console.warn('Failed to load favorites from localStorage:', error);
+      setFavorites(new Set());
+      localStorage.removeItem(favKey);
+    }
+  }, [favKey]);
+
+  // Load products from Firebase
+  useEffect(() => {
+    if (!user) return;
+
+    const productsRef = ref(database, `sellers/${user.uid}/products`);
+    
+    const unsubscribe = onValue(productsRef, (snapshot) => {
+      try {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const productsList = Object.entries(data).map(([id, productData]) => ({
+            id,
+            ...(productData as Omit<Product, 'id'>),
+          })).filter(product => product.isActive);
+          setProducts(productsList);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load products.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return () => off(productsRef, 'value', unsubscribe);
+  }, [user, toast]);
+
+  // Enhanced filtering logic
+  const filteredProducts = useMemo(() => {
+    let filtered = products.filter((product) => {
+      const searchTerms = searchQuery.toLowerCase().split(' ').filter(Boolean);
+      const searchableText = [
+        product.name,
+        product.description,
+        product.category,
+        product.brand,
+        product.material,
+        product.color,
+        (product as any).tags?.join(' '),
+      ].filter(Boolean).join(' ').toLowerCase();
+      
+      const matchesSearch = searchTerms.length === 0 || 
+        searchTerms.every(term => 
+          searchableText.includes(term) || 
+          searchableText.split(' ').some(word => 
+            word.includes(term) || term.includes(word)
+          )
+        );
+      
+      const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
+      const matchesFavorites = !showFavorites || favorites.has(product.id);
+      
+      return matchesSearch && matchesCategory && matchesFavorites;
+    });
+
+    // Enhanced sorting
+    switch (sortBy) {
+      case 'price-low':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-high':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'name':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'popular':
+        filtered.sort((a, b) => {
+          const aPopularity = ((a as any).analytics?.views || 0) + ((a as any).analytics?.favorites || 0);
+          const bPopularity = ((b as any).analytics?.views || 0) + ((b as any).analytics?.favorites || 0);
+          if (aPopularity !== bPopularity) return bPopularity - aPopularity;
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        });
+        break;
+      case 'newest':
+      default:
+        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        break;
+    }
+
+    return filtered;
+  }, [products, searchQuery, categoryFilter, showFavorites, favorites, sortBy]);
+
+  // Enhanced category extraction
+  const categories = useMemo(() => {
+    const categoryCount = products.reduce((acc, product) => {
+      acc[product.category] = (acc[product.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    return Object.entries(categoryCount)
+      .sort(([,a], [,b]) => b - a)
+      .map(([category]) => category);
+  }, [products]);
+
+  // Enhanced favorite toggling
+  const toggleFavorite = async (productId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    
+    const newFavorites = new Set(favorites);
+    const isAdding = !newFavorites.has(productId);
+    
+    if (isAdding) {
+      newFavorites.add(productId);
+    } else {
+      newFavorites.delete(productId);
+    }
+    
+    setFavorites(newFavorites);
+    
+    // Advanced animation
+    if (e?.target) {
+      const button = (e.target as HTMLElement).closest('button');
+      if (button) {
+        button.style.transform = 'scale(0.85)';
+        button.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        setTimeout(() => {
+          button.style.transform = 'scale(1.15)';
+          setTimeout(() => {
+            button.style.transform = 'scale(1)';
+            button.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+          }, 120);
+        }, 100);
+      }
+    }
+    
+    try {
+      localStorage.setItem(favKey, JSON.stringify(Array.from(newFavorites)));
+    } catch (error) {
+      console.warn('Failed to save favorites:', error);
+    }
+  };
+
+  // Enhanced payment and delivery data processing
+  const paymentMethods = useMemo(() => {
+    if (!seller?.paymentMethods) return [];
+    
+    const methods = Array.isArray(seller.paymentMethods) 
+      ? seller.paymentMethods.filter(Boolean) 
+      : Object.entries(seller.paymentMethods)
+          .filter(([, value]) => !!value)
+          .map(([key]) => key);
+    
+    return methods.sort((a, b) => {
+      const order = ['mobile', 'card', 'bank', 'cash', 'paypal'];
+      const aIndex = order.findIndex(o => a.toLowerCase().includes(o));
+      const bIndex = order.findIndex(o => b.toLowerCase().includes(o));
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    });
+  }, [seller?.paymentMethods]);
+
+  const deliveryOptions = useMemo(() => {
+    if (!seller?.deliveryOptions) return [];
+    
+    const options = Array.isArray(seller.deliveryOptions) 
+      ? seller.deliveryOptions.filter(Boolean)
+      : Object.entries(seller.deliveryOptions)
+          .filter(([, value]) => !!value)
+          .map(([key]) => key);
+    
+    return options.sort((a, b) => {
+      const order = ['pickup', 'local', 'courier', 'nationwide', 'international'];
+      const aIndex = order.findIndex(o => a.toLowerCase().includes(o));
+      const bIndex = order.findIndex(o => b.toLowerCase().includes(o));
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    });
+  }, [seller?.deliveryOptions]);
+
+  // Enhanced product view with analytics
+  const handleProductView = async (product: Product) => {
+    setCardLoadingStates(prev => ({ ...prev, [product.id]: true }));
+    
+    try {
+      setSelectedProduct(product);
+      setShowProductModal(true);
+      window.history.pushState(null, '', `#${product.id}`);
+    } catch (error) {
+      console.error('Error viewing product:', error);
+      setSelectedProduct(product);
+      setShowProductModal(true);
+    } finally {
+      setCardLoadingStates(prev => ({ ...prev, [product.id]: false }));
+    }
+  };
+
+  // Quick view functionality
+  const handleQuickView = async (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setQuickViewProduct(product);
+  };
+
+  // Enhanced product contact
+  const handleContactProduct = async (product: Product) => {
+    if (!seller?.whatsappNumber) return;
+    
+    setCardLoadingStates(prev => ({ ...prev, [`contact-${product.id}`]: true }));
+    
+    try {
+      const sellerFirstName = seller.fullName?.split(' ')[0] || seller.storeName;
+      const productUrl = `${window.location.origin}/store/${user?.uid}#${product.id}`;
+      const message = `Hi ${sellerFirstName}, I'm interested in "${product.name}" on ShopLynk (Preview Mode).
+
+Product: ${product.name}
+Price: ${formatPrice(product.price)}
+Store: ${seller.storeName}
+
+${productUrl}`;
+      
+      openWhatsApp(seller.whatsappNumber, message);
+      
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          setContactNotification({show: true, product});
+        }, 1000);
+      }
+      
+      await trackInteraction({
+        type: 'whatsapp_contact',
+        sellerId: user?.uid!,
+        productId: product.id,
+        metadata: { productName: product.name, source: 'seller_preview' },
+      });
+    } catch (error) {
+      console.error('Failed to contact seller:', error);
+      toast({
+        title: 'Unable to open WhatsApp',
+        description: 'Please try again or contact support.',
+        variant: 'destructive',
+      });
+    } finally {
+      setCardLoadingStates(prev => ({ ...prev, [`contact-${product.id}`]: false }));
+    }
+  };
+
+  const handleViewPublicStore = () => {
+    if (user) {
+      const url = `/store/${user.uid}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handlePublishNow = async () => {
+    if (!user || !seller) return;
+
+    setIsPublishing(true);
+    try {
+      const productsRef = ref(database, `sellers/${user.uid}/products`);
+      const productsSnapshot = await get(productsRef);
+      const productsData = productsSnapshot.exists() ? productsSnapshot.val() : {};
+
+      await mirrorAllSellerData(user.uid, seller, productsData);
+
+      toast({
+        title: 'Published successfully',
+        description: 'Your store profile and products have been published to the public store.',
+      });
+    } catch (error) {
+      console.error('Error publishing store:', error);
+      toast({
+        title: 'Publication failed',
+        description: 'Failed to publish your store. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  // Helper functions for modals
+  const getPaymentIcon = (method: string): string => {
+    const key = method.toLowerCase();
+    if (key.includes('mobile') || key.includes('momo')) return '📱';
+    if (key.includes('card') || key.includes('visa') || key.includes('master')) return '💳';
+    if (key.includes('bank') || key.includes('transfer')) return '🏦';
+    if (key.includes('cash')) return '💵';
+    if (key.includes('pos')) return '🧾';
+    if (key.includes('paypal')) return '🅿️';
+    if (key.includes('crypto') || key.includes('bitcoin')) return '₿';
+    return '💳';
+  };
+
+  const getPaymentLabel = (method: string): string => {
+    const key = method.toLowerCase();
+    if (key.includes('mobile') || key.includes('momo')) return 'Mobile Money';
+    if (key.includes('card')) return 'Card Payment';
+    if (key.includes('bank')) return 'Bank Transfer';
+    if (key.includes('cash')) return 'Cash Payment';
+    if (key.includes('pos')) return 'POS Terminal';
+    if (key.includes('paypal')) return 'PayPal';
+    if (key.includes('crypto')) return 'Cryptocurrency';
+    return method.charAt(0).toUpperCase() + method.slice(1);
+  };
+
+  const getDeliveryIcon = (option: string): string => {
+    const key = option.toLowerCase();
+    if (key.includes('pickup') || key.includes('collect')) return '🧍';
+    if (key.includes('local') || key.includes('same day')) return '🚲';
+    if (key.includes('courier') || key.includes('express')) return '🚚';
+    if (key.includes('nation') || key.includes('country')) return '🛣️';
+    if (key.includes('inter') || key.includes('worldwide')) return '✈️';
+    if (key.includes('post') || key.includes('mail')) return '📮';
+    return '🚚';
+  };
+
+  const getDeliveryLabel = (option: string): string => {
+    const key = option.toLowerCase();
+    if (key.includes('pickup')) return 'Self Pickup';
+    if (key.includes('local')) return 'Local Delivery';
+    if (key.includes('courier')) return 'Courier Service';
+    if (key.includes('nation')) return 'Nationwide Shipping';
+    if (key.includes('inter')) return 'International Shipping';
+    if (key.includes('post')) return 'Postal Service';
+    return option.charAt(0).toUpperCase() + option.slice(1);
+  };
