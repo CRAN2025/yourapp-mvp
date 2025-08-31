@@ -1,0 +1,620 @@
+                  <button
+                    onClick={() => setShowFavorites(!showFavorites)}
+                    className={`ultimate-favorites ${
+                      showFavorites ? 'ultimate-favorites-active' : ''
+                    }`}
+                  >
+                    <Heart className={`w-7 h-7 ${showFavorites ? 'fill-current' : ''}`} />
+                    Favorites
+                    {favorites.size > 0 && (
+                      <span className="ultimate-favorites-badge">
+                        {favorites.size}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Enhanced Results Summary */}
+              {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
+                <div className="mb-16">
+                  <div className="p-10 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-200 backdrop-blur-xl relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-indigo-100/20"></div>
+                    <div className="relative z-10 flex items-center justify-between flex-wrap gap-8">
+                      <div className="space-y-4">
+                        <h3 className="text-3xl font-bold text-slate-800">
+                          Found {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''}
+                        </h3>
+                        <div className="flex flex-wrap gap-4">
+                          {searchQuery && (
+                            <span className="inline-flex items-center gap-3 px-6 py-3 bg-blue-100 text-blue-800 rounded-full font-bold text-sm backdrop-blur-xl">
+                              <Search className="w-4 h-4" />
+                              "{searchQuery}"
+                            </span>
+                          )}
+                          {categoryFilter !== 'all' && (
+                            <span className="inline-flex items-center gap-3 px-6 py-3 bg-purple-100 text-purple-800 rounded-full font-bold text-sm backdrop-blur-xl">
+                              <Filter className="w-4 h-4" />
+                              {categoryFilter}
+                            </span>
+                          )}
+                          {showFavorites && (
+                            <span className="inline-flex items-center gap-3 px-6 py-3 bg-red-100 text-red-800 rounded-full font-bold text-sm backdrop-blur-xl">
+                              <Heart className="w-4 h-4 fill-current" />
+                              Favorites Only
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSearchQuery('');
+                          setCategoryFilter('all');
+                          setShowFavorites(false);
+                        }}
+                        className="ultimate-clear-btn"
+                      >
+                        Clear All Filters
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Ultimate Product Grid */}
+              {filteredProducts.length === 0 ? (
+                <div className="ultimate-empty">
+                  <Search className="w-24 h-24 text-slate-400 mx-auto mb-8" />
+                  <h3 className="text-4xl font-bold text-slate-800 mb-4">
+                    {searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products in preview"}
+                  </h3>
+                  <p className="text-xl text-slate-600 leading-relaxed mb-8">
+                    {searchQuery || categoryFilter !== 'all' || showFavorites
+                      ? "Try adjusting your search or filters to find what you're looking for."
+                      : "Add products to your catalog to see how they'll appear to customers."
+                    }
+                  </p>
+                  {(searchQuery || categoryFilter !== 'all' || showFavorites) ? (
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        setCategoryFilter('all');
+                        setShowFavorites(false);
+                      }}
+                      className="ultimate-clear-btn"
+                    >
+                      Clear All Filters
+                    </button>
+                  ) : (
+                    <Button 
+                      onClick={() => window.location.href = '/products'}
+                      className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-6 px-12 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                      size="lg"
+                    >
+                      <ArrowUpRight className="w-6 h-6 mr-3" />
+                      Manage Products
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="ultimate-grid">
+                  {filteredProducts.map((product, index) => (
+                    <div
+                      key={product.id}
+                      className="ultimate-card"
+                      onClick={() => handleProductView(product)}
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <div className="ultimate-card-image-container">
+                        <img
+                          src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+                          alt={product.name}
+                          className="ultimate-card-image"
+                          onLoad={(e) => handleImageLoad(product.id, e)}
+                          onError={handleImageError}
+                          onLoadStart={() => handleImageStart(product.id)}
+                          data-product-id={product.id}
+                          loading="lazy"
+                        />
+                        
+                        {/* Image Loading State */}
+                        {imageLoadingStates[product.id] && (
+                          <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                          </div>
+                        )}
+                        
+                        {/* Quick Actions */}
+                        <div className="ultimate-quick-actions">
+                          <button
+                            className="ultimate-quick-btn"
+                            onClick={(e) => handleQuickView(product, e)}
+                            title="Quick Preview"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
+                          <button
+                            className="ultimate-quick-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (navigator.share) {
+                                navigator.share({
+                                  title: product.name,
+                                  text: `Check out ${product.name} for ${formatPrice(product.price)}`,
+                                  url: `${window.location.origin}/store/${user?.uid}#${product.id}`
+                                });
+                              }
+                            }}
+                            title="Share Product"
+                          >
+                            <Share2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                        
+                        {/* Favorite Button */}
+                        <button
+                          className="ultimate-favorite-btn"
+                          onClick={(e) => toggleFavorite(product.id, e)}
+                          aria-pressed={favorites.has(product.id)}
+                          title={favorites.has(product.id) ? "Remove from favorites" : "Add to favorites"}
+                        >
+                          <Heart
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              favorites.has(product.id)
+                                ? 'fill-current text-red-500'
+                                : 'text-slate-400'
+                            }`}
+                          />
+                        </button>
+
+                        {/* Product Badges */}
+                        <div className="ultimate-badge-overlay">
+                          {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                            <span className="ultimate-badge ultimate-badge-new">
+                              New
+                            </span>
+                          )}
+                          {product.quantity < 5 && (
+                            <span className="ultimate-badge ultimate-badge-limited">
+                              Limited
+                            </span>
+                          )}
+                          {product.features?.includes('featured') && (
+                            <span className="ultimate-badge ultimate-badge-featured">
+                              Featured
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="ultimate-card-content">
+                        <h3 className="ultimate-card-title">
+                          {product.name}
+                        </h3>
+                        
+                        {product.brand && (
+                          <p className="ultimate-card-brand">
+                            {product.brand}
+                          </p>
+                        )}
+
+                        <div className="ultimate-card-price">
+                          {formatPrice(product.price)}
+                        </div>
+
+                        <div className="ultimate-card-category">
+                          <span>{product.category}</span>
+                        </div>
+
+                        <div className="ultimate-card-actions">
+                          {/* WhatsApp Contact Button - Preview Mode */}
+                          {seller?.whatsappNumber ? (
+                            <button
+                              className={`ultimate-whatsapp-btn ${
+                                cardLoadingStates[`contact-${product.id}`] ? 'ultimate-loading-btn' : ''
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleContactProduct(product);
+                              }}
+                              disabled={cardLoadingStates[`contact-${product.id}`]}
+                            >
+                              {cardLoadingStates[`contact-${product.id}`] ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <MessageCircle className="w-6 h-6" />
+                              )}
+                              Contact Seller (Preview)
+                            </button>
+                          ) : (
+                            <div className="relative group">
+                              <button
+                                disabled
+                                className="ultimate-whatsapp-btn opacity-60 cursor-not-allowed"
+                              >
+                                <MessageCircle className="w-6 h-6" />
+                                WhatsApp Required
+                              </button>
+                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                                <div className="bg-black text-white text-xs rounded-xl px-4 py-3 whitespace-nowrap font-semibold">
+                                  Add WhatsApp number in Settings
+                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          <button
+                            className={`ultimate-details-btn ${
+                              cardLoadingStates[product.id] ? 'ultimate-loading-btn' : ''
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleProductView(product);
+                            }}
+                            disabled={cardLoadingStates[product.id]}
+                          >
+                            {cardLoadingStates[product.id] ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              <Eye className="w-5 h-5" />
+                            )}
+                            Preview Details
+                          </button>
+                        </div>
+
+                        {/* Stock Warning */}
+                        {product.quantity <= 10 && (
+                          <div className="mt-4 p-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl font-bold text-sm text-center">
+                            ⚠️ Only {product.quantity} left in stock
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </FullWidthContainer>
+
+            {/* Contact Notification */}
+            {contactNotification.show && contactNotification.product && (
+              <div className="fixed top-24 right-8 z-50 max-w-sm animate-fadeInScale">
+                <Card className="p-6 bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-2xl border-0 rounded-2xl">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-lg">Preview: WhatsApp Opening...</h4>
+                      <p className="text-sm opacity-90">
+                        Contacted seller about "{contactNotification.product.name}"
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setContactNotification({show: false, product: null})}
+                      className="text-white hover:bg-white/20 rounded-full p-2 h-8 w-8 flex-shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Comprehensive Product Detail Modal - Same as Public Version */}
+            {showProductModal && selectedProduct && (
+              <div 
+                className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
+                onClick={() => setShowProductModal(false)}
+              >
+                <Card 
+                  className="max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Product Image Header */}
+                  <div className="relative">
+                    <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
+                      <img
+                        src={getProductImageUrl(selectedProduct) || PLACEHOLDER_IMAGE}
+                        alt={selectedProduct.name}
+                        className="w-full h-full object-cover"
+                        onLoad={(e) => handleImageLoad(selectedProduct.id, e)}
+                        onError={handleImageError}
+                      />
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                      
+                      {lowResImages[selectedProduct.id] && (
+                        <div className="absolute top-6 left-6 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-3 rounded-full font-bold text-sm shadow-2xl">
+                          ⚠️ Low Quality Image - Upload HD for better results
+                        </div>
+                      )}
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowProductModal(false)}
+                        className="absolute top-6 right-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                      >
+                        <X className="w-7 h-7" />
+                      </Button>
+                      
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => toggleFavorite(selectedProduct.id, e)}
+                        className={`absolute top-6 left-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110 ${
+                          favorites.has(selectedProduct.id) ? 'text-red-500' : 'text-slate-600'
+                        }`}
+                      >
+                        <Heart 
+                          className="w-7 h-7" 
+                          fill={favorites.has(selectedProduct.id) ? 'currentColor' : 'none'} 
+                        />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Product Details Content */}
+                  <CardContent className="p-10 space-y-10">
+                    {/* Header Section */}
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8">
+                      <div className="flex-1 space-y-6">
+                        <h2 className="text-4xl font-bold text-gray-800 leading-tight">
+                          {selectedProduct.name}
+                        </h2>
+                        <div className="flex items-center gap-4 flex-wrap">
+                          <span className="inline-flex items-center px-6 py-3 rounded-2xl bg-slate-800 text-white text-sm font-bold">
+                            {selectedProduct.category}
+                          </span>
+                          {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                            <span className="inline-flex items-center px-4 py-2 rounded-2xl bg-emerald-500 text-white text-sm font-bold">
+                              New arrival
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="lg:text-right space-y-3">
+                        <div className="text-5xl font-bold text-emerald-600">
+                          {formatPrice(selectedProduct.price)}
+                        </div>
+                        <div className="text-sm text-slate-500 font-semibold uppercase tracking-wide">per unit</div>
+                      </div>
+                    </div>
+                    
+                    {/* Enhanced Stock Status */}
+                    <div className={`p-8 rounded-3xl border-3 ${
+                      selectedProduct.quantity > 10 
+                        ? 'bg-emerald-50 border-emerald-300' 
+                        : selectedProduct.quantity > 0 
+                          ? 'bg-yellow-50 border-yellow-300' 
+                          : 'bg-red-50 border-red-300'
+                    }`}>
+                      <div className="flex items-center gap-6">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-xl ${
+                          selectedProduct.quantity > 10 ? 'bg-emerald-500' :
+                          selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}>
+                          <div className="w-4 h-4 bg-white rounded-full animate-pulse"></div>
+                        </div>
+                        <div className="flex-1">
+                          <div className={`font-bold text-xl ${
+                            selectedProduct.quantity > 10 ? 'text-emerald-700' :
+                            selectedProduct.quantity > 0 ? 'text-yellow-700' : 'text-red-700'
+                          }`}>
+                            {selectedProduct.quantity > 10 ? 'In stock & ready to ship' :
+                             selectedProduct.quantity > 0 ? `Limited stock — Only ${selectedProduct.quantity} left` : 
+                             'Currently out of stock'}
+                          </div>
+                          <p className="text-slate-600 mt-2 font-medium">
+                            {selectedProduct.quantity > 0 
+                              ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available for immediate purchase`
+                              : 'Contact seller for restocking information'
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    {selectedProduct.description && (
+                      <div className="space-y-6">
+                        <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-4">
+                          <Info className="w-6 h-6 text-blue-600" />
+                          Description
+                        </h3>
+                        <p className="text-gray-600 p-8 bg-blue-50 rounded-3xl border-2 border-blue-100 leading-relaxed text-lg">
+                          {selectedProduct.description}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Preview Mode Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-8 pt-10 border-t-3 border-slate-200">
+                      <Button
+                        onClick={() => handleContactProduct(selectedProduct)}
+                        className="flex-1 h-20 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 text-2xl font-bold rounded-3xl"
+                        size="lg"
+                      >
+                        <MessageCircle className="w-8 h-8 mr-4" />
+                        Contact Seller (Preview Mode)
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={(e) => toggleFavorite(selectedProduct.id, e)}
+                        className="sm:px-16 h-20 border-3 hover:bg-red-50 hover:border-red-300 rounded-3xl transition-all duration-300 hover:scale-105 font-bold text-xl"
+                        size="lg"
+                      >
+                        <Heart 
+                          className={`w-8 h-8 mr-4 ${favorites.has(selectedProduct.id) ? 'fill-current text-red-500' : 'text-slate-400'}`} 
+                        />
+                        <span>
+                          {favorites.has(selectedProduct.id) ? 'Remove from Favorites' : 'Add to Favorites'}
+                        </span>
+                      </Button>
+                    </div>
+
+                    {/* Preview Mode Notice */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border-2 border-blue-200">
+                      <div className="flex items-center gap-4">
+                        <Eye className="w-8 h-8 text-blue-600 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-lg font-bold text-blue-800">Preview Mode Active</h4>
+                          <p className="text-blue-700 font-medium">This is how customers will see your product details. Full product information will be available in the public store.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
+      </DashboardLayout>
+    </>
+  );
+}<DashboardLayout>
+        <div className="preview-dashboard-container">
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            {/* Enhanced Header with Championship Styling */}
+            <div className="mb-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-3">
+                    Storefront Preview
+                  </h1>
+                  <p className="text-slate-600 text-lg font-medium">
+                    Experience your store exactly as customers see it
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0">
+                  <Button 
+                    onClick={handlePublishNow} 
+                    disabled={isPublishing}
+                    variant="outline"
+                    size="lg"
+                    className="bg-white/90 backdrop-blur-xl border-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 font-semibold"
+                  >
+                    <RefreshCw className={`w-5 h-5 mr-3 ${isPublishing ? 'animate-spin' : ''}`} />
+                    {isPublishing ? 'Publishing...' : 'Publish Now'}
+                  </Button>
+                  <Button 
+                    onClick={handleViewPublicStore}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                  >
+                    <ExternalLink className="w-5 h-5 mr-3" />
+                    View Public Store
+                  </Button>
+                </div>
+              </div>
+
+              <Alert className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 backdrop-blur-xl">
+                <Eye className="h-5 w-5 text-blue-600" />
+                <AlertDescription className="text-slate-700 font-medium text-base">
+                  This is how your storefront appears to customers. Changes to your products will be reflected here automatically.
+                </AlertDescription>
+              </Alert>
+            </div>
+
+            {/* Championship Store Header */}
+            <div className="preview-header-card rounded-3xl p-8 mb-12 shadow-2xl">
+              <StoreHeader
+                name={seller?.storeName || 'Store Name'}
+                logoUrl={seller?.logoUrl}
+                description={seller?.storeDescription}
+                paymentCount={paymentMethods.length}
+                deliveryCount={deliveryOptions.length}
+                onBack={() => window.location.href = '/dashboard'}
+                socials={{
+                  instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
+                  tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
+                  facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
+                }}
+              />
+            </div>
+
+            {/* Ultimate Search & Filter Section */}
+            <FullWidthContainer className="py-12">
+              {/* Ultimate Search Bar */}
+              <div className="ultimate-search mb-16">
+                <Search className="ultimate-search-icon w-8 h-8" />
+                <input
+                  type="text"
+                  placeholder="Search for products, brands, or categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="ultimate-search-input"
+                  autoComplete="off"
+                  spellCheck="false"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="ultimate-search-clear"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                )}
+              </div>
+
+              {/* Ultimate Filter System */}
+              <div className="ultimate-filters">
+                <div className="ultimate-categories">
+                  <div className="ultimate-category-label">
+                    <Filter className="w-7 h-7 text-blue-600" />
+                    Categories
+                  </div>
+                  
+                  <button
+                    onClick={() => setCategoryFilter('all')}
+                    className={`ultimate-category-pill ${
+                      categoryFilter === 'all' 
+                        ? 'ultimate-category-pill-active' 
+                        : 'ultimate-category-pill-inactive'
+                    }`}
+                  >
+                    All Categories ({products.length})
+                  </button>
+                  
+                  {categories.slice(0, 4).map(category => {
+                    const count = products.filter(p => p.category === category).length;
+                    return (
+                      <button
+                        key={category}
+                        onClick={() => setCategoryFilter(category)}
+                        className={`ultimate-category-pill ${
+                          categoryFilter === category 
+                            ? 'ultimate-category-pill-active' 
+                            : 'ultimate-category-pill-inactive'
+                        }`}
+                      >
+                        {category} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="ultimate-controls">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="ultimate-select"
+                  >
+                    <option value="newest">🆕 Newest First</option>
+                    <option value="popular">🔥 Most Popular</option>
+                    <option value="price-low">💰 Price: Low to High</option>
+                    <option value="price-high">💎 Price: High to Low</option>
+                    <option value="name">📝 Name A-Z</option>
+                  </select>
+
+                  <button
+                    onClick={() => setShowFavorites(!showFavorites)}
+                    className={`ultimate-favorites ${
+                      showFavorites ? 'ultimate-favorites-active' : ''
+                    }`}
+                  >
