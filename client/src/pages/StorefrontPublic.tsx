@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook, Eye, Loader2, ArrowUpRight } from 'lucide-react';
+import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook } from 'lucide-react';
 import StoreHeader from '@/components/StoreHeader';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -62,11 +62,22 @@ const normalizeUrl = (value: string, platform: 'instagram' | 'tiktok' | 'faceboo
   }
 };
 
-// Championship-Grade Full-Width Container
+// --- v1.8 Full-Width Container System for Edge-to-Edge Alignment ---
 const FullWidthContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <div className={`w-full max-w-[1600px] mx-auto px-8 md:px-16 lg:px-24 ${className}`}>
+  <div className={`w-full max-w-full px-6 md:px-12 ${className}`}>
     {children}
   </div>
+);
+
+// --- Full-bleed section with edge-to-edge container ---
+const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
+  <section className="w-full py-8" style={{
+    background: 'linear-gradient(135deg, #2563EB 0%, #9333EA 100%)'
+  }}>
+    <FullWidthContainer>
+      {children}
+    </FullWidthContainer>
+  </section>
 );
 
 export default function StorefrontPublic() {
@@ -85,19 +96,20 @@ export default function StorefrontPublic() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  // Removed showChatFab state - floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD
   const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
   const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
   const [isOwner, setIsOwner] = useState(false);
-  const [cardLoadingStates, setCardLoadingStates] = useState<Record<string, boolean>>({});
-  const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({});
 
   const sellerId = params?.sellerId;
   const [location] = useLocation();
 
   // Owner detection and anonymous authentication for events
   useEffect(() => {
+    // 2A) Isolate analytics auth (secondary app)
     ensureAnonymousEventsAuth();
     
+    // 2B) Detect owner on primary app (no anon sign-in here)
     const unsubscribe = onAuthStateChanged(primaryAuth, (user) => {
       setIsOwner(!!user && user.uid === sellerId);
     });
@@ -116,39 +128,12 @@ export default function StorefrontPublic() {
     }
   };
 
+  // Simple placeholder image
   const PLACEHOLDER_IMAGE = '/placeholder-product.png';
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = PLACEHOLDER_IMAGE;
   };
-
-  const handleImageStart = (productId: string) => {
-    setImageLoadingStates(prev => ({ ...prev, [productId]: true }));
-  };
-
-  const handleQuickView = (product: Product, e: React.MouseEvent) => {
-    e.stopPropagation();
-    handleProductView(product);
-  };
-
-  // Product Card Skeleton Component
-  const ProductCardSkeleton = () => (
-    <div className="ultimate-card animate-pulse">
-      <div className="ultimate-card-image-container">
-        <div className="ultimate-card-image bg-slate-200"></div>
-      </div>
-      <div className="ultimate-card-content">
-        <div className="h-6 bg-slate-200 rounded mb-2"></div>
-        <div className="h-4 bg-slate-200 rounded w-2/3 mb-4"></div>
-        <div className="h-8 bg-slate-200 rounded w-1/2 mb-4"></div>
-        <div className="h-4 bg-slate-200 rounded w-1/3 mb-6"></div>
-        <div className="space-y-2">
-          <div className="h-12 bg-slate-200 rounded"></div>
-          <div className="h-10 bg-slate-200 rounded"></div>
-        </div>
-      </div>
-    </div>
-  );
 
   // Memoized favorites key for proper sellerId-based loading
   const favKey = useMemo(() => `shoplink_favorites_${sellerId}`, [sellerId]);
@@ -165,7 +150,7 @@ export default function StorefrontPublic() {
     }
   }, [favKey]);
 
-  // Track WhatsApp CTA views for analytics
+  // Track WhatsApp CTA views for analytics per v1.3.1_UI_UX_WHATSAPP_PER_CARD
   const trackWhatsAppView = async (productId: string) => {
     if (!sellerId || !seller?.whatsappNumber) return;
     
@@ -181,9 +166,15 @@ export default function StorefrontPublic() {
     }
   };
 
+  // Removed floating chat button logic per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification
+  // All WhatsApp functionality moved to per-card buttons
+
+
+
   // Enhanced product filtering with fuzzy search
   const filteredProducts = useMemo(() => {
     let filtered = products.filter((product) => {
+      // Enhanced search matching
       const searchTerms = searchQuery.toLowerCase().split(' ').filter(Boolean);
       const searchableText = [
         product.name,
@@ -203,6 +194,7 @@ export default function StorefrontPublic() {
       return matchesSearch && matchesCategory && matchesFavorites;
     });
 
+    // Enhanced sorting with multiple criteria
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -215,6 +207,7 @@ export default function StorefrontPublic() {
         break;
       case 'popular':
         filtered.sort((a, b) => {
+          // Sort by views, then by favorites count, then by recency
           const aPopularity = ((a as any).analytics?.views || 0) + ((a as any).analytics?.favorites || 0);
           const bPopularity = ((b as any).analytics?.views || 0) + ((b as any).analytics?.favorites || 0);
           if (aPopularity !== bPopularity) return bPopularity - aPopularity;
@@ -240,6 +233,7 @@ export default function StorefrontPublic() {
       setSelectedProduct(product);
       setShowProductModal(true);
       
+      // Track deep link access
       trackInteraction({
         type: 'product_view',
         sellerId: sellerId!,
@@ -252,6 +246,7 @@ export default function StorefrontPublic() {
   // Enhanced keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Close modals with Escape
       if (e.key === 'Escape') {
         setShowProductModal(false);
         setShowPaymentModal(false);
@@ -260,6 +255,7 @@ export default function StorefrontPublic() {
         return;
       }
       
+      // Navigate products with arrow keys when modal is open
       if (showProductModal && selectedProduct) {
         const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
         if (e.key === 'ArrowLeft' && currentIndex > 0) {
@@ -278,7 +274,7 @@ export default function StorefrontPublic() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showProductModal, selectedProduct, filteredProducts]);
 
-  // Auto-dismiss notifications
+  // Auto-dismiss notifications with improved timing
   useEffect(() => {
     if (contactNotification.show) {
       const timer = setTimeout(() => {
@@ -300,6 +296,7 @@ export default function StorefrontPublic() {
         setLoading(true);
         setError(null);
 
+        // Load seller data from public store with timeout
         const sellerRef = ref(database, `publicStores/${sellerId}/profile`);
         const sellerSnapshot = await Promise.race([
           get(sellerRef),
@@ -315,13 +312,16 @@ export default function StorefrontPublic() {
 
         const sellerData = sellerSnapshot.val();
         
+        // Validate seller data
         if (!sellerData.storeName) {
           setError('Invalid store data. Please contact support.');
           return;
         }
+        
 
         setSeller(sellerData);
 
+        // Load products from public store with enhanced filtering
         const productsRef = ref(database, `publicStores/${sellerId}/products`);
         const productsSnapshot = await Promise.race([
           get(productsRef),
@@ -345,16 +345,20 @@ export default function StorefrontPublic() {
               product.price > 0
             );
           
+          // Enhanced sorting with multiple criteria
           productsList.sort((a: any, b: any) => {
+            // First by featured status (if available)
             if (a.featured !== b.featured) {
               return b.featured ? 1 : -1;
             }
+            // Then by creation date
             return (b.createdAt || 0) - (a.createdAt || 0);
           });
           
           setProducts(productsList);
         }
 
+        // Track successful store view
         await trackInteraction({
           type: 'store_view',
           sellerId,
@@ -382,7 +386,7 @@ export default function StorefrontPublic() {
     loadStoreData();
   }, [sellerId]);
 
-  // Enhanced category extraction
+  // Enhanced category extraction with counts
   const categories = useMemo(() => {
     const categoryCount = products.reduce((acc, product) => {
       acc[product.category] = (acc[product.category] || 0) + 1;
@@ -394,7 +398,7 @@ export default function StorefrontPublic() {
       .map(([category]) => category);
   }, [products]);
 
-  // Enhanced favorite toggling
+  // Enhanced favorite toggling with analytics and animations
   const toggleFavorite = async (productId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     
@@ -409,12 +413,14 @@ export default function StorefrontPublic() {
     
     setFavorites(newFavorites);
     
+    // Save to localStorage with error handling
     try {
       localStorage.setItem(favKey, JSON.stringify(Array.from(newFavorites)));
     } catch (error) {
       console.warn('Failed to save favorites:', error);
     }
 
+    // Track favorite action
     try {
       await trackInteraction({
         type: 'product_view',
@@ -426,6 +432,7 @@ export default function StorefrontPublic() {
       console.warn('Failed to track favorite action:', error);
     }
 
+    // Enhanced animation
     if (e?.target) {
       const button = (e.target as HTMLElement).closest('button');
       if (button) {
@@ -443,7 +450,7 @@ export default function StorefrontPublic() {
     }
   };
 
-  // Enhanced product view
+  // Enhanced product view with analytics
   const handleProductView = async (product: Product) => {
     try {
       await trackInteraction({
@@ -461,17 +468,44 @@ export default function StorefrontPublic() {
       setSelectedProduct(product);
       setShowProductModal(true);
       
+      // Update URL for sharing and deep linking
       window.history.pushState(null, '', `#${product.id}`);
     } catch (error) {
       console.error('Error tracking product view:', error);
+      // Still show the modal even if tracking fails
       setSelectedProduct(product);
       setShowProductModal(true);
     }
   };
 
-  // Enhanced product contact with WhatsApp green preservation
+  // Enhanced store contact with improved messaging
+  const handleFloatingChatClick = async () => {
+    if (!seller?.whatsappNumber || !sellerId) return;
+    
+    try {
+      await trackInteraction({
+        type: 'wa_click',
+        sellerId,
+        metadata: { action: 'store_contact', source: 'floating_button' },
+      });
+      
+      const storeUrl = `${window.location.origin}/store/${sellerId}`;
+      const message = `👋 Hello! I discovered your beautiful store "${seller.storeName}" and I'm interested in learning more about your products.\n\nCould you please share:\n• Product availability\n• Payment options\n• Delivery information\n\nStore Link: ${storeUrl}`;
+      
+      openWhatsApp(seller.whatsappNumber, message);
+    } catch (error) {
+      console.error('Error contacting seller:', error);
+      // Fallback to basic WhatsApp contact
+      if (seller.whatsappNumber) {
+        openWhatsApp(seller.whatsappNumber, `Hi! I'm interested in your products at ${seller.storeName}.`);
+      }
+    }
+  };
+
+  // Enhanced product contact with comprehensive analytics and messaging per v1.3.1_UI_UX_WHATSAPP_PER_CARD
   const handleContactProduct = async (product: Product) => {
     if (!seller?.whatsappNumber || !sellerId) {
+      // Track blocked attempt for analytics
       try {
         await trackInteraction({
           type: 'wa_click',
@@ -486,6 +520,7 @@ export default function StorefrontPublic() {
     }
     
     try {
+      // Enhanced analytics tracking per specification
       await trackInteraction({
         type: 'wa_click',
         sellerId,
@@ -500,6 +535,7 @@ export default function StorefrontPublic() {
         },
       });
       
+      // Enhanced pre-filled message with seller first name
       const sellerFirstName = seller.fullName?.split(' ')[0] || seller.storeName;
       const productUrl = `${window.location.origin}/store/${sellerId}#${product.id}`;
       const message = `Hi ${sellerFirstName}, I'm interested in "${product.name}" on ShopLynk.
@@ -508,6 +544,7 @@ ${productUrl}`;
       
       openWhatsApp(seller.whatsappNumber, message);
       
+      // Enhanced mobile notification
       if (window.innerWidth <= 768) {
         setTimeout(() => {
           setContactNotification({show: true, product});
@@ -523,6 +560,21 @@ ${productUrl}`;
     }
   };
 
+  // Enhanced marketing click tracking
+  const handleMarketingClick = (source: string) => {
+    try {
+      if (typeof (window as any).gtag !== 'undefined') {
+        (window as any).gtag('event', 'marketing_cta_click', { 
+          sellerId, 
+          source,
+          store_name: seller?.storeName 
+        });
+      }
+    } catch (error) {
+      console.warn('Analytics tracking failed:', error);
+    }
+  };
+
   // Enhanced payment and delivery data processing
   const paymentMethods = useMemo(() => {
     if (!seller?.paymentMethods) return [];
@@ -533,6 +585,7 @@ ${productUrl}`;
           .filter(([, value]) => !!value)
           .map(([key]) => key);
     
+    // Sort payment methods by preference
     return methods.sort((a, b) => {
       const order = ['mobile', 'card', 'bank', 'cash', 'paypal'];
       const aIndex = order.findIndex(o => a.toLowerCase().includes(o));
@@ -550,6 +603,7 @@ ${productUrl}`;
           .filter(([, value]) => !!value)
           .map(([key]) => key);
     
+    // Sort delivery options by speed/convenience
     return options.sort((a, b) => {
       const order = ['pickup', 'local', 'courier', 'nationwide', 'international'];
       const aIndex = order.findIndex(o => a.toLowerCase().includes(o));
@@ -558,7 +612,7 @@ ${productUrl}`;
     });
   }, [seller?.deliveryOptions]);
 
-  // Helper functions for payment and delivery
+  // Enhanced icon and label functions
   const getPaymentIcon = (method: string): string => {
     const key = method.toLowerCase();
     if (key.includes('mobile') || key.includes('momo')) return '📱';
@@ -608,19 +662,14 @@ ${productUrl}`;
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
-      }}>
-        <div className="text-center space-y-6 p-12 bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30">
-          <div className="relative">
-            <LoadingSpinner size="lg" />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-20 animate-pulse"></div>
-          </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4">
+          <LoadingSpinner size="lg" />
+          <h2 className="text-xl font-semibold text-gray-800">
             Loading Store
           </h2>
-          <p className="text-slate-600 font-medium">
-            Preparing your shopping experience...
+          <p className="text-gray-600">
+            Please wait...
           </p>
         </div>
       </div>
@@ -630,27 +679,23 @@ ${productUrl}`;
   // Error state
   if (error || !seller) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{
-        background: 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)'
-      }}>
-        <div className="text-center space-y-6 max-w-md mx-auto p-12 bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30">
-          <div className="w-20 h-20 mx-auto bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-            <Globe className="w-10 h-10 text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4 max-w-md mx-auto px-6">
+          <div className="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center shadow-md">
+            <Globe className="w-8 h-8 text-red-500" />
           </div>
           
-          <div className="space-y-4">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
-              Store Not Found
-            </h2>
-            <p className="text-slate-600 leading-relaxed">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-gray-800">Store Not Found</h2>
+            <p className="text-gray-600">
               {error || "This store could not be found or may have been removed."}
             </p>
             <Button 
               onClick={() => window.location.reload()} 
-              className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               size="lg"
             >
-              <ArrowLeft className="w-6 h-6 mr-3" />
+              <ArrowLeft className="w-5 h-5 mr-3" />
               Try Again
             </Button>
           </div>
@@ -661,897 +706,1451 @@ ${productUrl}`;
 
   return (
     <>
+      {/* Enhanced CSS Animations */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
-        /* CHAMPIONSHIP DESIGN SYSTEM */
-        :root {
-          --championship-blue: #1d4ed8;
-          --championship-blue-light: #3b82f6;
-          --championship-blue-lighter: #60a5fa;
-          --championship-gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
-          --championship-shadow: 0 10px 40px rgba(29, 78, 216, 0.15);
-          --championship-shadow-hover: 0 20px 60px rgba(29, 78, 216, 0.25);
-          --whatsapp-green: #25d366;
-          --whatsapp-green-hover: #22c55e;
-        }
-        
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(32px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(32px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.9); }
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
         }
         
-        @keyframes shimmerFlow {
-          0% { transform: translateX(-100%) skewX(-15deg); }
-          100% { transform: translateX(200%) skewX(-15deg); }
+        @keyframes shimmer {
+          0%, 100% { transform: translateX(-100%); }
+          50% { transform: translateX(100%); }
         }
         
-        /* CHAMPIONSHIP SEARCH BAR */
-        .championship-search {
-          position: relative;
-          max-width: 800px;
-          margin: 0 auto;
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
         }
         
-        .championship-search-input {
-          width: 100%;
-          height: 64px;
-          padding: 0 72px 0 72px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border: 2px solid rgba(29, 78, 216, 0.1);
-          border-radius: 32px;
-          font-size: 18px;
-          font-weight: 500;
-          color: #1f2937;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 8px 32px rgba(29, 78, 216, 0.08);
+        .animate-fadeInScale {
+          animation: fadeInScale 0.3s ease-out;
         }
         
-        .championship-search-input:focus {
-          outline: none;
-          border-color: var(--championship-blue);
-          box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.1), 0 12px 40px rgba(29, 78, 216, 0.15);
-          transform: translateY(-2px);
-        }
-        
-        .championship-search-icon {
-          position: absolute;
-          left: 24px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--championship-blue);
-          transition: all 0.3s ease;
-        }
-        
-        .championship-search-clear {
-          position: absolute;
-          right: 20px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: rgba(71, 85, 105, 0.1);
-          color: #64748b;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .championship-search-clear:hover {
-          background: rgba(239, 68, 68, 0.1);
-          color: #ef4444;
-          transform: translateY(-50%) scale(1.1);
-        }
-        
-        /* CHAMPIONSHIP FILTER SYSTEM */
-        .championship-filters {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 32px;
-          padding: 32px 0;
-          flex-wrap: wrap;
-        }
-        
-        .championship-categories {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex-wrap: wrap;
-        }
-        
-        .championship-category-label {
-          font-size: 16px;
-          font-weight: 700;
-          color: #374151;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        
-        .championship-category-pill {
-          padding: 12px 24px;
-          border-radius: 20px;
-          font-size: 15px;
-          font-weight: 600;
-          border: 2px solid transparent;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-          white-space: nowrap;
-        }
-        
-        .championship-category-pill-inactive {
-          background: rgba(255, 255, 255, 0.9);
-          color: #64748b;
-          border-color: rgba(226, 232, 240, 0.8);
-          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-        }
-        
-        .championship-category-pill-inactive:hover {
-          background: rgba(239, 246, 255, 0.95);
-          color: var(--championship-blue);
-          border-color: rgba(29, 78, 216, 0.3);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(29, 78, 216, 0.1);
-        }
-        
-        .championship-category-pill-active {
-          background: var(--championship-gradient);
-          color: white;
-          border-color: var(--championship-blue);
-          box-shadow: var(--championship-shadow);
-          transform: translateY(-1px);
-        }
-        
-        .championship-category-pill-active::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          animation: shimmerFlow 2s infinite;
-        }
-        
-        .championship-category-pill-active:hover {
-          transform: translateY(-3px) scale(1.02);
-          box-shadow: var(--championship-shadow-hover);
-        }
-        
-        /* CHAMPIONSHIP CONTROLS */
-        .championship-controls {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          flex-wrap: wrap;
-        }
-        
-        .championship-select {
-          min-width: 200px;
-          height: 48px;
-          padding: 0 20px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(16px);
-          border: 2px solid rgba(226, 232, 240, 0.6);
-          border-radius: 16px;
-          font-size: 15px;
-          font-weight: 600;
-          color: #374151;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-        }
-        
-        .championship-select:hover {
-          border-color: rgba(29, 78, 216, 0.4);
-          transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(29, 78, 216, 0.08);
-        }
-        
-        .championship-select:focus {
-          outline: none;
-          border-color: var(--championship-blue);
-          box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.1);
-        }
-        
-        .championship-favorites {
-          height: 48px;
-          padding: 0 24px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(16px);
-          border: 2px solid rgba(226, 232, 240, 0.6);
-          border-radius: 16px;
-          font-size: 15px;
-          font-weight: 600;
-          color: #374151;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          position: relative;
-        }
-        
-        .championship-favorites:hover {
-          border-color: rgba(239, 68, 68, 0.4);
-          color: #ef4444;
-          transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(239, 68, 68, 0.1);
-        }
-        
-        .championship-favorites-active {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
-          border-color: #ef4444;
-          box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
-        }
-        
-        .championship-favorites-active:hover {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 12px 32px rgba(239, 68, 68, 0.4);
-        }
-        
-        .championship-favorites-badge {
-          background: #fbbf24;
-          color: #92400e;
-          border-radius: 50%;
-          width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-          font-weight: 700;
-          box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
-        }
-        
-        /* CHAMPIONSHIP PRODUCT GRID */
-        .championship-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 32px;
-          padding: 40px 0;
-        }
-        
-        /* CHAMPIONSHIP PRODUCT CARD */
-        .championship-card {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 24px;
-          overflow: hidden;
-          cursor: pointer;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 8px 32px rgba(15, 23, 42, 0.06);
-          position: relative;
-          animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .championship-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, rgba(29, 78, 216, 0.02) 0%, rgba(59, 130, 246, 0.02) 100%);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          z-index: 1;
-          pointer-events: none;
-        }
-        
-        .championship-card:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 20px 60px rgba(29, 78, 216, 0.15);
-          border-color: rgba(29, 78, 216, 0.2);
-        }
-        
-        .championship-card:hover::before {
-          opacity: 1;
-        }
-        
-        .championship-card-image-container {
-          position: relative;
-          aspect-ratio: 1;
-          overflow: hidden;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        }
-        
-        .championship-card-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .championship-card:hover .championship-card-image {
-          transform: scale(1.05);
-        }
-        
-        .championship-favorite-btn {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(16px);
-          border: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
-          z-index: 2;
-        }
-        
-        .championship-favorite-btn:hover {
-          transform: scale(1.1);
-          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
-        }
-        
-        .championship-badge-overlay {
-          position: absolute;
-          top: 16px;
-          left: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          z-index: 2;
-        }
-        
-        .championship-badge {
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.025em;
-          backdrop-filter: blur(16px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .championship-badge-new {
-          background: rgba(16, 185, 129, 0.95);
-          color: white;
-        }
-        
-        .championship-badge-limited {
-          background: rgba(239, 68, 68, 0.95);
-          color: white;
-        }
-        
-        .championship-badge-featured {
-          background: rgba(251, 191, 36, 0.95);
-          color: #92400e;
-        }
-        
-        .championship-card-content {
-          padding: 24px;
-          position: relative;
-          z-index: 2;
-        }
-        
-        .championship-card-title {
-          font-size: 20px;
-          font-weight: 700;
-          color: #111827;
-          line-height: 1.3;
-          margin-bottom: 8px;
+        .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
         
-        .championship-card-brand {
-          font-size: 14px;
+        .line-clamp-3 {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        
+        /* Perfect landing page icy gradient with cool palette */
+        .bg-mesh {
+          background: linear-gradient(135deg, #F9FBFF 0%, #F3F7FF 100%);
+          background-image: 
+            radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
+        }
+        
+        /* GLOBAL CTA BUTTON STANDARD v2.1 (LOCKED) */
+        /* Use across all ShopLynk components for primary actions */
+        .primary-button-gradient {
+          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          box-shadow: 0 6px 18px rgba(80, 155, 255, 0.45);
+          border-radius: 14px;
+          padding: 14px 28px;
+          color: #FFFFFF;
           font-weight: 600;
-          color: #6b7280;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-bottom: 16px;
+          font-size: 16px;
+          letter-spacing: 0.3px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.25s ease-in-out;
         }
         
-        .championship-card-price {
-          font-size: 24px;
-          font-weight: 800;
-          color: #059669;
-          margin-bottom: 16px;
-          letter-spacing: -0.025em;
+        .primary-button-gradient:hover {
+          background: linear-gradient(135deg, #5ABFFF 0%, #5F7AFF 100%);
+          transform: scale(1.03);
+          box-shadow: 0 8px 24px rgba(80, 155, 255, 0.55);
         }
         
-        .championship-card-category {
+        .primary-button-gradient:active {
+          transform: scale(0.98);
+        }
+        
+        /* CATEGORY PILLS - Primary Control with Global Tokens */
+        .category-pill {
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
+          background: #f8f9fc;
+          border: 1px solid #e5e7eb;
+          cursor: pointer;
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 16px;
-          background: rgba(29, 78, 216, 0.1);
-          color: var(--championship-blue);
-          border-radius: 16px;
-          font-size: 13px;
-          font-weight: 600;
-          margin-bottom: 20px;
+          justify-content: center;
+          gap: var(--token-gap);
+          color: #555;
+          margin-top: 0;
         }
         
-        .championship-card-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          padding-top: 20px;
-          border-top: 1px solid rgba(226, 232, 240, 0.6);
+        .category-pill .icon {
+          width: var(--icon-size);
+          height: var(--icon-size);
+          flex: 0 0 var(--icon-size);
         }
         
-        .championship-whatsapp-btn {
-          width: 100%;
-          height: 48px;
-          background: var(--whatsapp-green);
-          color: white;
+        .category-pill:hover {
+          transform: scale(var(--token-hover-scale));
+          filter: brightness(var(--token-hover-brightness));
+          background: #f0f4ff;
+          border-color: #b3c8ff;
+        }
+        
+        .category-pill.active {
+          background: var(--token-gradient-primary);
+          color: #fff;
           border: none;
-          border-radius: 16px;
-          font-size: 15px;
-          font-weight: 700;
+          box-shadow: var(--token-shadow-primary);
+          font-weight: 600;
+        }
+        
+        .category-pill.active:hover {
+          transform: scale(var(--token-hover-scale));
+          box-shadow: var(--token-shadow-primary-hover);
+        }
+        
+        /* Filter pill classes using global tokens */
+        .filter-pill-active {
+          background: var(--token-gradient-primary);
+          color: #FFFFFF;
+          box-shadow: var(--token-shadow-primary);
+          border-radius: var(--token-border-radius);
+          font-weight: 600;
+          transition: var(--token-transition-default);
+          border: none;
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          font-size: var(--token-font-size);
+        }
+        
+        .filter-pill-active:hover {
+          transform: scale(var(--token-hover-scale));
+          box-shadow: var(--token-shadow-primary-hover);
+        }
+        
+        .filter-pill-inactive {
+          background: #f8f9fc;
+          color: #555;
+          border: 1px solid #e5e7eb;
+          border-radius: var(--token-border-radius);
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
+          font-weight: var(--token-font-weight);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          font-size: var(--token-font-size);
+        }
+        
+        .filter-pill-inactive:hover {
+          transform: scale(var(--token-hover-scale));
+          filter: brightness(var(--token-hover-brightness));
+          background: #f0f4ff;
+          border-color: #b3c8ff;
+        }
+        
+        /* Filter Bar Layout */
+        .filter-bar {
           display: flex;
           align-items: center;
-          justify-content: center;
+          justify-content: space-between;
+          gap: 16px;
+        }
+        
+        .filter-bar__left {
+          display: flex;
+          align-items: center;
           gap: 12px;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 6px 20px rgba(37, 211, 102, 0.3);
+        }
+        
+        .filter-bar__title {
+          font-weight: 600;
+          font-size: 14px;
+          line-height: 1.4;
+          margin: 0;
+        }
+        
+        /* GLOBAL DESIGN TOKENS - LOCKED SYSTEM */
+        /* Universal component tokens for categories, filters, favorites, and CTAs */
+        :root {
+          /* Primary gradient token - used for active pills & CTAs */
+          --token-gradient-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          
+          /* Button heights & spacing - uniform across all components */
+          --token-button-height: 36px;
+          --token-button-padding-x: 16px;
+          --token-button-padding-y: 8px;
+          
+          /* Shadows & elevation hierarchy */
+          --token-shadow-primary: 0px 5px 18px rgba(80, 155, 255, 0.45);
+          --token-shadow-primary-hover: 0px 7px 20px rgba(80, 155, 255, 0.55);
+          --token-shadow-secondary: 0px 2px 6px rgba(0, 0, 0, 0.06);
+          
+          /* Interactivity tokens */
+          --token-transition-default: all 0.25s ease-in-out;
+          --token-hover-scale: 1.05;
+          --token-hover-brightness: 1.08;
+          
+          /* Component-specific tokens */
+          --token-badge-danger: #FF3B5C;
+          --token-border-radius: 12px;
+          --token-font-size: 14px;
+          --token-font-weight: 500;
+          --token-gap: 10px;
+          
+          /* HEADER LAYOUT TOKENS v1.1 - LOCKED FOR ALL STOREFRONTS */
+          --bg-surface-scrim: linear-gradient(135deg, rgba(240, 247, 255, 0.95) 0%, rgba(248, 251, 255, 0.92) 40%, rgba(255, 255, 255, 0.9) 100%);
+          --space-8: 32px;
+          --space-10: 40px;
+          --space-6: 24px;
+          --space-2: 8px;
+          --radius-16: 16px;
+          --shadow-xl-soft: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          --size-96: 96px;
+          --size-80: 80px;
+          
+          /* TYPOGRAPHY TOKENS - LOCKED GLOBAL SYSTEM */
+          --store-name-size: 24px;
+          --store-name-weight: 700;
+          --powered-by-size: 16px;
+          --powered-by-weight: 500;
+          --description-size: 15px;
+          --description-weight: 400;
+          --meta-size: 14px;
+          --meta-weight: 400;
+          
+          /* TYPOGRAPHY HIERARCHY - GOVERNANCE ALIGNED */
+          --token-font-weight-bold: 700;
+          --token-font-weight-semibold: 600;
+          --token-font-weight-medium: 500;
+          --token-font-weight-normal: 400;
+          --token-text-primary: #111827;
+          --token-text-secondary: var(--token-color-secondary);
+          --token-text-muted: #9CA3AF;
+          --token-eco-friendly: var(--token-color-success);
+          --token-stock-warning: var(--token-color-danger);
+          
+          /* COLOR TOKENS - LOCKED GLOBAL PALETTE */
+          --text-primary: #111827;
+          --text-secondary: #6B7280;
+          --text-tertiary: #9CA3AF;
+          --brand-link: #3B82F6;
+          --brand-gradient: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          
+          /* SHOPLYNK GLOBAL TOKEN SYSTEM - ENTERPRISE GOVERNANCE */
+          
+          /* A. BRAND & ACCENT COLORS - CROSS-COMPONENT HARMONY */
+          --brand-primary: #2563EB;
+          --brand-secondary: #3B82F6;
+          --brand-green: #25D366;
+          --brand-grey: #F3F4F6;
+          --brand-red: #EF4444;
+          --brand-gold: #FACC15;
+          --neutral-100: #FFFFFF;
+          --neutral-200: #E5E7EB;
+          --neutral-300: #D1D5DB;
+          --text-primary: #111827;
+          --text-secondary: #6B7280;
+          
+          /* HEADER BACKGROUND - LOCKED GRADIENT */
+          --color-header-bg: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          
+          /* HEADER TEXT CONTRAST TOKENS */
+          --color-header-text-primary: #FFFFFF;
+          --color-header-text-secondary: rgba(255,255,255,0.85);
+          --color-header-text-tertiary: rgba(255,255,255,0.70);
+          
+          /* B. TYPOGRAPHY - UNIFIED HIERARCHY */
+          --font-store-name: 24px;
+          --font-store-subtitle: 16px;
+          --font-description: 14px;
+          --font-action-label: 14px;
+          --font-title-lg: 16px;
+          --font-subtitle: 14px;
+          --font-price: 18px;
+          --font-pill: 13px;
+          --font-badge: 12px;
+          
+          /* C. SPACING - UNIFIED LAYOUT */
+          --header-padding: 20px 24px;
+          --action-spacing: 12px;
+          --store-info-gap: 8px;
+          --banner-min-height: 140px;
+          --card-padding: 16px;
+          --pill-padding: 4px 12px;
+          --cta-padding: 12px 16px;
+          --badge-padding: 3px 8px;
+          
+          /* D. SHADOWS & ELEVATION - ENTERPRISE CONSISTENCY */
+          --elevation-card: 0px 6px 14px rgba(0,0,0,0.08);
+          --elevation-header: 0 2px 6px rgba(0, 0, 0, 0.08);
+          --elevation-low: 0 1px 3px rgba(0, 0, 0, 0.08);
+          --elevation-mid: 0 2px 6px rgba(0, 0, 0, 0.12);
+          --elevation-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
+          --elevation-high: 0 4px 12px rgba(0, 0, 0, 0.18);
+          
+          /* LEGACY SUPPORT TOKENS */
+          --token-surface-elevated: #ffffff;
+          --token-shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+          --token-shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.12);
+          --token-font-weight-bold: 700;
+          --token-font-weight-semibold: 600;
+          --token-font-weight-medium: 500;
+          --token-font-weight-normal: 400;
+          --token-text-primary: #111827;
+          --token-text-muted: #9CA3AF;
+        }
+        
+        /* ENTERPRISE PRODUCT CARD CONTAINER */
+        .product-card-v11 {
+          background: var(--neutral-100);
+          border-radius: 12px;
+          box-shadow: var(--elevation-low);
+          transition: all 0.3s ease;
+          overflow: hidden;
+          padding: var(--card-padding);
+        }
+        
+        .product-card-v11:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--elevation-high);
+        }
+        
+        /* Image Section */
+        .product-image-container {
           position: relative;
           overflow: hidden;
         }
         
-        .championship-whatsapp-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
+        .product-image-wrapper {
+          aspect-ratio: 1;
+          position: relative;
+          background: var(--sl-skeleton);
+        }
+        
+        .product-image {
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.6s ease;
+          object-fit: cover;
+          border-radius: 12px 12px 0 0;
         }
         
-        .championship-whatsapp-btn:hover::before {
-          left: 100%;
+        .product-favorite-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: var(--neutral-100);
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: var(--elevation-low);
+          transition: all 0.2s ease;
         }
         
-        .championship-whatsapp-btn:hover {
-          background: var(--whatsapp-green-hover);
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+        .product-favorite-btn:hover {
+          transform: scale(1.1);
         }
         
-        .championship-details-btn {
-          width: 100%;
-          height: 44px;
-          background: rgba(255, 255, 255, 0.9);
-          color: #374151;
-          border: 2px solid rgba(226, 232, 240, 0.8);
-          border-radius: 14px;
-          font-size: 14px;
+        .product-favorite-idle {
+          color: var(--token-text-muted);
+        }
+        
+        .product-favorite-active {
+          color: var(--brand-red);
+          fill: currentColor;
+        }
+        
+        /* ENTERPRISE STATUS BADGE SYSTEM */
+        .product-badges-overlay {
+          position: absolute;
+          bottom: 8px;
+          left: 8px;
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+        }
+        
+        .product-badge-new {
+          background: #DBEAFE;
+          color: var(--brand-primary);
+          font-size: var(--font-badge);
           font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
+        }
+        
+        .product-badge-limited {
+          background: var(--brand-red);
+          color: var(--neutral-100);
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
+        }
+        
+        .product-badge-eco {
+          background: #DCFCE7;
+          color: #166534;
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
+        }
+        
+        .product-badge-premium {
+          background: var(--brand-gold);
+          color: #92400E;
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: var(--badge-padding);
+          border-radius: 6px;
+        }
+        
+        /* ENTERPRISE CONTENT SECTION */
+        .product-card-content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .product-title-section {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        
+        /* ENTERPRISE PRODUCT TITLE */
+        .product-title {
+          font-size: var(--font-title-lg);
+          font-weight: 700;
+          color: var(--text-primary);
+          line-height: 1.3;
+          letter-spacing: -0.01em;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-bottom: 8px;
+        }
+        
+        .product-brand {
+          font-size: var(--font-subtitle);
+          font-weight: 500;
+          color: var(--text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        /* ENTERPRISE PRICE STYLING */
+        .product-price-section {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .product-price {
+          font-size: var(--font-price);
+          font-weight: 700;
+          color: #16A34A;
+          letter-spacing: -0.02em;
+        }
+        
+        .product-compare-price {
+          font-size: var(--font-subtitle);
+          color: var(--text-secondary);
+          text-decoration: line-through;
+        }
+        
+        .product-discount-badge {
+          background: var(--brand-red);
+          color: var(--neutral-100);
+          font-size: var(--font-badge);
+          font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 4px;
+          margin-left: 8px;
+        }
+        
+        /* ENTERPRISE CATEGORY PILLS */
+        .product-category-section {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin: 8px 0;
+        }
+        
+        .product-category-pill {
+          background: var(--neutral-100);
+          color: var(--brand-primary);
+          font-size: var(--font-pill);
+          font-weight: 500;
+          padding: var(--pill-padding);
+          border-radius: 18px;
+          border: 1px solid var(--brand-primary);
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          transition: all 0.2s ease;
+          cursor: pointer;
+        }
+        
+        .product-category-pill:hover {
+          background: #EFF6FF;
+          transform: translateY(-1px);
+        }
+        
+        .product-category-pill:active {
+          background: #DBEAFE;
+        }
+        
+        /* ENTERPRISE CTA SYSTEM */
+        .product-cta-section {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 1px solid var(--neutral-200);
+        }
+        
+        /* ENTERPRISE PRIMARY CTA - CONTACT SELLER */
+        .product-cta-primary {
+          width: 100%;
+          background: var(--brand-green);
+          color: var(--neutral-100);
+          border: none;
+          border-radius: 8px;
+          font-size: var(--font-subtitle);
+          font-weight: 600;
+          padding: var(--cta-padding);
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          backdrop-filter: blur(8px);
+          transition: all 0.2s ease;
+          box-shadow: var(--elevation-mid);
         }
         
-        .championship-details-btn:hover {
-          background: rgba(248, 250, 252, 0.95);
-          border-color: rgba(29, 78, 216, 0.3);
-          color: var(--championship-blue);
+        .product-cta-primary:hover {
+          background: #22C55E;
           transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(29, 78, 216, 0.08);
+          box-shadow: var(--elevation-high);
         }
         
-        /* CHAMPIONSHIP STOCK WARNING */
-        .championship-stock-warning {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
-          padding: 12px 16px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          text-align: center;
-          margin-top: 12px;
-          box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+        .product-cta-primary:active {
+          background: #16A34A;
+          transform: translateY(0);
+          box-shadow: var(--elevation-mid);
         }
         
-        /* CHAMPIONSHIP EMPTY STATE */
-        .championship-empty {
-          text-align: center;
-          padding: 80px 40px;
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(20px);
-          border-radius: 32px;
-          border: 2px dashed rgba(226, 232, 240, 0.8);
-          margin: 40px 0;
-        }
-        
-        .championship-empty-icon {
-          width: 80px;
-          height: 80px;
-          margin: 0 auto 24px;
-          color: #cbd5e1;
-        }
-        
-        .championship-empty-title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #374151;
-          margin-bottom: 12px;
-        }
-        
-        .championship-empty-description {
-          font-size: 18px;
-          color: #6b7280;
-          margin-bottom: 32px;
-          max-width: 500px;
-          margin-left: auto;
-          margin-right: auto;
-          line-height: 1.6;
-        }
-        
-        .championship-clear-btn {
-          background: var(--championship-gradient);
-          color: white;
-          border: none;
-          border-radius: 16px;
-          padding: 16px 32px;
-          font-size: 16px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: var(--championship-shadow);
-        }
-        
-        .championship-clear-btn:hover {
-          transform: translateY(-2px) scale(1.05);
-          box-shadow: var(--championship-shadow-hover);
-        }
-        
-        /* CHAMPIONSHIP MODAL SYSTEM */
-        .championship-modal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(15, 23, 42, 0.8);
-          backdrop-filter: blur(12px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 50;
-          padding: 20px;
-          animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .championship-modal {
-          background: white;
-          border-radius: 32px;
-          box-shadow: 0 25px 100px rgba(15, 23, 42, 0.3);
-          max-width: 600px;
+        /* ENTERPRISE SECONDARY CTA - VIEW DETAILS */
+        .product-cta-secondary {
           width: 100%;
-          max-height: 90vh;
-          overflow: hidden;
-          animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .championship-modal-header {
-          background: var(--championship-gradient);
-          padding: 32px;
-          color: white;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .championship-modal-header::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-          animation: shimmerFlow 4s infinite linear;
-        }
-        
-        .championship-modal-title {
-          font-size: 28px;
-          font-weight: 800;
-          margin-bottom: 8px;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .championship-modal-subtitle {
-          font-size: 16px;
-          opacity: 0.9;
-          position: relative;
-          z-index: 1;
-        }
-        
-        .championship-modal-close {
-          position: absolute;
-          top: 24px;
-          right: 24px;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.2);
-          color: white;
-          border: none;
+          background: var(--neutral-100);
+          color: var(--text-primary);
+          border: 1px solid var(--neutral-200);
+          border-radius: 8px;
+          font-size: var(--font-subtitle);
+          font-weight: 600;
+          padding: var(--cta-padding);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
           cursor: pointer;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 2;
+          transition: all 0.2s ease;
         }
         
-        .championship-modal-close:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: scale(1.1);
+        .product-cta-secondary:hover {
+          background: #F9FAFB;
+          transform: translateY(-1px);
+          box-shadow: var(--elevation-low);
         }
         
-        .championship-modal-content {
-          padding: 32px;
-          max-height: 60vh;
-          overflow-y: auto;
+        .product-cta-secondary:active {
+          background: #F3F4F6;
+          transform: translateY(0);
         }
         
-        .championship-method-item {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          padding: 20px;
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          border-radius: 20px;
-          border: 2px solid rgba(226, 232, 240, 0.6);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          margin-bottom: 16px;
-        }
-        
-        .championship-method-item:hover {
-          transform: translateY(-2px);
-          border-color: rgba(29, 78, 216, 0.3);
-          box-shadow: 0 8px 24px rgba(29, 78, 216, 0.1);
-        }
-        
-        .championship-method-icon {
-          width: 56px;
-          height: 56px;
-          background: white;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 28px;
-          box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
-          flex-shrink: 0;
-        }
-        
-        .championship-method-info {
-          flex: 1;
-        }
-        
-        .championship-method-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #111827;
-          margin-bottom: 4px;
-        }
-        
-        .championship-method-description {
-          font-size: 14px;
-          color: #6b7280;
+        .product-warning-badge {
+          width: 100%;
+          border-radius: 8px;
+          border: 1px solid var(--brand-gold);
+          background: #FEF3C7;
+          padding: var(--cta-padding);
+          font-size: var(--font-badge);
           font-weight: 500;
+          color: #92400E;
+          text-align: center;
         }
         
-        /* CHAMPIONSHIP NOTIFICATION */
-        .championship-notification {
-          position: fixed;
-          top: 32px;
-          right: 32px;
-          z-index: 60;
-          max-width: 400px;
-          animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .championship-notification-card {
-          background: linear-gradient(135deg, var(--whatsapp-green) 0%, #22c55e 100%);
-          color: white;
-          padding: 24px;
-          border-radius: 20px;
-          box-shadow: 0 20px 60px rgba(37, 211, 102, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .championship-notification-content {
+        /* ENTERPRISE ATTRIBUTES SYSTEM */
+        .product-attributes-section {
           display: flex;
-          align-items: flex-start;
-          gap: 16px;
+          gap: 4px;
+          flex-wrap: wrap;
+          align-items: center;
+          margin-top: 8px;
         }
         
-        .championship-notification-icon {
-          width: 48px;
-          height: 48px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
+        .product-attribute-tag {
+          background: #F3F4F6;
+          color: var(--text-secondary);
+          font-size: var(--font-badge);
+          font-weight: 400;
+          padding: var(--badge-padding);
+          border-radius: 6px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          opacity: 0.85;
+        }
+        
+        .product-attribute-eco {
+          background: #DCFCE7;
+          color: #166534;
+          font-weight: 500;
+          opacity: 1;
+        }
+        
+        .product-attribute-stock-warning {
+          background: var(--brand-red);
+          color: var(--neutral-100);
+          font-weight: 500;
+          opacity: 1;
+        }
+          
+          /* BADGE CARD STYLE - GLOBAL */
+          --badge-card-style-bg: #FFFFFF;
+          --badge-card-style-radius: 12px;
+          --badge-card-style-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+          --badge-card-style-icon-size: 18px;
+          --badge-card-style-font-size: 14px;
+          --badge-card-style-hover-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+          
+          /* CTA PRIMARY STYLE - GLOBAL */
+          --cta-primary-style: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          --cta-primary-font-size: 15px;
+          --cta-primary-font-weight: 600;
+          --cta-primary-padding: 10px 24px;
+          --cta-primary-radius: 12px;
+          --cta-primary-hover-shadow: 0px 6px 18px rgba(80, 155, 255, 0.35);
+          
+          /* Responsive tokens */
+          --store-title-font-tablet: 20px;
+          --logo-scale-tablet: 0.9;
+          --logo-scale-mobile: 0.8;
+          
+          /* Legacy compatibility mappings */
+          --filter-height: var(--token-button-height);
+          --filter-radius: var(--token-border-radius);
+          --filter-padding-x: var(--token-button-padding-x);
+          --filter-padding-y: var(--token-button-padding-y);
+          --filter-font-size: var(--token-font-size);
+          --filter-gap: var(--token-gap);
+          --filter-transition: var(--token-transition-default);
+          --cta-gradient-start: #4FA8FF;
+          --cta-gradient-end: #5271FF;
+          --control-height: var(--token-button-height);
+          --control-radius: var(--token-border-radius);
+          --control-pad-x: var(--token-button-padding-x);
+          --control-gap: var(--token-gap);
+          --control-font-size: var(--token-font-size);
+          --control-line-height: 20px;
+          --icon-size: 16px;
+          --control-gradient: var(--token-gradient-primary);
+          --control-bg-inactive: #f8f9fc;
+          --control-border: 1px solid #e5e7eb;
+          --control-shadow: var(--token-shadow-secondary);
+          --control-shadow-hover: 0px 5px 15px rgba(80, 155, 255, 0.35);
+          --control-font-weight: var(--token-font-weight);
+          --control-transition: var(--token-transition-default);
+        }
+        
+        /* SORT DROPDOWN - Secondary Control with Global Tokens */
+        .sort-dropdown {
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          color: #333;
+          cursor: pointer;
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
+          display: inline-flex;
+          align-items: center;
+          gap: var(--token-gap);
+          margin-top: 0;
+        }
+        
+        .sort-dropdown .icon,
+        .sort-dropdown .chevron {
+          width: var(--icon-size);
+          height: var(--icon-size);
+          flex: 0 0 var(--icon-size);
+        }
+        
+        .sort-dropdown:hover,
+        .sort-dropdown:focus {
+          filter: brightness(var(--token-hover-brightness));
+          border-color: #b3c8ff;
+          box-shadow: 0 0 0 3px rgba(80, 155, 255, 0.2);
+        }
+        
+        /* Legacy unified dropdown for backward compatibility */
+        .unified-dropdown {
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: var(--token-shadow-secondary);
+          color: #333;
+          cursor: pointer;
+          transition: var(--token-transition-default);
+          display: inline-flex;
+          align-items: center;
+          gap: var(--token-gap);
+          margin-top: 0;
+        }
+        
+        .unified-dropdown:hover {
+          filter: brightness(var(--token-hover-brightness));
+          border-color: #b3c8ff;
+          box-shadow: 0 0 0 3px rgba(80, 155, 255, 0.2);
+        }
+        
+        /* FAVORITES CHIP - Secondary Control with Global Tokens */
+        .favorites-chip {
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: var(--token-shadow-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
+          gap: 8px;
+          transition: var(--token-transition-default);
+          cursor: pointer;
+          color: #333;
+          margin-top: 0;
+        }
+        
+        .favorites-chip:hover {
+          filter: brightness(var(--token-hover-brightness));
+          background: #f9f9fc;
+          border-color: #b3c8ff;
+        }
+        
+        .favorites-chip .icon {
+          width: var(--icon-size);
+          height: var(--icon-size);
+          flex: 0 0 var(--icon-size);
+        }
+        
+        .favorites-chip .badge {
+          background: var(--token-badge-danger);
+          color: #fff;
+          font-size: 12px;
+          border-radius: 50%;
+          padding: 2px 6px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 18px;
+          height: 18px;
+          line-height: 12px;
+        }
+        
+        /* Legacy unified favorites button for backward compatibility */
+        .unified-favorites-button {
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: var(--token-shadow-secondary);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          transition: var(--token-transition-default);
+          cursor: pointer;
+          color: #333;
+          margin-top: 0;
+        }
+        
+        .unified-favorites-button:hover {
+          filter: brightness(var(--token-hover-brightness));
+          background: #f9f9fc;
+          border-color: #b3c8ff;
+        }
+        
+        .unified-favorites-button.active {
+          background: var(--token-gradient-primary);
+          color: #fff;
+          border: none;
+          box-shadow: var(--token-shadow-primary);
+          font-weight: 600;
+        }
+        
+        /* Premium search bar matching landing page inputs */
+        .frosted-search {
+          background: #FFFFFF;
+          border: 1px solid #E5EAF5;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
+        }
+        
+        /* Consistent micro-elevations */
+        .micro-elevation {
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+        /* LOCKED STORE LOGO CONTAINER */
+        .store-logo-container {
+          width: clamp(64px, 8vw, 128px);
+          height: clamp(64px, 8vw, 128px);
+          aspect-ratio: 1 / 1; /* Lock 1:1 aspect ratio */
+          border-radius: 16px;
+          background: #FFFFFF;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 12px; /* Reduced by 4px from 16px */
+          box-shadow: var(--store-logo-shadow);
+          transition: var(--token-transition-default);
+        }
+        
+        .store-logo-container img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain; /* Scale and center for non-square logos */
+          object-position: center;
+        }
+        
+        .store-logo-container:hover {
+          transform: scale(var(--token-hover-scale));
+        }
+        
+        /* LOGO v1.1 - LOCKED TOKEN SIZING */
+        .shoplynk-avatar {
+          width: var(--size-96);
+          height: var(--size-96);
+          border-radius: var(--radius-16);
+          background: #FFFFFF;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 12px;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+          transition: var(--token-transition-default);
+        }
+        
+        @media (max-width: 768px) {
+          .shoplynk-avatar {
+            width: var(--size-80);
+            height: var(--size-80);
+          }
+        }
+        
+        .shoplynk-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: center;
+        }
+        
+        .shoplynk-avatar:hover {
+          transform: scale(var(--token-hover-scale));
+        }
+        
+        .seller-avatar {
+          width: var(--size-96);
+          height: var(--size-96);
+          border-radius: var(--radius-16);
+          background-color: #fff;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 12px;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+        
+        @media (max-width: 768px) {
+          .seller-avatar {
+            width: var(--size-80);
+            height: var(--size-80);
+          }
+        }
+        
+        .seller-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          object-position: center;
+        }
+        
+        /* Premium tagline styling */
+        .powered-by {
+          font-size: 14px;
+          font-weight: 500;
+          color: #2563eb;
+          margin-top: 2px;
+          letter-spacing: -0.2px;
+        }
+        
+        /* GLOBAL STORE TITLE FONT - LOCKED TYPOGRAPHY */
+        /* ENTERPRISE TYPOGRAPHY SYSTEM - CONTRAST TOKEN INHERITANCE */
+        .store-title-locked {
+          font-size: var(--font-store-name);
+          font-weight: 700;
+          color: var(--color-header-text-primary);
+          line-height: 1.2;
+          margin-bottom: var(--store-info-gap);
+        }
+        
+        .powered-by-locked {
+          font-size: var(--font-store-subtitle);
+          font-weight: 500;
+          color: var(--color-header-text-secondary);
+          line-height: 20px;
+          margin-bottom: var(--store-info-gap);
+          letter-spacing: -0.2px;
+        }
+        
+        .powered-by-locked a {
+          color: var(--color-header-text-secondary);
+          text-decoration: none;
+          transition: color 0.2s ease;
+        }
+        
+        .powered-by-locked a:hover {
+          color: var(--color-header-text-primary);
+          text-decoration: underline;
+        }
+        
+        .store-description-locked {
+          font-size: var(--font-description);
+          font-weight: 400;
+          color: var(--color-header-text-secondary);
+          line-height: 1.4;
+          margin-top: var(--store-info-gap);
+          margin-bottom: var(--store-info-gap);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+        }
+        
+        .store-subtitle-locked {
+          font-size: var(--font-action-label);
+          font-weight: 400;
+          color: var(--color-header-text-tertiary);
+          line-height: 18px;
+        }
+        
+        @media (max-width: 768px) {
+          .store-description-locked {
+            -webkit-line-clamp: 1;
+            font-size: 14px;
+          }
+        }
+        
+        /* Legacy typography classes for backward compatibility */
+        .store-name-championship {
+          font-size: var(--store-title-font);
+          font-weight: var(--store-title-weight);
+          color: var(--store-title-color);
+          line-height: 1.2;
+          margin-bottom: var(--header-spacing-vertical);
+        }
+        
+        .powered-by-championship {
+          font-size: 14px;
+          font-weight: 500;
+          color: #3B82F6;
+          margin-bottom: var(--header-spacing-minimal);
+          letter-spacing: -0.2px;
+        }
+        
+        .online-store-championship {
+          font-size: 13px;
+          font-weight: 400;
+          color: #6B7280;
+          line-height: 1.4;
+        }
+        
+        /* Unified favorites badge pixel-perfect styling */
+        .favorites-badge {
+          background-color: #F43F5E;
+          box-shadow: 0 2px 6px rgba(244, 63, 94, 0.4);
+          color: #FFFFFF;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 50%;
+        }
+        
+        /* ENTERPRISE BADGE SYSTEM - PAYMENT & DELIVERY PILLS */
+        .payment-delivery-badge {
+          background: var(--neutral-100);
+          border-radius: 12px;
+          box-shadow: var(--elevation-low);
+          padding: var(--pill-padding);
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          font-weight: 500;
+          font-size: var(--font-action-label);
+          color: var(--text-primary);
+          cursor: pointer;
+          border: 1px solid var(--neutral-200);
+          white-space: nowrap;
+        }
+        
+        .payment-delivery-badge:hover {
+          background: #F9FAFB;
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          box-shadow: var(--elevation-mid);
+          transform: translateY(-1px);
+        }
+        
+        .payment-delivery-badge:active {
+          background: #DBEAFE;
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          box-shadow: var(--elevation-mid);
+        }
+        
+        .payment-delivery-badge svg {
+          width: 18px;
+          height: 18px;
+          color: var(--brand-primary);
           flex-shrink: 0;
         }
         
-        .championship-notification-text {
+        /* ENTERPRISE CTA BUTTONS - TOKEN INHERITANCE */
+        .enterprise-cta-primary {
+          background: var(--brand-primary);
+          color: var(--color-header-text-primary);
+          border: none;
+          border-radius: 8px;
+          font-size: var(--font-action-label);
+          font-weight: 600;
+          padding: var(--cta-padding);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: var(--elevation-card);
+          text-decoration: none;
+        }
+        
+        .enterprise-cta-primary:hover {
+          background: var(--brand-secondary);
+          box-shadow: var(--elevation-hover);
+          transform: translateY(-1px);
+        }
+        
+        .enterprise-cta-primary:active {
+          background: #1E3A8A;
+          transform: translateY(0);
+          box-shadow: var(--elevation-card);
+        }
+        
+        /* ENTERPRISE SECONDARY CTA - CONTRAST TOKEN INHERITANCE */
+        .enterprise-cta-secondary {
+          background: rgba(255, 255, 255, 0.9);
+          color: var(--text-primary);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          font-size: var(--font-action-label);
+          font-weight: 600;
+          padding: var(--cta-padding);
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          backdrop-filter: blur(8px);
+          box-shadow: var(--elevation-card);
+        }
+        
+        .enterprise-cta-secondary:hover {
+          background: var(--color-header-text-primary);
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          box-shadow: var(--elevation-hover);
+          transform: translateY(-1px);
+        }
+        
+        .enterprise-cta-secondary:active {
+          background: #F3F4F6;
+          border-color: var(--brand-primary);
+          color: var(--brand-primary);
+          transform: translateY(0);
+        }
+        
+        /* ENTERPRISE HEADER CONTAINER - LOCKED GRADIENT TOKEN */
+        .header-container-locked {
+          background: var(--color-header-bg);
+          border-radius: 16px;
+          box-shadow: var(--elevation-card);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: var(--header-padding);
+          min-height: var(--banner-min-height);
+          color: var(--color-header-text-primary);
+        }
+        
+        @media (max-width: 768px) {
+          .header-container-locked {
+            padding: 16px 20px;
+          }
+        }
+        
+        /* ENTERPRISE HEADER LAYOUT - TOKEN-DRIVEN ALIGNMENT */
+        .header-row-locked {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--action-spacing);
+        }
+        
+        /* ENTERPRISE THREE-ZONE LAYOUT - TOKEN SYSTEM */
+        .store-info-block {
+          display: flex;
+          align-items: center;
+          gap: var(--store-info-gap);
           flex: 1;
           min-width: 0;
         }
         
-        .championship-notification-title {
-          font-size: 18px;
-          font-weight: 700;
-          margin-bottom: 4px;
+        .badges-block {
+          display: flex;
+          align-items: center;
+          gap: var(--action-spacing);
+          flex-wrap: wrap;
         }
         
-        .championship-notification-description {
+        .cta-block {
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+          .header-row-locked {
+            flex-direction: column;
+            gap: 16px;
+            align-items: stretch;
+          }
+          
+          .store-info-block {
+            justify-content: center;
+          }
+          
+          .badges-block {
+            justify-content: center;
+          }
+          
+          .cta-block {
+            justify-content: center;
+          }
+        }
+        
+        /* RESPONSIVE BEHAVIOR - LOCKED TOKENS */
+        @media (max-width: 1279px) and (min-width: 768px) {
+          .store-title-locked {
+            font-size: var(--store-title-font-tablet);
+          }
+          
+          .store-logo-container,
+          .shoplynk-avatar,
+          .seller-avatar {
+            transform: scale(var(--logo-scale-tablet));
+          }
+        }
+        
+        @media (max-width: 767px) {
+          .store-logo-container,
+          .shoplynk-avatar,
+          .seller-avatar {
+            transform: scale(var(--logo-scale-mobile));
+          }
+          
+          .header-row-locked {
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+          }
+          
+          .store-info-block {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+          }
+          
+          .badges-block {
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+          }
+          
+          .cta-block {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        
+        /* LOCKED HEADER BASELINE - TOKEN SYSTEM */
+        .locked-header-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px 24px;
+          background: var(--surface-elevated, #FFFFFF);
+          border-radius: 16px;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .locked-header-content {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 24px;
+        }
+        
+        .store-identity-block {
+          display: flex;
+          align-items: center;
+          gap: var(--space-4, 16px);
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .store-logo-wrapper {
+          flex-shrink: 0;
+        }
+        
+        /* Avatar (logo) */
+        .header-avatar {
+          width: var(--avatar-size-lg, 96px);
+          height: var(--avatar-size-lg, 96px);
+          border-radius: var(--radius-2xl, 16px);
+          overflow: hidden;
+          border: 1px solid var(--surface-border, rgba(16,24,40,.08));
+          box-shadow: var(--shadow-md, 0 4px 14px rgba(16,24,40,.08));
+          background: var(--surface-elevated, #fff);
+          flex: 0 0 auto;
+          object-fit: cover;
+        }
+        
+        /* Monogram fallback (when no logoUrl) */
+        .header-avatar--fallback {
+          display: grid;
+          place-items: center;
+          font: var(--text-brand-lg, 700 28px/1 system-ui, -apple-system, Segoe UI);
+          color: var(--brand-primary-600, #2563EB);
+          background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0)),
+                      var(--brand-primary-50, #EFF6FF);
+        }
+        
+        .store-text-block {
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .locked-store-name {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--text-primary, #111827);
+          margin: 0 0 4px 0;
+          line-height: 1.2;
+        }
+        
+        .locked-powered-by {
           font-size: 14px;
-          opacity: 0.9;
+          font-weight: 500;
+          color: var(--text-secondary, #6B7280);
+          margin-bottom: 8px;
+        }
+        
+        /* Store Description Block */
+        .store-description-block {
+          font-size: 14px;
+          color: var(--text-subtle, #9CA3AF);
+          line-height: 1.4;
+          margin-top: 8px;
+          max-width: 62ch;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
         
-        .championship-notification-close {
-          background: rgba(255, 255, 255, 0.2);
-          color: white;
-          border: none;
-          border-radius: 50%;
-          width: 32px;
-          height: 32px;
-          cursor: pointer;
-          transition: all 0.2s ease;
+        /* Header meta block */
+        .header-meta {
           display: flex;
+          flex-direction: column;
+          gap: var(--space-2, 8px);
+        }
+        
+        /* Social Links Row (quiet style) */
+        .header-social {
+          display: inline-flex;
+          gap: var(--space-2, 8px);
+          margin-top: var(--space-2, 8px);
+          flex-wrap: wrap;
+        }
+        
+        .header-social a {
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          flex-shrink: 0;
+          width: 32px;
+          height: 32px;
+          border-radius: var(--radius-full, 999px);
+          color: var(--text-secondary, #667085);
+          background: transparent;
+          transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
+          outline: none;
+          text-decoration: none;
         }
         
-        .championship-notification-close:hover {
-          background: rgba(255, 255, 255, 0.3);
-          transform: scale(1.1);
+        .header-social a:hover {
+          color: var(--brand-primary-600, #2563EB);
+          background: var(--brand-primary-50, #EFF6FF);
         }
         
-        /* RESPONSIVE DESIGN */
-        @media (max-width: 1024px) {
-          .championship-grid {
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-          }
-          
-          .championship-filters {
+        .header-social a:focus-visible {
+          box-shadow: 0 0 0 2px var(--focus-ring, rgba(66,153,225,.6));
+        }
+        
+        .header-social svg {
+          width: 18px;
+          height: 18px;
+          stroke-width: 1.75;
+        }
+        
+        .seller-actions-block {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        
+        .action-pills {
+          display: flex;
+          gap: 12px;
+        }
+        
+        .locked-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          background: var(--surface-elevated, #FFFFFF);
+          border: 1px solid var(--border-default, #E5E7EB);
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--text-primary, #111827);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .locked-pill:hover {
+          background: #F9FAFB;
+          border-color: var(--brand-primary, #2563EB);
+          color: var(--brand-primary, #2563EB);
+        }
+        
+        .locked-primary-cta {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          height: 40px;
+          background: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          text-decoration: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .locked-primary-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(79, 168, 255, 0.3);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+          .locked-header-content {
             flex-direction: column;
             align-items: stretch;
-            gap: 24px;
+            gap: 16px;
           }
           
-          .championship-categories {
+          .store-identity-block {
             justify-content: center;
+            text-align: center;
           }
           
-          .championship-controls {
+          .seller-actions-block {
             justify-content: center;
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .championship-grid {
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
-          }
-          
-          .championship-search-input {
-            height: 56px;
-            font-size: 16px;
-            padding: 0 60px 0 60px;
-          }
-          
-          .championship-search-icon {
-            left: 20px;
-          }
-          
-          .championship-search-clear {
-            right: 16px;
-          }
-          
-          .championship-categories {
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
             gap: 12px;
           }
           
-          .championship-category-pill {
-            padding: 10px 20px;
-            font-size: 14px;
-          }
-          
-          .championship-select {
-            min-width: 160px;
-            height: 44px;
-            font-size: 14px;
-          }
-          
-          .championship-favorites {
-            height: 44px;
-            padding: 0 20px;
-            font-size: 14px;
+          .store-description-block {
+            -webkit-line-clamp: 3;
           }
         }
         
-        /* ACCESSIBILITY */
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.15s !important;
-          }
-        }
-        
-        @media (prefers-contrast: high) {
-          .championship-card {
-            border: 3px solid #000;
-          }
-          
-          .championship-category-pill-inactive {
-            border-color: #000;
-          }
-        }
-        
-        /* FOCUS MANAGEMENT */
-        .championship-card:focus-visible,
-        .championship-category-pill:focus-visible,
-        .championship-select:focus-visible,
-        .championship-favorites:focus-visible {
-          outline: 3px solid var(--championship-blue);
-          outline-offset: 2px;
-        }
+        /* Enterprise responsive logo scaling handled by clamp */
       `}</style>
 
-      <div className="min-h-screen" style={{
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)'
-      }}>
-        {/* Championship Store Header */}
+      <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
+        {/* Store Header Component */}
         {isOwner && (
           <StoreHeader
             name={seller?.storeName || 'Store Name'}
@@ -1568,514 +2167,731 @@ ${productUrl}`;
           />
         )}
 
-        {/* Championship Search & Filter Section */}
-        <FullWidthContainer className="py-16">
-          {/* Premium Search Bar */}
-          <div className="championship-search mb-12">
-            <Search className="championship-search-icon w-7 h-7" />
-            <input
-              type="text"
-              placeholder="Search for products, brands, or categories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="championship-search-input"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="championship-search-clear"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-
-          {/* Championship Filter System */}
-          <div className="championship-filters">
-            <div className="championship-categories">
-              <div className="championship-category-label">
-                <Filter className="w-6 h-6 text-blue-600" />
-                Categories
-              </div>
-              
-              <button
-                onClick={() => setCategoryFilter('all')}
-                className={`championship-category-pill ${
-                  categoryFilter === 'all' 
-                    ? 'championship-category-pill-active' 
-                    : 'championship-category-pill-inactive'
-                }`}
-              >
-                All Categories ({products.length})
-              </button>
-              
-              {categories.slice(0, 5).map(category => {
-                const count = products.filter(p => p.category === category).length;
-                return (
-                  <button
-                    key={category}
-                    onClick={() => setCategoryFilter(category)}
-                    className={`championship-category-pill ${
-                      categoryFilter === category 
-                        ? 'championship-category-pill-active' 
-                        : 'championship-category-pill-inactive'
-                    }`}
+        {/* v1.9.4 Clean Global Search and Filters */}
+        <FullWidthContainer className="py-10">
+          <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
+            style={{
+              background: 'linear-gradient(135deg, #F9FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+            }}>
+            {/* Clean frosted glass effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-white/20 rounded-3xl"></div>
+            <div className="relative z-10">
+            <div className="space-y-10">
+              {/* v1.9.3 Global Standard Search Bar */}
+              <div className="relative group">
+                {/* ShopLynk gradient focus border */}
+                <div 
+                  className="absolute -inset-1 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-400"
+                  style={{
+                    background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
+                    padding: '1px'
+                  }}
+                >
+                  <div className="w-full h-full bg-white rounded-2xl"></div>
+                </div>
+                <div className="absolute inset-0 bg-blue-500/3 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
+                
+                {/* Premium search icon */}
+                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300" style={{ color: '#9CA3AF' }} />
+                
+                <Input
+                  type="text"
+                  placeholder="Search for products, brands, or categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-14 pr-14 h-14 text-base border-0 frosted-search transition-all duration-300 font-medium relative z-10"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#374151'
+                  }}
+                  data-testid="input-search-products"
+                />
+                
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100 transition-all duration-200 z-20"
                   >
-                    {category} ({count})
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="championship-controls">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="championship-select"
-              >
-                <option value="newest">🆕 Newest First</option>
-                <option value="popular">🔥 Most Popular</option>
-                <option value="price-low">💰 Price: Low to High</option>
-                <option value="price-high">💎 Price: High to Low</option>
-                <option value="name">📝 Name A-Z</option>
-              </select>
-
-              <button
-                onClick={() => setShowFavorites(!showFavorites)}
-                className={`championship-favorites ${
-                  showFavorites ? 'championship-favorites-active' : ''
-                }`}
-              >
-                <Heart className={`w-6 h-6 ${showFavorites ? 'fill-current' : ''}`} />
-                Favorites
-                {favorites.size > 0 && (
-                  <span className="championship-favorites-badge">
-                    {favorites.size}
-                  </span>
+                    <X className="w-4 h-4" />
+                  </Button>
                 )}
-              </button>
+              </div>
+
+              {/* v1.8 Enhanced Filters - Perfect Baseline Alignment */}
+              <div className="filter-bar">
+                {/* Left side: Categories label + pills */}
+                <div className="filter-bar__left">
+                  <span className="filter-bar__title text-slate-700 uppercase tracking-wide flex items-center">
+                    <Filter className="w-5 h-5 mr-3 text-blue-600" />
+                    Categories
+                  </span>
+                  <div className="flex flex-wrap gap-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCategoryFilter('all')}
+                      className={`category-pill transition-all duration-300 micro-elevation ${
+                        categoryFilter === 'all' 
+                          ? 'filter-pill-active' 
+                          : 'filter-pill-inactive'
+                      }`}
+                    >
+                      All Categories ({products.length})
+                    </Button>
+                    {categories.slice(0, 6).map(category => {
+                      const count = products.filter(p => p.category === category).length;
+                      const isActive = categoryFilter === category;
+                      return (
+                        <Button
+                          key={category}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCategoryFilter(category)}
+                          className={`category-pill transition-all duration-300 micro-elevation ${
+                            isActive 
+                              ? 'filter-pill-active' 
+                              : 'filter-pill-inactive'
+                          }`}
+                        >
+                          {category} ({count})
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right side: Controls */}
+                <div className="flex gap-6 items-center flex-wrap">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-56 sort-dropdown border-0"
+                      style={{
+                        height: 'var(--token-button-height)',
+                        padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                        background: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: 'var(--token-border-radius)',
+                        boxShadow: 'var(--token-shadow-secondary)',
+                        fontWeight: 'var(--token-font-weight)',
+                        fontSize: 'var(--token-font-size)',
+                        color: '#333',
+                        transition: 'var(--token-transition-default)'
+                      }}>
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl border-0 shadow-2xl backdrop-blur-xl"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                      }}>
+                      <SelectItem value="newest">🆕 Newest First</SelectItem>
+                      <SelectItem value="popular">🔥 Most Popular</SelectItem>
+                      <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
+                      <SelectItem value="price-high">💎 Price: High to Low</SelectItem>
+                      <SelectItem value="name">📝 Name A-Z</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Unified Favorites Button */}
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setShowFavorites(!showFavorites)}
+                    className={`favorites-chip border-0 ${showFavorites ? 'active' : ''}`}
+                    style={showFavorites ? {
+                      height: 'var(--token-button-height)',
+                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                      background: 'var(--token-gradient-primary)',
+                      color: '#fff',
+                      border: 'none',
+                      boxShadow: 'var(--token-shadow-primary)',
+                      borderRadius: 'var(--token-border-radius)',
+                      fontWeight: '600',
+                      fontSize: 'var(--token-font-size)',
+                      transition: 'var(--token-transition-default)'
+                    } : {
+                      height: 'var(--token-button-height)',
+                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                      background: '#fff',
+                      color: '#333',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 'var(--token-border-radius)',
+                      boxShadow: 'var(--token-shadow-secondary)',
+                      fontWeight: 'var(--token-font-weight)',
+                      fontSize: 'var(--token-font-size)',
+                      transition: 'var(--token-transition-default)'
+                    }}
+                    data-testid="button-toggle-favorites"
+                  >
+                    <Heart className={`w-6 h-6 mr-3 transition-transform hover:scale-110 ${showFavorites ? 'fill-current' : ''}`} />
+                    Favorites {favorites.size > 0 && (
+                      <span className="ml-3 inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300 hover:scale-110 favorites-badge">
+                        {favorites.size}
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
+          </Card>
 
           {/* Enhanced Results Summary */}
           {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
-            <div className="mb-12">
-              <div className="p-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-200 backdrop-blur-xl">
-                <div className="flex items-center justify-between flex-wrap gap-6">
-                  <div className="space-y-3">
-                    <h3 className="text-2xl font-bold text-slate-800">
+            <div className="mb-8">
+              <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-slate-800">
                       Found {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''}
                     </h3>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 text-sm text-slate-600">
                       {searchQuery && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold text-sm">
-                          <Search className="w-4 h-4" />
-                          "{searchQuery}"
-                        </span>
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          Search: "{searchQuery}"
+                        </Badge>
                       )}
                       {categoryFilter !== 'all' && (
-                        <span className="inline-flex items-center gap-3 px-6 py-3 bg-purple-100 text-purple-800 rounded-full font-bold text-sm backdrop-blur-xl">
-                          <Filter className="w-4 h-4" />
-                          {categoryFilter}
-                        </span>
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          Category: {categoryFilter}
+                        </Badge>
                       )}
                       {showFavorites && (
-                        <span className="inline-flex items-center gap-3 px-6 py-3 bg-red-100 text-red-800 rounded-full font-bold text-sm backdrop-blur-xl">
-                          <Heart className="w-4 h-4 fill-current" />
+                        <Badge variant="secondary" className="bg-red-100 text-red-800">
+                          <Heart className="w-3 h-3 mr-1" />
                           Favorites Only
-                        </span>
+                        </Badge>
                       )}
                     </div>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       setSearchQuery('');
                       setCategoryFilter('all');
                       setShowFavorites(false);
                     }}
-                    className="ultimate-clear-btn"
+                    className="text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl font-semibold"
                   >
-                    Clear All Filters
-                  </button>
+                    Clear Filters
+                  </Button>
                 </div>
-              </div>
+              </Card>
             </div>
           )}
 
-          {/* Ultimate Product Grid */}
-          {loading && Object.keys(cardLoadingStates).length > 0 ? (
-            <div className="ultimate-grid">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <ProductCardSkeleton key={`skeleton-${index}`} />
-              ))}
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="ultimate-empty">
-              <Search className="ultimate-empty-icon" />
-              <h3 className="ultimate-empty-title">
-                {searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
-              </h3>
-              <p className="ultimate-empty-description">
-                {searchQuery || categoryFilter !== 'all' || showFavorites
-                  ? "Try adjusting your search or filters to find what you're looking for."
-                  : "This store doesn't have any products listed yet. Check back soon!"
+          {/* Product Grid */}
+          {filteredProducts.length === 0 ? (
+            <Card className="p-8 text-center">
+              <EmptyState
+                icon={<Search className="h-20 w-20 text-slate-400" />}
+                title={searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
+                description={
+                  searchQuery || categoryFilter !== 'all' || showFavorites
+                    ? "Try adjusting your search or filters to find what you're looking for."
+                    : "This store doesn't have any products listed yet. Check back soon!"
                 }
-              </p>
-              {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setCategoryFilter('all');
-                    setShowFavorites(false);
-                  }}
-                  className="ultimate-clear-btn"
-                >
-                  Clear All Filters
-                </button>
-              )}
-            </div>
+                action={
+                  (searchQuery || categoryFilter !== 'all' || showFavorites) ? {
+                    label: "Clear All Filters",
+                    onClick: () => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setShowFavorites(false);
+                    }
+                  } : undefined
+                }
+              />
+            </Card>
           ) : (
-            <div className="ultimate-grid">
-              {filteredProducts.map((product, index) => (
-                <div
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredProducts.map((product) => (
+                <Card
                   key={product.id}
-                  className="ultimate-card"
+                  className="product-card-v11 group cursor-pointer border-0 overflow-hidden"
                   onClick={() => handleProductView(product)}
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  data-testid={`card-product-${product.id}`}
                 >
-                  <div className="ultimate-card-image-container">
-                    <img
-                      src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
-                      alt={product.name}
-                      className="ultimate-card-image"
-                      onLoad={(e) => handleImageLoad(product.id, e)}
-                      onError={handleImageError}
-                      onLoadStart={() => handleImageStart(product.id)}
-                      data-product-id={product.id}
-                      loading="lazy"
-                    />
-                    
-                    <div className="ultimate-image-overlay"></div>
-                    
-                    {/* Image Loading State */}
-                    {imageLoadingStates[product.id] && (
-                      <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                        <div className="loading-shimmer w-full h-full">
-                          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Quick Actions */}
-                    <div className="ultimate-quick-actions">
-                      <button
-                        className="ultimate-quick-btn"
-                        onClick={(e) => handleQuickView(product, e)}
-                        title="Quick View"
-                      >
-                        <Eye className="w-5 h-5" />
-                      </button>
-                      <button
-                        className="ultimate-quick-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (navigator.share) {
-                            navigator.share({
-                              title: product.name,
-                              text: `Check out ${product.name} for ${formatPrice(product.price)}`,
-                              url: `${window.location.origin}/store/${sellerId}#${product.id}`
-                            });
-                          }
-                        }}
-                        title="Share Product"
-                      >
-                        <Share2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                    
-                    {/* Favorite Button */}
-                    {!isOwner && (
-                      <button
-                        className="ultimate-favorite-btn"
-                        onClick={(e) => toggleFavorite(product.id, e)}
-                        aria-pressed={favorites.has(product.id)}
-                        title={favorites.has(product.id) ? "Remove from favorites" : "Add to favorites"}
-                      >
-                        <Heart
-                          className={`w-6 h-6 transition-all duration-300 ${
-                            favorites.has(product.id)
-                              ? 'fill-current text-red-500'
-                              : 'text-slate-400'
-                          }`}
-                        />
-                      </button>
-                    )}
-
-                    {/* Product Badges */}
-                    <div className="ultimate-badge-overlay">
-                      {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                        <span className="ultimate-badge ultimate-badge-new">
-                          New
-                        </span>
-                      )}
-                      {product.quantity < 5 && (
-                        <span className="ultimate-badge ultimate-badge-limited">
-                          Limited
-                        </span>
-                      )}
-                      {product.features?.includes('featured') && (
-                        <span className="ultimate-badge ultimate-badge-featured">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="ultimate-card-content">
-                    <h3 className="ultimate-card-title">
-                      {product.name}
-                    </h3>
-                    
-                    {product.brand && (
-                      <p className="ultimate-card-brand">
-                        {product.brand}
-                      </p>
-                    )}
-
-                    <div className="ultimate-card-price">
-                      {formatPrice(product.price)}
-                    </div>
-
-                    <div className="ultimate-card-category">
-                      <span>{product.category}</span>
-                    </div>
-
-                    <div className="ultimate-card-actions">
-                      {/* WhatsApp Contact Button */}
-                      {seller?.whatsappNumber ? (
+                  <div className="product-image-container">
+                    {/* Product image */}
+                    <div className="product-image-wrapper">
+                      <img
+                        src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+                        alt={product.name}
+                        className="product-image"
+                        onLoad={(e) => handleImageLoad(product.id, e)}
+                        onError={handleImageError}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      
+                      {/* Favorite button - top right */}
+                      {!isOwner && (
                         <button
-                          className={`ultimate-whatsapp-btn ${
-                            cardLoadingStates[`contact-${product.id}`] ? 'ultimate-loading-btn' : ''
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactProduct(product);
-                          }}
-                          disabled={cardLoadingStates[`contact-${product.id}`]}
+                          className="product-favorite-btn"
+                          onClick={(e) => toggleFavorite(product.id, e)}
+                          aria-pressed={favorites.has(product.id)}
+                          data-testid={`button-favorite-${product.id}`}
                         >
-                          {cardLoadingStates[`contact-${product.id}`] ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                          ) : (
-                            <MessageCircle className="w-6 h-6" />
-                          )}
-                          Contact Seller
+                          <Heart
+                            className={`h-4 w-4 ${
+                              favorites.has(product.id)
+                                ? 'product-favorite-active'
+                                : 'product-favorite-idle'
+                            }`}
+                          />
                         </button>
-                      ) : isOwner ? (
-                        <div className="relative group">
+                      )}
+
+                      {/* v1.1 Product badges - top left overlay */}
+                      <div className="product-badges-overlay">
+                        {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                          <span className="product-badge-new">
+                            New
+                          </span>
+                        )}
+                        {product.quantity < 5 && (
+                          <span className="product-badge-limited">
+                            Limited Stock
+                          </span>
+                        )}
+                        {product.features?.includes('featured') && (
+                          <span className="product-badge-featured">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* v1.1 Product info with token-driven layout */}
+                    <CardContent className="product-card-content">
+                      {/* Product title & brand */}
+                      <div className="product-title-section">
+                        <h3 className="product-title">
+                          {product.name}
+                        </h3>
+                        {product.brand && (
+                          <p className="product-brand">
+                            {product.brand}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Price row */}
+                      <div className="product-price-section">
+                        <span className="product-price">
+                          {formatPrice(product.price)}
+                        </span>
+                        {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
+                          <>
+                            <span className="product-compare-price">
+                              {formatPrice((product as any).compareAtPrice)}
+                            </span>
+                            <span className="product-discount-badge">
+                              -{Math.round((((product as any).compareAtPrice - product.price) / (product as any).compareAtPrice) * 100)}%
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Category pills row - reuse global tokens */}
+                      <div className="product-category-section">
+                        <span className="product-category-pill">
+                          📦 {product.category}
+                        </span>
+                        {product.subcategory && (
+                          <span className="product-category-pill">
+                            {product.subcategory}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* v1.1 CTAs - Token-driven buttons */}
+                      <div className="product-cta-section">
+                        {/* Primary CTA - Contact Seller */}
+                        {seller?.whatsappNumber ? (
                           <button
-                            disabled
-                            className="ultimate-whatsapp-btn opacity-60 cursor-not-allowed"
+                            className="product-cta-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContactProduct(product);
+                            }}
+                            aria-label={`Contact seller about ${product.name} on WhatsApp`}
+                            data-testid={`button-whatsapp-${product.id}`}
                           >
-                            <MessageCircle className="w-6 h-6" />
+                            <MessageCircle className="h-4 w-4" aria-hidden="true" />
                             Contact Seller
                           </button>
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                            <div className="bg-black text-white text-xs rounded-xl px-4 py-3 whitespace-nowrap font-semibold">
-                              Add WhatsApp number in Settings
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
+                        ) : isOwner ? (
+                          // Seller console preview - disabled button with tooltip
+                          <div className="relative group">
+                            <Button
+                              disabled
+                              className="w-full font-medium opacity-60 cursor-not-allowed"
+                              size="sm"
+                              style={{
+                                backgroundColor: '#25D366',
+                                borderRadius: '10px',
+                                color: 'white'
+                              }}
+                              data-testid={`button-whatsapp-disabled-${product.id}`}
+                            >
+                              <MessageCircle className="h-4 w-4 mr-2" aria-hidden="true" />
+                              Contact Seller
+                            </Button>
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                              <div className="bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                Add a WhatsApp number in Settings to enable this
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-black"></div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : null}
-                      
-                      <button
-                        className={`ultimate-details-btn ${
-                          cardLoadingStates[product.id] ? 'ultimate-loading-btn' : ''
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleProductView(product);
-                        }}
-                        disabled={cardLoadingStates[product.id]}
-                      >
-                        {cardLoadingStates[product.id] ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                          <ArrowUpRight className="w-5 h-5" />
+                        ) : null}
+                        
+                        {/* Out of stock caption */}
+                        {seller?.whatsappNumber && product.quantity <= 0 && (
+                          <p className="text-xs text-gray-500 text-center">
+                            Currently out of stock — message seller for availability
+                          </p>
                         )}
-                        View Details
-                      </button>
-                    </div>
-
-                    {/* Stock Warning */}
-                    {product.quantity <= 10 && (
-                      <div className="ultimate-stock-warning">
-                        Only {product.quantity} left in stock
+                        
+                        {/* View Details Button */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleProductView(product);
+                          }}
+                          className="w-full bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                          style={{
+                            border: '1px solid #E0E0E0',
+                            borderRadius: '10px',
+                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = '#2C3E50';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = '';
+                          }}
+                          data-testid={`button-view-${product.id}`}
+                        >
+                          View Details
+                        </Button>
                       </div>
-                    )}
+
+                      {/* Premium stock warning - #E63946 background, white bold text, ALL CAPS */}
+                      {product.quantity <= 10 && (
+                        <div className="pt-3 border-t border-slate-100">
+                          <div className="inline-flex items-center rounded-md text-xs font-bold tracking-wide" 
+                               style={{ 
+                                 backgroundColor: '#E63946', 
+                                 color: 'white',
+                                 padding: '8px 12px'
+                               }}>
+                            <span className="mr-2 text-sm flex items-center">⚠️</span>
+                            LIMITED STOCK — ONLY {product.quantity} LEFT
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Premium refined badge system - max 4 badges per card */}
+                      {(() => {
+                        const badges = [];
+                        const maxBadges = 4;
+                        
+                        // Priority 1: Physical attributes (light gray #F1F3F5 background, #333333 text)
+                        if (product.color && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="color" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#F1F3F5', 
+                                   color: '#333333',
+                                   padding: '6px 12px'
+                                 }}>
+                              <span className="mr-1.5 text-sm flex items-center">🎨</span>
+                              {product.color}
+                            </div>
+                          );
+                        }
+                        if (product.size && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="size" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#F1F3F5', 
+                                   color: '#333333',
+                                   padding: '6px 12px'
+                                 }}>
+                              <span className="mr-1.5 text-sm flex items-center">📏</span>
+                              {product.size}
+                            </div>
+                          );
+                        }
+                        if (product.material && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="material" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#F1F3F5', 
+                                   color: '#333333',
+                                   padding: '6px 12px'
+                                 }}>
+                              <span className="mr-1.5 text-sm flex items-center">🧵</span>
+                              {product.material}
+                            </div>
+                          );
+                        }
+                        
+                        // Priority 2: Sustainability (soft green #DFF6E3 background, #1E7D3D text)
+                        if (product.sustainability && badges.length < maxBadges) {
+                          badges.push(
+                            <div key="sustainability" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                 style={{ 
+                                   backgroundColor: '#DFF6E3', 
+                                   color: '#1E7D3D',
+                                   padding: '6px 12px'
+                                 }}>
+                              <span className="mr-1.5 text-sm flex items-center">🌱</span>
+                              Eco-friendly
+                            </div>
+                          );
+                        }
+                        
+                        // Note: Handmade, Customizable, Gift Wrap moved to details view per specs
+                        
+                        return badges.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
+                            {badges}
+                          </div>
+                        );
+                      })()}
+                    </CardContent>
                   </div>
-                </div>
+                </Card>
               ))}
+            </div>
+          )}
+
+          {/* Load more or pagination */}
+          {filteredProducts.length >= 20 && (
+            <div className="text-center mt-16">
+              <Card className="inline-block p-8 bg-white/90 backdrop-blur-xl shadow-xl border-0 rounded-3xl">
+                <p className="text-slate-600 mb-6 text-lg font-semibold">
+                  You've seen all {filteredProducts.length} products
+                </p>
+                <Button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                >
+                  <ArrowLeft className="w-5 h-5 mr-3 rotate-90" />
+                  Back to Top
+                </Button>
+              </Card>
             </div>
           )}
         </FullWidthContainer>
 
-        {/* Ultimate Contact Notification */}
+        {/* Floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
+
+        {/* Enhanced contact notification */}
         {contactNotification.show && contactNotification.product && (
-          <div className="ultimate-notification">
-            <div className="ultimate-notification-card">
-              <div className="ultimate-notification-content">
-                <div className="ultimate-notification-icon">
-                  <CheckCircle className="w-7 h-7" />
+          <div className="fixed top-24 right-8 z-50 max-w-sm animate-fadeInScale">
+            <Card className="p-6 bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-2xl border-0 rounded-2xl">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-6 h-6" />
                 </div>
-                <div className="ultimate-notification-text">
-                  <h4 className="ultimate-notification-title">WhatsApp Opening...</h4>
-                  <p className="ultimate-notification-description">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-lg">WhatsApp Opening...</h4>
+                  <p className="text-sm opacity-90 line-clamp-2">
                     Contacted seller about "{contactNotification.product.name}"
                   </p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setContactNotification({show: false, product: null})}
-                  className="ultimate-notification-close"
+                  className="text-white hover:bg-white/20 rounded-full p-2 h-8 w-8 flex-shrink-0"
                 >
-                  <X className="w-5 h-5" />
-                </button>
+                  <X className="w-4 h-4" />
+                </Button>
               </div>
-            </div>
+            </Card>
           </div>
         )}
         
-        {/* Ultimate Payment Methods Modal */}
+        {/* Ultra-Premium Payment Methods Modal */}
         {showPaymentModal && (
           <div 
-            className="ultimate-modal-overlay" 
+            className="fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
             onClick={() => setShowPaymentModal(false)}
           >
-            <div 
-              className="ultimate-modal" 
+            <Card 
+              className="max-w-lg w-full bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale overflow-hidden" 
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="ultimate-modal-header">
-                <div className="ultimate-modal-title">Payment Methods</div>
-                <div className="ultimate-modal-subtitle">Secure payment options available</div>
-                <button 
-                  onClick={() => setShowPaymentModal(false)}
-                  className="ultimate-modal-close"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+              <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                      <CreditCard className="w-7 h-7 text-white" />
+                    </div>
+                    Payment Methods
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setShowPaymentModal(false)}
+                    className="text-white hover:bg-white/20 rounded-full p-2 h-10 w-10"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
               
-              <div className="ultimate-modal-content">
-                {paymentMethods.map((method, index) => (
-                  <div key={index} className="ultimate-method-item">
-                    <div className="ultimate-method-icon">
-                      {getPaymentIcon(method)}
+              <CardContent className="p-8">
+                <div className="space-y-4">
+                  {paymentMethods.map((method, index) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-3xl shadow-lg border-2 border-slate-200">
+                        {getPaymentIcon(method)}
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-bold text-slate-800 text-lg">{getPaymentLabel(method)}</span>
+                        <p className="text-sm text-slate-600">Secure payment processing</p>
+                      </div>
                     </div>
-                    <div className="ultimate-method-info">
-                      <div className="ultimate-method-title">{getPaymentLabel(method)}</div>
-                      <div className="ultimate-method-description">Secure payment processing</div>
+                  ))}
+                  {paymentMethods.length === 0 && (
+                    <div className="text-center py-12">
+                      <Info className="w-16 h-16 text-slate-400 mx-auto mb-6" />
+                      <h4 className="text-xl font-bold text-slate-800 mb-3">Payment Details Available</h4>
+                      <p className="text-slate-600 leading-relaxed">
+                        Payment methods and details will be shared when you contact the seller directly.
+                      </p>
                     </div>
-                  </div>
-                ))}
-                {paymentMethods.length === 0 && (
-                  <div className="text-center py-12">
-                    <Info className="w-16 h-16 text-slate-400 mx-auto mb-6" />
-                    <h4 className="text-xl font-bold text-slate-800 mb-3">Payment Details Available</h4>
-                    <p className="text-slate-600 leading-relaxed">
-                      Payment methods will be shared when you contact the seller.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
         
-        {/* Championship Delivery Options Modal */}
+        {/* Ultra-Premium Delivery Options Modal */}
         {showDeliveryModal && (
           <div 
-            className="championship-modal-overlay" 
+            className="fixed inset-0 bg-black/60 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
             onClick={() => setShowDeliveryModal(false)}
           >
-            <div 
-              className="championship-modal" 
+            <Card 
+              className="max-w-lg w-full bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale overflow-hidden" 
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="championship-modal-header">
-                <div className="championship-modal-title">Delivery Options</div>
-                <div className="championship-modal-subtitle">Fast and reliable delivery services</div>
-                <button 
-                  onClick={() => setShowDeliveryModal(false)}
-                  className="championship-modal-close"
-                >
-                  <X className="w-6 h-6" />
-                </button>
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                      <Truck className="w-7 h-7 text-white" />
+                    </div>
+                    Delivery Options
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setShowDeliveryModal(false)}
+                    className="text-white hover:bg-white/20 rounded-full p-2 h-10 w-10"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
               
-              <div className="championship-modal-content">
-                {deliveryOptions.map((option, index) => (
-                  <div key={index} className="championship-method-item">
-                    <div className="championship-method-icon">
-                      {getDeliveryIcon(option)}
+              <CardContent className="p-8">
+                <div className="space-y-4">
+                  {deliveryOptions.map((option, index) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center gap-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-3xl shadow-lg border-2 border-slate-200">
+                        {getDeliveryIcon(option)}
+                      </div>
+                      <div className="flex-1">
+                        <span className="font-bold text-slate-800 text-lg">{getDeliveryLabel(option)}</span>
+                        <p className="text-sm text-slate-600">Fast and reliable delivery</p>
+                      </div>
                     </div>
-                    <div className="championship-method-info">
-                      <div className="championship-method-title">{getDeliveryLabel(option)}</div>
-                      <div className="championship-method-description">Reliable delivery service</div>
+                  ))}
+                  {deliveryOptions.length === 0 && (
+                    <div className="text-center py-12">
+                      <Info className="w-16 h-16 text-slate-400 mx-auto mb-6" />
+                      <h4 className="text-xl font-bold text-slate-800 mb-3">Delivery Info Available</h4>
+                      <p className="text-slate-600 leading-relaxed">
+                        Delivery options and costs will be discussed when you contact the seller.
+                      </p>
                     </div>
-                  </div>
-                ))}
-                {deliveryOptions.length === 0 && (
-                  <div className="text-center py-12">
-                    <Info className="w-16 h-16 text-slate-400 mx-auto mb-6" />
-                    <h4 className="text-xl font-bold text-slate-800 mb-3">Delivery Info Available</h4>
-                    <p className="text-slate-600 leading-relaxed">
-                      Delivery options will be discussed when you contact the seller.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
         
-        {/* Championship Product Detail Modal */}
+        {/* Ultra-Premium Product Detail Modal */}
         {showProductModal && selectedProduct && (
           <div 
-            className="championship-modal-overlay" 
+            className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
             onClick={() => setShowProductModal(false)}
           >
-            <div 
-              className="championship-modal max-w-5xl" 
+            <Card 
+              className="max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Product Image Header */}
+              {/* Ultra-Premium Product Image Header */}
               <div className="relative">
-                <div className="aspect-[16/9] relative overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
+                <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
                   <img
                     src={getProductImageUrl(selectedProduct) || PLACEHOLDER_IMAGE}
                     alt={selectedProduct.name}
                     className="w-full h-full object-cover"
+                    onLoad={(e) => handleImageLoad(selectedProduct.id, e)}
+                    onError={handleImageError}
                   />
                   
+                  {/* Enhanced overlay with gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                   
+                  {/* Premium quality warning */}
                   {lowResImages[selectedProduct.id] && (
                     <div className="absolute top-6 left-6 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-3 rounded-full font-bold text-sm shadow-2xl">
-                      Low Quality Image
+                      ⚠️ Low Quality Image - Upload HD for better results
                     </div>
                   )}
                   
-                  <button
+                  {/* Enhanced Close Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setShowProductModal(false)}
-                    className="absolute top-6 right-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                    className="absolute top-6 right-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
                   >
                     <X className="w-7 h-7" />
-                  </button>
+                  </Button>
                   
-                  <button
+                  {/* Enhanced Favorite Button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={(e) => toggleFavorite(selectedProduct.id, e)}
-                    className={`absolute top-6 left-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center ${
+                    className={`absolute top-6 left-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110 ${
                       favorites.has(selectedProduct.id) ? 'text-red-500' : 'text-slate-600'
                     }`}
                   >
@@ -2083,110 +2899,410 @@ ${productUrl}`;
                       className="w-7 h-7" 
                       fill={favorites.has(selectedProduct.id) ? 'currentColor' : 'none'} 
                     />
-                  </button>
+                  </Button>
+
+                  {/* Navigation Arrows */}
+                  {filteredProducts.length > 1 && (
+                    <>
+                      {filteredProducts.findIndex(p => p.id === selectedProduct.id) > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+                            const prevProduct = filteredProducts[currentIndex - 1];
+                            setSelectedProduct(prevProduct);
+                            window.history.replaceState(null, '', `#${prevProduct.id}`);
+                          }}
+                          className="absolute left-1/2 top-1/2 transform -translate-x-20 -translate-y-1/2 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                        >
+                          <ChevronDown className="w-7 h-7 rotate-90" />
+                        </Button>
+                      )}
+                      
+                      {filteredProducts.findIndex(p => p.id === selectedProduct.id) < filteredProducts.length - 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+                            const nextProduct = filteredProducts[currentIndex + 1];
+                            setSelectedProduct(nextProduct);
+                            window.history.replaceState(null, '', `#${nextProduct.id}`);
+                          }}
+                          className="absolute left-1/2 top-1/2 transform translate-x-6 -translate-y-1/2 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                        >
+                          <ChevronDown className="w-7 h-7 -rotate-90" />
+                        </Button>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
               
-              {/* Product Details Content */}
-              <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto">
+              {/* Product Details */}
+              <CardContent className="p-6 space-y-6">
                 {/* Header Section */}
-                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-                  <div className="flex-1 space-y-4">
-                    <h2 className="text-3xl font-bold text-gray-800">
-                      {selectedProduct.name}
-                    </h2>
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="inline-flex items-center px-4 py-2 rounded-xl bg-slate-800 text-white text-sm font-semibold">
-                        {selectedProduct.category}
-                      </span>
-                      {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                        <span className="inline-flex items-center px-3 py-1.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold">
-                          New arrival
-                        </span>
-                      )}
+                <div className="space-y-4">
+                  <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                    <div className="flex-1 space-y-4">
+                      <div className="space-y-3">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">
+                          {selectedProduct.name}
+                        </h2>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <div className="inline-flex items-center px-4 py-2 rounded-md bg-slate-800 text-white text-sm font-semibold">
+                            <span className="mr-2 text-sm flex items-center">📦</span>
+                            {selectedProduct.category}
+                          </div>
+                          {(selectedProduct as any).subcategory && (
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-600 text-white text-sm font-medium">
+                              {(selectedProduct as any).subcategory}
+                            </div>
+                          )}
+                          {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                            <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-emerald-500 text-white text-sm font-semibold">
+                              <span className="mr-1.5 text-sm flex items-center">🆕</span>
+                              New arrival
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="lg:text-right space-y-2">
+                      <div className="text-3xl lg:text-4xl font-bold" style={{ color: '#27AE60' }}>
+                        {formatPrice(selectedProduct.price)}
+                      </div>
+                      <div className="text-sm text-slate-500 font-medium">per unit</div>
                     </div>
                   </div>
                   
-                  <div className="lg:text-right space-y-2">
-                    <div className="text-4xl font-bold text-emerald-600">
-                      {formatPrice(selectedProduct.price)}
-                    </div>
-                    <div className="text-sm text-slate-500 font-medium">per unit</div>
-                  </div>
-                </div>
-                
-                {/* Stock Status */}
-                <div className={`p-6 rounded-2xl border-2 ${
-                  selectedProduct.quantity > 10 
-                    ? 'bg-emerald-50 border-emerald-300' 
-                    : selectedProduct.quantity > 0 
-                      ? 'bg-yellow-50 border-yellow-300' 
-                      : 'bg-red-50 border-red-300'
-                }`}>
-                  <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg ${
-                      selectedProduct.quantity > 10 ? 'bg-emerald-500' :
-                      selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}>
-                      <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                    <div className="flex-1">
-                      <div className={`font-bold text-lg ${
-                        selectedProduct.quantity > 10 ? 'text-emerald-700' :
-                        selectedProduct.quantity > 0 ? 'text-yellow-700' : 'text-red-700'
+                  {/* Refined Stock Status */}
+                  <div className="p-5 rounded-xl border-2" style={{
+                    backgroundColor: selectedProduct.quantity > 10 ? '#E8F5E8' : 
+                                   selectedProduct.quantity > 0 ? '#FFF4E6' : '#FFE6E6',
+                    borderColor: selectedProduct.quantity > 10 ? '#27AE60' : 
+                                selectedProduct.quantity > 0 ? '#F39C12' : '#E63946'
+                  }}>
+                    <div className="flex items-center gap-4">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg ${
+                        selectedProduct.quantity > 10 ? 'bg-emerald-500' :
+                        selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
                       }`}>
-                        {selectedProduct.quantity > 10 ? 'In stock & ready to ship' :
-                         selectedProduct.quantity > 0 ? `Limited stock — Only ${selectedProduct.quantity} left` : 
-                         'Currently out of stock'}
+                        <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
                       </div>
-                      <p className="text-slate-600 mt-1 text-sm font-medium">
-                        {selectedProduct.quantity > 0 
-                          ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available`
-                          : 'Contact seller for restocking information'
-                        }
-                      </p>
+                      <div className="flex-1">
+                        <div className="font-bold text-lg" style={{
+                          color: selectedProduct.quantity > 10 ? '#27AE60' : 
+                                 selectedProduct.quantity > 0 ? '#D68910' : '#C0392B'
+                        }}>
+                          {selectedProduct.quantity > 10 ? 'In stock & ready to ship' :
+                           selectedProduct.quantity > 0 ? `Limited stock — Only ${selectedProduct.quantity} left` : 
+                           'Currently out of stock'}
+                        </div>
+                        <p className="text-slate-600 mt-1 text-sm font-medium">
+                          {selectedProduct.quantity > 0 
+                            ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available for immediate purchase`
+                            : 'Contact seller for restocking information'
+                          }
+                        </p>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Secondary Feature Badges (moved from cards) */}
+                  {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).giftWrapping) && (
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <span className="text-lg">⭐</span>
+                        Special features
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {(selectedProduct as any).isHandmade && (
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                               style={{ backgroundColor: '#FEF7F0', color: '#EA580C' }}>
+                            <span className="mr-1.5 text-sm flex items-center">🎨</span>
+                            Handmade
+                          </div>
+                        )}
+                        {(selectedProduct as any).isCustomizable && (
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                               style={{ backgroundColor: '#F0F9FF', color: '#0369A1' }}>
+                            <span className="mr-1.5 text-sm flex items-center">⚙️</span>
+                            Customizable
+                          </div>
+                        )}
+                        {(selectedProduct as any).giftWrapping && (
+                          <div className="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium" 
+                               style={{ backgroundColor: '#FDF4FF', color: '#A21CAF' }}>
+                            <span className="mr-1.5 text-sm flex items-center">🎁</span>
+                            Gift wrap
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
                 {selectedProduct.description && (
                   <div className="space-y-4">
-                    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
-                      <Info className="w-5 h-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <Info className="w-4 h-4 text-blue-600" />
                       Description
                     </h3>
-                    <p className="text-gray-600 p-6 bg-blue-50 rounded-2xl border border-blue-100 leading-relaxed">
+                    <p className="text-gray-600 p-4 bg-blue-50 rounded-lg border border-blue-100">
                       {selectedProduct.description}
                     </p>
                   </div>
                 )}
                 
-                {/* Championship Action Buttons */}
+                {/* Attributes Section */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                      <span className="text-2xl">📋</span>
+                      Product Attributes
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {[
+                        { label: 'Brand', value: selectedProduct.brand, icon: '🏷️' },
+                        { label: 'Condition', value: selectedProduct.condition, icon: '⭐' },
+                        { label: 'Size', value: selectedProduct.size, icon: '📏' },
+                        { label: 'Color', value: selectedProduct.color, icon: '🎨' },
+                        { label: 'Material', value: selectedProduct.material, icon: '🧵' },
+                        { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
+                        { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
+                      ].filter(item => item.value).map((item, index) => (
+                        <div key={index} className="p-4 rounded-md border" 
+                             style={{ backgroundColor: '#F1F3F5', borderColor: '#E5E7EB' }}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm flex items-center">{item.icon}</span>
+                            <span className="text-xs font-semibold uppercase tracking-wide" 
+                                  style={{ color: '#495057' }}>
+                              {item.label}
+                            </span>
+                          </div>
+                          <p className="font-bold text-lg capitalize" style={{ color: '#495057' }}>{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Shipping & Logistics Section */}
+                  {((selectedProduct as any).processingTime || (selectedProduct as any).shipsFrom) && (
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">🚚</span>
+                        Shipping & Processing
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(selectedProduct as any).processingTime && (
+                          <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">⏱️</span>
+                              <span className="text-xs font-semibold text-blue-700 uppercase tracking-wide">
+                                Processing Time
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-blue-800">{(selectedProduct as any).processingTime}</p>
+                          </div>
+                        )}
+                        {(selectedProduct as any).shipsFrom && (
+                          <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">✈️</span>
+                              <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">
+                                Ships From
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-indigo-800">{(selectedProduct as any).shipsFrom}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Occasion & Age Group Section */}
+                  {((selectedProduct as any).occasion || (selectedProduct as any).targetAgeGroup) && (
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">🎯</span>
+                        Suitable For
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(selectedProduct as any).occasion && (
+                          <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">🎉</span>
+                              <span className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
+                                Occasion
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-purple-800 capitalize">{(selectedProduct as any).occasion}</p>
+                          </div>
+                        )}
+                        {(selectedProduct as any).targetAgeGroup && (
+                          <div className="p-4 bg-pink-50 rounded-xl border border-pink-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-lg">👥</span>
+                              <span className="text-xs font-semibold text-pink-700 uppercase tracking-wide">
+                                Age Group
+                              </span>
+                            </div>
+                            <p className="font-bold text-lg text-pink-800 capitalize">{(selectedProduct as any).targetAgeGroup}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Product Policies Section */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                      <span className="text-2xl">📋</span>
+                      Product Policies
+                    </h3>
+                    <div className="space-y-4">
+                      {/* Personalization Options */}
+                      {(selectedProduct as any).personalizationOptions && (
+                        <div className="p-5 bg-indigo-50 rounded-2xl border-l-4 border-indigo-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">✏️</span>
+                            <h4 className="text-lg font-bold text-indigo-800">Personalization Options</h4>
+                          </div>
+                          <p className="text-indigo-700 font-medium leading-relaxed">{(selectedProduct as any).personalizationOptions}</p>
+                        </div>
+                      )}
+
+                      {/* Care Instructions */}
+                      {(selectedProduct as any).careInstructions && (
+                        <div className="p-5 bg-blue-50 rounded-2xl border-l-4 border-blue-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">🧼</span>
+                            <h4 className="text-lg font-bold text-blue-800">Care Instructions</h4>
+                          </div>
+                          <p className="text-blue-700 font-medium leading-relaxed">{(selectedProduct as any).careInstructions}</p>
+                        </div>
+                      )}
+
+                      {/* Sustainability */}
+                      {(selectedProduct as any).sustainability && (
+                        <div className="p-5 bg-green-50 rounded-2xl border-l-4 border-green-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">🌱</span>
+                            <h4 className="text-lg font-bold text-green-800">Sustainability</h4>
+                          </div>
+                          <p className="text-green-700 font-medium leading-relaxed">{(selectedProduct as any).sustainability}</p>
+                        </div>
+                      )}
+
+                      {/* Warranty */}
+                      {(selectedProduct as any).warranty && (
+                        <div className="p-5 bg-purple-50 rounded-2xl border-l-4 border-purple-400">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">🛡️</span>
+                            <h4 className="text-lg font-bold text-purple-800">Warranty</h4>
+                          </div>
+                          <p className="text-purple-700 font-medium leading-relaxed">{(selectedProduct as any).warranty}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Special Features */}
+                {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).madeToOrder || (selectedProduct as any).giftWrapping) && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-600" />
+                      Special Features
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {(selectedProduct as any).isHandmade && (
+                        <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                          <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-2xl">🎨</div>
+                          <div>
+                            <span className="font-bold text-orange-800">Handmade</span>
+                            <p className="text-sm text-orange-600">Crafted with care by skilled artisans</p>
+                          </div>
+                        </div>
+                      )}
+                      {(selectedProduct as any).isCustomizable && (
+                        <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-2xl">⚙️</div>
+                          <div>
+                            <span className="font-bold text-blue-800">Customizable</span>
+                            <p className="text-sm text-blue-600">Can be personalized to your preferences</p>
+                          </div>
+                        </div>
+                      )}
+                      {(selectedProduct as any).madeToOrder && (
+                        <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                          <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-2xl">📋</div>
+                          <div>
+                            <span className="font-bold text-purple-800">Made to Order</span>
+                            <p className="text-sm text-purple-600">Specially created just for you</p>
+                          </div>
+                        </div>
+                      )}
+                      {(selectedProduct as any).giftWrapping && (
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-2 border-green-200">
+                          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-2xl">🎁</div>
+                          <div>
+                            <span className="font-bold text-green-800">Gift Wrapping</span>
+                            <p className="text-sm text-green-600">Beautiful packaging available</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Ultra-Premium Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t-2 border-slate-200">
-                  <button
+                  <Button
                     onClick={() => handleContactProduct(selectedProduct)}
-                    className="flex-1 h-16 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 text-xl font-bold rounded-2xl flex items-center justify-center gap-4"
+                    className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 py-6 text-xl font-bold rounded-2xl"
+                    size="lg"
                   >
-                    <MessageCircle className="w-7 h-7" />
+                    <MessageCircle className="w-7 h-7 mr-4" />
                     Contact Seller on WhatsApp
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={(e) => toggleFavorite(selectedProduct.id, e)}
-                    className="sm:px-12 h-16 border-3 hover:bg-red-50 hover:border-red-300 rounded-2xl transition-all duration-300 hover:scale-105 font-bold text-lg border-slate-300 bg-white flex items-center justify-center gap-3"
+                    className="sm:px-12 py-6 border-3 hover:bg-red-50 hover:border-red-300 rounded-2xl transition-all duration-300 hover:scale-105 font-bold text-lg"
+                    size="lg"
                   >
                     <Heart 
-                      className={`w-7 h-7 ${favorites.has(selectedProduct.id) ? 'fill-current text-red-500' : 'text-slate-400'}`} 
+                      className={`w-7 h-7 mr-3 ${favorites.has(selectedProduct.id) ? 'fill-current text-red-500' : 'text-slate-400'}`} 
                     />
-                    {favorites.has(selectedProduct.id) ? 'Remove from Favorites' : 'Add to Favorites'}
-                  </button>
+                    <span>
+                      {favorites.has(selectedProduct.id) ? 'Remove from Favorites' : 'Add to Favorites'}
+                    </span>
+                  </Button>
                 </div>
-              </div>
-            </div>
+
+                {/* Product Navigation */}
+                {filteredProducts.length > 1 && (
+                  <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+                    <span className="text-slate-600 font-semibold">
+                      Product {filteredProducts.findIndex(p => p.id === selectedProduct.id) + 1} of {filteredProducts.length}
+                    </span>
+                    <div className="flex gap-2">
+                      <span className="text-sm text-slate-500">Use ← → arrow keys to navigate</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
     </>
   );
 }
-                
