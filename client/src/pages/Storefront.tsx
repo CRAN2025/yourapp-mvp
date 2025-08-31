@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'wouter';
 import { ref, onValue, off, get } from 'firebase/database';
-import { ExternalLink, Eye, Search, Heart, RefreshCw, X, MessageCircle, ChevronDown, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook, ArrowUpRight, Loader2 } from 'lucide-react';
+import { ExternalLink, Eye, Search, Heart, RefreshCw, X, MessageCircle, ChevronDown, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook } from 'lucide-react';
 import StoreHeader from '@/components/StoreHeader';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
@@ -28,19 +28,23 @@ const normalizeUrl = (value: string, platform: 'instagram' | 'tiktok' | 'faceboo
   const trimmed = value.trim();
   if (!trimmed) return '';
   
+  // Block unsafe URLs
   if (trimmed.toLowerCase().startsWith('javascript:') || trimmed.toLowerCase().startsWith('data:')) {
     return '';
   }
   
+  // If already a full URL, use as-is
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
   }
   
+  // Handle-to-URL conversion
   let handle = trimmed;
   if (handle.startsWith('@')) {
     handle = handle.slice(1);
   }
   
+  // Escape handle for URL safety
   const encodedHandle = encodeURIComponent(handle);
   
   switch (platform) {
@@ -55,27 +59,10 @@ const normalizeUrl = (value: string, platform: 'instagram' | 'tiktok' | 'faceboo
   }
 };
 
-// Championship Full-Width Container
+// --- v1.8 Full-Width Container System for Edge-to-Edge Alignment ---
 const FullWidthContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
-  <div className={`w-full max-w-[1800px] mx-auto px-6 md:px-12 lg:px-24 xl:px-32 ${className}`}>
+  <div className={`w-full max-w-full px-6 md:px-12 ${className}`}>
     {children}
-  </div>
-);
-
-// Advanced Skeleton Loading Component
-const ProductCardSkeleton = () => (
-  <div className="championship-card-skeleton">
-    <div className="championship-skeleton-image"></div>
-    <div className="championship-skeleton-content">
-      <div className="championship-skeleton-title"></div>
-      <div className="championship-skeleton-brand"></div>
-      <div className="championship-skeleton-price"></div>
-      <div className="championship-skeleton-category"></div>
-      <div className="championship-skeleton-buttons">
-        <div className="championship-skeleton-btn-primary"></div>
-        <div className="championship-skeleton-btn-secondary"></div>
-      </div>
-    </div>
   </div>
 );
 
@@ -96,11 +83,6 @@ export default function Storefront() {
   const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
   const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
   const [isPublishing, setIsPublishing] = useState(false);
-  
-  // Advanced loading states
-  const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({});
-  const [cardLoadingStates, setCardLoadingStates] = useState<Record<string, boolean>>({});
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   // Enhanced image quality detection
   const MIN_WIDTH = 800;
@@ -108,29 +90,19 @@ export default function Storefront() {
   
   const handleImageLoad = (productId: string, e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    setImageLoadingStates(prev => ({ ...prev, [productId]: false }));
-    
     if (img.naturalWidth < MIN_WIDTH || img.naturalHeight < MIN_HEIGHT) {
       setLowResImages(prev => ({ ...prev, [productId]: true }));
     }
   };
 
-  const handleImageStart = (productId: string) => {
-    setImageLoadingStates(prev => ({ ...prev, [productId]: true }));
-  };
-
+  // Simple placeholder image
   const PLACEHOLDER_IMAGE = '/placeholder-product.png';
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const target = e.currentTarget;
-    const productId = target.getAttribute('data-product-id');
-    if (productId) {
-      setImageLoadingStates(prev => ({ ...prev, [productId]: false }));
-    }
-    target.src = PLACEHOLDER_IMAGE;
+    e.currentTarget.src = PLACEHOLDER_IMAGE;
   };
 
-  // Memoized favorites key
+  // Memoized favorites key for proper sellerId-based loading
   const favKey = useMemo(() => `shoplink_favorites_${user?.uid}`, [user?.uid]);
 
   // Load favorites with enhanced error handling
@@ -178,9 +150,10 @@ export default function Storefront() {
     return () => off(productsRef, 'value', unsubscribe);
   }, [user, toast]);
 
-  // Enhanced filtering logic
+  // Enhanced filtering logic from StorefrontPublic
   const filteredProducts = useMemo(() => {
     let filtered = products.filter((product) => {
+      // Enhanced search matching
       const searchTerms = searchQuery.toLowerCase().split(' ').filter(Boolean);
       const searchableText = [
         product.name,
@@ -189,16 +162,10 @@ export default function Storefront() {
         product.brand,
         product.material,
         product.color,
-        (product as any).tags?.join(' '),
       ].filter(Boolean).join(' ').toLowerCase();
       
       const matchesSearch = searchTerms.length === 0 || 
-        searchTerms.every(term => 
-          searchableText.includes(term) || 
-          searchableText.split(' ').some(word => 
-            word.includes(term) || term.includes(word)
-          )
-        );
+        searchTerms.every(term => searchableText.includes(term));
       
       const matchesCategory = categoryFilter === 'all' || product.category === categoryFilter;
       const matchesFavorites = !showFavorites || favorites.has(product.id);
@@ -206,7 +173,7 @@ export default function Storefront() {
       return matchesSearch && matchesCategory && matchesFavorites;
     });
 
-    // Enhanced sorting
+    // Enhanced sorting with multiple criteria
     switch (sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);
@@ -219,6 +186,7 @@ export default function Storefront() {
         break;
       case 'popular':
         filtered.sort((a, b) => {
+          // Sort by views, then by favorites count, then by recency
           const aPopularity = ((a as any).analytics?.views || 0) + ((a as any).analytics?.favorites || 0);
           const bPopularity = ((b as any).analytics?.views || 0) + ((b as any).analytics?.favorites || 0);
           if (aPopularity !== bPopularity) return bPopularity - aPopularity;
@@ -234,7 +202,7 @@ export default function Storefront() {
     return filtered;
   }, [products, searchQuery, categoryFilter, showFavorites, favorites, sortBy]);
 
-  // Enhanced category extraction
+  // Enhanced category extraction with counts
   const categories = useMemo(() => {
     const categoryCount = products.reduce((acc, product) => {
       acc[product.category] = (acc[product.category] || 0) + 1;
@@ -246,7 +214,7 @@ export default function Storefront() {
       .map(([category]) => category);
   }, [products]);
 
-  // Enhanced favorite toggling
+  // Enhanced favorite toggling with analytics and animations
   const toggleFavorite = async (productId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     
@@ -261,23 +229,7 @@ export default function Storefront() {
     
     setFavorites(newFavorites);
     
-    // Advanced animation
-    if (e?.target) {
-      const button = (e.target as HTMLElement).closest('button');
-      if (button) {
-        button.style.transform = 'scale(0.85)';
-        button.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        setTimeout(() => {
-          button.style.transform = 'scale(1.15)';
-          setTimeout(() => {
-            button.style.transform = 'scale(1)';
-            button.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-          }, 120);
-        }, 100);
-      }
-    }
-    
+    // Save to localStorage with error handling
     try {
       localStorage.setItem(favKey, JSON.stringify(Array.from(newFavorites)));
     } catch (error) {
@@ -295,6 +247,7 @@ export default function Storefront() {
           .filter(([, value]) => !!value)
           .map(([key]) => key);
     
+    // Sort payment methods by preference
     return methods.sort((a, b) => {
       const order = ['mobile', 'card', 'bank', 'cash', 'paypal'];
       const aIndex = order.findIndex(o => a.toLowerCase().includes(o));
@@ -312,6 +265,7 @@ export default function Storefront() {
           .filter(([, value]) => !!value)
           .map(([key]) => key);
     
+    // Sort delivery options by speed/convenience
     return options.sort((a, b) => {
       const order = ['pickup', 'local', 'courier', 'nationwide', 'international'];
       const aIndex = order.findIndex(o => a.toLowerCase().includes(o));
@@ -320,94 +274,75 @@ export default function Storefront() {
     });
   }, [seller?.deliveryOptions]);
 
-  // Enhanced product view with analytics
-  const handleProductView = async (product: Product) => {
-    setCardLoadingStates(prev => ({ ...prev, [product.id]: true }));
+  // Product view handler
+  const handleProductView = (product: Product) => {
+    setSelectedProduct(product);
+    setShowProductModal(true);
+  };
+
+  // WhatsApp contact handler
+  const handleContactProduct = async (product: Product) => {
+    if (!seller?.whatsappNumber) return;
     
+    const message = createWhatsAppMessage(product, seller);
+    openWhatsApp(seller.whatsappNumber, message);
+    
+    setContactNotification({show: true, product});
+    
+    // Track interaction
     try {
-      setSelectedProduct(product);
-      setShowProductModal(true);
-      window.history.pushState(null, '', `#${product.id}`);
+      await trackInteraction({
+        type: 'whatsapp_contact',
+        sellerId: user?.uid!,
+        productId: product.id,
+        metadata: { productName: product.name },
+      });
     } catch (error) {
-      console.error('Error viewing product:', error);
-      setSelectedProduct(product);
-      setShowProductModal(true);
-    } finally {
-      setCardLoadingStates(prev => ({ ...prev, [product.id]: false }));
+      console.error('Failed to track WhatsApp contact:', error);
     }
   };
 
-  // Quick view functionality
-  const handleQuickView = async (product: Product, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setQuickViewProduct(product);
+  const handleViewPublicStore = () => {
+    if (user) {
+      const url = `/store/${user.uid}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   };
 
-  // Enhanced contact product functionality
-  const handleContactProduct = async (product: Product) => {
-    setCardLoadingStates(prev => ({ ...prev, [`contact-${product.id}`]: true }));
-    
-    try {
-      if (!seller?.whatsappNumber) {
-        toast({
-          title: 'WhatsApp Required',
-          description: 'Add your WhatsApp number in Settings to enable customer contact.',
-          variant: 'destructive',
-        });
-        return;
-      }
+  const handlePublishNow = async () => {
+    if (!user || !seller) return;
 
-      // Show contact notification for preview
-      setContactNotification({ show: true, product });
-      setTimeout(() => {
-        setContactNotification({ show: false, product: null });
-      }, 3000);
+    setIsPublishing(true);
+    try {
+      // Get all products from sellers path
+      const productsRef = ref(database, `sellers/${user.uid}/products`);
+      const productsSnapshot = await get(productsRef);
+      const productsData = productsSnapshot.exists() ? productsSnapshot.val() : {};
+
+      // Mirror profile and all products to public store
+      await mirrorAllSellerData(user.uid, seller, productsData);
 
       toast({
-        title: 'Preview Mode',
-        description: 'This is how customers will contact you about this product.',
+        title: 'Published successfully',
+        description: 'Your store profile and products have been published to the public store.',
       });
     } catch (error) {
-      console.error('Error in contact preview:', error);
+      console.error('Error publishing store:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to preview contact feature.',
+        title: 'Publication failed',
+        description: 'Failed to publish your store. Please try again.',
         variant: 'destructive',
       });
     } finally {
-      setCardLoadingStates(prev => ({ ...prev, [`contact-${product.id}`]: false }));
+      setIsPublishing(false);
     }
   };
 
-  // Championship Loading State
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="min-h-screen flex items-center justify-center" style={{
-          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
-        }}>
-          <div className="text-center space-y-8 p-16 bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/40 max-w-md">
-            <div className="relative">
-              <div className="w-20 h-20 mx-auto">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 animate-spin"></div>
-                <div className="absolute inset-2 rounded-full bg-white"></div>
-                <div className="absolute inset-4 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse"></div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Loading Preview
-              </h2>
-              <p className="text-slate-600 font-medium text-lg">
-                Preparing your storefront preview...
-              </p>
-              <div className="flex justify-center space-x-2">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
-            </div>
-          </div>
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <LoadingSpinner size="lg" className="mx-auto" />
         </div>
       </DashboardLayout>
     );
@@ -415,813 +350,574 @@ export default function Storefront() {
 
   return (
     <>
+      {/* Add CSS from StorefrontPublic */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
-        /* ULTIMATE CHAMPIONSHIP DESIGN SYSTEM FOR SELLER PREVIEW */
-        :root {
-          --championship-blue: #1d4ed8;
-          --championship-blue-light: #3b82f6;
-          --championship-blue-lighter: #60a5fa;
-          --championship-gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
-          --championship-shadow: 0 10px 40px rgba(29, 78, 216, 0.15);
-          --championship-shadow-hover: 0 20px 60px rgba(29, 78, 216, 0.25);
-          --whatsapp-green: #25d366;
-          --whatsapp-green-hover: #22c55e;
-          --glass-bg: rgba(255, 255, 255, 0.95);
-          --glass-border: rgba(255, 255, 255, 0.3);
+        /* Premium search bar matching landing page inputs */
+        .frosted-search {
+          background: #FFFFFF;
+          border: 1px solid #E5EAF5;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
         }
         
-        /* ADVANCED ANIMATIONS */
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(40px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes scaleIn {
-          from { opacity: 0; transform: scale(0.85); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        
-        @keyframes shimmerFlow {
-          0% { transform: translateX(-100%) skewX(-15deg); }
-          100% { transform: translateX(200%) skewX(-15deg); }
-        }
-        
-        @keyframes morphBorder {
-          0%, 100% { border-radius: 32px; }
-          33% { border-radius: 40px 20px 40px 20px; }
-          66% { border-radius: 20px 40px 20px 40px; }
-        }
-        
-        @keyframes floatingGlow {
-          0%, 100% { box-shadow: 0 8px 32px rgba(29, 78, 216, 0.15); }
-          50% { box-shadow: 0 16px 48px rgba(29, 78, 216, 0.25); }
-        }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.05); }
-        }
-        
-        /* ULTIMATE SEARCH BAR */
-        .ultimate-search {
-          position: relative;
-          max-width: 900px;
-          margin: 0 auto;
-        }
-        
-        .ultimate-search::before {
-          content: '';
-          position: absolute;
-          inset: -2px;
-          background: var(--championship-gradient);
-          border-radius: 36px;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          z-index: 1;
-        }
-        
-        .ultimate-search:focus-within::before {
-          opacity: 1;
-          animation: floatingGlow 2s ease-in-out infinite;
-        }
-        
-        .ultimate-search-input {
-          width: 100%;
-          height: 72px;
-          padding: 0 80px 0 80px;
-          background: var(--glass-bg);
-          backdrop-filter: blur(24px);
-          border: 2px solid transparent;
-          border-radius: 36px;
-          font-size: 20px;
-          font-weight: 500;
-          color: #1f2937;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 12px 40px rgba(29, 78, 216, 0.08);
-          position: relative;
-          z-index: 2;
-        }
-        
-        .ultimate-search-input:focus {
-          outline: none;
-          transform: translateY(-3px);
-          box-shadow: 0 20px 60px rgba(29, 78, 216, 0.15);
-        }
-        
-        .ultimate-search-input::placeholder {
-          color: #9ca3af;
-          font-weight: 400;
-        }
-        
-        .ultimate-search-icon {
-          position: absolute;
-          left: 28px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--championship-blue);
-          transition: all 0.3s ease;
-          z-index: 3;
-        }
-        
-        .ultimate-search:focus-within .ultimate-search-icon {
-          color: var(--championship-blue-light);
-          transform: translateY(-50%) scale(1.1);
-        }
-        
-        .ultimate-search-clear {
-          position: absolute;
-          right: 24px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: rgba(71, 85, 105, 0.1);
-          color: #64748b;
-          border: none;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 3;
-        }
-        
-        .ultimate-search-clear:hover {
-          background: rgba(239, 68, 68, 0.15);
-          color: #ef4444;
-          transform: translateY(-50%) scale(1.15) rotate(90deg);
-          box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
-        }
-        
-        /* ULTIMATE FILTER SYSTEM */
-        .ultimate-filters {
+        /* Filter Bar Layout */
+        .filter-bar {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 40px;
-          padding: 40px 0;
-          flex-wrap: wrap;
-        }
-        
-        .ultimate-categories {
-          display: flex;
-          align-items: center;
-          gap: 24px;
-          flex-wrap: wrap;
-        }
-        
-        .ultimate-category-label {
-          font-size: 18px;
-          font-weight: 800;
-          color: #374151;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          display: flex;
-          align-items: center;
           gap: 16px;
-          position: relative;
         }
         
-        .ultimate-category-label::after {
-          content: '';
-          width: 4px;
-          height: 24px;
-          background: var(--championship-gradient);
-          border-radius: 2px;
-          margin-left: 8px;
-        }
-        
-        .ultimate-category-pill {
-          padding: 16px 28px;
-          border-radius: 24px;
-          font-size: 16px;
-          font-weight: 700;
-          border: 2px solid transparent;
-          cursor: pointer;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          overflow: hidden;
-          white-space: nowrap;
-          letter-spacing: 0.025em;
-        }
-        
-        .ultimate-category-pill-inactive {
-          background: var(--glass-bg);
-          color: #64748b;
-          border-color: rgba(226, 232, 240, 0.8);
-          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
-          backdrop-filter: blur(16px);
-        }
-        
-        .ultimate-category-pill-inactive:hover {
-          background: rgba(239, 246, 255, 0.98);
-          color: var(--championship-blue);
-          border-color: rgba(29, 78, 216, 0.4);
-          transform: translateY(-4px) scale(1.02);
-          box-shadow: 0 12px 32px rgba(29, 78, 216, 0.12);
-        }
-        
-        .ultimate-category-pill-active {
-          background: var(--championship-gradient);
-          color: white;
-          border-color: var(--championship-blue);
-          box-shadow: var(--championship-shadow);
-          transform: translateY(-2px);
-          animation: morphBorder 4s ease-in-out infinite;
-        }
-        
-        .ultimate-category-pill-active::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-          animation: shimmerFlow 3s infinite;
-        }
-        
-        .ultimate-category-pill-active:hover {
-          transform: translateY(-5px) scale(1.05);
-          box-shadow: var(--championship-shadow-hover);
-        }
-        
-        /* ULTIMATE CONTROLS */
-        .ultimate-controls {
+        .filter-bar__left {
           display: flex;
           align-items: center;
-          gap: 20px;
-          flex-wrap: wrap;
+          gap: 12px;
         }
         
-        .ultimate-select {
-          min-width: 240px;
-          height: 56px;
-          padding: 0 24px;
-          background: var(--glass-bg);
-          backdrop-filter: blur(20px);
-          border: 2px solid rgba(226, 232, 240, 0.6);
-          border-radius: 20px;
-          font-size: 16px;
+        .filter-bar__title {
           font-weight: 600;
-          color: #374151;
-          cursor: pointer;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
-          appearance: none;
+          font-size: 14px;
+          line-height: 1.4;
+          margin: 0;
         }
         
-        .ultimate-select:hover {
-          border-color: rgba(29, 78, 216, 0.5);
-          transform: translateY(-2px);
-          box-shadow: 0 12px 32px rgba(29, 78, 216, 0.1);
+        /* GLOBAL DESIGN TOKENS - LOCKED SYSTEM */
+        :root {
+          --token-gradient-primary: linear-gradient(135deg, #4FA8FF 0%, #5271FF 100%);
+          --token-button-height: 36px;
+          --token-button-padding-x: 16px;
+          --token-button-padding-y: 8px;
+          --token-shadow-primary: 0px 5px 18px rgba(80, 155, 255, 0.45);
+          --token-shadow-primary-hover: 0px 8px 24px rgba(80, 155, 255, 0.55);
+          --token-shadow-secondary: 0px 2px 8px rgba(0, 0, 0, 0.08);
+          --token-border-radius: 8px;
+          --token-font-size: 14px;
+          --token-font-weight: 500;
+          --token-transition-default: all 0.2s ease;
+          --token-hover-scale: 1.02;
+          --token-hover-brightness: 1.02;
+          --token-gap: 8px;
         }
         
-        .ultimate-favorites {
-          height: 56px;
-          padding: 0 28px;
-          background: var(--glass-bg);
-          backdrop-filter: blur(20px);
-          border: 2px solid rgba(226, 232, 240, 0.6);
-          border-radius: 20px;
-          font-size: 16px;
-          font-weight: 700;
-          color: #374151;
+        /* CATEGORY PILLS - Primary Control with Global Tokens */
+        .category-pill {
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
+          background: #f8f9fc;
+          border: 1px solid #e5e7eb;
           cursor: pointer;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
-          display: flex;
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
+          display: inline-flex;
           align-items: center;
-          gap: 16px;
-          position: relative;
-          overflow: hidden;
+          justify-content: center;
+          gap: var(--token-gap);
+          color: #555;
+          margin-top: 0;
         }
         
-        .ultimate-favorites:hover {
-          border-color: rgba(239, 68, 68, 0.5);
-          color: #ef4444;
-          transform: translateY(-2px);
-          box-shadow: 0 12px 32px rgba(239, 68, 68, 0.15);
+        .category-pill:hover {
+          transform: scale(var(--token-hover-scale));
+          filter: brightness(var(--token-hover-brightness));
+          background: #f0f4ff;
+          border-color: #b3c8ff;
         }
         
-        .ultimate-favorites-active {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
-          border-color: #ef4444;
-          box-shadow: 0 12px 32px rgba(239, 68, 68, 0.3);
-          transform: translateY(-2px);
+        .category-pill.active {
+          background: var(--token-gradient-primary);
+          color: #fff;
+          border: none;
+          box-shadow: var(--token-shadow-primary);
+          font-weight: 600;
         }
         
-        .ultimate-favorites-badge {
-          background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-          color: #92400e;
-          border-radius: 50%;
-          width: 28px;
-          height: 28px;
+        /* Filter pill classes using global tokens */
+        .filter-pill-active {
+          background: var(--token-gradient-primary);
+          color: #FFFFFF;
+          box-shadow: var(--token-shadow-primary);
+          border-radius: var(--token-border-radius);
+          font-weight: 600;
+          transition: var(--token-transition-default);
+          border: none;
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          font-size: var(--token-font-size);
+        }
+        
+        .filter-pill-inactive {
+          background: #f8f9fc;
+          color: #555;
+          border: 1px solid #e5e7eb;
+          border-radius: var(--token-border-radius);
+          transition: var(--token-transition-default);
+          box-shadow: var(--token-shadow-secondary);
+          font-weight: var(--token-font-weight);
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          font-size: var(--token-font-size);
+        }
+        
+        .filter-pill-inactive:hover {
+          transform: scale(var(--token-hover-scale));
+          filter: brightness(var(--token-hover-brightness));
+          background: #f0f4ff;
+          border-color: #b3c8ff;
+        }
+        
+        /* FAVORITES CHIP - Secondary Control with Global Tokens */
+        .favorites-chip {
+          height: var(--token-button-height);
+          padding: var(--token-button-padding-y) var(--token-button-padding-x);
+          border-radius: var(--token-border-radius);
+          font-size: var(--token-font-size);
+          font-weight: var(--token-font-weight);
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          box-shadow: var(--token-shadow-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 13px;
-          font-weight: 800;
-          box-shadow: 0 4px 16px rgba(251, 191, 36, 0.4);
-          animation: pulse 2s infinite;
-        }
-        
-        /* ULTIMATE PRODUCT GRID */
-        .ultimate-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-          gap: 40px;
-          padding: 48px 0;
-        }
-        
-        /* ULTIMATE PRODUCT CARDS */
-        .ultimate-card {
-          background: linear-gradient(145deg, #ffffff 0%, #fdfdfd 100%);
-          border-radius: 32px;
-          overflow: hidden;
-          position: relative;
+          gap: 8px;
+          transition: var(--token-transition-default);
           cursor: pointer;
-          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 12px 48px rgba(15, 23, 42, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.8);
-          animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+          color: #333;
+          margin-top: 0;
         }
         
-        .ultimate-card:hover {
-          transform: translateY(-12px) scale(1.02);
-          box-shadow: 0 32px 64px rgba(15, 23, 42, 0.16);
-          border-color: rgba(29, 78, 216, 0.3);
+        .favorites-chip:hover {
+          filter: brightness(var(--token-hover-brightness));
+          background: #f9f9fc;
+          border-color: #b3c8ff;
         }
         
-        .ultimate-card-image-container {
-          position: relative;
-          aspect-ratio: 1;
+        /* Consistent micro-elevations */
+        .micro-elevation {
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        /* PRODUCT CARD v1.1 - Complete CSS from StorefrontPublic */
+        .product-card-v11 {
+          background: linear-gradient(135deg, #FFFFFF 0%, #FDFDFD 100%);
+          border-radius: 24px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           overflow: hidden;
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          position: relative;
+          border: 1px solid rgba(255, 255, 255, 0.8);
         }
-        
-        .ultimate-card-image {
+
+        .product-card-v11:hover {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+          border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .product-image-container {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .product-image-wrapper {
+          position: relative;
+          width: 100%;
+          height: 240px;
+          overflow: hidden;
+          background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+        }
+
+        .product-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .ultimate-card:hover .ultimate-card-image {
-          transform: scale(1.1) rotate(1deg);
+
+        .product-card-v11:hover .product-image {
+          transform: scale(1.08);
         }
-        
-        .ultimate-quick-actions {
+
+        .product-favorite-btn {
           position: absolute;
-          top: 16px;
-          left: 16px;
-          display: flex;
-          gap: 8px;
-          opacity: 0;
-          transform: translateY(-8px);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .ultimate-card:hover .ultimate-quick-actions {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        
-        .ultimate-quick-btn {
-          width: 40px;
-          height: 40px;
+          top: 12px;
+          right: 12px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(12px);
+          backdrop-filter: blur(8px);
           border: 1px solid rgba(255, 255, 255, 0.3);
-          color: #64748b;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: flex;
           align-items: center;
           justify-content: center;
-        }
-        
-        .ultimate-quick-btn:hover {
-          background: rgba(29, 78, 216, 0.1);
-          color: var(--championship-blue);
-          transform: scale(1.1);
-          box-shadow: 0 8px 24px rgba(29, 78, 216, 0.2);
-        }
-        
-        .ultimate-favorite-btn {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: #64748b;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          transition: all 0.2s ease;
           z-index: 10;
         }
-        
-        .ultimate-favorite-btn:hover {
+
+        .product-favorite-btn:hover {
           background: rgba(255, 255, 255, 1);
-          transform: scale(1.15);
-          box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25);
+          transform: scale(1.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        
-        .ultimate-badge-overlay {
+
+        .product-favorite-active {
+          color: #EF4444;
+          fill: #EF4444;
+        }
+
+        .product-favorite-idle {
+          color: #6B7280;
+          fill: none;
+        }
+
+        .product-badges-overlay {
           position: absolute;
-          bottom: 16px;
-          left: 16px;
+          top: 12px;
+          left: 12px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 6px;
+          z-index: 5;
         }
-        
-        .ultimate-badge {
-          padding: 6px 12px;
-          border-radius: 16px;
-          font-size: 12px;
-          font-weight: 700;
+
+        .product-badge-new {
+          background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          backdrop-filter: blur(8px);
         }
-        
-        .ultimate-badge-new {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+        .product-badge-limited {
+          background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
           color: white;
-          box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
-        
-        .ultimate-badge-limited {
-          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+
+        .product-badge-featured {
+          background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
           color: white;
-          box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
-        
-        .ultimate-badge-featured {
-          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-          color: white;
-          box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+
+        .product-card-content {
+          padding: 20px;
         }
-        
-        .ultimate-card-content {
-          padding: 28px;
+
+        .product-title-section {
+          margin-bottom: 12px;
         }
-        
-        .ultimate-card-title {
-          font-size: 22px;
-          font-weight: 800;
+
+        .product-title {
+          font-size: 18px;
+          font-weight: 700;
           color: #111827;
           line-height: 1.3;
-          margin-bottom: 8px;
+          margin: 0 0 4px 0;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        
-        .ultimate-card-brand {
-          font-size: 14px;
-          color: #6b7280;
-          font-weight: 600;
-          margin-bottom: 16px;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-        }
-        
-        .ultimate-card-price {
-          font-size: 28px;
-          font-weight: 900;
-          color: #111827;
-          margin-bottom: 16px;
-          background: var(--championship-gradient);
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-        
-        .ultimate-card-category {
-          margin-bottom: 24px;
-        }
-        
-        .ultimate-card-category span {
-          display: inline-block;
-          padding: 8px 16px;
-          background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-          color: #374151;
-          border-radius: 16px;
+
+        .product-brand {
           font-size: 13px;
-          font-weight: 600;
-          border: 1px solid rgba(0, 0, 0, 0.05);
+          color: #6B7280;
+          font-weight: 500;
+          margin: 0;
         }
-        
-        .ultimate-card-actions {
-          display: flex;
-          gap: 12px;
-        }
-        
-        .ultimate-whatsapp-btn {
-          flex: 1;
-          height: 52px;
-          background: linear-gradient(135deg, var(--whatsapp-green) 0%, var(--whatsapp-green-hover) 100%);
-          color: white;
-          border: none;
-          border-radius: 16px;
-          font-size: 15px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .product-price-section {
           display: flex;
           align-items: center;
-          justify-content: center;
           gap: 8px;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .ultimate-whatsapp-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 32px rgba(37, 211, 102, 0.4);
-        }
-        
-        .ultimate-whatsapp-btn::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: left 0.5s ease;
-        }
-        
-        .ultimate-whatsapp-btn:hover::before {
-          left: 100%;
-        }
-        
-        .ultimate-details-btn {
-          width: 52px;
-          height: 52px;
-          background: rgba(29, 78, 216, 0.1);
-          color: var(--championship-blue);
-          border: 2px solid rgba(29, 78, 216, 0.2);
-          border-radius: 16px;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .ultimate-details-btn:hover {
-          background: rgba(29, 78, 216, 0.15);
-          border-color: rgba(29, 78, 216, 0.4);
-          transform: translateY(-2px) scale(1.05);
-        }
-        
-        .ultimate-loading-btn {
-          opacity: 0.7;
-          pointer-events: none;
-        }
-        
-        /* ULTIMATE EMPTY STATE */
-        .ultimate-empty {
-          text-align: center;
-          padding: 120px 40px;
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          border-radius: 40px;
-          border: 2px dashed #cbd5e1;
-          margin: 48px 0;
-        }
-        
-        .ultimate-clear-btn {
-          padding: 16px 32px;
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
-          border: none;
-          border-radius: 20px;
-          font-size: 16px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
-        }
-        
-        .ultimate-clear-btn:hover {
-          transform: translateY(-2px) scale(1.05);
-          box-shadow: 0 16px 40px rgba(239, 68, 68, 0.4);
-        }
-        
-        /* SKELETON LOADING SYSTEM */
-        .championship-card-skeleton {
-          background: var(--glass-bg);
-          backdrop-filter: blur(20px);
-          border: 1px solid var(--glass-border);
-          border-radius: 28px;
-          overflow: hidden;
-          animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .championship-skeleton-image {
-          aspect-ratio: 1;
-          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-          background-size: 200% 100%;
-          animation: shimmerFlow 2s infinite;
-        }
-        
-        .championship-skeleton-content {
-          padding: 24px;
-          space-y: 16px;
-        }
-        
-        .championship-skeleton-title,
-        .championship-skeleton-brand,
-        .championship-skeleton-price,
-        .championship-skeleton-category {
-          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-          background-size: 200% 100%;
-          animation: shimmerFlow 2s infinite;
-          border-radius: 8px;
           margin-bottom: 12px;
         }
-        
-        .championship-skeleton-title {
-          height: 24px;
-          width: 80%;
+
+        .product-price {
+          font-size: 20px;
+          font-weight: 800;
+          color: #111827;
         }
-        
-        .championship-skeleton-brand {
-          height: 16px;
-          width: 60%;
+
+        .product-compare-price {
+          font-size: 14px;
+          color: #9CA3AF;
+          text-decoration: line-through;
         }
-        
-        .championship-skeleton-price {
-          height: 32px;
-          width: 50%;
+
+        .product-discount-badge {
+          background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+          color: white;
+          padding: 2px 6px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
         }
-        
-        .championship-skeleton-category {
-          height: 20px;
-          width: 40%;
-        }
-        
-        .championship-skeleton-buttons {
+
+        .product-category-section {
           display: flex;
-          gap: 12px;
-          margin-top: 20px;
+          gap: 6px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
         }
-        
-        .championship-skeleton-btn-primary,
-        .championship-skeleton-btn-secondary {
-          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-          background-size: 200% 100%;
-          animation: shimmerFlow 2s infinite;
+
+        .product-category-pill {
+          background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+          color: #374151;
+          padding: 4px 10px;
           border-radius: 12px;
-          height: 48px;
+          font-size: 12px;
+          font-weight: 500;
+          border: 1px solid rgba(0, 0, 0, 0.05);
         }
-        
-        .championship-skeleton-btn-primary {
+
+        .product-cta-section {
+          display: flex;
+          gap: 8px;
+        }
+
+        .product-cta-primary {
           flex: 1;
+          background: linear-gradient(135deg, #25D366 0%, #22C55E 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
-        
-        .championship-skeleton-btn-secondary {
-          width: 48px;
+
+        .product-cta-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
         }
-        
-        /* RESPONSIVE DESIGN */
-        @media (max-width: 768px) {
-          .ultimate-grid {
-            grid-template-columns: 1fr;
-            gap: 24px;
-            padding: 24px 0;
-          }
-          
-          .ultimate-filters {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 24px;
-          }
-          
-          .ultimate-categories {
-            justify-content: center;
-          }
-          
-          .ultimate-controls {
-            justify-content: center;
-          }
-          
-          .ultimate-search-input {
-            height: 64px;
-            padding: 0 70px 0 70px;
-            font-size: 18px;
-          }
-          
-          .ultimate-card-title {
-            font-size: 20px;
-          }
-          
-          .ultimate-card-price {
-            font-size: 24px;
-          }
+
+        .product-cta-secondary {
+          background: rgba(59, 130, 246, 0.1);
+          color: #2563EB;
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .product-cta-secondary:hover {
+          background: rgba(59, 130, 246, 0.15);
+          border-color: rgba(59, 130, 246, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .product-cta-secondary:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
       `}</style>
-
+      
       <DashboardLayout>
-        <div className="min-h-screen" style={{
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-        }}>
-          {/* Store Header Component */}
-          <StoreHeader
-            name={seller?.storeName || 'Store Name'}
-            logoUrl={seller?.logoUrl}
-            description={seller?.storeDescription}
-            paymentCount={paymentMethods.length}
-            deliveryCount={deliveryOptions.length}
-            onBack={() => window.location.href = '/dashboard'}
-            socials={{
-              instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
-              tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
-              facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
-            }}
-          />
+        <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-2">Storefront Preview</h1>
+              <p className="text-muted-foreground">Preview how your store appears to customers</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button 
+                onClick={handlePublishNow} 
+                disabled={isPublishing}
+                data-testid="button-publish-now"
+                variant="outline"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isPublishing ? 'animate-spin' : ''}`} />
+                {isPublishing ? 'Publishing...' : 'Publish Now'}
+              </Button>
+              <Button onClick={handleViewPublicStore} data-testid="button-view-public">
+                <ExternalLink className="w-4 h-4 mr-2" />
+                View Public Store
+              </Button>
+            </div>
+          </div>
 
-          <FullWidthContainer>
-            {/* Ultimate Search and Filter System */}
-            <div className="py-16">
-              {/* Ultimate Search Bar */}
-              <div className="ultimate-search">
-                <Search className="ultimate-search-icon w-8 h-8" />
-                <input
+          <Alert className="border-primary/20 bg-primary/5">
+            <Eye className="h-4 w-4" />
+            <AlertDescription>
+              This is how your storefront appears to customers. Changes to your products will be reflected here automatically.
+            </AlertDescription>
+          </Alert>
+        </div>
+
+        {/* Store Header Component from StorefrontPublic */}
+        <StoreHeader
+          name={seller?.storeName || 'Store Name'}
+          logoUrl={seller?.logoUrl}
+          description={seller?.storeDescription}
+          paymentCount={paymentMethods.length}
+          deliveryCount={deliveryOptions.length}
+          onBack={() => window.location.href = '/dashboard'}
+          socials={{
+            instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
+            tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
+            facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
+          }}
+        />
+
+        {/* v1.9.4 Clean Global Search and Filters from StorefrontPublic */}
+        <FullWidthContainer className="py-10">
+          <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
+            style={{
+              background: 'linear-gradient(135deg, #F9FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+            }}>
+            {/* Clean frosted glass effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-white/20 rounded-3xl"></div>
+            <div className="relative z-10">
+            <div className="space-y-10">
+              {/* v1.9.3 Global Standard Search Bar */}
+              <div className="relative group">
+                {/* ShopLynk gradient focus border */}
+                <div 
+                  className="absolute -inset-1 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-400"
+                  style={{
+                    background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
+                    padding: '1px'
+                  }}
+                >
+                  <div className="w-full h-full bg-white rounded-2xl"></div>
+                </div>
+                <div className="absolute inset-0 bg-blue-500/3 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
+                
+                {/* Premium search icon */}
+                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300" style={{ color: '#9CA3AF' }} />
+                
+                <Input
                   type="text"
                   placeholder="Search for products, brands, or categories..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="ultimate-search-input"
+                  className="pl-14 pr-14 h-14 text-base border-0 frosted-search transition-all duration-300 font-medium relative z-10"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.75)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#374151'
+                  }}
+                  data-testid="input-search-products"
                 />
+                
                 {searchQuery && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setSearchQuery('')}
-                    className="ultimate-search-clear"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100 transition-all duration-200 z-20"
                   >
-                    <X className="w-5 h-5" />
-                  </button>
+                    <X className="w-4 h-4" />
+                  </Button>
                 )}
               </div>
 
-              {/* Ultimate Filters */}
-              <div className="ultimate-filters">
-                <div className="ultimate-categories">
-                  <div className="ultimate-category-label">
-                    <Filter className="w-6 h-6" />
+              {/* v1.8 Enhanced Filters - Perfect Baseline Alignment */}
+              <div className="filter-bar">
+                {/* Left side: Categories label + pills */}
+                <div className="filter-bar__left">
+                  <span className="filter-bar__title text-slate-700 uppercase tracking-wide flex items-center">
+                    <Filter className="w-5 h-5 mr-3 text-blue-600" />
                     Categories
-                  </div>
-                  <button
-                    onClick={() => setCategoryFilter('all')}
-                    className={`ultimate-category-pill ${
-                      categoryFilter === 'all' 
-                        ? 'ultimate-category-pill-active' 
-                        : 'ultimate-category-pill-inactive'
-                    }`}
-                  >
-                    All ({products.length})
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setCategoryFilter(category)}
-                      className={`ultimate-category-pill ${
-                        categoryFilter === category 
-                          ? 'ultimate-category-pill-active' 
-                          : 'ultimate-category-pill-inactive'
+                  </span>
+                  <div className="flex flex-wrap gap-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCategoryFilter('all')}
+                      className={`category-pill transition-all duration-300 micro-elevation ${
+                        categoryFilter === 'all' 
+                          ? 'filter-pill-active' 
+                          : 'filter-pill-inactive'
                       }`}
                     >
-                      {category} ({products.filter(p => p.category === category).length})
-                    </button>
-                  ))}
+                      All Categories ({products.length})
+                    </Button>
+                    {categories.slice(0, 6).map(category => {
+                      const count = products.filter(p => p.category === category).length;
+                      const isActive = categoryFilter === category;
+                      return (
+                        <Button
+                          key={category}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCategoryFilter(category)}
+                          className={`category-pill transition-all duration-300 micro-elevation ${
+                            isActive 
+                              ? 'filter-pill-active' 
+                              : 'filter-pill-inactive'
+                          }`}
+                        >
+                          {category} ({count})
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <div className="ultimate-controls">
+                {/* Right side: Controls */}
+                <div className="flex gap-6 items-center flex-wrap">
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="ultimate-select">
+                    <SelectTrigger className="w-56 sort-dropdown border-0"
+                      style={{
+                        height: 'var(--token-button-height)',
+                        padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                        background: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: 'var(--token-border-radius)',
+                        boxShadow: 'var(--token-shadow-secondary)',
+                        fontWeight: 'var(--token-font-weight)',
+                        fontSize: 'var(--token-font-size)',
+                        color: '#333',
+                        transition: 'var(--token-transition-default)'
+                      }}>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="rounded-2xl border-0 shadow-2xl backdrop-blur-xl"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                      }}>
                       <SelectItem value="newest">🆕 Newest First</SelectItem>
                       <SelectItem value="popular">🔥 Most Popular</SelectItem>
                       <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
@@ -1230,287 +926,269 @@ export default function Storefront() {
                     </SelectContent>
                   </Select>
 
-                  <button
+                  {/* Unified Favorites Button */}
+                  <Button
+                    variant="outline"
+                    size="lg"
                     onClick={() => setShowFavorites(!showFavorites)}
-                    className={`ultimate-favorites ${
-                      showFavorites ? 'ultimate-favorites-active' : ''
-                    }`}
+                    className={`favorites-chip border-0 ${showFavorites ? 'active' : ''}`}
+                    style={showFavorites ? {
+                      height: 'var(--token-button-height)',
+                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                      background: 'var(--token-gradient-primary)',
+                      color: '#fff',
+                      border: 'none',
+                      boxShadow: 'var(--token-shadow-primary)',
+                      borderRadius: 'var(--token-border-radius)',
+                      fontWeight: '600',
+                      fontSize: 'var(--token-font-size)',
+                      transition: 'var(--token-transition-default)'
+                    } : {
+                      height: 'var(--token-button-height)',
+                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
+                      background: '#fff',
+                      color: '#333',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: 'var(--token-border-radius)',
+                      boxShadow: 'var(--token-shadow-secondary)',
+                      fontWeight: 'var(--token-font-weight)',
+                      fontSize: 'var(--token-font-size)',
+                      transition: 'var(--token-transition-default)'
+                    }}
                   >
-                    <Heart className={`w-7 h-7 ${showFavorites ? 'fill-current' : ''}`} />
+                    <Heart className="w-5 h-5 mr-3" fill={showFavorites ? 'currentColor' : 'none'} />
                     Favorites
                     {favorites.size > 0 && (
-                      <span className="ultimate-favorites-badge">
+                      <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
+                        showFavorites ? 'bg-white/20' : 'bg-red-100 text-red-600'
+                      }`}>
                         {favorites.size}
                       </span>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
+            </div>
+            </div>
+          </Card>
+        </FullWidthContainer>
 
-              {/* Enhanced Results Summary */}
-              {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
-                <div className="mb-16">
-                  <div className="p-10 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-200 backdrop-blur-xl relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-indigo-100/20"></div>
-                    <div className="relative z-10 flex items-center justify-between flex-wrap gap-8">
-                      <div className="space-y-4">
-                        <h3 className="text-3xl font-bold text-slate-800">
-                          Found {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''}
-                        </h3>
-                        <div className="flex flex-wrap gap-4">
-                          {searchQuery && (
-                            <span className="inline-flex items-center gap-3 px-6 py-3 bg-blue-100 text-blue-800 rounded-full font-bold text-sm backdrop-blur-xl">
-                              <Search className="w-4 h-4" />
-                              "{searchQuery}"
-                            </span>
-                          )}
-                          {categoryFilter !== 'all' && (
-                            <span className="inline-flex items-center gap-3 px-6 py-3 bg-purple-100 text-purple-800 rounded-full font-bold text-sm backdrop-blur-xl">
-                              <Filter className="w-4 h-4" />
-                              {categoryFilter}
-                            </span>
-                          )}
-                          {showFavorites && (
-                            <span className="inline-flex items-center gap-3 px-6 py-3 bg-red-100 text-red-800 rounded-full font-bold text-sm backdrop-blur-xl">
-                              <Heart className="w-4 h-4 fill-current" />
-                              Favorites Only
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setSearchQuery('');
-                          setCategoryFilter('all');
-                          setShowFavorites(false);
-                        }}
-                        className="ultimate-clear-btn"
-                      >
-                        Clear All Filters
-                      </button>
+          {/* Enhanced Results Summary from StorefrontPublic */}
+          {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
+            <div className="mb-8">
+              <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-slate-800">
+                      Found {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''}
+                    </h3>
+                    <div className="flex flex-wrap gap-2 text-sm text-slate-600">
+                      {searchQuery && (
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          Search: "{searchQuery}"
+                        </Badge>
+                      )}
+                      {categoryFilter !== 'all' && (
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          Category: {categoryFilter}
+                        </Badge>
+                      )}
+                      {showFavorites && (
+                        <Badge variant="secondary" className="bg-red-100 text-red-800">
+                          <Heart className="w-3 h-3 mr-1" />
+                          Favorites Only
+                        </Badge>
+                      )}
                     </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setShowFavorites(false);
+                    }}
+                    className="text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl font-semibold"
+                  >
+                    Clear Filters
+                  </Button>
                 </div>
-              )}
+              </Card>
+            </div>
+          )}
 
-              {/* Ultimate Product Grid */}
-              {filteredProducts.length === 0 ? (
-                <div className="ultimate-empty">
-                  <Search className="w-24 h-24 text-slate-400 mx-auto mb-8" />
-                  <h3 className="text-4xl font-bold text-slate-800 mb-4">
-                    {searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products in preview"}
-                  </h3>
-                  <p className="text-xl text-slate-600 leading-relaxed mb-8">
-                    {searchQuery || categoryFilter !== 'all' || showFavorites
-                      ? "Try adjusting your search or filters to find what you're looking for."
-                      : "Add products to your catalog to see how they'll appear to customers."
+          {/* Product Grid from StorefrontPublic */}
+          {filteredProducts.length === 0 ? (
+            <Card className="p-8 text-center">
+              <EmptyState
+                icon={<Search className="h-20 w-20 text-slate-400" />}
+                title={searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
+                description={
+                  searchQuery || categoryFilter !== 'all' || showFavorites
+                    ? "Try adjusting your search or filters to find what you're looking for."
+                    : "Add products to your catalog to see how they'll appear to customers."
+                }
+                action={
+                  (searchQuery || categoryFilter !== 'all' || showFavorites) ? {
+                    label: "Clear All Filters",
+                    onClick: () => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setShowFavorites(false);
                     }
-                  </p>
-                  {(searchQuery || categoryFilter !== 'all' || showFavorites) ? (
-                    <button
-                      onClick={() => {
-                        setSearchQuery('');
-                        setCategoryFilter('all');
-                        setShowFavorites(false);
-                      }}
-                      className="ultimate-clear-btn"
-                    >
-                      Clear All Filters
-                    </button>
-                  ) : (
-                    <Button 
-                      onClick={() => window.location.href = '/products'}
-                      className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-bold py-6 px-12 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
-                      size="lg"
-                    >
-                      <ArrowUpRight className="w-6 h-6 mr-3" />
-                      Manage Products
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <div className="ultimate-grid">
-                  {filteredProducts.map((product, index) => (
-                    <div
-                      key={product.id}
-                      className="ultimate-card"
-                      onClick={() => handleProductView(product)}
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="ultimate-card-image-container">
-                        <img
-                          src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
-                          alt={product.name}
-                          className="ultimate-card-image"
-                          onLoad={(e) => handleImageLoad(product.id, e)}
-                          onError={handleImageError}
-                          onLoadStart={() => handleImageStart(product.id)}
-                          data-product-id={product.id}
-                          loading="lazy"
+                  } : {
+                    label: "Manage Products",
+                    onClick: () => window.location.href = '/products',
+                  }
+                }
+              />
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredProducts.map((product) => (
+                <Card
+                  key={product.id}
+                  className="product-card-v11 group cursor-pointer border-0 overflow-hidden"
+                  onClick={() => handleProductView(product)}
+                  data-testid={`card-product-${product.id}`}
+                >
+                  <div className="product-image-container">
+                    {/* Product image */}
+                    <div className="product-image-wrapper">
+                      <img
+                        src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+                        alt={product.name}
+                        className="product-image"
+                        onLoad={(e) => handleImageLoad(product.id, e)}
+                        onError={handleImageError}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      
+                      {/* Favorite button - top right */}
+                      <button
+                        className="product-favorite-btn"
+                        onClick={(e) => toggleFavorite(product.id, e)}
+                        aria-pressed={favorites.has(product.id)}
+                        data-testid={`button-favorite-${product.id}`}
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${
+                            favorites.has(product.id)
+                              ? 'product-favorite-active'
+                              : 'product-favorite-idle'
+                          }`}
                         />
-                        
-                        {/* Image Loading State */}
-                        {imageLoadingStates[product.id] && (
-                          <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-                          </div>
+                      </button>
+
+                      {/* v1.1 Product badges - top left overlay */}
+                      <div className="product-badges-overlay">
+                        {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                          <span className="product-badge-new">
+                            New
+                          </span>
                         )}
-                        
-                        {/* Quick Actions */}
-                        <div className="ultimate-quick-actions">
-                          <button
-                            className="ultimate-quick-btn"
-                            onClick={(e) => handleQuickView(product, e)}
-                            title="Quick Preview"
-                          >
-                            <Eye className="w-5 h-5" />
-                          </button>
-                          <button
-                            className="ultimate-quick-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (navigator.share) {
-                                navigator.share({
-                                  title: product.name,
-                                  text: `Check out ${product.name} for ${formatPrice(product.price)}`,
-                                  url: `${window.location.origin}/store/${user?.uid}#${product.id}`
-                                });
-                              }
-                            }}
-                            title="Share Product"
-                          >
-                            <Share2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                        
-                        {/* Favorite Button */}
-                        <button
-                          className="ultimate-favorite-btn"
-                          onClick={(e) => toggleFavorite(product.id, e)}
-                          aria-pressed={favorites.has(product.id)}
-                          title={favorites.has(product.id) ? "Remove from favorites" : "Add to favorites"}
-                        >
-                          <Heart
-                            className={`w-6 h-6 transition-all duration-300 ${
-                              favorites.has(product.id)
-                                ? 'fill-current text-red-500'
-                                : 'text-slate-400'
-                            }`}
-                          />
-                        </button>
-
-                        {/* Product Badges */}
-                        <div className="ultimate-badge-overlay">
-                          {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                            <span className="ultimate-badge ultimate-badge-new">
-                              New
-                            </span>
-                          )}
-                          {product.quantity < 5 && (
-                            <span className="ultimate-badge ultimate-badge-limited">
-                              Limited
-                            </span>
-                          )}
-                          {product.features?.includes('featured') && (
-                            <span className="ultimate-badge ultimate-badge-featured">
-                              Featured
-                            </span>
-                          )}
-                        </div>
+                        {product.quantity < 5 && (
+                          <span className="product-badge-limited">
+                            Limited Stock
+                          </span>
+                        )}
+                        {product.features?.includes('featured') && (
+                          <span className="product-badge-featured">
+                            Featured
+                          </span>
+                        )}
                       </div>
+                    </div>
 
-                      <div className="ultimate-card-content">
-                        <h3 className="ultimate-card-title">
+                    {/* v1.1 Product info with token-driven layout */}
+                    <CardContent className="product-card-content">
+                      {/* Product title & brand */}
+                      <div className="product-title-section">
+                        <h3 className="product-title">
                           {product.name}
                         </h3>
-                        
                         {product.brand && (
-                          <p className="ultimate-card-brand">
+                          <p className="product-brand">
                             {product.brand}
                           </p>
                         )}
+                      </div>
 
-                        <div className="ultimate-card-price">
+                      {/* Price row */}
+                      <div className="product-price-section">
+                        <span className="product-price">
                           {formatPrice(product.price)}
-                        </div>
+                        </span>
+                        {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
+                          <>
+                            <span className="product-compare-price">
+                              {formatPrice((product as any).compareAtPrice)}
+                            </span>
+                            <span className="product-discount-badge">
+                              -{Math.round((((product as any).compareAtPrice - product.price) / (product as any).compareAtPrice) * 100)}%
+                            </span>
+                          </>
+                        )}
+                      </div>
 
-                        <div className="ultimate-card-category">
-                          <span>{product.category}</span>
-                        </div>
+                      {/* Category pills row - reuse global tokens */}
+                      <div className="product-category-section">
+                        <span className="product-category-pill">
+                          📦 {product.category}
+                        </span>
+                        {product.subcategory && (
+                          <span className="product-category-pill">
+                            {product.subcategory}
+                          </span>
+                        )}
+                      </div>
 
-                        <div className="ultimate-card-actions">
-                          {/* WhatsApp Contact Button - Preview Mode */}
-                          {seller?.whatsappNumber ? (
-                            <button
-                              className={`ultimate-whatsapp-btn ${
-                                cardLoadingStates[`contact-${product.id}`] ? 'ultimate-loading-btn' : ''
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleContactProduct(product);
-                              }}
-                              disabled={cardLoadingStates[`contact-${product.id}`]}
-                            >
-                              {cardLoadingStates[`contact-${product.id}`] ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                              ) : (
-                                <MessageCircle className="w-6 h-6" />
-                              )}
-                              Contact Seller (Preview)
-                            </button>
-                          ) : (
-                            <div className="relative group">
-                              <button
-                                disabled
-                                className="ultimate-whatsapp-btn opacity-60 cursor-not-allowed"
-                              >
-                                <MessageCircle className="w-6 h-6" />
-                                WhatsApp Required
-                              </button>
-                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                                <div className="bg-black text-white text-xs rounded-xl px-4 py-3 whitespace-nowrap font-semibold">
-                                  Add WhatsApp number in Settings
-                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          
+                      {/* v1.1 CTAs - Token-driven buttons */}
+                      <div className="product-cta-section">
+                        {/* Primary CTA - Contact Seller (Preview Mode) */}
+                        {seller?.whatsappNumber ? (
                           <button
-                            className="ultimate-details-btn"
+                            className="product-cta-primary"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleProductView(product);
+                              handleContactProduct(product);
                             }}
-                            title="View Details"
+                            aria-label={`Preview: Contact seller about ${product.name} on WhatsApp`}
+                            data-testid={`button-whatsapp-${product.id}`}
                           >
-                            <Eye className="w-5 h-5" />
+                            <MessageCircle className="w-4 h-4" />
+                            Contact Seller
                           </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </FullWidthContainer>
+                        ) : (
+                          <button
+                            className="product-cta-secondary"
+                            disabled
+                            data-testid={`button-whatsapp-disabled-${product.id}`}
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            WhatsApp Required
+                          </button>
+                        )}
 
-          {/* Contact Notification */}
-          {contactNotification.show && contactNotification.product && (
-            <div className="fixed bottom-8 right-8 z-50">
-              <div className="bg-green-100 border-2 border-green-200 rounded-2xl p-6 shadow-2xl backdrop-blur-xl max-w-sm">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-6 h-6 text-white" />
+                        {/* Secondary CTA - View Details */}
+                        <button
+                          className="product-cta-secondary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleProductView(product);
+                          }}
+                          aria-label={`View details for ${product.name}`}
+                          data-testid={`button-details-${product.id}`}
+                        >
+                          <Eye className="w-4 h-4" />
+                          Preview
+                        </button>
+                      </div>
+                    </CardContent>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-green-900 mb-1">Preview Mode</h4>
-                    <p className="text-green-800 text-sm">
-                      Customer would contact you about <strong>{contactNotification.product.name}</strong> via WhatsApp
-                    </p>
-                  </div>
-                </div>
-              </div>
+                </Card>
+              ))}
             </div>
           )}
         </div>
