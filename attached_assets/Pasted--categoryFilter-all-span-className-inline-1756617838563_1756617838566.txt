@@ -1,0 +1,2400 @@
+                      {categoryFilter !== 'all' && (
+                        <span className="inline-flex items-center gap-3 px-6 py-3 bg-purple-100 text-purple-800 rounded-full font-bold text-sm backdrop-blur-xl">
+                          <Filter className="w-4 h-4" />
+                          {categoryFilter}
+                        </span>
+                      )}
+                      {showFavorites && (
+                        <span className="inline-flex items-center gap-3 px-6 py-3 bg-red-100 text-red-800 rounded-full font-bold text-sm backdrop-blur-xl">
+                          <Heart className="w-4 h-4 fill-current" />
+                          Favorites Only
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCategoryFilter('all');
+                      setShowFavorites(false);
+                    }}
+                    className="ultimate-clear-btn"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Ultimate Product Grid */}
+          {loading && Object.keys(cardLoadingStates).length > 0 ? (
+            <div className="ultimate-grid">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <ProductCardSkeleton key={`skeleton-${index}`} />
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="ultimate-empty">
+              <Search className="ultimate-empty-icon" />
+              <h3 className="ultimate-empty-title">
+                {searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
+              </h3>
+              <p className="ultimate-empty-description">
+                {searchQuery || categoryFilter !== 'all' || showFavorites
+                  ? "Try adjusting your search or filters to find what you're looking for."
+                  : "This store doesn't have any products listed yet. Check back soon!"
+                }
+              </p>
+              {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setCategoryFilter('all');
+                    setShowFavorites(false);
+                  }}
+                  className="ultimate-clear-btn"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="ultimate-grid">
+              {filteredProducts.map((product, index) => (
+                <div
+                  key={product.id}
+                  className="ultimate-card"
+                  onClick={() => handleProductView(product)}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="ultimate-card-image-container">
+                    <img
+                      src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+                      alt={product.name}
+                      className="ultimate-card-image"
+                      onLoad={(e) => handleImageLoad(product.id, e)}
+                      onError={handleImageError}
+                      onLoadStart={() => handleImageStart(product.id)}
+                      data-product-id={product.id}
+                      loading="lazy"
+                    />
+                    
+                    <div className="ultimate-image-overlay"></div>
+                    
+                    {/* Image Loading State */}
+                    {imageLoadingStates[product.id] && (
+                      <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                        <div className="loading-shimmer w-full h-full">
+                          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Quick Actions */}
+                    <div className="ultimate-quick-actions">
+                      <button
+                        className="ultimate-quick-btn"
+                        onClick={(e) => handleQuickView(product, e)}
+                        title="Quick View"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button
+                        className="ultimate-quick-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (navigator.share) {
+                            navigator.share({
+                              title: product.name,
+                              text: `Check out ${product.name} for ${formatPrice(product.price)}`,
+                              url: `${window.location.origin}/store/${sellerId}#${product.id}`
+                            });
+                          }
+                        }}
+                        title="Share Product"
+                      >
+                        <Share2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                    
+                    {/* Favorite Button */}
+                    {!isOwner && (
+                      <button
+                        className="ultimate-favorite-btn"
+                        onClick={(e) => toggleFavorite(product.id, e)}
+                        aria-pressed={favorites.has(product.id)}
+                        title={favorites.has(product.id) ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        <Heart
+                          className={`w-6 h-6 transition-all duration-300 ${
+                            favorites.has(product.id)
+                              ? 'fill-current text-red-500'
+                              : 'text-slate-400'
+                          }`}
+                        />
+                      </button>
+                    )}
+
+                    {/* Product Badges */}
+                    <div className="ultimate-badge-overlay">
+                      {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                        <span className="ultimate-badge ultimate-badge-new">
+                          New
+                        </span>
+                      )}
+                      {product.quantity < 5 && (
+                        <span className="ultimate-badge ultimate-badge-limited">
+                          Limited
+                        </span>
+                      )}
+                      {product.features?.includes('featured') && (
+                        <span className="ultimate-badge ultimate-badge-featured">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="ultimate-card-content">
+                    <h3 className="ultimate-card-title">
+                      {product.name}
+                    </h3>
+                    
+                    {product.brand && (
+                      <p className="ultimate-card-brand">
+                        {product.brand}
+                      </p>
+                    )}
+
+                    <div className="ultimate-card-price">
+                      {formatPrice(product.price)}
+                    </div>
+
+                    <div className="ultimate-card-category">
+                      <span>{product.category}</span>
+                    </div>
+
+                    <div className="ultimate-card-actions">
+                      {/* WhatsApp Contact Button */}
+                      {seller?.whatsappNumber ? (
+                        <button
+                          className={`ultimate-whatsapp-btn ${
+                            cardLoadingStates[`contact-${product.id}`] ? 'ultimate-loading-btn' : ''
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleContactProduct(product);
+                          }}
+                          disabled={cardLoadingStates[`contact-${product.id}`]}
+                        >
+                          {cardLoadingStates[`contact-${product.id}`] ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <MessageCircle className="w-6 h-6" />
+                          )}
+                          Contact Seller
+                        </button>
+                      ) : isOwner ? (
+                        <div className="relative group">
+                          <button
+                            disabled
+                            className="ultimate-whatsapp-btn opacity-60 cursor-not-allowed"
+                          >
+                            <MessageCircle className="w-6 h-6" />
+                            Contact Seller
+                          </button>
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                            <div className="bg-black text-white text-xs rounded-xl px-4 py-3 whitespace-nowrap font-semibold">
+                              Add WhatsApp number in Settings
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                      
+                      <button
+                        className={`ultimate-details-btn ${
+                          cardLoadingStates[product.id] ? 'ultimate-loading-btn' : ''
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProductView(product);
+                        }}
+                        disabled={cardLoadingStates[product.id]}
+                      >
+                        {cardLoadingStates[product.id] ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <ArrowUpRight className="w-5 h-5" />
+                        )}
+                        View Details
+                      </button>
+                    </div>
+
+                    {/* Stock Warning */}
+                    {product.quantity <= 10 && (
+                      <div className="ultimate-stock-warning">
+                        Only {product.quantity} left in stock
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Load More Section */}
+          {filteredProducts.length >= 20 && (
+            <div className="text-center mt-20">
+              <div className="inline-block p-12 bg-white/90 backdrop-blur-2xl shadow-2xl border-0 rounded-3xl">
+                <p className="text-slate-600 mb-8 text-xl font-bold">
+                  You've seen all {filteredProducts.length} products
+                </p>
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-6 px-12 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-4 mx-auto"
+                >
+                  <ArrowLeft className="w-6 h-6 rotate-90" />
+                  Back to Top
+                </button>
+              </div>
+            </div>
+          )}
+        </FullWidthContainer>
+
+        {/* Ultimate Contact Notification */}
+        {contactNotification.show && contactNotification.product && (
+          <div className="ultimate-notification">
+            <div className="ultimate-notification-card">
+              <div className="ultimate-notification-content">
+                <div className="ultimate-notification-icon">
+                  <CheckCircle className="w-7 h-7" />
+                </div>
+                <div className="ultimate-notification-text">
+                  <h4 className="ultimate-notification-title">WhatsApp Opening...</h4>
+                  <p className="ultimate-notification-description">
+                    Contacted seller about "{contactNotification.product.name}"
+                  </p>
+                </div>
+                <button
+                  onClick={() => setContactNotification({show: false, product: null})}
+                  className="ultimate-notification-close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Ultimate Payment Methods Modal */}
+        {showPaymentModal && (
+          <div 
+            className="ultimate-modal-overlay" 
+            onClick={() => setShowPaymentModal(false)}
+          >
+            <div 
+              className="ultimate-modal" 
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="ultimate-modal-header">
+                <div className="ultimate-modal-title">Payment Methods</div>
+                <div className="ultimate-modal-subtitle">Secure payment options available</div>
+                <button 
+                  onClick={() => setShowPaymentModal(false)}
+                  className="ultimate-modal-close"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="ultimate-modal-content">
+                {paymentMethods.map((method, index) => (
+                  <div key={index} className="ultimate-method-item">
+                    <div className="ultimate-method-icon">
+                      {getPaymentIcon(method)}
+                    </div>
+                    <div className="ultimate-method-info">
+                      <div className="ultimate-method-title">{getPaymentLabel(method)}</div>
+                      <div className="ultimate-method-description">Secure payment processing</div>
+                    </div>
+                  </div>
+                ))}
+                {paymentMethods.length === 0 && (
+                  <div className="text-center py-16">
+                    <Info className="w-20 h-20 text-slate-400 mx-auto mb-8" />
+                    <h4 className="text-2xl font-bold text-slate-800 mb-4">Payment Details Available</h4>
+                    <p className="text-slate-600 leading-relaxed text-lg">
+                      Payment methods will be shared when you contact the seller.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Ultimate Delivery Options Modal */}
+        {showDeliveryModal && (
+          <div 
+            className="ultimate-modal-overlay" 
+            onClick={() => setShowDeliveryModal(false)}
+          >
+            <div 
+              className="ultimate-modal" 
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="ultimate-modal-header">
+                <div className="ultimate-modal-title">Delivery Options</div>
+                <div className="ultimate-modal-subtitle">Fast and reliable delivery services</div>
+                <button 
+                  onClick={() => setShowDeliveryModal(false)}
+                  className="ultimate-modal-close"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="ultimate-modal-content">
+                {deliveryOptions.map((option, index) => (
+                  <div key={index} className="ultimate-method-item">
+                    <div className="ultimate-method-icon">
+                      {getDeliveryIcon(option)}
+                    </div>
+                    <div className="ultimate-method-info">
+                      <div className="ultimate-method-title">{getDeliveryLabel(option)}</div>
+                      <div className="ultimate-method-description">Reliable delivery service</div>
+                    </div>
+                  </div>
+                ))}
+                {deliveryOptions.length === 0 && (
+                  <div className="text-center py-16">
+                    <Info className="w-20 h-20 text-slate-400 mx-auto mb-8" />
+                    <h4 className="text-2xl font-bold text-slate-800 mb-4">Delivery Info Available</h4>
+                    <p className="text-slate-600 leading-relaxed text-lg">
+                      Delivery options will be discussed when you contact the seller.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Ultimate Product Detail Modal with Comprehensive Details */}
+        {showProductModal && selectedProduct && (
+          <div 
+            className="ultimate-modal-overlay" 
+            onClick={() => setShowProductModal(false)}
+          >
+            <div 
+              className="ultimate-product-modal" 
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Product Image Header */}
+              <div className="ultimate-product-header">
+                <img
+                  src={getProductImageUrl(selectedProduct) || PLACEHOLDER_IMAGE}
+                  alt={selectedProduct.name}
+                  className="ultimate-product-image"
+                />
+                
+                <div className="ultimate-product-overlay"></div>
+                
+                {lowResImages[selectedProduct.id] && (
+                  <div className="absolute top-8 left-8 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-4 rounded-full font-bold text-sm shadow-2xl backdrop-blur-xl">
+                    Low Quality Image
+                  </div>
+                )}
+                
+                <button
+                  onClick={() => setShowProductModal(false)}
+                  className="absolute top-8 right-8 w-16 h-16 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center"
+                >
+                  <X className="w-8 h-8" />
+                </button>
+                
+                <button
+                  onClick={(e) => toggleFavorite(selectedProduct.id, e)}
+                  className={`absolute top-8 left-8 w-16 h-16 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center ${
+                    favorites.has(selectedProduct.id) ? 'text-red-500' : 'text-slate-600'
+                  }`}
+                >
+                  <Heart 
+                    className="w-8 h-8" 
+                    fill={favorites.has(selectedProduct.id) ? 'currentColor' : 'none'} 
+                  />
+                </button>
+
+                {/* Navigation Arrows */}
+                {filteredProducts.length > 1 && (
+                  <>
+                    {filteredProducts.findIndex(p => p.id === selectedProduct.id) > 0 && (
+                      <button
+                        onClick={() => {
+                          const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+                          const prevProduct = filteredProducts[currentIndex - 1];
+                          setSelectedProduct(prevProduct);
+                          window.history.replaceState(null, '', `#${prevProduct.id}`);
+                        }}
+                        className="ultimate-modal-nav-btn ultimate-modal-nav-left"
+                      >
+                        <ChevronDown className="w-8 h-8 rotate-90" />
+                      </button>
+                    )}
+                    
+                    {filteredProducts.findIndex(p => p.id === selectedProduct.id) < filteredProducts.length - 1 && (
+                      <button
+                        onClick={() => {
+                          const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+                          const nextProduct = filteredProducts[currentIndex + 1];
+                          setSelectedProduct(nextProduct);
+                          window.history.replaceState(null, '', `#${nextProduct.id}`);
+                        }}
+                        className="ultimate-modal-nav-btn ultimate-modal-nav-right"
+                      >
+                        <ChevronDown className="w-8 h-8 -rotate-90" />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+              
+              {/* Product Details Content - Comprehensive Section Restored */}
+              <div className="p-10 space-y-10 max-h-[60vh] overflow-y-auto">
+                {/* Header Section */}
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8">
+                  <div className="flex-1 space-y-6">
+                    <h2 className="text-4xl font-bold text-gray-800 leading-tight">
+                      {selectedProduct.name}
+                    </h2>
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span className="inline-flex items-center px-6 py-3 rounded-2xl bg-slate-800 text-white text-sm font-bold">
+                        {selectedProduct.category}
+                      </span>
+                      {(selectedProduct as any).subcategory && (
+                        <span className="inline-flex items-center px-4 py-2 rounded-2xl bg-slate-600 text-white text-sm font-medium">
+                          {(selectedProduct as any).subcategory}
+                        </span>
+                      )}
+                      {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                        <span className="inline-flex items-center px-4 py-2 rounded-2xl bg-emerald-500 text-white text-sm font-bold">
+                          New arrival
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="lg:text-right space-y-3">
+                    <div className="text-5xl font-bold text-emerald-600">
+                      {formatPrice(selectedProduct.price)}
+                    </div>
+                    <div className="text-sm text-slate-500 font-semibold uppercase tracking-wide">per unit</div>
+                  </div>
+                </div>
+                
+                {/* Enhanced Stock Status */}
+                <div className={`p-8 rounded-3xl border-3 ${
+                  selectedProduct.quantity > 10 
+                    ? 'bg-emerald-50 border-emerald-300' 
+                    : selectedProduct.quantity > 0 
+                      ? 'bg-yellow-50 border-yellow-300' 
+                      : 'bg-red-50 border-red-300'
+                }`}>
+                  <div className="flex items-center gap-6">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-xl ${
+                      selectedProduct.quantity > 10 ? 'bg-emerald-500' :
+                      selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}>
+                      <div className="w-4 h-4 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-bold text-xl ${
+                        selectedProduct.quantity > 10 ? 'text-emerald-700' :
+                        selectedProduct.quantity > 0 ? 'text-yellow-700' : 'text-red-700'
+                      }`}>
+                        {selectedProduct.quantity > 10 ? 'In stock & ready to ship' :
+                         selectedProduct.quantity > 0 ? `Limited stock — Only ${selectedProduct.quantity} left` : 
+                         'Currently out of stock'}
+                      </div>
+                      <p className="text-slate-600 mt-2 font-medium">
+                        {selectedProduct.quantity > 0 
+                          ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available for immediate purchase`
+                          : 'Contact seller for restocking information'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                {selectedProduct.description && (
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-4">
+                      <Info className="w-6 h-6 text-blue-600" />
+                      Description
+                    </h3>
+                    <p className="text-gray-600 p-8 bg-blue-50 rounded-3xl border-2 border-blue-100 leading-relaxed text-lg">
+                      {selectedProduct.description}
+                    </p>
+                  </div>
+                )}
+                
+                {/* Comprehensive Attributes Section - Restored and Enhanced */}
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                      <span className="text-3xl">📋</span>
+                      Product Attributes
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {[
+                        { label: 'Brand', value: selectedProduct.brand, icon: '🏷️' },
+                        { label: 'Condition', value: selectedProduct.condition, icon: '⭐' },
+                        { label: 'Size', value: selectedProduct.size, icon: '📏' },
+                        { label: 'Color', value: selectedProduct.color, icon: '🎨' },
+                        { label: 'Material', value: selectedProduct.material, icon: '🧵' },
+                        { label: 'Chain Length', value: (selectedProduct as any).chainLength, icon: '📐' },
+                        { label: 'Pendant Size', value: (selectedProduct as any).pendantSize, icon: '💎' },
+                      ].filter(item => item.value).map((item, index) => (
+                        <div key={index} className="p-6 rounded-2xl border-2 border-slate-200 bg-gradient-to-br from-slate-50 to-white hover:shadow-lg transition-all duration-300 hover:scale-105">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="text-2xl">{item.icon}</span>
+                            <span className="text-sm font-bold uppercase tracking-wider text-slate-600">
+                              {item.label}
+                            </span>
+                          </div>
+                          <p className="font-bold text-xl text-slate-800 capitalize">{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Shipping & Logistics Section - Enhanced */}
+                  {((selectedProduct as any).processingTime || (selectedProduct as any).shipsFrom) && (
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                        <span className="text-3xl">🚚</span>
+                        Shipping & Processing
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {(selectedProduct as any).processingTime && (
+                          <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200 hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="text-2xl">⏱️</span>
+                              <span className="text-sm font-bold text-blue-700 uppercase tracking-wider">
+                                Processing Time
+                              </span>
+                            </div>
+                            <p className="font-bold text-xl text-blue-800">{(selectedProduct as any).processingTime}</p>
+                          </div>
+                        )}
+                        {(selectedProduct as any).shipsFrom && (
+                          <div className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-200 hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="text-2xl">✈️</span>
+                              <span className="text-sm font-bold text-indigo-700 uppercase tracking-wider">
+                                Ships From
+                              </span>
+                            </div>
+                            <p className="font-bold text-xl text-indigo-800">{(selectedProduct as any).shipsFrom}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Occasion & Age Group Section - Enhanced */}
+                  {((selectedProduct as any).occasion || (selectedProduct as any).targetAgeGroup) && (
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                        <span className="text-3xl">🎯</span>
+                        Suitable For
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {(selectedProduct as any).occasion && (
+                          <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200 hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="text-2xl">🎉</span>
+                              <span className="text-sm font-bold text-purple-700 uppercase tracking-wider">
+                                Occasion
+                              </span>
+                            </div>
+                            <p className="font-bold text-xl text-purple-800 capitalize">{(selectedProduct as any).occasion}</p>
+                          </div>
+                        )}
+                        {(selectedProduct as any).targetAgeGroup && (
+                          <div className="p-6 bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl border-2 border-pink-200 hover:shadow-lg transition-all duration-300">
+                            <div className="flex items-center gap-3 mb-3">
+                              <span className="text-2xl">👥</span>
+                              <span className="text-sm font-bold text-pink-700 uppercase tracking-wider">
+                                Age Group
+                              </span>
+                            </div>
+                            <p className="font-bold text-xl text-pink-800 capitalize">{(selectedProduct as any).targetAgeGroup}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Special Features Section - Enhanced */}
+                  {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).giftWrapping) && (
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                        <Sparkles className="w-7 h-7 text-purple-600" />
+                        Special Features
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {(selectedProduct as any).isHandmade && (
+                          <div className="flex flex-col items-center gap-4 p-6 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border-2 border-orange-200 hover:shadow-lg transition-all duration-300 text-center">
+                            <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center text-3xl shadow-lg">🎨</div>
+                            <div>
+                              <span className="font-bold text-xl text-orange-800 block mb-2">Handmade</span>
+                              <p className="text-sm text-orange-600 font-medium">Crafted with care by skilled artisans</p>
+                            </div>
+                          </div>
+                        )}
+                        {(selectedProduct as any).isCustomizable && (
+                          <div className="flex flex-col items-center gap-4 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border-2 border-blue-200 hover:shadow-lg transition-all duration-300 text-center">
+                            <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-3xl shadow-lg">⚙️</div>
+                            <div>
+                              <span className="font-bold text-xl text-blue-800 block mb-2">Customizable</span>
+                              <p className="text-sm text-blue-600 font-medium">Can be personalized to your preferences</p>
+                            </div>
+                          </div>
+                        )}
+                        {(selectedProduct as any).giftWrapping && (
+                          <div className="flex flex-col items-center gap-4 p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl border-2 border-pink-200 hover:shadow-lg transition-all duration-300 text-center">
+                            <div className="w-16 h-16 bg-pink-500 rounded-full flex items-center justify-center text-3xl shadow-lg">🎁</div>
+                            <div>
+                              <span className="font-bold text-xl text-pink-800 block mb-2">Gift Wrapping</span>
+                              <p className="text-sm text-pink-600 font-medium">Beautiful packaging available</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Product Policies Section - Enhanced from Original */}
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                      <span className="text-3xl">📜</span>
+                      Product Policies & Information
+                    </h3>
+                    <div className="space-y-6">
+                      {/* Personalization Options */}
+                      {(selectedProduct as any).personalizationOptions && (
+                        <div className="p-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border-l-4 border-indigo-400 hover:shadow-lg transition-all duration-300">
+                          <div className="flex items-center gap-3 mb-4">
+                            <span className="text-2xl">✏️</span>
+                            <h4 className="text-xl font-bold text-indigo-800">Personalization Options</h4>
+                          </div>
+                          <p className="text-indigo-700 font-medium leading-relaxed text-lg">{(selectedProduct as any).personalizationOptions}</p>
+                        </div>
+                      )}
+
+                      {/* Care Instructions */}
+                      {(selectedProduct as any).careInstructions && (
+                        <div className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl border-l-4 border-blue-400 hover:shadow-lg transition-all duration-300">
+                          <div className="flex items-center gap-3 mb-4">
+                            <span className="text-2xl">🧼</span>
+                            <h4 className="text-xl font-bold text-blue-800">Care Instructions</h4>
+                          </div>
+                          <p className="text-blue-700 font-medium leading-relaxed text-lg">{(selectedProduct as any).careInstructions}</p>
+                        </div>
+                      )}
+
+                      {/* Sustainability */}
+                      {(selectedProduct as any).sustainability && (
+                        <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border-l-4 border-green-400 hover:shadow-lg transition-all duration-300">
+                          <div className="flex items-center gap-3 mb-4">
+                            <span className="text-2xl">🌱</span>
+                            <h4 className="text-xl font-bold text-green-800">Sustainability</h4>
+                          </div>
+                          <p className="text-green-700 font-medium leading-relaxed text-lg">{(selectedProduct as any).sustainability}</p>
+                        </div>
+                      )}
+
+                      {/* Warranty */}
+                      {(selectedProduct as any).warranty && (
+                        <div className="p-6 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border-l-4 border-purple-400 hover:shadow-lg transition-all duration-300">
+                          <div className="flex items-center gap-3 mb-4">
+                            <span className="text-2xl">🛡️</span>
+                            <h4 className="text-xl font-bold text-purple-800">Warranty</h4>
+                          </div>
+                          <p className="text-purple-700 font-medium leading-relaxed text-lg">{(selectedProduct as any).warranty}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Ultimate Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-8 pt-10 border-t-3 border-slate-200">
+                  <button
+                    onClick={() => handleContactProduct(selectedProduct)}
+                    className="flex-1 h-20 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 text-2xl font-bold rounded-3xl flex items-center justify-center gap-6"
+                  >
+                    <MessageCircle className="w-8 h-8" />
+                    Contact Seller on WhatsApp
+                  </button>
+                  <button
+                    onClick={(e) => toggleFavorite(selectedProduct.id, e)}
+                    className="sm:px-16 h-20 border-3 hover:bg-red-50 hover:border-red-300 rounded-3xl transition-all duration-300 hover:scale-105 font-bold text-xl border-slate-300 bg-white flex items-center justify-center gap-4"
+                  >
+                    <Heart 
+                      className={`w-8 h-8 ${favorites.has(selectedProduct.id) ? 'fill-current text-red-500' : 'text-slate-400'}`} 
+                    />
+                    {favorites.has(selectedProduct.id) ? 'Remove from Favorites' : 'Add to Favorites'}
+                  </button>
+                </div>
+
+                {/* Product Navigation */}
+                {filteredProducts.length > 1 && (
+                  <div className="flex items-center justify-between pt-8 border-t-2 border-slate-200">
+                    <span className="text-slate-600 font-bold text-lg">
+                      Product {filteredProducts.findIndex(p => p.id === selectedProduct.id) + 1} of {filteredProducts.length}
+                    </span>
+                    <div className="flex gap-3">
+                      <span className="text-sm text-slate-500 font-semibold">Use ← → arrow keys to navigate</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}        .ultimate-card-brand {
+          font-size: 14px;
+          font-weight: 600;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          margin-bottom: 20px;
+        }
+        
+        .ultimate-card-price {
+          font-size: 28px;
+          font-weight: 900;
+          color: #059669;
+          margin-bottom: 20px;
+          letter-spacing: -0.03em;
+          position: relative;
+        }
+        
+        .ultimate-card-price::after {
+          content: '';
+          position: absolute;
+          bottom: -4px;
+          left: 0;
+          width: 40px;
+          height: 3px;
+          background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+          border-radius: 2px;
+        }
+        
+        .ultimate-card-category {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 20px;
+          background: rgba(29, 78, 216, 0.1);
+          color: var(--championship-blue);
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 700;
+          margin-bottom: 24px;
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(29, 78, 216, 0.2);
+        }
+        
+        .ultimate-card-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          padding-top: 24px;
+          border-top: 2px solid rgba(226, 232, 240, 0.3);
+        }
+        
+        .ultimate-whatsapp-btn {
+          width: 100%;
+          height: 56px;
+          background: var(--whatsapp-green);
+          color: white;
+          border: none;
+          border-radius: 20px;
+          font-size: 16px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 8px 24px rgba(37, 211, 102, 0.3);
+          position: relative;
+          overflow: hidden;
+          letter-spacing: 0.025em;
+        }
+        
+        .ultimate-whatsapp-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          transition: left 0.8s ease;
+        }
+        
+        .ultimate-whatsapp-btn:hover::before {
+          left: 100%;
+        }
+        
+        .ultimate-whatsapp-btn:hover {
+          background: var(--whatsapp-green-hover);
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 16px 48px rgba(37, 211, 102, 0.4);
+        }
+        
+        .ultimate-whatsapp-btn:active {
+          transform: translateY(-1px) scale(1.01);
+        }
+        
+        .ultimate-details-btn {
+          width: 100%;
+          height: 48px;
+          background: var(--glass-bg);
+          color: #374151;
+          border: 2px solid rgba(226, 232, 240, 0.8);
+          border-radius: 16px;
+          font-size: 15px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          backdrop-filter: blur(12px);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .ultimate-details-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(45deg, transparent, rgba(29, 78, 216, 0.05), transparent);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .ultimate-details-btn:hover {
+          background: rgba(248, 250, 252, 0.98);
+          border-color: rgba(29, 78, 216, 0.4);
+          color: var(--championship-blue);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(29, 78, 216, 0.12);
+        }
+        
+        .ultimate-details-btn:hover::before {
+          opacity: 1;
+        }
+        
+        .ultimate-loading-btn {
+          opacity: 0.7;
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+        
+        .ultimate-stock-warning {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          padding: 16px 20px;
+          border-radius: 16px;
+          font-size: 13px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          text-align: center;
+          margin-top: 16px;
+          box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .ultimate-stock-warning::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          animation: shimmerFlow 2s infinite;
+        }
+        
+        /* ULTIMATE EMPTY STATE */
+        .ultimate-empty {
+          text-align: center;
+          padding: 100px 60px;
+          background: var(--glass-bg);
+          backdrop-filter: blur(24px);
+          border-radius: 40px;
+          border: 2px dashed rgba(29, 78, 216, 0.3);
+          margin: 60px 0;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .ultimate-empty::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(45deg, transparent, rgba(29, 78, 216, 0.02), transparent);
+          animation: shimmerFlow 4s infinite;
+        }
+        
+        .ultimate-empty-icon {
+          width: 100px;
+          height: 100px;
+          margin: 0 auto 32px;
+          color: #cbd5e1;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .ultimate-empty-title {
+          font-size: 36px;
+          font-weight: 900;
+          color: #374151;
+          margin-bottom: 16px;
+          letter-spacing: -0.025em;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .ultimate-empty-description {
+          font-size: 20px;
+          color: #6b7280;
+          margin-bottom: 40px;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.6;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .ultimate-clear-btn {
+          background: var(--championship-gradient);
+          color: white;
+          border: none;
+          border-radius: 20px;
+          padding: 20px 40px;
+          font-size: 18px;
+          font-weight: 800;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: var(--championship-shadow);
+          position: relative;
+          z-index: 1;
+          overflow: hidden;
+        }
+        
+        .ultimate-clear-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          transition: left 0.6s ease;
+        }
+        
+        .ultimate-clear-btn:hover::before {
+          left: 100%;
+        }
+        
+        .ultimate-clear-btn:hover {
+          transform: translateY(-3px) scale(1.05);
+          box-shadow: var(--championship-shadow-hover);
+        }
+        
+        /* ULTIMATE MODAL SYSTEM */
+        .ultimate-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.8);
+          backdrop-filter: blur(16px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+          padding: 24px;
+          animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .ultimate-modal {
+          background: white;
+          border-radius: 40px;
+          box-shadow: 0 40px 120px rgba(15, 23, 42, 0.4);
+          max-width: 700px;
+          width: 100%;
+          max-height: 90vh;
+          overflow: hidden;
+          animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .ultimate-modal-header {
+          background: var(--championship-gradient);
+          padding: 40px;
+          color: white;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .ultimate-modal-header::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+          animation: shimmerFlow 6s infinite linear;
+        }
+        
+        .ultimate-modal-title {
+          font-size: 32px;
+          font-weight: 900;
+          margin-bottom: 12px;
+          position: relative;
+          z-index: 1;
+          letter-spacing: -0.025em;
+        }
+        
+        .ultimate-modal-subtitle {
+          font-size: 18px;
+          opacity: 0.9;
+          position: relative;
+          z-index: 1;
+          font-weight: 500;
+        }
+        
+        .ultimate-modal-close {
+          position: absolute;
+          top: 32px;
+          right: 32px;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2;
+          backdrop-filter: blur(8px);
+        }
+        
+        .ultimate-modal-close:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.15) rotate(90deg);
+          box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
+        }
+        
+        .ultimate-modal-content {
+          padding: 40px;
+          max-height: 60vh;
+          overflow-y: auto;
+        }
+        
+        .ultimate-method-item {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          padding: 24px;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          border-radius: 24px;
+          border: 2px solid rgba(226, 232, 240, 0.6);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-bottom: 20px;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .ultimate-method-item::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(45deg, transparent, rgba(29, 78, 216, 0.02), transparent);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .ultimate-method-item:hover {
+          transform: translateY(-4px) scale(1.02);
+          border-color: rgba(29, 78, 216, 0.4);
+          box-shadow: 0 12px 40px rgba(29, 78, 216, 0.15);
+        }
+        
+        .ultimate-method-item:hover::before {
+          opacity: 1;
+        }
+        
+        .ultimate-method-icon {
+          width: 64px;
+          height: 64px;
+          background: white;
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 32px;
+          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12);
+          flex-shrink: 0;
+          transition: transform 0.3s ease;
+        }
+        
+        .ultimate-method-item:hover .ultimate-method-icon {
+          transform: scale(1.1) rotate(5deg);
+        }
+        
+        .ultimate-method-info {
+          flex: 1;
+        }
+        
+        .ultimate-method-title {
+          font-size: 20px;
+          font-weight: 800;
+          color: #111827;
+          margin-bottom: 6px;
+          letter-spacing: -0.02em;
+        }
+        
+        .ultimate-method-description {
+          font-size: 15px;
+          color: #6b7280;
+          font-weight: 500;
+        }
+        
+        /* ULTIMATE NOTIFICATION */
+        .ultimate-notification {
+          position: fixed;
+          top: 40px;
+          right: 40px;
+          z-index: 60;
+          max-width: 450px;
+          animation: slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .ultimate-notification-card {
+          background: linear-gradient(135deg, var(--whatsapp-green) 0%, #22c55e 100%);
+          color: white;
+          padding: 28px;
+          border-radius: 24px;
+          box-shadow: 0 24px 80px rgba(37, 211, 102, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          backdrop-filter: blur(16px);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .ultimate-notification-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          animation: shimmerFlow 3s infinite;
+        }
+        
+        .ultimate-notification-content {
+          display: flex;
+          align-items: flex-start;
+          gap: 20px;
+          position: relative;
+          z-index: 1;
+        }
+        
+        .ultimate-notification-icon {
+          width: 56px;
+          height: 56px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          backdrop-filter: blur(8px);
+        }
+        
+        .ultimate-notification-text {
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .ultimate-notification-title {
+          font-size: 20px;
+          font-weight: 800;
+          margin-bottom: 6px;
+          letter-spacing: -0.02em;
+        }
+        
+        .ultimate-notification-description {
+          font-size: 15px;
+          opacity: 0.9;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          line-height: 1.5;
+        }
+        
+        .ultimate-notification-close {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          backdrop-filter: blur(8px);
+        }
+        
+        .ultimate-notification-close:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.15) rotate(90deg);
+        }
+        
+        /* ULTIMATE PRODUCT MODAL */
+        .ultimate-product-modal {
+          max-width: 1200px;
+          max-height: 95vh;
+          overflow: hidden;
+          border-radius: 32px;
+          background: white;
+          box-shadow: 0 50px 150px rgba(15, 23, 42, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .ultimate-product-header {
+          position: relative;
+          aspect-ratio: 16/10;
+          overflow: hidden;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .ultimate-product-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .ultimate-product-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.1) 0%,
+            transparent 30%,
+            transparent 70%,
+            rgba(0, 0, 0, 0.3) 100%
+          );
+        }
+        
+        .ultimate-modal-nav-btn {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: var(--glass-bg);
+          backdrop-filter: blur(20px);
+          border: 1px solid var(--glass-border);
+          color: var(--championship-blue);
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+          z-index: 10;
+        }
+        
+        .ultimate-modal-nav-btn:hover {
+          background: white;
+          transform: translateY(-50%) scale(1.1);
+          box-shadow: 0 12px 32px rgba(29, 78, 216, 0.2);
+        }
+        
+        .ultimate-modal-nav-left {
+          left: 24px;
+        }
+        
+        .ultimate-modal-nav-right {
+          right: 24px;
+        }
+        
+        /* RESPONSIVE CHAMPIONSHIP DESIGN */
+        @media (max-width: 1200px) {
+          .ultimate-grid {
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 32px;
+          }
+          
+          .ultimate-filters {
+            gap: 32px;
+          }
+        }
+        
+        @media (max-width: 1024px) {
+          .ultimate-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 28px;
+          }
+          
+          .ultimate-filters {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 28px;
+          }
+          
+          .ultimate-categories {
+            justify-content: center;
+          }
+          
+          .ultimate-controls {
+            justify-content: center;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .ultimate-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+          }
+          
+          .ultimate-search-input {
+            height: 64px;
+            font-size: 18px;
+            padding: 0 64px 0 64px;
+          }
+          
+          .ultimate-search-icon {
+            left: 24px;
+          }
+          
+          .ultimate-search-clear {
+            right: 20px;
+          }
+          
+          .ultimate-categories {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+          }
+          
+          .ultimate-category-pill {
+            padding: 12px 24px;
+            font-size: 15px;
+          }
+          
+          .ultimate-select {
+            min-width: 180px;
+            height: 52px;
+            font-size: 15px;
+          }
+          
+          .ultimate-favorites {
+            height: 52px;
+            padding: 0 24px;
+            font-size: 15px;
+          }
+          
+          .ultimate-modal {
+            max-width: 95vw;
+            border-radius: 24px;
+          }
+          
+          .ultimate-modal-header {
+            padding: 32px;
+          }
+          
+          .ultimate-modal-content {
+            padding: 32px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .ultimate-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+          
+          .ultimate-search-input {
+            height: 60px;
+            font-size: 16px;
+            padding: 0 60px 0 60px;
+          }
+          
+          .ultimate-category-pill {
+            padding: 10px 20px;
+            font-size: 14px;
+          }
+          
+          .ultimate-card-content {
+            padding: 24px;
+          }
+          
+          .ultimate-card-title {
+            font-size: 20px;
+          }
+          
+          .ultimate-card-price {
+            font-size: 24px;
+          }
+        }
+        
+        /* ACCESSIBILITY ENHANCEMENTS */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.2s !important;
+          }
+        }
+        
+        @media (prefers-contrast: high) {
+          .ultimate-card {
+            border: 3px solid #000;
+          }
+          
+          .ultimate-category-pill-inactive {
+            border-color: #000;
+          }
+          
+          .ultimate-search-input {
+            border-color: #000;
+          }
+        }
+        
+        /* FOCUS MANAGEMENT */
+        .ultimate-card:focus-visible,
+        .ultimate-category-pill:focus-visible,
+        .ultimate-select:focus-visible,
+        .ultimate-favorites:focus-visible,
+        .ultimate-search-input:focus-visible {
+          outline: 3px solid var(--championship-blue);
+          outline-offset: 2px;
+        }
+        
+        /* ADVANCED LOADING STATES */
+        .loading-shimmer {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .loading-shimmer::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+          animation: shimmerFlow 1.5s infinite;
+        }
+        
+        /* ULTIMATE SCROLL BEHAVIOR */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        /* ULTIMATE SELECTION STATES */
+        ::selection {
+          background: rgba(29, 78, 216, 0.2);
+          color: var(--championship-blue);
+        }
+      `}</style>
+
+      <div className="min-h-screen" style={{
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)'
+      }}>
+        {/* Championship Store Header */}
+        {isOwner && (
+          <StoreHeader
+            name={seller?.storeName || 'Store Name'}
+            logoUrl={seller?.logoUrl}
+            description={seller?.storeDescription}
+            paymentCount={paymentMethods.length}
+            deliveryCount={deliveryOptions.length}
+            onBack={() => window.location.href = '/dashboard'}
+            socials={{
+              instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
+              tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
+              facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
+            }}
+          />
+        )}
+
+        {/* Ultimate Search & Filter Section */}
+        <FullWidthContainer className="py-20">
+          {/* Ultimate Search Bar */}
+          <div className="ultimate-search mb-16">
+            <Search className="ultimate-search-icon w-8 h-8" />
+            <input
+              type="text"
+              placeholder="Search for products, brands, or categories..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="ultimate-search-input championship-search-input"
+              autoComplete="off"
+              spellCheck="false"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="ultimate-search-clear"
+                aria-label="Clear search"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            )}
+          </div>
+
+          {/* Ultimate Filter System */}
+          <div className="ultimate-filters">
+            <div className="ultimate-categories">
+              <div className="ultimate-category-label">
+                <Filter className="w-7 h-7 text-blue-600" />
+                Categories
+              </div>
+              
+              <button
+                onClick={() => setCategoryFilter('all')}
+                className={`ultimate-category-pill ${
+                  categoryFilter === 'all' 
+                    ? 'ultimate-category-pill-active' 
+                    : 'ultimate-category-pill-inactive'
+                }`}
+              >
+                All Categories ({products.length})
+              </button>
+              
+              {categories.slice(0, 4).map(category => {
+                const count = products.filter(p => p.category === category).length;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setCategoryFilter(category)}
+                    className={`ultimate-category-pill ${
+                      categoryFilter === category 
+                        ? 'ultimate-category-pill-active' 
+                        : 'ultimate-category-pill-inactive'
+                    }`}
+                  >
+                    {category} ({count})
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="ultimate-controls">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="ultimate-select"
+              >
+                <option value="newest">🆕 Newest First</option>
+                <option value="popular">🔥 Most Popular</option>
+                <option value="price-low">💰 Price: Low to High</option>
+                <option value="price-high">💎 Price: High to Low</option>
+                <option value="name">📝 Name A-Z</option>
+              </select>
+
+              <button
+                onClick={() => setShowFavorites(!showFavorites)}
+                className={`ultimate-favorites ${
+                  showFavorites ? 'ultimate-favorites-active' : ''
+                }`}
+              >
+                <Heart className={`w-7 h-7 ${showFavorites ? 'fill-current' : ''}`} />
+                Favorites
+                {favorites.size > 0 && (
+                  <span className="ultimate-favorites-badge">
+                    {favorites.size}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Enhanced Results Summary */}
+          {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
+            <div className="mb-16">
+              <div className="p-10 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-200 backdrop-blur-xl relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-indigo-100/20"></div>
+                <div className="relative z-10 flex items-center justify-between flex-wrap gap-8">
+                  <div className="space-y-4">
+                    <h3 className="text-3xl font-bold text-slate-800">
+                      Found {filteredProducts.length} Product{filteredProducts.length !== 1 ? 's' : ''}
+                    </h3>
+                    <div className="flex flex-wrap gap-4">
+                      {searchQuery && (
+                        <span className="inline-flex items-center gap-3 px-6 py-3 bg-blue-100 text-blue-800 rounded-full font-bold text-sm backdrop-blur-xl">
+                          <Search className="w-4 h-4" />
+                          "{searchQuery}"
+                        </span>
+                      )}
+                      {categoryFilter !== 'all' && (  // Championship Loading State
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+      }}>
+        <div className="text-center space-y-8 p-16 bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/40 max-w-md">
+          <div className="relative">
+            <div className="w-20 h-20 mx-auto">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 animate-spin"></div>
+              <div className="absolute inset-2 rounded-full bg-white"></div>
+              <div className="absolute inset-4 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse"></div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              Loading Store
+            </h2>
+            <p className="text-slate-600 font-medium text-lg">
+              Preparing your premium shopping experience...
+            </p>
+            <div className="flex justify-center space-x-2">
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Championship Error State
+  if (error || !seller) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{
+        background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)'
+      }}>
+        <div className="text-center space-y-8 max-w-lg mx-auto p-16 bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/40">
+          <div className="relative">
+            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-2xl">
+              <Globe className="w-12 h-12 text-white" />
+            </div>
+          </div>
+          
+          <div className="space-y-6">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+              Store Not Found
+            </h2>
+            <p className="text-slate-600 leading-relaxed text-lg">
+              {error || "This store could not be found or may have been removed."}
+            </p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3 mx-auto"
+            >
+              <ArrowLeft className="w-6 h-6" />
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        /* ULTIMATE CHAMPIONSHIP DESIGN SYSTEM */
+        :root {
+          --championship-blue: #1d4ed8;
+          --championship-blue-light: #3b82f6;
+          --championship-blue-lighter: #60a5fa;
+          --championship-gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+          --championship-shadow: 0 10px 40px rgba(29, 78, 216, 0.15);
+          --championship-shadow-hover: 0 20px 60px rgba(29, 78, 216, 0.25);
+          --whatsapp-green: #25d366;
+          --whatsapp-green-hover: #22c55e;
+          --glass-bg: rgba(255, 255, 255, 0.95);
+          --glass-border: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* ADVANCED ANIMATIONS */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(40px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.85); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes shimmerFlow {
+          0% { transform: translateX(-100%) skewX(-15deg); }
+          100% { transform: translateX(200%) skewX(-15deg); }
+        }
+        
+        @keyframes morphBorder {
+          0%, 100% { border-radius: 32px; }
+          33% { border-radius: 40px 20px 40px 20px; }
+          66% { border-radius: 20px 40px 20px 40px; }
+        }
+        
+        @keyframes floatingGlow {
+          0%, 100% { box-shadow: 0 8px 32px rgba(29, 78, 216, 0.15); }
+          50% { box-shadow: 0 16px 48px rgba(29, 78, 216, 0.25); }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        /* ULTIMATE SEARCH BAR */
+        .ultimate-search {
+          position: relative;
+          max-width: 900px;
+          margin: 0 auto;
+        }
+        
+        .ultimate-search::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          background: var(--championship-gradient);
+          border-radius: 36px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: 1;
+        }
+        
+        .ultimate-search:focus-within::before {
+          opacity: 1;
+          animation: floatingGlow 2s ease-in-out infinite;
+        }
+        
+        .ultimate-search-input {
+          width: 100%;
+          height: 72px;
+          padding: 0 80px 0 80px;
+          background: var(--glass-bg);
+          backdrop-filter: blur(24px);
+          border: 2px solid transparent;
+          border-radius: 36px;
+          font-size: 20px;
+          font-weight: 500;
+          color: #1f2937;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 12px 40px rgba(29, 78, 216, 0.08);
+          position: relative;
+          z-index: 2;
+        }
+        
+        .ultimate-search-input:focus {
+          outline: none;
+          transform: translateY(-3px);
+          box-shadow: 0 20px 60px rgba(29, 78, 216, 0.15);
+        }
+        
+        .ultimate-search-input::placeholder {
+          color: #9ca3af;
+          font-weight: 400;
+        }
+        
+        .ultimate-search-icon {
+          position: absolute;
+          left: 28px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--championship-blue);
+          transition: all 0.3s ease;
+          z-index: 3;
+        }
+        
+        .ultimate-search:focus-within .ultimate-search-icon {
+          color: var(--championship-blue-light);
+          transform: translateY(-50%) scale(1.1);
+        }
+        
+        .ultimate-search-clear {
+          position: absolute;
+          right: 24px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(71, 85, 105, 0.1);
+          color: #64748b;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 3;
+        }
+        
+        .ultimate-search-clear:hover {
+          background: rgba(239, 68, 68, 0.15);
+          color: #ef4444;
+          transform: translateY(-50%) scale(1.15) rotate(90deg);
+          box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+        }
+        
+        /* ULTIMATE FILTER SYSTEM */
+        .ultimate-filters {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 40px;
+          padding: 40px 0;
+          flex-wrap: wrap;
+        }
+        
+        .ultimate-categories {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+        
+        .ultimate-category-label {
+          font-size: 18px;
+          font-weight: 800;
+          color: #374151;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          position: relative;
+        }
+        
+        .ultimate-category-label::after {
+          content: '';
+          width: 4px;
+          height: 24px;
+          background: var(--championship-gradient);
+          border-radius: 2px;
+          margin-left: 8px;
+        }
+        
+        .ultimate-category-pill {
+          padding: 16px 28px;
+          border-radius: 24px;
+          font-size: 16px;
+          font-weight: 700;
+          border: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+          white-space: nowrap;
+          letter-spacing: 0.025em;
+        }
+        
+        .ultimate-category-pill-inactive {
+          background: var(--glass-bg);
+          color: #64748b;
+          border-color: rgba(226, 232, 240, 0.8);
+          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+          backdrop-filter: blur(16px);
+        }
+        
+        .ultimate-category-pill-inactive:hover {
+          background: rgba(239, 246, 255, 0.98);
+          color: var(--championship-blue);
+          border-color: rgba(29, 78, 216, 0.4);
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 12px 32px rgba(29, 78, 216, 0.12);
+        }
+        
+        .ultimate-category-pill-active {
+          background: var(--championship-gradient);
+          color: white;
+          border-color: var(--championship-blue);
+          box-shadow: var(--championship-shadow);
+          transform: translateY(-2px);
+          animation: morphBorder 4s ease-in-out infinite;
+        }
+        
+        .ultimate-category-pill-active::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          animation: shimmerFlow 3s infinite;
+        }
+        
+        .ultimate-category-pill-active:hover {
+          transform: translateY(-5px) scale(1.05);
+          box-shadow: var(--championship-shadow-hover);
+        }
+        
+        /* ULTIMATE CONTROLS */
+        .ultimate-controls {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+        
+        .ultimate-select {
+          min-width: 240px;
+          height: 56px;
+          padding: 0 24px;
+          background: var(--glass-bg);
+          backdrop-filter: blur(20px);
+          border: 2px solid rgba(226, 232, 240, 0.6);
+          border-radius: 20px;
+          font-size: 16px;
+          font-weight: 600;
+          color: #374151;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+          appearance: none;
+          position: relative;
+        }
+        
+        .ultimate-select:hover {
+          border-color: rgba(29, 78, 216, 0.5);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(29, 78, 216, 0.1);
+        }
+        
+        .ultimate-select:focus {
+          outline: none;
+          border-color: var(--championship-blue);
+          box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.15), 0 16px 40px rgba(29, 78, 216, 0.12);
+          transform: translateY(-3px);
+        }
+        
+        .ultimate-favorites {
+          height: 56px;
+          padding: 0 28px;
+          background: var(--glass-bg);
+          backdrop-filter: blur(20px);
+          border: 2px solid rgba(226, 232, 240, 0.6);
+          border-radius: 20px;
+          font-size: 16px;
+          font-weight: 700;
+          color: #374151;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .ultimate-favorites::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(220, 38, 38, 0.05) 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        
+        .ultimate-favorites:hover {
+          border-color: rgba(239, 68, 68, 0.5);
+          color: #ef4444;
+          transform: translateY(-2px);
+          box-shadow: 0 12px 32px rgba(239, 68, 68, 0.15);
+        }
+        
+        .ultimate-favorites:hover::before {
+          opacity: 1;
+        }
+        
+        .ultimate-favorites-active {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          border-color: #ef4444;
+          box-shadow: 0 12px 32px rgba(239, 68, 68, 0.3);
+          transform: translateY(-2px);
+        }
+        
+        .ultimate-favorites-active::before {
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          animation: shimmerFlow 2s infinite;
+          opacity: 1;
+        }
+        
+        .ultimate-favorites-active:hover {
+          transform: translateY(-4px) scale(1.03);
+          box-shadow: 0 20px 48px rgba(239, 68, 68, 0.4);
+        }
+        
+        .ultimate-favorites-badge {
+          background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+          color: #92400e;
+          border-radius: 50%;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          font-weight: 800;
+          box-shadow: 0 4px 16px rgba(251, 191, 36, 0.4);
+          animation: pulse 2s infinite;
+        }
+        
+        /* ULTIMATE PRODUCT GRID */
+        .ultimate-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+          gap: 40px;
+          padding: 48px 0;
+        }
+        
+        /* SKELETON LOADING SYSTEM */
+        .championship-card-skeleton {
+          background: var(--glass-bg);
+          backdrop-filter: blur(20px);
+          border: 1px solid var(--glass-border);
+          border-radius: 28px;
+          overflow: hidden;
+          animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .championship-skeleton-image {
+          aspect-ratio: 1;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: shimmerFlow 2s infinite;
+        }
+        
+        .championship-skeleton-content {
+          padding: 24px;
+          space-y: 16px;
+        }
+        
+        .championship-skeleton-title {
+          height: 24px;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: shimmerFlow 2s infinite;
+          border-radius: 8px;
+          margin-bottom: 12px;
+        }
+        
+        .championship-skeleton-brand {
+          height: 16px;
+          width: 60%;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: shimmerFlow 2s infinite;
+          border-radius: 6px;
+          margin-bottom: 16px;
+        }
+        
+        .championship-skeleton-price {
+          height: 28px;
+          width: 40%;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: shimmerFlow 2s infinite;
+          border-radius: 8px;
+          margin-bottom: 16px;
+        }
+        
+        .championship-skeleton-category {
+          height: 20px;
+          width: 50%;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: shimmerFlow 2s infinite;
+          border-radius: 12px;
+          margin-bottom: 20px;
+        }
+        
+        .championship-skeleton-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding-top: 20px;
+          border-top: 1px solid rgba(226, 232, 240, 0.6);
+        }
+        
+        .championship-skeleton-btn-primary {
+          height: 48px;
+          background: linear-gradient(90deg, #dcfce7 25%, #bbf7d0 50%, #dcfce7 75%);
+          background-size: 200% 100%;
+          animation: shimmerFlow 2s infinite;
+          border-radius: 16px;
+        }
+        
+        .championship-skeleton-btn-secondary {
+          height: 44px;
+          background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+          background-size: 200% 100%;
+          animation: shimmerFlow 2s infinite;
+          border-radius: 14px;
+        }
+        
+        /* ULTIMATE PRODUCT CARD */
+        .ultimate-card {
+          background: var(--glass-bg);
+          backdrop-filter: blur(24px);
+          border: 1px solid var(--glass-border);
+          border-radius: 28px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 12px 40px rgba(15, 23, 42, 0.06);
+          position: relative;
+          animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .ultimate-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(29, 78, 216, 0.02) 0%, rgba(59, 130, 246, 0.02) 100%);
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          z-index: 1;
+          pointer-events: none;
+        }
+        
+        .ultimate-card::after {
+          content: '';
+          position: absolute;
+          inset: -1px;
+          background: var(--championship-gradient);
+          border-radius: 28px;
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          z-index: -1;
+        }
+        
+        .ultimate-card:hover {
+          transform: translateY(-12px) scale(1.03);
+          box-shadow: 0 32px 80px rgba(29, 78, 216, 0.2);
+          border-color: rgba(29, 78, 216, 0.3);
+        }
+        
+        .ultimate-card:hover::before {
+          opacity: 1;
+        }
+        
+        .ultimate-card:hover::after {
+          opacity: 0.1;
+        }
+        
+        .ultimate-card-image-container {
+          position: relative;
+          aspect-ratio: 1;
+          overflow: hidden;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .ultimate-card-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .ultimate-card:hover .ultimate-card-image {
+          transform: scale(1.08) rotate(1deg);
+        }
+        
+        .ultimate-image-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            45deg,
+            transparent 0%,
+            rgba(29, 78, 216, 0.05) 25%,
+            transparent 50%,
+            rgba(59, 130, 246, 0.05) 75%,
+            transparent 100%
+          );
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+        
+        .ultimate-card:hover .ultimate-image-overlay {
+          opacity: 1;
+        }
+        
+        .ultimate-favorite-btn {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: var(--glass-bg);
+          backdrop-filter: blur(20px);
+          border: 1px solid var(--glass-border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+          z-index: 10;
+        }
+        
+        .ultimate-favorite-btn:hover {
+          transform: scale(1.15) rotate(12deg);
+          box-shadow: 0 12px 32px rgba(239, 68, 68, 0.2);
+          background: rgba(255, 255, 255, 0.98);
+        }
+        
+        .ultimate-quick-actions {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          opacity: 0;
+          transform: translateY(-20px);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 10;
+        }
+        
+        .ultimate-card:hover .ultimate-quick-actions {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        
+        .ultimate-quick-btn {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: var(--glass-bg);
+          backdrop-filter: blur(20px);
+          border: 1px solid var(--glass-border);
+          color: var(--championship-blue);
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        }
+        
+        .ultimate-quick-btn:hover {
+          transform: scale(1.1);
+          background: var(--championship-blue);
+          color: white;
+          box-shadow: 0 8px 24px rgba(29, 78, 216, 0.3);
+        }
+        
+        .ultimate-badge-overlay {
+          position: absolute;
+          bottom: 20px;
+          left: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          z-index: 5;
+        }
+        
+        .ultimate-badge {
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          backdrop-filter: blur(20px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .ultimate-badge-new {
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
+          color: white;
+        }
+        
+        .ultimate-badge-limited {
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(220, 38, 38, 0.95) 100%);
+          color: white;
+          animation: pulse 2s infinite;
+        }
+        
+        .ultimate-badge-featured {
+          background: linear-gradient(135deg, rgba(251, 191, 36, 0.95) 0%, rgba(245, 158, 11, 0.95) 100%);
+          color: #92400e;
+        }
+        
+        .ultimate-card-content {
+          padding: 28px;
+          position: relative;
+          z-index: 2;
+        }
+        
+        .ultimate-card-title {
+          font-size: 22px;
+          font-weight: 800;
+          color: #111827;
+          line-height: 1.3;
+          margin-bottom: 8px;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          letter-spacing: -0.025em;
+        }
+        
+        .ultimate-card-brand {
+          font-size: 14px;
+          font-weight: 600;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 0.1
