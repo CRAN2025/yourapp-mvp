@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook } from 'lucide-react';
+import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook, Eye, Loader2, ArrowUpRight } from 'lucide-react';
 import StoreHeader from '@/components/StoreHeader';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -88,6 +88,8 @@ export default function StorefrontPublic() {
   const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
   const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
   const [isOwner, setIsOwner] = useState(false);
+  const [cardLoadingStates, setCardLoadingStates] = useState<Record<string, boolean>>({});
+  const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({});
 
   const sellerId = params?.sellerId;
   const [location] = useLocation();
@@ -119,6 +121,34 @@ export default function StorefrontPublic() {
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     e.currentTarget.src = PLACEHOLDER_IMAGE;
   };
+
+  const handleImageStart = (productId: string) => {
+    setImageLoadingStates(prev => ({ ...prev, [productId]: true }));
+  };
+
+  const handleQuickView = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleProductView(product);
+  };
+
+  // Product Card Skeleton Component
+  const ProductCardSkeleton = () => (
+    <div className="ultimate-card animate-pulse">
+      <div className="ultimate-card-image-container">
+        <div className="ultimate-card-image bg-slate-200"></div>
+      </div>
+      <div className="ultimate-card-content">
+        <div className="h-6 bg-slate-200 rounded mb-2"></div>
+        <div className="h-4 bg-slate-200 rounded w-2/3 mb-4"></div>
+        <div className="h-8 bg-slate-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-slate-200 rounded w-1/3 mb-6"></div>
+        <div className="space-y-2">
+          <div className="h-12 bg-slate-200 rounded"></div>
+          <div className="h-10 bg-slate-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
 
   // Memoized favorites key for proper sellerId-based loading
   const favKey = useMemo(() => `shoplink_favorites_${sellerId}`, [sellerId]);
@@ -1644,13 +1674,13 @@ ${productUrl}`;
                         </span>
                       )}
                       {categoryFilter !== 'all' && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-800 rounded-full font-semibold text-sm">
+                        <span className="inline-flex items-center gap-3 px-6 py-3 bg-purple-100 text-purple-800 rounded-full font-bold text-sm backdrop-blur-xl">
                           <Filter className="w-4 h-4" />
                           {categoryFilter}
                         </span>
                       )}
                       {showFavorites && (
-                        <span className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-800 rounded-full font-semibold text-sm">
+                        <span className="inline-flex items-center gap-3 px-6 py-3 bg-red-100 text-red-800 rounded-full font-bold text-sm backdrop-blur-xl">
                           <Heart className="w-4 h-4 fill-current" />
                           Favorites Only
                         </span>
@@ -1663,7 +1693,7 @@ ${productUrl}`;
                       setCategoryFilter('all');
                       setShowFavorites(false);
                     }}
-                    className="championship-clear-btn"
+                    className="ultimate-clear-btn"
                   >
                     Clear All Filters
                   </button>
@@ -1672,14 +1702,20 @@ ${productUrl}`;
             </div>
           )}
 
-          {/* Championship Product Grid */}
-          {filteredProducts.length === 0 ? (
-            <div className="championship-empty">
-              <Search className="championship-empty-icon" />
-              <h3 className="championship-empty-title">
+          {/* Ultimate Product Grid */}
+          {loading && Object.keys(cardLoadingStates).length > 0 ? (
+            <div className="ultimate-grid">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <ProductCardSkeleton key={`skeleton-${index}`} />
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="ultimate-empty">
+              <Search className="ultimate-empty-icon" />
+              <h3 className="ultimate-empty-title">
                 {searchQuery || categoryFilter !== 'all' || showFavorites ? "No products match your filters" : "No products available"}
               </h3>
-              <p className="championship-empty-description">
+              <p className="ultimate-empty-description">
                 {searchQuery || categoryFilter !== 'all' || showFavorites
                   ? "Try adjusting your search or filters to find what you're looking for."
                   : "This store doesn't have any products listed yet. Check back soon!"
@@ -1692,39 +1728,81 @@ ${productUrl}`;
                     setCategoryFilter('all');
                     setShowFavorites(false);
                   }}
-                  className="championship-clear-btn"
+                  className="ultimate-clear-btn"
                 >
                   Clear All Filters
                 </button>
               )}
             </div>
           ) : (
-            <div className="championship-grid">
-              {filteredProducts.map((product) => (
+            <div className="ultimate-grid">
+              {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
-                  className="championship-card"
+                  className="ultimate-card"
                   onClick={() => handleProductView(product)}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className="championship-card-image-container">
+                  <div className="ultimate-card-image-container">
                     <img
                       src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
                       alt={product.name}
-                      className="championship-card-image"
+                      className="ultimate-card-image"
                       onLoad={(e) => handleImageLoad(product.id, e)}
                       onError={handleImageError}
+                      onLoadStart={() => handleImageStart(product.id)}
+                      data-product-id={product.id}
                       loading="lazy"
                     />
+                    
+                    <div className="ultimate-image-overlay"></div>
+                    
+                    {/* Image Loading State */}
+                    {imageLoadingStates[product.id] && (
+                      <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                        <div className="loading-shimmer w-full h-full">
+                          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Quick Actions */}
+                    <div className="ultimate-quick-actions">
+                      <button
+                        className="ultimate-quick-btn"
+                        onClick={(e) => handleQuickView(product, e)}
+                        title="Quick View"
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                      <button
+                        className="ultimate-quick-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (navigator.share) {
+                            navigator.share({
+                              title: product.name,
+                              text: `Check out ${product.name} for ${formatPrice(product.price)}`,
+                              url: `${window.location.origin}/store/${sellerId}#${product.id}`
+                            });
+                          }
+                        }}
+                        title="Share Product"
+                      >
+                        <Share2 className="w-5 h-5" />
+                      </button>
+                    </div>
                     
                     {/* Favorite Button */}
                     {!isOwner && (
                       <button
-                        className="championship-favorite-btn"
+                        className="ultimate-favorite-btn"
                         onClick={(e) => toggleFavorite(product.id, e)}
                         aria-pressed={favorites.has(product.id)}
+                        title={favorites.has(product.id) ? "Remove from favorites" : "Add to favorites"}
                       >
                         <Heart
-                          className={`w-6 h-6 ${
+                          className={`w-6 h-6 transition-all duration-300 ${
                             favorites.has(product.id)
                               ? 'fill-current text-red-500'
                               : 'text-slate-400'
@@ -1734,89 +1812,104 @@ ${productUrl}`;
                     )}
 
                     {/* Product Badges */}
-                    <div className="championship-badge-overlay">
+                    <div className="ultimate-badge-overlay">
                       {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                        <span className="championship-badge championship-badge-new">
+                        <span className="ultimate-badge ultimate-badge-new">
                           New
                         </span>
                       )}
                       {product.quantity < 5 && (
-                        <span className="championship-badge championship-badge-limited">
+                        <span className="ultimate-badge ultimate-badge-limited">
                           Limited
                         </span>
                       )}
                       {product.features?.includes('featured') && (
-                        <span className="championship-badge championship-badge-featured">
+                        <span className="ultimate-badge ultimate-badge-featured">
                           Featured
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="championship-card-content">
-                    <h3 className="championship-card-title">
+                  <div className="ultimate-card-content">
+                    <h3 className="ultimate-card-title">
                       {product.name}
                     </h3>
                     
                     {product.brand && (
-                      <p className="championship-card-brand">
+                      <p className="ultimate-card-brand">
                         {product.brand}
                       </p>
                     )}
 
-                    <div className="championship-card-price">
+                    <div className="ultimate-card-price">
                       {formatPrice(product.price)}
                     </div>
 
-                    <div className="championship-card-category">
+                    <div className="ultimate-card-category">
                       <span>{product.category}</span>
                     </div>
 
-                    <div className="championship-card-actions">
-                      {/* WhatsApp Contact Button - Preserving Green */}
+                    <div className="ultimate-card-actions">
+                      {/* WhatsApp Contact Button */}
                       {seller?.whatsappNumber ? (
                         <button
-                          className="championship-whatsapp-btn"
+                          className={`ultimate-whatsapp-btn ${
+                            cardLoadingStates[`contact-${product.id}`] ? 'ultimate-loading-btn' : ''
+                          }`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleContactProduct(product);
                           }}
+                          disabled={cardLoadingStates[`contact-${product.id}`]}
                         >
-                          <MessageCircle className="w-5 h-5" />
+                          {cardLoadingStates[`contact-${product.id}`] ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <MessageCircle className="w-6 h-6" />
+                          )}
                           Contact Seller
                         </button>
                       ) : isOwner ? (
                         <div className="relative group">
                           <button
                             disabled
-                            className="championship-whatsapp-btn opacity-60 cursor-not-allowed"
+                            className="ultimate-whatsapp-btn opacity-60 cursor-not-allowed"
                           >
-                            <MessageCircle className="w-5 h-5" />
+                            <MessageCircle className="w-6 h-6" />
                             Contact Seller
                           </button>
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                            <div className="bg-black text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap">
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
+                            <div className="bg-black text-white text-xs rounded-xl px-4 py-3 whitespace-nowrap font-semibold">
                               Add WhatsApp number in Settings
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
                             </div>
                           </div>
                         </div>
                       ) : null}
                       
                       <button
-                        className="championship-details-btn"
+                        className={`ultimate-details-btn ${
+                          cardLoadingStates[product.id] ? 'ultimate-loading-btn' : ''
+                        }`}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleProductView(product);
                         }}
+                        disabled={cardLoadingStates[product.id]}
                       >
-                        <Info className="w-4 h-4" />
+                        {cardLoadingStates[product.id] ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <ArrowUpRight className="w-5 h-5" />
+                        )}
                         View Details
                       </button>
                     </div>
 
                     {/* Stock Warning */}
                     {product.quantity <= 10 && (
-                      <div className="championship-stock-warning">
+                      <div className="ultimate-stock-warning">
                         Only {product.quantity} left in stock
                       </div>
                     )}
@@ -1827,61 +1920,61 @@ ${productUrl}`;
           )}
         </FullWidthContainer>
 
-        {/* Championship Contact Notification */}
+        {/* Ultimate Contact Notification */}
         {contactNotification.show && contactNotification.product && (
-          <div className="championship-notification">
-            <div className="championship-notification-card">
-              <div className="championship-notification-content">
-                <div className="championship-notification-icon">
-                  <CheckCircle className="w-6 h-6" />
+          <div className="ultimate-notification">
+            <div className="ultimate-notification-card">
+              <div className="ultimate-notification-content">
+                <div className="ultimate-notification-icon">
+                  <CheckCircle className="w-7 h-7" />
                 </div>
-                <div className="championship-notification-text">
-                  <h4 className="championship-notification-title">WhatsApp Opening...</h4>
-                  <p className="championship-notification-description">
+                <div className="ultimate-notification-text">
+                  <h4 className="ultimate-notification-title">WhatsApp Opening...</h4>
+                  <p className="ultimate-notification-description">
                     Contacted seller about "{contactNotification.product.name}"
                   </p>
                 </div>
                 <button
                   onClick={() => setContactNotification({show: false, product: null})}
-                  className="championship-notification-close"
+                  className="ultimate-notification-close"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
           </div>
         )}
         
-        {/* Championship Payment Methods Modal */}
+        {/* Ultimate Payment Methods Modal */}
         {showPaymentModal && (
           <div 
-            className="championship-modal-overlay" 
+            className="ultimate-modal-overlay" 
             onClick={() => setShowPaymentModal(false)}
           >
             <div 
-              className="championship-modal" 
+              className="ultimate-modal" 
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="championship-modal-header">
-                <div className="championship-modal-title">Payment Methods</div>
-                <div className="championship-modal-subtitle">Secure payment options available</div>
+              <div className="ultimate-modal-header">
+                <div className="ultimate-modal-title">Payment Methods</div>
+                <div className="ultimate-modal-subtitle">Secure payment options available</div>
                 <button 
                   onClick={() => setShowPaymentModal(false)}
-                  className="championship-modal-close"
+                  className="ultimate-modal-close"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
               
-              <div className="championship-modal-content">
+              <div className="ultimate-modal-content">
                 {paymentMethods.map((method, index) => (
-                  <div key={index} className="championship-method-item">
-                    <div className="championship-method-icon">
+                  <div key={index} className="ultimate-method-item">
+                    <div className="ultimate-method-icon">
                       {getPaymentIcon(method)}
                     </div>
-                    <div className="championship-method-info">
-                      <div className="championship-method-title">{getPaymentLabel(method)}</div>
-                      <div className="championship-method-description">Secure payment processing</div>
+                    <div className="ultimate-method-info">
+                      <div className="ultimate-method-title">{getPaymentLabel(method)}</div>
+                      <div className="ultimate-method-description">Secure payment processing</div>
                     </div>
                   </div>
                 ))}
