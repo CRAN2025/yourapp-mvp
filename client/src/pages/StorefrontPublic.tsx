@@ -3,6 +3,7 @@ import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook } from 'lucide-react';
+import StoreHeader from '@/components/StoreHeader';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -2149,136 +2150,22 @@ ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* LOCKED HEADER BASELINE - Token-Driven */}
-        <div className="py-8">
-          <div className="locked-header-container">
-            <div className="locked-header-content">
-              
-              {/* LEFT BLOCK: Store Identity */}
-              <div className="store-identity-block">
-                <div className="store-logo-wrapper">
-                  {seller?.logoUrl ? (
-                    <img
-                      src={seller.logoUrl}
-                      alt={seller.storeName}
-                      decoding="async"
-                      className="header-avatar"
-                      onError={(e) => {
-                        e.currentTarget.src = logoUrl;
-                        e.currentTarget.alt = 'ShopLynk logo';
-                      }}
-                    />
-                  ) : (
-                    <div className="header-avatar header-avatar--fallback">
-                      {seller?.storeName 
-                        ? seller.storeName.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2)
-                        : 'SL'
-                      }
-                    </div>
-                  )}
-                </div>
-
-                <div className="store-text-block">
-                  <h1 className="locked-store-name">
-                    {seller?.storeName || 'Store Name'}
-                  </h1>
-                  
-                  <div className="header-meta">
-                    <div className="locked-powered-by">
-                      <a href="/" className="hover:underline">
-                        Powered by ShopLynk
-                      </a>
-                    </div>
-                    
-                    {/* Conditional Description Block */}
-                    {seller?.storeDescription && seller.storeDescription.trim() && (
-                      <div className="store-description-block">
-                        {seller.storeDescription}
-                      </div>
-                    )}
-                    
-                    {/* Conditional Social Links Row */}
-                    {(seller?.socialMedia?.instagram || seller?.socialMedia?.tiktok || seller?.socialMedia?.facebook) && (
-                      <div className="header-social">
-                        {seller.socialMedia.instagram && (
-                          <a
-                            href={normalizeUrl(seller.socialMedia.instagram, 'instagram')}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Open Instagram profile"
-                            title="Instagram"
-                          >
-                            <Instagram />
-                          </a>
-                        )}
-                        {seller.socialMedia.tiktok && (
-                          <a
-                            href={normalizeUrl(seller.socialMedia.tiktok, 'tiktok')}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Open TikTok profile"
-                            title="TikTok"
-                          >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                              <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>
-                            </svg>
-                          </a>
-                        )}
-                        {seller.socialMedia.facebook && (
-                          <a
-                            href={normalizeUrl(seller.socialMedia.facebook, 'facebook')}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label="Open Facebook profile"
-                            title="Facebook"
-                          >
-                            <Facebook />
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* RIGHT BLOCK: Seller Actions Only */}
-              {isOwner && (
-                <div className="seller-actions-block">
-                  {/* Pills */}
-                  <div className="action-pills">
-                    {!!paymentMethods.length && (
-                      <button
-                        onClick={() => setShowPaymentModal(true)}
-                        className="locked-pill"
-                        title="View payment methods"
-                      >
-                        <CreditCard className="h-4 w-4" />
-                        {paymentMethods.length} Payment Methods
-                      </button>
-                    )}
-                    {!!deliveryOptions.length && (
-                      <button
-                        onClick={() => setShowDeliveryModal(true)}
-                        className="locked-pill"
-                        title="View delivery options"
-                      >
-                        <Truck className="h-4 w-4" />
-                        {deliveryOptions.length} Delivery Options
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Primary CTA */}
-                  <Link to="/products" className="locked-primary-cta">
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Dashboard
-                  </Link>
-                </div>
-              )}
-
-            </div>
-          </div>
-        </div>
+        {/* Store Header Component */}
+        {isOwner && (
+          <StoreHeader
+            name={seller?.storeName || 'Store Name'}
+            logoUrl={seller?.logoUrl}
+            description={seller?.storeDescription}
+            paymentCount={paymentMethods.length}
+            deliveryCount={deliveryOptions.length}
+            onBack={() => window.location.href = '/dashboard'}
+            socials={{
+              instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
+              tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
+              facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
+            }}
+          />
+        )}
 
         {/* v1.9.4 Clean Global Search and Filters */}
         <FullWidthContainer className="py-10">

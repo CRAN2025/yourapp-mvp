@@ -1,0 +1,160 @@
+// StoreHeader.tsx
+type Socials = { instagram?: string; tiktok?: string; facebook?: string };
+type Props = {
+  name: string;
+  logoUrl?: string | null;
+  description?: string | null;
+  paymentCount?: number;
+  deliveryCount?: number;
+  onBack: () => void;
+  socials?: Socials;
+};
+
+export default function StoreHeader({
+  name,
+  logoUrl,
+  description,
+  paymentCount = 0,
+  deliveryCount = 0,
+  onBack,
+  socials = {},
+}: Props) {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  const hasAnySocial = Boolean(
+    socials.instagram || socials.tiktok || socials.facebook
+  );
+
+  return (
+    <section className="sl-store-header" aria-label="Store header">
+      <div className="sl-store-header__inner">
+        <div className="sl-store-header__left">
+          <div className="sl-store-header__logo" aria-hidden="true">
+            {logoUrl ? (
+              <img src={logoUrl} alt="" />
+            ) : (
+              <div className="sl-store-header__avatar" data-initials={initials} />
+            )}
+          </div>
+
+          <div className="sl-store-header__meta">
+            <h1 className="sl-store-header__title">{name}</h1>
+            <div className="sl-store-header__powered">Powered by ShopLynk</div>
+
+            {description ? (
+              <p className="sl-store-header__desc">{description}</p>
+            ) : null}
+
+            {hasAnySocial && (
+              <nav className="sl-store-header__socials" aria-label="Store social links">
+                {socials.instagram && (
+                  <a
+                    className="sl-social sl-social--ig"
+                    href={socials.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    title="Instagram"
+                  >
+                    {IG_ICON}
+                  </a>
+                )}
+                {socials.tiktok && (
+                  <a
+                    className="sl-social sl-social--tt"
+                    href={socials.tiktok}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="TikTok"
+                    title="TikTok"
+                  >
+                    {TT_ICON}
+                  </a>
+                )}
+                {socials.facebook && (
+                  <a
+                    className="sl-social sl-social--fb"
+                    href={socials.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    title="Facebook"
+                  >
+                    {FB_ICON}
+                  </a>
+                )}
+              </nav>
+            )}
+          </div>
+        </div>
+
+        <div className="sl-store-header__right">
+          <div className="sl-chip" role="button" aria-label="Payment methods">
+            <span className="sl-chip__icon">{CARD_ICON}</span>
+            <span className="sl-chip__text">{paymentCount} Payment Methods</span>
+          </div>
+
+          <div className="sl-chip" role="button" aria-label="Delivery options">
+            <span className="sl-chip__icon">{TRUCK_ICON}</span>
+            <span className="sl-chip__text">{deliveryCount} Delivery Options</span>
+          </div>
+
+          <button type="button" className="sl-cta" onClick={onBack}>
+            <span className="sl-cta__icon">{BACK_ICON}</span>
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** --- tiny inline SVGs (monochrome; inherit currentColor) --- */
+const CARD_ICON = (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="1.6"/>
+    <rect x="3.8" y="9" width="16.4" height="1.6" rx=".8" fill="currentColor"/>
+  </svg>
+);
+
+const TRUCK_ICON = (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M3 7h11v8H3z" stroke="currentColor" strokeWidth="1.6"/>
+    <path d="M14 10h4l3 3v2h-7" stroke="currentColor" strokeWidth="1.6"/>
+    <circle cx="7" cy="18" r="2" stroke="currentColor" strokeWidth="1.6"/>
+    <circle cx="18" cy="18" r="2" stroke="currentColor" strokeWidth="1.6"/>
+  </svg>
+);
+
+const BACK_ICON = (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M10 19l-7-7 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 12h18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+  </svg>
+);
+
+const IG_ICON = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.6"/>
+    <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.6"/>
+    <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/>
+  </svg>
+);
+
+const TT_ICON = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M15 4v4a5 5 0 0 0 5 5v3a8 8 0 1 1-8-8h1V4h2z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const FB_ICON = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v3H8v3h3v6h3v-6h3l1-3h-4V9z" fill="currentColor"/>
+  </svg>
+);
