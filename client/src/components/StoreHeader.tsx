@@ -16,7 +16,6 @@ type Props = {
 
 export default function StoreHeader({
   name,
-  logoUrl,
   description,
   paymentCount = 0,
   deliveryCount = 0,
@@ -42,15 +41,15 @@ export default function StoreHeader({
         
         .sl-store-header {
           background: 
-            radial-gradient(circle at 25% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
-            radial-gradient(circle at 75% 100%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
-            linear-gradient(135deg, #ffffff 0%, #fafbff 30%, #f0f4ff 70%, #e8f1ff 100%);
+            radial-gradient(circle at 25% 0%, rgba(29, 78, 216, 0.08) 0%, transparent 60%),
+            radial-gradient(circle at 75% 100%, rgba(37, 99, 235, 0.06) 0%, transparent 50%),
+            linear-gradient(135deg, #ffffff 0%, #fafbff 30%, #eff6ff 70%, #dbeafe 100%);
           border-bottom: 1px solid transparent;
           background-clip: padding-box;
           box-shadow: 
             0 1px 3px rgba(15, 23, 42, 0.03),
             0 1px 2px rgba(15, 23, 42, 0.02),
-            inset 0 -1px 0 rgba(99, 102, 241, 0.08);
+            inset 0 -1px 0 rgba(29, 78, 216, 0.08);
           width: 100vw;
           position: relative;
           left: 50%;
@@ -69,7 +68,7 @@ export default function StoreHeader({
           right: 0;
           height: 120%;
           background: 
-            radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+            radial-gradient(ellipse 80% 50% at 50% -20%, rgba(29, 78, 216, 0.03) 0%, transparent 70%);
           pointer-events: none;
           z-index: 0;
         }
@@ -131,7 +130,7 @@ export default function StoreHeader({
           width: 72px;
           height: 72px;
           border-radius: 20px;
-          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+          background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -219,7 +218,7 @@ export default function StoreHeader({
           left: 0;
           width: 60px;
           height: 3px;
-          background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+          background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
           border-radius: 2px;
           animation: underlineGrow 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
         }
@@ -246,7 +245,7 @@ export default function StoreHeader({
           content: '';
           width: 6px;
           height: 6px;
-          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
           border-radius: 50%;
           flex-shrink: 0;
           animation: pulse 2s ease-in-out infinite;
@@ -271,12 +270,12 @@ export default function StoreHeader({
           left: 0;
           width: 0;
           height: 1px;
-          background: #6366f1;
+          background: #1d4ed8;
           transition: width 0.3s ease;
         }
         
         .sl-store-header__powered a:hover {
-          color: #6366f1;
+          color: #1d4ed8;
         }
         
         .sl-store-header__powered a:hover::after {
@@ -326,6 +325,21 @@ export default function StoreHeader({
           left: -100%;
           width: 100%;
           height: 100%;
+          background: linear-gradient(90deg, transparent 0%, rgba(29, 78, 216, 0.1) 50%, transparent 100%);
+          transition: left 0.5s ease;
+        }
+        
+        .sl-social:hover::before {
+          left: 100%;
+        }
+        
+        .sl-social::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
           background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.1) 50%, transparent 100%);
           transition: left 0.5s ease;
         }
@@ -335,17 +349,17 @@ export default function StoreHeader({
         }
         
         .sl-social:hover {
-          color: #6366f1;
+          color: #1d4ed8;
           background: rgba(255, 255, 255, 0.95);
-          border-color: rgba(99, 102, 241, 0.2);
+          border-color: rgba(29, 78, 216, 0.2);
           transform: translateY(-3px) scale(1.05);
           box-shadow: 
-            0 8px 25px rgba(99, 102, 241, 0.12),
+            0 8px 25px rgba(29, 78, 216, 0.12),
             0 4px 12px rgba(15, 23, 42, 0.08);
         }
         
         .sl-social:focus-visible {
-          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+          box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.3);
           transform: translateY(-3px) scale(1.05);
         }
         
@@ -395,7 +409,7 @@ export default function StoreHeader({
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.05) 50%, transparent 100%);
+          background: linear-gradient(90deg, transparent 0%, rgba(29, 78, 216, 0.05) 50%, transparent 100%);
           transition: left 0.6s ease;
         }
         
@@ -405,24 +419,24 @@ export default function StoreHeader({
         
         .sl-chip:hover {
           background: rgba(255, 255, 255, 0.98);
-          border-color: rgba(99, 102, 241, 0.2);
+          border-color: rgba(29, 78, 216, 0.2);
           color: #0f172a;
           transform: translateY(-2px) scale(1.02);
           box-shadow: 
-            0 8px 32px rgba(99, 102, 241, 0.08),
+            0 8px 32px rgba(29, 78, 216, 0.08),
             0 4px 16px rgba(15, 23, 42, 0.06);
         }
         
         .sl-chip__icon {
           flex-shrink: 0;
-          color: #6366f1;
+          color: #1d4ed8;
           transition: all 0.3s ease;
-          filter: drop-shadow(0 1px 2px rgba(99, 102, 241, 0.1));
+          filter: drop-shadow(0 1px 2px rgba(29, 78, 216, 0.1));
         }
         
         .sl-chip:hover .sl-chip__icon {
           transform: scale(1.1) rotate(5deg);
-          color: #4f46e5;
+          color: #1e40af;
         }
         
         .sl-chip__text {
@@ -437,7 +451,7 @@ export default function StoreHeader({
           gap: 12px;
           padding: 16px 32px;
           height: 56px;
-          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+          background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
           color: white;
           border: none;
           border-radius: 16px;
@@ -448,8 +462,8 @@ export default function StoreHeader({
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 
-            0 4px 16px rgba(99, 102, 241, 0.3),
-            0 2px 8px rgba(99, 102, 241, 0.2),
+            0 4px 16px rgba(29, 78, 216, 0.25),
+            0 2px 8px rgba(29, 78, 216, 0.15),
             inset 0 1px 0 rgba(255, 255, 255, 0.2);
           position: relative;
           overflow: hidden;
@@ -471,11 +485,12 @@ export default function StoreHeader({
         }
         
         .sl-cta:hover {
-          background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+          background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #2563eb 100%);
           transform: translateY(-3px) scale(1.02);
           box-shadow: 
-            0 8px 32px rgba(99, 102, 241, 0.4),
-            0 4px 16px rgba(99, 102, 241, 0.3);
+            0 12px 40px rgba(29, 78, 216, 0.35),
+            0 6px 20px rgba(29, 78, 216, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
         
         .sl-cta:active {
@@ -739,17 +754,163 @@ export default function StoreHeader({
             border-width: 2px;
           }
         }
+        
+        /* Floating particles animation */
+        .sl-store-header__particles {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          overflow: hidden;
+          z-index: 0;
+        }
+        
+        .sl-particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          background: linear-gradient(135deg, #1d4ed8, #2563eb);
+          border-radius: 50%;
+          opacity: 0.1;
+          animation: float 15s linear infinite;
+        }
+        
+        .sl-particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .sl-particle:nth-child(2) { left: 20%; animation-delay: 2s; }
+        .sl-particle:nth-child(3) { left: 35%; animation-delay: 4s; }
+        .sl-particle:nth-child(4) { left: 50%; animation-delay: 6s; }
+        .sl-particle:nth-child(5) { left: 65%; animation-delay: 8s; }
+        .sl-particle:nth-child(6) { left: 80%; animation-delay: 10s; }
+        .sl-particle:nth-child(7) { left: 90%; animation-delay: 12s; }
+        
+        @keyframes float {
+          0% {
+            transform: translateY(100vh) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.1;
+          }
+          90% {
+            opacity: 0.1;
+          }
+          100% {
+            transform: translateY(-100px) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        
+        /* Dark mode with enhanced sophistication */
+        @media (prefers-color-scheme: dark) {
+          .sl-store-header {
+            background: 
+              radial-gradient(circle at 25% 0%, rgba(29, 78, 216, 0.12) 0%, transparent 60%),
+              radial-gradient(circle at 75% 100%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+              linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #1e293b 70%, #334155 100%);
+            box-shadow: 
+              0 1px 3px rgba(0, 0, 0, 0.2),
+              inset 0 -1px 0 rgba(29, 78, 216, 0.1);
+          }
+          
+          .sl-store-header__title {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+          
+          .sl-store-header__desc {
+            color: #94a3b8;
+          }
+          
+          .sl-store-header__powered {
+            color: #64748b;
+          }
+          
+          .sl-chip {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(51, 65, 85, 0.6);
+            color: #e2e8f0;
+          }
+          
+          .sl-chip:hover {
+            background: rgba(30, 41, 59, 0.98);
+            border-color: rgba(29, 78, 216, 0.3);
+            color: #f8fafc;
+          }
+          
+          .sl-social {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(51, 65, 85, 0.6);
+            color: #94a3b8;
+          }
+          
+          .sl-social:hover {
+            background: rgba(30, 41, 59, 0.98);
+            color: #3b82f6;
+            border-color: rgba(59, 130, 246, 0.3);
+          }
+        }
+        
+        /* Accessibility and motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+          .sl-store-header *,
+          .sl-store-header *::before,
+          .sl-store-header *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.15s !important;
+          }
+        }
+        
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+          .sl-store-header {
+            border-bottom: 3px solid;
+          }
+          
+          .sl-chip,
+          .sl-social {
+            border-width: 2px;
+          }
+          
+          .sl-store-header__title {
+            -webkit-text-fill-color: initial;
+            color: #000;
+          }
+        }
+        
+        /* Focus management for keyboard navigation */
+        .sl-store-header button:focus-visible,
+        .sl-store-header a:focus-visible {
+          outline: 3px solid #1d4ed8;
+          outline-offset: 2px;
+          border-radius: 6px;
+        }
       `}</style>
+      
+      <div className="sl-store-header__particles">
+        <div className="sl-particle"></div>
+        <div className="sl-particle"></div>
+        <div className="sl-particle"></div>
+        <div className="sl-particle"></div>
+        <div className="sl-particle"></div>
+        <div className="sl-particle"></div>
+        <div className="sl-particle"></div>
+      </div>
       
       <div className="sl-store-header__inner">
         <div className="sl-store-header__left">
           <div className="sl-store-header__brand">
             <div className="sl-store-header__logo">
-              {logoUrl ? (
-                <img src={logoUrl} alt={`${name} logo`} />
-              ) : (
-                initials
-              )}
+              {name
+                .split(' ')
+                .map(word => word.charAt(0))
+                .join('')
+                .slice(0, 2)
+                .toUpperCase()}
             </div>
             <div className="sl-store-header__brand-info">
               <h1 className="sl-store-header__title">{name}</h1>
