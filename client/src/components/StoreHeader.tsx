@@ -16,6 +16,7 @@ type Props = {
 
 export default function StoreHeader({
   name,
+  logoUrl,
   description,
   paymentCount = 0,
   deliveryCount = 0,
