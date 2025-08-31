@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { ref, onValue, off, get } from 'firebase/database';
-import { ExternalLink, Eye, Search, Heart, RefreshCw } from 'lucide-react';
+import { ExternalLink, Eye, Search, Heart, RefreshCw, X } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -145,38 +145,38 @@ export default function Storefront() {
           </Alert>
         </div>
 
-        {/* Store Header */}
-        <div className="bg-white rounded-2xl shadow-soft p-6 mb-8">
+        {/* Store Header from StorefrontPublic */}
+        <div className="bg-white rounded-2xl shadow-soft p-8 mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center">
                 {seller?.logoUrl ? (
                   <img
                     src={seller.logoUrl}
                     alt={seller.storeName}
-                    className="w-20 h-20 rounded-2xl object-cover"
+                    className="w-24 h-24 rounded-2xl object-cover"
                   />
                 ) : (
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-3xl font-bold text-primary">
                     {seller?.storeName?.[0]?.toUpperCase() || 'S'}
                   </span>
                 )}
               </div>
             </div>
             <div className="flex-1">
-              <h2 className="text-3xl font-bold text-foreground mb-2">
+              <h2 className="text-4xl font-bold text-foreground mb-3">
                 {seller?.storeName || 'Your Store'}
               </h2>
               {seller?.storeDescription && (
-                <p className="text-muted-foreground mb-4">{seller.storeDescription}</p>
+                <p className="text-muted-foreground mb-4 text-lg">{seller.storeDescription}</p>
               )}
               <div className="flex flex-wrap gap-3">
                 {seller?.location && (
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="text-sm px-3 py-1">
                     📍 {seller.location}
                   </Badge>
                 )}
-                <Badge variant="outline" className="bg-success/10 text-success">
+                <Badge variant="outline" className="bg-success/10 text-success text-sm px-3 py-1">
                   🕒 Usually responds in 1 hour
                 </Badge>
               </div>
@@ -184,18 +184,42 @@ export default function Storefront() {
           </div>
         </div>
 
-        {/* Search */}
-        <Card className="p-6 mb-8">
-          <div className="relative max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-              data-testid="input-search-preview"
-            />
+        {/* Enhanced Search and Filter Bar */}
+        <Card className="p-8 mb-8 rounded-3xl border border-white/40"
+          style={{
+            background: 'linear-gradient(135deg, #F9FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+          }}>
+          <div className="space-y-6">
+            {/* Premium Search Bar */}
+            <div className="relative group">
+              <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search for products, brands, or categories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-14 pr-14 h-14 text-base border-0 transition-all duration-300 font-medium"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.75)',
+                  backdropFilter: 'blur(8px)',
+                  borderRadius: '12px',
+                  color: '#374151'
+                }}
+                data-testid="input-search-preview"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </Card>
 
@@ -217,29 +241,45 @@ export default function Storefront() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
+              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group rounded-2xl border border-white/40"
+                style={{
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%)',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+                }}>
                 <div className="relative">
                   <img
                     src={getProductImageUrl(product)}
                     alt={product.name}
-                    className="w-full h-64 object-cover"
+                    className="w-full h-64 object-cover rounded-t-2xl"
                     loading="lazy"
                   />
+                  <div className="absolute top-3 right-3">
+                    <Badge variant="secondary" className="bg-white/90 text-foreground font-semibold px-3 py-1">
+                      {formatPrice(product.price)}
+                    </Badge>
+                  </div>
+                  {product.quantity <= 10 && (
+                    <div className="absolute bottom-3 left-3">
+                      <Badge variant="outline" className="bg-yellow-50 border-yellow-200 text-yellow-800 font-medium">
+                        Only {product.quantity} left
+                      </Badge>
+                    </div>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity"
                     data-testid={`button-favorite-preview-${product.id}`}
                   >
                     <Heart className="w-4 h-4 text-gray-400" />
                   </Button>
                 </div>
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-foreground mb-2">
+                  <h3 className="font-semibold text-lg mb-3 line-clamp-2">
                     {product.name}
                   </h3>
                   {product.description && (
-                    <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3 leading-relaxed">
                       {product.description}
                     </p>
                   )}
@@ -247,12 +287,12 @@ export default function Storefront() {
                     <span className="text-xl font-bold text-foreground">
                       {formatPrice(product.price)}
                     </span>
-                    <Badge variant="outline">{product.category}</Badge>
+                    <Badge variant="outline" className="font-medium">{product.category}</Badge>
                   </div>
                   
-                  {/* WhatsApp Button Preview */}
+                  {/* Enhanced WhatsApp Button Preview */}
                   <Button 
-                    className="w-full bg-success text-success-foreground hover:bg-success/90"
+                    className="w-full bg-success text-success-foreground hover:bg-success/90 font-medium py-3"
                     disabled
                     data-testid={`button-whatsapp-preview-${product.id}`}
                   >
