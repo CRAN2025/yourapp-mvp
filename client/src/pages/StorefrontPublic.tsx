@@ -2150,22 +2150,7 @@ ${productUrl}`;
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* Store Header Component */}
-        {isOwner && (
-          <StoreHeader
-            name={seller?.storeName || 'Store Name'}
-            logoUrl={seller?.logoUrl}
-            description={seller?.storeDescription}
-            paymentCount={paymentMethods.length}
-            deliveryCount={deliveryOptions.length}
-            onBack={() => window.location.href = '/dashboard'}
-            socials={{
-              instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
-              tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
-              facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
-            }}
-          />
-        )}
+        {/* No dashboard navigation in public customer view */}
 
         {/* v1.9.4 Clean Global Search and Filters */}
         <FullWidthContainer className="py-10">
