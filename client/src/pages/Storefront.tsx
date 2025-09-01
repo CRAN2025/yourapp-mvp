@@ -1453,6 +1453,22 @@ export default function Storefront() {
         .sl-store-header .sl-cta {
           display: none !important;
         }
+        
+        /* Enhanced disabled state for seller preview mode */
+        .product-favorite-btn:disabled {
+          pointer-events: none;
+          filter: grayscale(0.3);
+        }
+        
+        .product-cta-primary:disabled {
+          pointer-events: none;
+          filter: grayscale(0.2);
+        }
+        
+        .ultimate-favorites:disabled {
+          pointer-events: none;
+          filter: grayscale(0.3);
+        }
       `}</style>
 
       <DashboardLayout>
@@ -1570,18 +1586,14 @@ export default function Storefront() {
                   </Select>
 
                   <button
-                    onClick={() => setShowFavorites(!showFavorites)}
-                    className={`ultimate-favorites ${
-                      showFavorites ? 'ultimate-favorites-active' : ''
-                    }`}
+                    onClick={(e) => e.preventDefault()}
+                    disabled
+                    className="ultimate-favorites opacity-50 cursor-not-allowed"
+                    title="Favorites feature disabled in seller preview mode"
                   >
-                    <Heart className={`w-7 h-7 ${showFavorites ? 'fill-current' : ''}`} />
+                    <Heart className="w-7 h-7" />
                     Favorites
-                    {favorites.size > 0 && (
-                      <span className="ultimate-favorites-badge">
-                        {favorites.size}
-                      </span>
-                    )}
+                    <span className="ultimate-favorites-badge">0</span>
                   </button>
                 </div>
               </div>
@@ -1698,20 +1710,15 @@ export default function Storefront() {
                             </div>
                           )}
                           
-                          {/* Favorite button - top right */}
+                          {/* Favorite button - disabled for sellers */}
                           <button
-                            className="product-favorite-btn"
-                            onClick={(e) => toggleFavorite(product.id, e)}
-                            aria-pressed={favorites.has(product.id)}
-                            data-testid={`button-favorite-${product.id}`}
+                            className="product-favorite-btn opacity-50 cursor-not-allowed"
+                            onClick={(e) => e.stopPropagation()}
+                            disabled
+                            title="Sellers cannot favorite their own products"
+                            data-testid={`button-favorite-disabled-${product.id}`}
                           >
-                            <Heart
-                              className={`h-4 w-4 ${
-                                favorites.has(product.id)
-                                  ? 'product-favorite-active'
-                                  : 'product-favorite-idle'
-                              }`}
-                            />
+                            <Heart className="h-4 w-4 product-favorite-idle" />
                           </button>
 
                           {/* v1.1 Product badges - top left overlay */}
@@ -1779,16 +1786,15 @@ export default function Storefront() {
 
                           {/* v1.1 CTAs - Token-driven buttons */}
                           <div className="product-cta-section">
-                            {/* Primary CTA - Contact Seller */}
+                            {/* Primary CTA - Contact Seller (disabled for sellers) */}
                             {seller?.whatsappNumber ? (
                               <button
-                                className="product-cta-primary"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleContactProduct(product);
-                                }}
-                                aria-label={`Contact seller about ${product.name} on WhatsApp`}
-                                data-testid={`button-whatsapp-${product.id}`}
+                                className="product-cta-primary opacity-60 cursor-not-allowed"
+                                onClick={(e) => e.stopPropagation()}
+                                disabled
+                                title="Sellers cannot contact themselves - this is how customers will see it"
+                                aria-label={`Contact seller button (preview mode)`}
+                                data-testid={`button-whatsapp-preview-${product.id}`}
                               >
                                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
                                 Contact Seller
