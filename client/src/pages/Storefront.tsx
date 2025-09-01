@@ -1690,9 +1690,9 @@ export default function Storefront() {
             </FullWidthContainer>
           )}
 
-          {/* Revolutionary Search & Filter Section - Seller Preview */}
-          <div className="py-16 px-6">
-            <div className="max-w-6xl mx-auto">
+          {/* Edge-to-Edge Search & Filter Section - Seller Preview */}
+          <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
+            <div className="max-w-7xl mx-auto px-6">
               {/* Section title */}
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-black text-gray-900 mb-4">
@@ -1703,11 +1703,11 @@ export default function Storefront() {
                 </p>
               </div>
 
-              {/* Ultra-Premium search and filter container */}
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-black/10 mb-12" style={{
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
-              }}>
+            {/* Ultra-Premium search and filter container */}
+            <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-black/10 mb-12" style={{
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)'
+            }}>
                 {/* Ultra-Premium Search Bar */}
                 <div className="relative mb-8">
                   <div className="relative group">
