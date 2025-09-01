@@ -1990,15 +1990,15 @@ export default function Storefront() {
                     </Button>
 
                     {/* Navigation Arrows */}
-                    {displayedProducts.length > 1 && (
+                    {filteredProducts.length > 1 && (
                       <>
-                        {displayedProducts.findIndex(p => p.id === selectedProduct.id) > 0 && (
+                        {filteredProducts.findIndex((p: Product) => p.id === selectedProduct.id) > 0 && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              const currentIndex = displayedProducts.findIndex(p => p.id === selectedProduct.id);
-                              const prevProduct = displayedProducts[currentIndex - 1];
+                              const currentIndex = filteredProducts.findIndex((p: Product) => p.id === selectedProduct.id);
+                              const prevProduct = filteredProducts[currentIndex - 1];
                               setSelectedProduct(prevProduct);
                               window.history.replaceState(null, '', `#${prevProduct.id}`);
                             }}
@@ -2008,13 +2008,13 @@ export default function Storefront() {
                           </Button>
                         )}
                         
-                        {displayedProducts.findIndex(p => p.id === selectedProduct.id) < displayedProducts.length - 1 && (
+                        {filteredProducts.findIndex((p: Product) => p.id === selectedProduct.id) < filteredProducts.length - 1 && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              const currentIndex = displayedProducts.findIndex(p => p.id === selectedProduct.id);
-                              const nextProduct = displayedProducts[currentIndex + 1];
+                              const currentIndex = filteredProducts.findIndex((p: Product) => p.id === selectedProduct.id);
+                              const nextProduct = filteredProducts[currentIndex + 1];
                               setSelectedProduct(nextProduct);
                               window.history.replaceState(null, '', `#${nextProduct.id}`);
                             }}
@@ -2100,14 +2100,14 @@ export default function Storefront() {
                   </div>
 
                   {/* Enhanced Special Features Showcase */}
-                  {(selectedProduct.handmade || selectedProduct.customizable || selectedProduct.gift_wrap) && (
+                  {(selectedProduct.isHandmade || selectedProduct.isCustomizable || selectedProduct.giftWrapping) && (
                     <div className="space-y-4">
                       <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
                         <span className="text-2xl">⭐</span>
                         Special features
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {selectedProduct.handmade && (
+                        {selectedProduct.isHandmade && (
                           <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
                             <div className="flex items-center gap-3 mb-2">
                               <span className="text-2xl">🎨</span>
@@ -2116,7 +2116,7 @@ export default function Storefront() {
                             <p className="text-sm text-amber-700">Crafted with care by skilled artisans</p>
                           </div>
                         )}
-                        {selectedProduct.customizable && (
+                        {selectedProduct.isCustomizable && (
                           <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
                             <div className="flex items-center gap-3 mb-2">
                               <span className="text-2xl">⚙️</span>
@@ -2125,7 +2125,7 @@ export default function Storefront() {
                             <p className="text-sm text-blue-700">Can be personalized to your preferences</p>
                           </div>
                         )}
-                        {selectedProduct.gift_wrap && (
+                        {selectedProduct.giftWrapping && (
                           <div className="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-200">
                             <div className="flex items-center gap-3 mb-2">
                               <span className="text-2xl">🎁</span>
@@ -2290,11 +2290,11 @@ export default function Storefront() {
                   </div>
 
                   {/* Enhanced Navigation Footer */}
-                  {displayedProducts.length > 1 && (
+                  {filteredProducts.length > 1 && (
                     <div className="pt-4 border-t border-slate-200">
                       <div className="flex items-center justify-between text-sm text-slate-600">
                         <span>
-                          Product {displayedProducts.findIndex(p => p.id === selectedProduct.id) + 1} of {displayedProducts.length}
+                          Product {filteredProducts.findIndex((p: Product) => p.id === selectedProduct.id) + 1} of {filteredProducts.length}
                         </span>
                         <span className="text-xs bg-slate-100 px-2 py-1 rounded">
                           Use ← → arrow keys to navigate
