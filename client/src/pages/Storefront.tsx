@@ -1957,7 +1957,7 @@ export default function Storefront() {
             </div>
           )}
           
-          {/* Product Detail Modal */}
+          {/* Ultra-Premium Product Detail Modal */}
           {showProductModal && selectedProduct && (
             <div 
               className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
@@ -1967,7 +1967,7 @@ export default function Storefront() {
                 className="max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Product Image Header */}
+                {/* Ultra-Premium Product Image Header */}
                 <div className="relative">
                   <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
                     <img
@@ -1976,7 +1976,10 @@ export default function Storefront() {
                       className="w-full h-full object-cover"
                     />
                     
-                    {/* Close Button */}
+                    {/* Enhanced overlay with gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                    
+                    {/* Enhanced Close Button */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1985,6 +1988,43 @@ export default function Storefront() {
                     >
                       <X className="w-7 h-7" />
                     </Button>
+
+                    {/* Navigation Arrows */}
+                    {displayedProducts.length > 1 && (
+                      <>
+                        {displayedProducts.findIndex(p => p.id === selectedProduct.id) > 0 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const currentIndex = displayedProducts.findIndex(p => p.id === selectedProduct.id);
+                              const prevProduct = displayedProducts[currentIndex - 1];
+                              setSelectedProduct(prevProduct);
+                              window.history.replaceState(null, '', `#${prevProduct.id}`);
+                            }}
+                            className="absolute left-1/2 top-1/2 transform -translate-x-20 -translate-y-1/2 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                          >
+                            <ChevronDown className="w-7 h-7 rotate-90" />
+                          </Button>
+                        )}
+                        
+                        {displayedProducts.findIndex(p => p.id === selectedProduct.id) < displayedProducts.length - 1 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const currentIndex = displayedProducts.findIndex(p => p.id === selectedProduct.id);
+                              const nextProduct = displayedProducts[currentIndex + 1];
+                              setSelectedProduct(nextProduct);
+                              window.history.replaceState(null, '', `#${nextProduct.id}`);
+                            }}
+                            className="absolute left-1/2 top-1/2 transform translate-x-6 -translate-y-1/2 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                          >
+                            <ChevronDown className="w-7 h-7 -rotate-90" />
+                          </Button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
                 
@@ -2003,9 +2043,15 @@ export default function Storefront() {
                               <span className="mr-2 text-sm flex items-center">📦</span>
                               {selectedProduct.category}
                             </div>
-                            {(selectedProduct as any).subcategory && (
+                            {selectedProduct.subcategory && (
                               <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-600 text-white text-sm font-medium">
-                                {(selectedProduct as any).subcategory}
+                                {selectedProduct.subcategory}
+                              </div>
+                            )}
+                            {(Date.now() - (selectedProduct.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                              <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-emerald-500 text-white text-sm font-semibold">
+                                <span className="mr-1.5 text-sm flex items-center">🆕</span>
+                                New arrival
                               </div>
                             )}
                           </div>
@@ -2020,7 +2066,7 @@ export default function Storefront() {
                       </div>
                     </div>
                     
-                    {/* Stock Status */}
+                    {/* Refined Stock Status */}
                     <div className="p-5 rounded-xl border-2" style={{
                       backgroundColor: selectedProduct.quantity > 10 ? '#E8F5E8' : 
                                      selectedProduct.quantity > 0 ? '#FFF4E6' : '#FFE6E6',
@@ -2053,10 +2099,49 @@ export default function Storefront() {
                     </div>
                   </div>
 
-                  {/* Description */}
+                  {/* Enhanced Special Features Showcase */}
+                  {(selectedProduct.handmade || selectedProduct.customizable || selectedProduct.gift_wrap) && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                        <span className="text-2xl">⭐</span>
+                        Special features
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {selectedProduct.handmade && (
+                          <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">🎨</span>
+                              <h4 className="font-bold text-amber-800">Handmade</h4>
+                            </div>
+                            <p className="text-sm text-amber-700">Crafted with care by skilled artisans</p>
+                          </div>
+                        )}
+                        {selectedProduct.customizable && (
+                          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">⚙️</span>
+                              <h4 className="font-bold text-blue-800">Customizable</h4>
+                            </div>
+                            <p className="text-sm text-blue-700">Can be personalized to your preferences</p>
+                          </div>
+                        )}
+                        {selectedProduct.gift_wrap && (
+                          <div className="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-200">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-2xl">🎁</span>
+                              <h4 className="font-bold text-pink-800">Gift Wrapping</h4>
+                            </div>
+                            <p className="text-sm text-pink-700">Beautiful gift wrapping available</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Enhanced Product Description */}
                   {selectedProduct.description && (
                     <div className="space-y-3">
-                      <h3 className="text-xl font-bold text-gray-800">Product Description</h3>
+                      <h3 className="text-xl font-bold text-gray-800">Description</h3>
                       <div className="prose prose-slate max-w-none">
                         <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
                           {selectedProduct.description}
@@ -2064,8 +2149,123 @@ export default function Storefront() {
                       </div>
                     </div>
                   )}
+
+                  {/* Premium Product Attributes Section */}
+                  {(() => {
+                    const attributes = [];
+                    if (selectedProduct.brand) attributes.push(['Brand', selectedProduct.brand, '🏷️']);
+                    if (selectedProduct.condition) attributes.push(['Condition', selectedProduct.condition, '⭐']);
+                    if (selectedProduct.size) attributes.push(['Size', selectedProduct.size, '📏']);
+                    if (selectedProduct.color) attributes.push(['Color', selectedProduct.color, '🎨']);
+                    if (selectedProduct.material) attributes.push(['Material', selectedProduct.material, '🧵']);
+                    if ((selectedProduct as any).chain_length) attributes.push(['Chain Length', (selectedProduct as any).chain_length, '📐']);
+                    if ((selectedProduct as any).pendant_size) attributes.push(['Pendant Size', (selectedProduct as any).pendant_size, '💎']);
+                    
+                    return attributes.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                          <span className="text-2xl">📋</span>
+                          Product Attributes
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {attributes.map(([label, value, icon], index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                              <div className="flex items-center gap-3">
+                                <span className="text-lg">{icon}</span>
+                                <span className="font-medium text-slate-700">{label}</span>
+                              </div>
+                              <span className="font-bold text-slate-900">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Enhanced Shipping & Processing Section */}
+                  {(() => {
+                    const shippingInfo = [];
+                    if ((selectedProduct as any).processing_time) shippingInfo.push(['Processing Time', (selectedProduct as any).processing_time, '⏱️']);
+                    if ((selectedProduct as any).ships_from) shippingInfo.push(['Ships From', (selectedProduct as any).ships_from, '✈️']);
+                    
+                    return shippingInfo.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                          <span className="text-2xl">🚚</span>
+                          Shipping & Processing
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {shippingInfo.map(([label, value, icon], index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                              <div className="flex items-center gap-3">
+                                <span className="text-lg">{icon}</span>
+                                <span className="font-medium text-blue-700">{label}</span>
+                              </div>
+                              <span className="font-bold text-blue-900">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Premium Suitability Section */}
+                  {(() => {
+                    const suitabilityInfo = [];
+                    if ((selectedProduct as any).occasion) suitabilityInfo.push(['Occasion', (selectedProduct as any).occasion, '🎉']);
+                    if ((selectedProduct as any).age_group) suitabilityInfo.push(['Age Group', (selectedProduct as any).age_group, '👥']);
+                    
+                    return suitabilityInfo.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                          <span className="text-2xl">🎯</span>
+                          Suitable For
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {suitabilityInfo.map(([label, value, icon], index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                              <div className="flex items-center gap-3">
+                                <span className="text-lg">{icon}</span>
+                                <span className="font-medium text-purple-700">{label}</span>
+                              </div>
+                              <span className="font-bold text-purple-900">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Enhanced Product Policies Section */}
+                  {(() => {
+                    const policyInfo = [];
+                    if ((selectedProduct as any).personalization_options) policyInfo.push(['Personalization Options', (selectedProduct as any).personalization_options, '✏️']);
+                    if ((selectedProduct as any).care_instructions) policyInfo.push(['Care Instructions', (selectedProduct as any).care_instructions, '🧼']);
+                    if (selectedProduct.sustainability) policyInfo.push(['Sustainability', 'Eco-friendly', '🌱']);
+                    if ((selectedProduct as any).warranty) policyInfo.push(['Warranty', (selectedProduct as any).warranty, '🛡️']);
+                    
+                    return policyInfo.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                          <span className="text-2xl">📋</span>
+                          Product Policies
+                        </h3>
+                        <div className="space-y-3">
+                          {policyInfo.map(([label, value, icon], index) => (
+                            <div key={index} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                              <span className="text-lg mt-0.5">{icon}</span>
+                              <div className="flex-1">
+                                <h4 className="font-medium text-gray-700 mb-1">{label}</h4>
+                                <p className="text-sm text-gray-600">{value}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   
-                  {/* CTA Section */}
+                  {/* Premium WhatsApp CTA */}
                   <div className="pt-6 border-t border-slate-200">
                     <div className="flex flex-col sm:flex-row gap-4">
                       {seller?.whatsappNumber ? (
@@ -2088,6 +2288,20 @@ export default function Storefront() {
                       )}
                     </div>
                   </div>
+
+                  {/* Enhanced Navigation Footer */}
+                  {displayedProducts.length > 1 && (
+                    <div className="pt-4 border-t border-slate-200">
+                      <div className="flex items-center justify-between text-sm text-slate-600">
+                        <span>
+                          Product {displayedProducts.findIndex(p => p.id === selectedProduct.id) + 1} of {displayedProducts.length}
+                        </span>
+                        <span className="text-xs bg-slate-100 px-2 py-1 rounded">
+                          Use ← → arrow keys to navigate
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
