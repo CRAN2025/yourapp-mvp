@@ -24,6 +24,48 @@ import logoUrl from '@/assets/logo.png';
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
 
+// Landing page design system constants
+const _ui = {
+  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 0', gap: '24px' },
+  ctaPrimary: { 
+    display: 'inline-flex', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    height: '52px',
+    padding: '0 24px',
+    borderRadius: '16px',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: 700,
+    fontSize: '16px',
+    color: '#fff',
+    background: 'linear-gradient(135deg,#5a6bff 0%, #67d1ff 100%)',
+    backgroundSize: '180% 100%',
+    backgroundPosition: '0% 50%',
+    boxShadow: '0 12px 30px rgba(90,107,255,.28)',
+    transition: 'background-position .2s ease, box-shadow .15s ease',
+    textDecoration: 'none'
+  }
+};
+
+// Brand wordmark styling matching landing page
+const _brand = {
+  link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' },
+  text: {
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+    fontWeight: 700,
+    letterSpacing: '-0.01em',
+    fontSize: 'clamp(24px, 2.05vw, 30px)',
+    lineHeight: 1.05,
+    whiteSpace: 'nowrap' as const,
+    background: 'linear-gradient(90deg,#3A49FF 0%, #1873FF 100%)',
+    WebkitBackgroundClip: 'text', 
+    backgroundClip: 'text', 
+    color: 'transparent',
+    textShadow: '0 1px 0 rgba(0,0,0,0.06)'
+  }
+};
+
 // Category icon helper function
 const getCategoryIcon = (category: string): string => {
   const iconMap: { [key: string]: string } = {
@@ -2306,11 +2348,16 @@ ${productUrl}`;
               </div>
             )}
 
-            {/* Primary WhatsApp CTA button */}
+            {/* Primary WhatsApp CTA button - Landing Page Style */}
             {seller?.whatsappNumber && (
               <Button
                 onClick={() => openWhatsApp(seller.whatsappNumber, `Hi! I found your store on ShopLynk and I'm interested in your products.`)}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-8 py-4 rounded-2xl text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                style={{
+                  ..._ui.ctaPrimary,
+                  background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                  boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)'
+                }}
+                className="text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <MessageCircle className="w-6 h-6 mr-3" />
                 Contact on WhatsApp
@@ -2319,15 +2366,42 @@ ${productUrl}`;
           </div>
         </div>
 
+        {/* ShopLynk Branded Header Section */}
+        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-b border-slate-100">
+          <div className="max-w-7xl mx-auto px-6 py-6">
+            <div className="flex items-center justify-between">
+              {/* ShopLynk Brand */}
+              <Link href="/" style={_brand.link}>
+                <span style={_brand.text} className="brandText">
+                  ShopLynk
+                </span>
+              </Link>
+              
+              {/* Powered by ShopLynk */}
+              <div className="flex items-center gap-3 text-slate-600">
+                <span className="text-sm font-medium">Powered by</span>
+                <Link href="/" className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                  ShopLynk
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Edge-to-Edge Search & Filter Section */}
         <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
           <div className="max-w-7xl mx-auto px-6">
-            {/* Section title */}
+            {/* Section title with landing page typography */}
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-black text-gray-900 mb-4">
+              <h2 className="font-black text-gray-900 mb-4" style={{
+                fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+                fontSize: 'clamp(40px, 7vw, 64px)',
+                lineHeight: 1.1,
+                letterSpacing: '-0.02em'
+              }}>
                 Discover Amazing Products
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
                 Explore our curated collection of premium products designed to exceed your expectations
               </p>
             </div>
@@ -2654,6 +2728,19 @@ ${productUrl}`;
                         {seller?.whatsappNumber ? (
                           <button
                             className="product-cta-primary"
+                            style={{
+                              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                              boxShadow: '0 8px 20px rgba(37, 211, 102, 0.25)',
+                              borderRadius: '12px',
+                              height: '44px',
+                              padding: '0 16px',
+                              fontWeight: '700',
+                              fontSize: '14px',
+                              color: 'white',
+                              border: 'none',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleContactProduct(product);
@@ -2865,6 +2952,30 @@ ${productUrl}`;
           </div>
         )}
         
+        {/* ShopLynk Footer Branding */}
+        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-t border-slate-100 py-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <span className="text-lg text-slate-600 font-medium">Powered by</span>
+                <Link href="/" style={_brand.link}>
+                  <span style={{..._brand.text, fontSize: 'clamp(28px, 2.5vw, 36px)'}} className="brandText">
+                    ShopLynk
+                  </span>
+                </Link>
+              </div>
+              <p className="text-slate-600 max-w-lg mx-auto">
+                Create your own premium online store in minutes. Join thousands of sellers building their business with ShopLynk.
+              </p>
+              <div className="mt-6">
+                <Link href="/" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+                  Start Your Store <ArrowLeft className="w-4 h-4 rotate-180" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Ultra-Premium Payment Methods Modal */}
         {showPaymentModal && (
           <div 
@@ -3406,7 +3517,15 @@ ${productUrl}`;
                 <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t-2 border-slate-200">
                   <Button
                     onClick={() => handleContactProduct(selectedProduct)}
-                    className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 py-6 text-xl font-bold rounded-2xl"
+                    style={{
+                      ..._ui.ctaPrimary,
+                      background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                      boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)',
+                      fontSize: '18px',
+                      padding: '0 32px',
+                      height: '60px'
+                    }}
+                    className="flex-1 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
                     size="lg"
                   >
                     <MessageCircle className="w-7 h-7 mr-4" />
