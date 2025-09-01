@@ -21,6 +21,48 @@ import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
 
+// Landing page design system constants
+const _ui = {
+  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 0', gap: '24px' },
+  ctaPrimary: { 
+    display: 'inline-flex', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    height: '52px',
+    padding: '0 24px',
+    borderRadius: '16px',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: 700,
+    fontSize: '16px',
+    color: '#fff',
+    background: 'linear-gradient(135deg,#5a6bff 0%, #67d1ff 100%)',
+    backgroundSize: '180% 100%',
+    backgroundPosition: '0% 50%',
+    boxShadow: '0 12px 30px rgba(90,107,255,.28)',
+    transition: 'background-position .2s ease, box-shadow .15s ease',
+    textDecoration: 'none'
+  }
+};
+
+// Brand wordmark styling matching landing page
+const _brand = {
+  link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' },
+  text: {
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+    fontWeight: 700,
+    letterSpacing: '-0.01em',
+    fontSize: 'clamp(24px, 2.05vw, 30px)',
+    lineHeight: 1.05,
+    whiteSpace: 'nowrap' as const,
+    background: 'linear-gradient(90deg,#3A49FF 0%, #1873FF 100%)',
+    WebkitBackgroundClip: 'text', 
+    backgroundClip: 'text', 
+    color: 'transparent',
+    textShadow: '0 1px 0 rgba(0,0,0,0.06)'
+  }
+};
+
 // Category icon helper function
 const getCategoryIcon = (category: string): string => {
   const iconMap: { [key: string]: string } = {
@@ -1690,15 +1732,43 @@ export default function Storefront() {
             </FullWidthContainer>
           )}
 
+          {/* ShopLynk Branded Header Section */}
+          <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-b border-slate-100">
+            <div className="max-w-7xl mx-auto px-6 py-6">
+              <div className="flex items-center justify-between">
+                {/* ShopLynk Brand */}
+                <Link href="/" style={_brand.link}>
+                  <span style={_brand.text} className="brandText">
+                    ShopLynk
+                  </span>
+                </Link>
+                
+                {/* Seller Preview Mode */}
+                <div className="flex items-center gap-3 text-slate-600">
+                  <Badge className="bg-blue-100 text-blue-800">Seller Preview</Badge>
+                  <span className="text-sm font-medium">Powered by</span>
+                  <Link href="/" className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                    ShopLynk
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Edge-to-Edge Search & Filter Section - Seller Preview */}
           <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
             <div className="max-w-7xl mx-auto px-6">
-              {/* Section title */}
+              {/* Section title with landing page typography */}
               <div className="text-center mb-12">
-                <h2 className="text-4xl font-black text-gray-900 mb-4">
+                <h2 className="font-black text-gray-900 mb-4" style={{
+                  fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
+                  fontSize: 'clamp(40px, 7vw, 64px)',
+                  lineHeight: 1.1,
+                  letterSpacing: '-0.02em'
+                }}>
                   Discover Amazing Products
                 </h2>
-                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
                   Preview how customers explore your curated collection
                 </p>
               </div>
@@ -2760,6 +2830,29 @@ export default function Storefront() {
               </div>
             </div>
           )}
+        {/* ShopLynk Footer Branding */}
+        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-t border-slate-100 py-12 mt-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <span className="text-lg text-slate-600 font-medium">Powered by</span>
+                <Link href="/" style={_brand.link}>
+                  <span style={{..._brand.text, fontSize: 'clamp(28px, 2.5vw, 36px)'}} className="brandText">
+                    ShopLynk
+                  </span>
+                </Link>
+              </div>
+              <p className="text-slate-600 max-w-lg mx-auto">
+                Create your own premium online store in minutes. Join thousands of sellers building their business with ShopLynk.
+              </p>
+              <div className="mt-6">
+                <Link href="/" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+                  Start Your Store <ArrowLeft className="w-4 h-4 rotate-180" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
         </div>
       </DashboardLayout>
     </>

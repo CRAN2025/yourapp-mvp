@@ -228,3 +228,17 @@
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
   }
 }
+
+/* ShopLynk Brand Text Accessibility */
+.brandText { 
+  position: relative; 
+}
+
+@media (prefers-contrast: high) {
+  .brandText { 
+    color: #3E4AE0 !important; 
+    background: none !important; 
+    -webkit-background-clip: unset !important; 
+    background-clip: unset !important; 
+  }
+}
