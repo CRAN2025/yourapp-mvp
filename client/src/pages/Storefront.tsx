@@ -1143,6 +1143,271 @@ export default function Storefront() {
             font-size: 24px;
           }
         }
+        
+        /* ENTERPRISE PRODUCT CARD CONTAINER */
+        .product-card-v11 {
+          background: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+          transition: all 0.3s ease;
+          overflow: hidden;
+          padding: 16px;
+        }
+        
+        .product-card-v11:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+        }
+        
+        /* Image Section */
+        .product-image-container {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .product-image-wrapper {
+          aspect-ratio: 1;
+          position: relative;
+          background: #f8f9fa;
+        }
+        
+        .product-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 12px 12px 0 0;
+        }
+        
+        .product-favorite-btn {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: #ffffff;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+          transition: all 0.2s ease;
+        }
+        
+        .product-favorite-btn:hover {
+          transform: scale(1.1);
+        }
+        
+        .product-favorite-idle {
+          color: #9CA3AF;
+        }
+        
+        .product-favorite-active {
+          color: #EF4444;
+          fill: currentColor;
+        }
+        
+        /* ENTERPRISE STATUS BADGE SYSTEM */
+        .product-badges-overlay {
+          position: absolute;
+          bottom: 8px;
+          left: 8px;
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+        }
+        
+        .product-badge-new {
+          background: #DBEAFE;
+          color: #2563EB;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 3px 8px;
+          border-radius: 6px;
+        }
+        
+        .product-badge-limited {
+          background: #EF4444;
+          color: #ffffff;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 3px 8px;
+          border-radius: 6px;
+        }
+        
+        .product-badge-featured {
+          background: #FACC15;
+          color: #92400E;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 3px 8px;
+          border-radius: 6px;
+        }
+        
+        /* ENTERPRISE CONTENT SECTION */
+        .product-card-content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .product-title-section {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        
+        /* ENTERPRISE PRODUCT TITLE */
+        .product-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #111827;
+          line-height: 1.3;
+          letter-spacing: -0.01em;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-bottom: 8px;
+        }
+        
+        .product-brand {
+          font-size: 14px;
+          font-weight: 500;
+          color: #6B7280;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        /* ENTERPRISE PRICE STYLING */
+        .product-price-section {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        
+        .product-price {
+          font-size: 18px;
+          font-weight: 700;
+          color: #16A34A;
+          letter-spacing: -0.02em;
+        }
+        
+        /* ENTERPRISE CATEGORY PILLS */
+        .product-category-section {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin: 8px 0;
+        }
+        
+        .product-category-pill {
+          background: #ffffff;
+          color: #2563EB;
+          font-size: 13px;
+          font-weight: 500;
+          padding: 4px 12px;
+          border-radius: 18px;
+          border: 1px solid #2563EB;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          transition: all 0.2s ease;
+          cursor: pointer;
+        }
+        
+        .product-category-pill:hover {
+          background: #EFF6FF;
+          transform: translateY(-1px);
+        }
+        
+        /* ENTERPRISE CTA SYSTEM */
+        .product-cta-section {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 12px;
+        }
+        
+        .whatsapp-cta-primary {
+          width: 100%;
+          background: #25D366;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .whatsapp-cta-primary:hover {
+          background: #1DA851;
+          transform: translateY(-1px);
+        }
+        
+        .whatsapp-cta-disabled {
+          width: 100%;
+          background: #E5E7EB;
+          color: #6B7280;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+        
+        .whatsapp-tooltip {
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          margin-bottom: 8px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+          z-index: 20;
+        }
+        
+        .whatsapp-tooltip-content {
+          background: black;
+          color: white;
+          font-size: 12px;
+          border-radius: 8px;
+          padding: 8px 12px;
+          white-space: nowrap;
+          font-weight: 600;
+          position: relative;
+        }
+        
+        .whatsapp-tooltip-arrow {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 4px solid black;
+        }
+        
+        .relative.group:hover .whatsapp-tooltip {
+          opacity: 1;
+        }
       `}</style>
 
       <DashboardLayout>
@@ -1156,7 +1421,7 @@ export default function Storefront() {
             description={seller?.storeDescription}
             paymentCount={paymentMethods.length}
             deliveryCount={deliveryOptions.length}
-            onBack={() => window.location.href = '/dashboard'}
+            onBack={() => {}} // No-op function since we're removing dashboard navigation
             socials={{
               instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
               tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
@@ -1358,166 +1623,140 @@ export default function Storefront() {
                   )}
                 </div>
               ) : (
-                <div className="ultimate-grid">
-                  {filteredProducts.map((product, index) => (
-                    <div
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredProducts.map((product) => (
+                    <Card
                       key={product.id}
-                      className="ultimate-card"
+                      className="product-card-v11 group cursor-pointer border-0 overflow-hidden"
                       onClick={() => handleProductView(product)}
-                      style={{ animationDelay: `${index * 0.1}s` }}
+                      data-testid={`card-product-${product.id}`}
                     >
-                      <div className="ultimate-card-image-container">
-                        <img
-                          src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
-                          alt={product.name}
-                          className="ultimate-card-image"
-                          onLoad={(e) => handleImageLoad(product.id, e)}
-                          onError={handleImageError}
-                          onLoadStart={() => handleImageStart(product.id)}
-                          data-product-id={product.id}
-                          loading="lazy"
-                        />
-                        
-                        {/* Image Loading State */}
-                        {imageLoadingStates[product.id] && (
-                          <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-                          </div>
-                        )}
-                        
-                        {/* Quick Actions */}
-                        <div className="ultimate-quick-actions">
-                          <button
-                            className="ultimate-quick-btn"
-                            onClick={(e) => handleQuickView(product, e)}
-                            title="Quick Preview"
-                          >
-                            <Eye className="w-5 h-5" />
-                          </button>
-                          <button
-                            className="ultimate-quick-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (navigator.share) {
-                                navigator.share({
-                                  title: product.name,
-                                  text: `Check out ${product.name} for ${formatPrice(product.price)}`,
-                                  url: `${window.location.origin}/store/${user?.uid}#${product.id}`
-                                });
-                              }
-                            }}
-                            title="Share Product"
-                          >
-                            <Share2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                        
-                        {/* Favorite Button */}
-                        <button
-                          className="ultimate-favorite-btn"
-                          onClick={(e) => toggleFavorite(product.id, e)}
-                          aria-pressed={favorites.has(product.id)}
-                          title={favorites.has(product.id) ? "Remove from favorites" : "Add to favorites"}
-                        >
-                          <Heart
-                            className={`w-6 h-6 transition-all duration-300 ${
-                              favorites.has(product.id)
-                                ? 'fill-current text-red-500'
-                                : 'text-slate-400'
-                            }`}
+                      <div className="product-image-container">
+                        {/* Product image */}
+                        <div className="product-image-wrapper">
+                          <img
+                            src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+                            alt={product.name}
+                            className="product-image"
+                            onLoad={(e) => handleImageLoad(product.id, e)}
+                            onError={handleImageError}
+                            onLoadStart={() => handleImageStart(product.id)}
+                            data-product-id={product.id}
+                            loading="lazy"
+                            decoding="async"
                           />
-                        </button>
-
-                        {/* Product Badges */}
-                        <div className="ultimate-badge-overlay">
-                          {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                            <span className="ultimate-badge ultimate-badge-new">
-                              New
-                            </span>
-                          )}
-                          {product.quantity < 5 && (
-                            <span className="ultimate-badge ultimate-badge-limited">
-                              Limited
-                            </span>
-                          )}
-                          {product.features?.includes('featured') && (
-                            <span className="ultimate-badge ultimate-badge-featured">
-                              Featured
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="ultimate-card-content">
-                        <h3 className="ultimate-card-title">
-                          {product.name}
-                        </h3>
-                        
-                        {product.brand && (
-                          <p className="ultimate-card-brand">
-                            {product.brand}
-                          </p>
-                        )}
-
-                        <div className="ultimate-card-price">
-                          {formatPrice(product.price)}
-                        </div>
-
-                        <div className="ultimate-card-category">
-                          <span>{product.category}</span>
-                        </div>
-
-                        <div className="ultimate-card-actions">
-                          {/* WhatsApp Contact Button - Preview Mode */}
-                          {seller?.whatsappNumber ? (
-                            <button
-                              className={`ultimate-whatsapp-btn ${
-                                cardLoadingStates[`contact-${product.id}`] ? 'ultimate-loading-btn' : ''
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleContactProduct(product);
-                              }}
-                              disabled={cardLoadingStates[`contact-${product.id}`]}
-                            >
-                              {cardLoadingStates[`contact-${product.id}`] ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                              ) : (
-                                <MessageCircle className="w-6 h-6" />
-                              )}
-                              Contact Seller (Preview)
-                            </button>
-                          ) : (
-                            <div className="relative group">
-                              <button
-                                disabled
-                                className="ultimate-whatsapp-btn opacity-60 cursor-not-allowed"
-                              >
-                                <MessageCircle className="w-6 h-6" />
-                                WhatsApp Required
-                              </button>
-                              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                                <div className="bg-black text-white text-xs rounded-xl px-4 py-3 whitespace-nowrap font-semibold">
-                                  Add WhatsApp number in Settings
-                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
-                                </div>
-                              </div>
+                          
+                          {/* Image Loading State */}
+                          {imageLoadingStates[product.id] && (
+                            <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                              <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
                             </div>
                           )}
                           
+                          {/* Favorite button - top right */}
                           <button
-                            className="ultimate-details-btn"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleProductView(product);
-                            }}
-                            title="View Details"
+                            className="product-favorite-btn"
+                            onClick={(e) => toggleFavorite(product.id, e)}
+                            aria-pressed={favorites.has(product.id)}
+                            data-testid={`button-favorite-${product.id}`}
                           >
-                            <Eye className="w-5 h-5" />
+                            <Heart
+                              className={`h-4 w-4 ${
+                                favorites.has(product.id)
+                                  ? 'product-favorite-active'
+                                  : 'product-favorite-idle'
+                              }`}
+                            />
                           </button>
+
+                          {/* v1.1 Product badges - top left overlay */}
+                          <div className="product-badges-overlay">
+                            {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
+                              <span className="product-badge-new">
+                                New
+                              </span>
+                            )}
+                            {product.quantity < 5 && (
+                              <span className="product-badge-limited">
+                                Limited Stock
+                              </span>
+                            )}
+                            {product.features?.includes('featured') && (
+                              <span className="product-badge-featured">
+                                Featured
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="product-card-content">
+                          <div className="product-title-section">
+                            <h3 className="product-title">
+                              {product.name}
+                            </h3>
+                            
+                            {product.brand && (
+                              <p className="product-brand">
+                                {product.brand}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="product-price-section">
+                            <div className="product-price">
+                              {formatPrice(product.price)}
+                            </div>
+                          </div>
+
+                          <div className="product-category-section">
+                            <span className="product-category-pill">
+                              {product.category}
+                            </span>
+                          </div>
+
+                          {/* v1.3.1_UI_UX_WHATSAPP_PER_CARD - Per-card WhatsApp CTA */}
+                          <div className="product-cta-section">
+                            {seller?.whatsappNumber ? (
+                              <button
+                                className={`whatsapp-cta-primary ${
+                                  cardLoadingStates[`contact-${product.id}`] ? 'loading' : ''
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleContactProduct(product);
+                                }}
+                                disabled={cardLoadingStates[`contact-${product.id}`]}
+                                data-testid={`button-contact-${product.id}`}
+                              >
+                                {cardLoadingStates[`contact-${product.id}`] ? (
+                                  <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                  <MessageCircle className="w-5 h-5" />
+                                )}
+                                Contact Seller (Preview)
+                              </button>
+                            ) : (
+                              <div className="relative group">
+                                <button
+                                  disabled
+                                  className="whatsapp-cta-disabled"
+                                  data-testid={`button-contact-disabled-${product.id}`}
+                                >
+                                  <MessageCircle className="w-5 h-5" />
+                                  WhatsApp Required
+                                </button>
+                                <div className="whatsapp-tooltip">
+                                  <div className="whatsapp-tooltip-content">
+                                    Add WhatsApp number in Settings
+                                    <div className="whatsapp-tooltip-arrow"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               )}
