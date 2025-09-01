@@ -2147,10 +2147,28 @@ ${productUrl}`;
         }
         
         /* Enterprise responsive logo scaling handled by clamp */
+        
+        /* Hide Back to Dashboard button in public customer view */
+        .sl-store-header .sl-cta {
+          display: none !important;
+        }
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
-        {/* No dashboard navigation in public customer view */}
+        {/* Store Header Component - Back button hidden for public customers */}
+        <StoreHeader
+          name={seller?.storeName || 'Store Name'}
+          logoUrl={seller?.logoUrl}
+          description={seller?.storeDescription}
+          paymentCount={paymentMethods.length}
+          deliveryCount={deliveryOptions.length}
+          onBack={() => {}} // Empty function to disable back button
+          socials={{
+            instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
+            tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
+            facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
+          }}
+        />
 
         {/* v1.9.4 Clean Global Search and Filters */}
         <FullWidthContainer className="py-10">
