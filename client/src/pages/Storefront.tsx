@@ -1448,6 +1448,11 @@ export default function Storefront() {
         .relative.group:hover .whatsapp-tooltip {
           opacity: 1;
         }
+        
+        /* Hide Back to Dashboard button in seller storefront view */
+        .sl-store-header .sl-cta {
+          display: none !important;
+        }
       `}</style>
 
       <DashboardLayout>
