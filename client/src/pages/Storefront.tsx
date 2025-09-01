@@ -1703,20 +1703,29 @@ export default function Storefront() {
                 </p>
               </div>
 
-              {/* Premium search and filter container */}
-              <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/50 mb-12">
-                {/* Premium search bar */}
+              {/* Ultra-Premium search and filter container */}
+              <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-black/10 mb-12" style={{
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
+              }}>
+                {/* Ultra-Premium Search Bar */}
                 <div className="relative mb-8">
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-sm opacity-0 group-focus-within:opacity-20 transition-all duration-500"></div>
+                    {/* Animated gradient border on focus */}
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-sm opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
                     <div className="relative">
-                      <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-blue-600 transition-colors duration-300" />
+                      {/* Enhanced search icon with color transition */}
+                      <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-blue-600 transition-all duration-300" />
                       <Input
                         type="text"
                         placeholder="Search for products, brands, categories..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="h-16 pl-16 pr-16 text-lg bg-white border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:ring-0 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
+                        className="h-14 pl-16 pr-16 text-lg bg-white/80 border-2 border-gray-200 rounded-2xl focus:border-transparent focus:ring-0 transition-all duration-300 shadow-lg hover:shadow-xl focus:shadow-2xl"
+                        style={{ 
+                          backdropFilter: 'blur(8px)',
+                          WebkitBackdropFilter: 'blur(8px)'
+                        }}
                       />
                       {searchQuery && (
                         <Button
@@ -1738,7 +1747,7 @@ export default function Storefront() {
                     <div className="flex items-center gap-3">
                       <Filter className="w-6 h-6 text-blue-600" />
                       <span className="text-lg font-bold text-gray-900">Smart Filters</span>
-                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold">
+                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-3 rounded-full text-base font-semibold shadow-lg animate-pulse">
                         {filteredProducts.length} {filteredProducts.length === 1 ? 'Result' : 'Results'}
                       </div>
                     </div>
@@ -1791,10 +1800,10 @@ export default function Storefront() {
                           key={category}
                           variant={isActive ? "default" : "outline"}
                           onClick={() => setCategoryFilter(isActive ? 'all' : category)}
-                          className={`rounded-full px-6 py-3 font-bold transition-all duration-300 hover:scale-105 ${
+                          className={`rounded-full px-6 py-3 font-semibold transition-all duration-300 hover:scale-105 ${
                             isActive 
-                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl' 
-                              : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl' 
+                              : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md'
                           }`}
                         >
                           <span className="mr-2">{getCategoryIcon(category)}</span>
