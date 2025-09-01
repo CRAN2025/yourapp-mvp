@@ -21,6 +21,43 @@ import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
 
+// Category icon helper function
+const getCategoryIcon = (category: string): string => {
+  const iconMap: { [key: string]: string } = {
+    'Electronics': '📱',
+    'Clothing': '👕',
+    'Jewelry': '💍',
+    'Home & Garden': '🏡',
+    'Books': '📚',
+    'Sports': '⚽',
+    'Beauty': '💄',
+    'Toys': '🧸',
+    'Food': '🍎',
+    'Health': '💊',
+    'Art': '🎨',
+    'Music': '🎵',
+    'Automotive': '🚗',
+    'Travel': '✈️',
+    'Photography': '📸',
+    'Fashion': '👗',
+    'Accessories': '👜',
+    'Footwear': '👟',
+    'Watches': '⌚',
+    'Gaming': '🎮',
+    'Furniture': '🪑',
+    'Appliances': '🔌',
+    'Tools': '🔧',
+    'Office': '📊',
+    'Kids': '🧒',
+    'Pet Supplies': '🐾',
+    'Outdoor': '🏕️',
+    'Crafts': '✂️',
+    'Vintage': '🕰️',
+    'Handmade': '🤲'
+  };
+  return iconMap[category] || '📦';
+};
+
 // URL normalization for social media links
 const normalizeUrl = (value: string, platform: 'instagram' | 'tiktok' | 'facebook'): string => {
   if (!value || typeof value !== 'string') return '';
@@ -1475,20 +1512,157 @@ export default function Storefront() {
         <div className="min-h-screen" style={{
           background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
         }}>
-          {/* Store Header Component */}
-          <StoreHeader
-            name={seller?.storeName || 'Store Name'}
-            logoUrl={seller?.logoUrl}
-            description={seller?.storeDescription}
-            paymentCount={paymentMethods.length}
-            deliveryCount={deliveryOptions.length}
-            onBack={() => {}} // No-op function since we're removing dashboard navigation
-            socials={{
-              instagram: seller?.socialMedia?.instagram ? normalizeUrl(seller.socialMedia.instagram, 'instagram') : undefined,
-              tiktok: seller?.socialMedia?.tiktok ? normalizeUrl(seller.socialMedia.tiktok, 'tiktok') : undefined,
-              facebook: seller?.socialMedia?.facebook ? normalizeUrl(seller.socialMedia.facebook, 'facebook') : undefined,
-            }}
-          />
+          {/* Premium Hero Store Header - Seller Preview */}
+          <div className="relative overflow-hidden">
+            {/* Background pattern overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-25 to-pink-50 opacity-60"></div>
+            <div className="absolute inset-0" style={{
+              backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(255, 159, 98, 0.3) 0%, transparent 50%)'
+            }}></div>
+            
+            {/* Seller Preview Notice */}
+            <div className="relative z-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-3">
+              <div className="flex items-center justify-center gap-2">
+                <Eye className="w-5 h-5" />
+                <span className="font-bold">Store Preview Mode</span>
+                <span className="text-blue-100">•</span>
+                <span className="text-blue-100">This is how customers see your store</span>
+              </div>
+            </div>
+            
+            <div className="relative z-10 text-center py-16 px-6">
+              {/* Large logo with animations */}
+              <div className="mb-8">
+                <div className="w-32 h-32 mx-auto bg-white rounded-full shadow-2xl border-4 border-white hover:scale-105 transition-all duration-300 flex items-center justify-center overflow-hidden">
+                  {seller?.logoUrl ? (
+                    <img 
+                      src={seller.logoUrl} 
+                      alt={`${seller.storeName} logo`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-2xl font-bold">
+                        {seller?.storeName?.charAt(0) || 'S'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Store name as main heading */}
+              <h1 className="text-5xl lg:text-6xl font-black text-gray-900 mb-4 leading-tight">
+                {seller?.storeName || 'Amazing Store'}
+              </h1>
+
+              {/* Powered by ShopLynk tagline */}
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+                <span className="text-blue-600 font-bold text-lg">Powered by ShopLynk</span>
+                <Sparkles className="w-5 h-5 text-blue-600" />
+              </div>
+
+              {/* Store description */}
+              {seller?.storeDescription && (
+                <p className="text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed mb-8">
+                  {seller.storeDescription}
+                </p>
+              )}
+
+              {/* Trust signals row */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+                {/* Product count badge */}
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold">{products.length}</span>
+                    </div>
+                    <span className="font-semibold text-gray-800">
+                      {products.length === 1 ? 'Product' : 'Products'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Payment methods badge - clickable */}
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowPaymentModal(true)}
+                  className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
+                >
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-5 h-5 text-green-600" />
+                    <span className="font-semibold text-gray-800">
+                      {paymentMethods.length} Payment {paymentMethods.length === 1 ? 'Method' : 'Methods'}
+                    </span>
+                  </div>
+                </Button>
+
+                {/* Delivery options badge - clickable */}
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowDeliveryModal(true)}
+                  className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
+                >
+                  <div className="flex items-center gap-3">
+                    <Truck className="w-5 h-5 text-blue-600" />
+                    <span className="font-semibold text-gray-800">
+                      {deliveryOptions.length} Delivery {deliveryOptions.length === 1 ? 'Option' : 'Options'}
+                    </span>
+                  </div>
+                </Button>
+              </div>
+
+              {/* Social media icons */}
+              {(seller?.socialMedia?.instagram || seller?.socialMedia?.facebook) && (
+                <div className="flex items-center justify-center gap-4 mb-8">
+                  {seller?.socialMedia?.instagram && (
+                    <div className="relative group">
+                      <Button
+                        variant="ghost"
+                        className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 opacity-50 cursor-not-allowed shadow-lg"
+                        disabled
+                      >
+                        <Instagram className="w-6 h-6 text-white" />
+                      </Button>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        Preview Mode - Not clickable for sellers
+                      </div>
+                    </div>
+                  )}
+                  {seller?.socialMedia?.facebook && (
+                    <div className="relative group">
+                      <Button
+                        variant="ghost"
+                        className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 opacity-50 cursor-not-allowed shadow-lg"
+                        disabled
+                      >
+                        <Facebook className="w-6 h-6 text-white" />
+                      </Button>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        Preview Mode - Not clickable for sellers
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* WhatsApp CTA button - disabled for seller preview */}
+              {seller?.whatsappNumber && (
+                <div className="relative group">
+                  <Button
+                    disabled
+                    className="bg-gray-300 text-gray-500 font-bold px-8 py-4 rounded-2xl text-lg shadow-xl cursor-not-allowed opacity-60"
+                  >
+                    <MessageCircle className="w-6 h-6 mr-3" />
+                    Contact on WhatsApp (Preview Mode)
+                  </Button>
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    This button works for customers, not in preview mode
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Store Preview Banner for Sellers */}
           {isOwner && (
@@ -1516,30 +1690,149 @@ export default function Storefront() {
             </FullWidthContainer>
           )}
 
-          <FullWidthContainer>
-            {/* Ultimate Search and Filter System */}
-            <div className="py-16">
-              {/* Ultimate Search Bar */}
-              <div className="ultimate-search">
-                <Search className="ultimate-search-icon w-8 h-8" />
-                <input
-                  type="text"
-                  placeholder="Search for products, brands, or categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="ultimate-search-input"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="ultimate-search-clear"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                )}
+          {/* Revolutionary Search & Filter Section - Seller Preview */}
+          <div className="py-16 px-6">
+            <div className="max-w-6xl mx-auto">
+              {/* Section title */}
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-black text-gray-900 mb-4">
+                  Discover Amazing Products
+                </h2>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                  Preview how customers explore your curated collection
+                </p>
               </div>
 
-              {/* Ultimate Filters */}
+              {/* Premium search and filter container */}
+              <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/50 mb-12">
+                {/* Premium search bar */}
+                <div className="relative mb-8">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-sm opacity-0 group-focus-within:opacity-20 transition-all duration-500"></div>
+                    <div className="relative">
+                      <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-blue-600 transition-colors duration-300" />
+                      <Input
+                        type="text"
+                        placeholder="Search for products, brands, categories..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-16 pl-16 pr-16 text-lg bg-white border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:ring-0 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
+                      />
+                      {searchQuery && (
+                        <Button
+                          variant="ghost"
+                          onClick={() => setSearchQuery('')}
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Smart filter container */}
+                <div className="space-y-6">
+                  {/* Filter header with results counter */}
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <Filter className="w-6 h-6 text-blue-600" />
+                      <span className="text-lg font-bold text-gray-900">Smart Filters</span>
+                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-bold">
+                        {filteredProducts.length} {filteredProducts.length === 1 ? 'Result' : 'Results'}
+                      </div>
+                    </div>
+                    
+                    {/* Sort dropdown */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-gray-700 font-medium">Sort by:</span>
+                      <Select value={sortBy} onValueChange={setSortBy}>
+                        <SelectTrigger className="w-48 h-12 bg-white border-2 border-gray-200 rounded-xl focus:border-blue-500 transition-all duration-300">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="newest">🆕 Newest First</SelectItem>
+                          <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
+                          <SelectItem value="price-high">💎 Price: High to Low</SelectItem>
+                          <SelectItem value="name">📝 Name A-Z</SelectItem>
+                          <SelectItem value="popular">⭐ Most Popular</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Category pills and favorites toggle */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Show all button */}
+                    <Button
+                      variant={categoryFilter === 'all' ? "default" : "outline"}
+                      onClick={() => setCategoryFilter('all')}
+                      className={`rounded-full px-6 py-3 font-bold transition-all duration-300 hover:scale-105 ${
+                        categoryFilter === 'all'
+                          ? 'bg-gradient-to-r from-gray-600 to-gray-700 text-white shadow-lg hover:shadow-xl'
+                          : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      🎯 Show All
+                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-bold ${
+                        categoryFilter === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {products.length}
+                      </span>
+                    </Button>
+
+                    {/* Category pills */}
+                    {categories.map(category => {
+                      const count = products.filter(p => p.category === category).length;
+                      const isActive = categoryFilter === category;
+                      
+                      return (
+                        <Button
+                          key={category}
+                          variant={isActive ? "default" : "outline"}
+                          onClick={() => setCategoryFilter(isActive ? 'all' : category)}
+                          className={`rounded-full px-6 py-3 font-bold transition-all duration-300 hover:scale-105 ${
+                            isActive 
+                              ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl' 
+                              : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+                          }`}
+                        >
+                          <span className="mr-2">{getCategoryIcon(category)}</span>
+                          {category}
+                          <span className={`ml-2 px-2 py-1 rounded-full text-xs font-bold ${
+                            isActive ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-600'
+                          }`}>
+                            {count}
+                          </span>
+                        </Button>
+                      );
+                    })}
+
+                    {/* Favorites toggle - disabled for seller preview */}
+                    <div className="relative group">
+                      <Button
+                        variant="outline"
+                        disabled
+                        className="rounded-full px-6 py-3 font-bold bg-white border-2 border-gray-200 text-gray-400 cursor-not-allowed opacity-60"
+                      >
+                        <Heart className="w-5 h-5 mr-2" />
+                        Favorites (Preview)
+                        <span className="ml-2 px-2 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-400">
+                          0
+                        </span>
+                      </Button>
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        Customers can favorite products here
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <FullWidthContainer>
+            <div className="py-0">
               <div className="ultimate-filters">
                 <div className="ultimate-categories">
                   <div className="ultimate-category-label">
