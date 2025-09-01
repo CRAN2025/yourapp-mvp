@@ -1689,12 +1689,13 @@ export default function Storefront() {
                           </div>
                         </div>
 
-                        <div className="product-card-content">
+                        {/* v1.1 Product info with token-driven layout */}
+                        <CardContent className="product-card-content">
+                          {/* Product title & brand */}
                           <div className="product-title-section">
                             <h3 className="product-title">
                               {product.name}
                             </h3>
-                            
                             {product.brand && (
                               <p className="product-brand">
                                 {product.brand}
@@ -1702,59 +1703,197 @@ export default function Storefront() {
                             )}
                           </div>
 
+                          {/* Price row */}
                           <div className="product-price-section">
-                            <div className="product-price">
+                            <span className="product-price">
                               {formatPrice(product.price)}
-                            </div>
+                            </span>
+                            {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
+                              <>
+                                <span className="product-compare-price">
+                                  {formatPrice((product as any).compareAtPrice)}
+                                </span>
+                                <span className="product-discount-badge">
+                                  -{Math.round((((product as any).compareAtPrice - product.price) / (product as any).compareAtPrice) * 100)}%
+                                </span>
+                              </>
+                            )}
                           </div>
 
+                          {/* Category pills row - reuse global tokens */}
                           <div className="product-category-section">
                             <span className="product-category-pill">
-                              {product.category}
+                              📦 {product.category}
                             </span>
+                            {(product as any).subcategory && (
+                              <span className="product-category-pill">
+                                {(product as any).subcategory}
+                              </span>
+                            )}
                           </div>
 
-                          {/* v1.3.1_UI_UX_WHATSAPP_PER_CARD - Per-card WhatsApp CTA */}
+                          {/* v1.1 CTAs - Token-driven buttons */}
                           <div className="product-cta-section">
+                            {/* Primary CTA - Contact Seller */}
                             {seller?.whatsappNumber ? (
                               <button
-                                className={`whatsapp-cta-primary ${
-                                  cardLoadingStates[`contact-${product.id}`] ? 'loading' : ''
-                                }`}
+                                className="product-cta-primary"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleContactProduct(product);
                                 }}
                                 disabled={cardLoadingStates[`contact-${product.id}`]}
-                                data-testid={`button-contact-${product.id}`}
+                                aria-label={`Contact seller about ${product.name} on WhatsApp`}
+                                data-testid={`button-whatsapp-${product.id}`}
                               >
                                 {cardLoadingStates[`contact-${product.id}`] ? (
-                                  <Loader2 className="w-5 h-5 animate-spin" />
+                                  <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                  <MessageCircle className="w-5 h-5" />
+                                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
                                 )}
                                 Contact Seller (Preview)
                               </button>
                             ) : (
                               <div className="relative group">
-                                <button
+                                <Button
                                   disabled
-                                  className="whatsapp-cta-disabled"
-                                  data-testid={`button-contact-disabled-${product.id}`}
+                                  className="w-full font-medium opacity-60 cursor-not-allowed"
+                                  size="sm"
+                                  style={{
+                                    backgroundColor: '#25D366',
+                                    borderRadius: '10px',
+                                    color: 'white'
+                                  }}
+                                  data-testid={`button-whatsapp-disabled-${product.id}`}
                                 >
-                                  <MessageCircle className="w-5 h-5" />
-                                  WhatsApp Required
-                                </button>
-                                <div className="whatsapp-tooltip">
-                                  <div className="whatsapp-tooltip-content">
-                                    Add WhatsApp number in Settings
-                                    <div className="whatsapp-tooltip-arrow"></div>
+                                  <MessageCircle className="h-4 w-4 mr-2" aria-hidden="true" />
+                                  Contact Seller (Preview)
+                                </Button>
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                  <div className="bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                                    Add a WhatsApp number in Settings to enable this
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-black"></div>
                                   </div>
                                 </div>
                               </div>
                             )}
+                            
+                            {/* Out of stock caption */}
+                            {seller?.whatsappNumber && product.quantity <= 0 && (
+                              <p className="text-xs text-gray-500 text-center">
+                                Currently out of stock — message seller for availability
+                              </p>
+                            )}
+                            
+                            {/* View Details Button */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleProductView(product);
+                              }}
+                              className="w-full bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                              style={{
+                                border: '1px solid #E0E0E0',
+                                borderRadius: '10px',
+                                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.color = '#2C3E50';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.color = '';
+                              }}
+                              data-testid={`button-view-${product.id}`}
+                            >
+                              View Details
+                            </Button>
                           </div>
-                        </div>
+
+                          {/* Premium stock warning - #E63946 background, white bold text, ALL CAPS */}
+                          {product.quantity <= 10 && (
+                            <div className="pt-3 border-t border-slate-100">
+                              <div className="inline-flex items-center rounded-md text-xs font-bold tracking-wide" 
+                                   style={{ 
+                                     backgroundColor: '#E63946', 
+                                     color: 'white',
+                                     padding: '8px 12px'
+                                   }}>
+                                <span className="mr-2 text-sm flex items-center">⚠️</span>
+                                LIMITED STOCK — ONLY {product.quantity} LEFT
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Premium refined badge system - max 4 badges per card */}
+                          {(() => {
+                            const badges = [];
+                            const maxBadges = 4;
+                            
+                            // Priority 1: Physical attributes (light gray #F1F3F5 background, #333333 text)
+                            if ((product as any).color && badges.length < maxBadges) {
+                              badges.push(
+                                <div key="color" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                     style={{ 
+                                       backgroundColor: '#F1F3F5', 
+                                       color: '#333333',
+                                       padding: '6px 12px'
+                                     }}>
+                                  <span className="mr-1.5 text-sm flex items-center">🎨</span>
+                                  {(product as any).color}
+                                </div>
+                              );
+                            }
+                            if ((product as any).size && badges.length < maxBadges) {
+                              badges.push(
+                                <div key="size" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                     style={{ 
+                                       backgroundColor: '#F1F3F5', 
+                                       color: '#333333',
+                                       padding: '6px 12px'
+                                     }}>
+                                  <span className="mr-1.5 text-sm flex items-center">📏</span>
+                                  {(product as any).size}
+                                </div>
+                              );
+                            }
+                            if ((product as any).material && badges.length < maxBadges) {
+                              badges.push(
+                                <div key="material" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                     style={{ 
+                                       backgroundColor: '#F1F3F5', 
+                                       color: '#333333',
+                                       padding: '6px 12px'
+                                     }}>
+                                  <span className="mr-1.5 text-sm flex items-center">🧵</span>
+                                  {(product as any).material}
+                                </div>
+                              );
+                            }
+                            
+                            // Priority 2: Sustainability (soft green #DFF6E3 background, #1E7D3D text)
+                            if ((product as any).sustainability && badges.length < maxBadges) {
+                              badges.push(
+                                <div key="sustainability" className="inline-flex items-center rounded-md text-xs font-medium" 
+                                     style={{ 
+                                       backgroundColor: '#DFF6E3', 
+                                       color: '#1E7D3D',
+                                       padding: '6px 12px'
+                                     }}>
+                                  <span className="mr-1.5 text-sm flex items-center">🌱</span>
+                                  Eco-friendly
+                                </div>
+                              );
+                            }
+                            
+                            return badges.length > 0 && (
+                              <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
+                                {badges}
+                              </div>
+                            );
+                          })()}
+                        </CardContent>
                       </div>
                     </Card>
                   ))}
