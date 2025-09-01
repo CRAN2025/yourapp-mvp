@@ -3662,7 +3662,6 @@ ${productUrl}`;
             </div>
           </div>
         )}
-      </div>
     </>
   );
 }
