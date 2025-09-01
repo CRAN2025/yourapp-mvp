@@ -2319,9 +2319,9 @@ ${productUrl}`;
           </div>
         </div>
 
-        {/* Revolutionary Search & Filter Section */}
-        <div className="py-16 px-6">
-          <div className="max-w-6xl mx-auto">
+        {/* Edge-to-Edge Search & Filter Section */}
+        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
+          <div className="max-w-7xl mx-auto px-6">
             {/* Section title */}
             <div className="text-center mb-12">
               <h2 className="text-4xl font-black text-gray-900 mb-4">
@@ -2331,13 +2331,8 @@ ${productUrl}`;
                 Explore our curated collection of premium products designed to exceed your expectations
               </p>
             </div>
-
-            {/* Ultra-Premium search and filter container */}
-            <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-black/10 mb-12" style={{
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)'
-            }}>
-              {/* Ultra-Premium Search Bar */}
+            
+            {/* Ultra-Premium Search Bar */}
               <div className="relative mb-8">
                 <div className="relative group">
                   {/* Animated gradient border on focus */}
@@ -2466,10 +2461,10 @@ ${productUrl}`;
                   </Button>
                 </div>
               </div>
-            </div>
           </div>
         </div>
 
+        {/* Premium Products Section */}
         <FullWidthContainer className="py-0">
           <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
             style={{
@@ -2480,169 +2475,9 @@ ${productUrl}`;
             {/* Clean frosted glass effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-white/20 rounded-3xl"></div>
             <div className="relative z-10">
-            <div className="space-y-10">
-              {/* v1.9.3 Global Standard Search Bar */}
-              <div className="relative group">
-                {/* ShopLynk gradient focus border */}
-                <div 
-                  className="absolute -inset-1 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-400"
-                  style={{
-                    background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)',
-                    padding: '1px'
-                  }}
-                >
-                  <div className="w-full h-full bg-white rounded-2xl"></div>
-                </div>
-                <div className="absolute inset-0 bg-blue-500/3 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
-                
-                {/* Premium search icon */}
-                <Search className="w-6 h-6 absolute left-5 top-1/2 transform -translate-y-1/2 transition-all duration-300" style={{ color: '#9CA3AF' }} />
-                
-                <Input
-                  type="text"
-                  placeholder="Search for products, brands, or categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-14 pr-14 h-14 text-base border-0 frosted-search transition-all duration-300 font-medium relative z-10"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.75)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#374151'
-                  }}
-                  data-testid="input-search-products"
-                />
-                
-                {searchQuery && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100 transition-all duration-200 z-20"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-
-              {/* v1.8 Enhanced Filters - Perfect Baseline Alignment */}
-              <div className="filter-bar">
-                {/* Left side: Categories label + pills */}
-                <div className="filter-bar__left">
-                  <span className="filter-bar__title text-slate-700 uppercase tracking-wide flex items-center">
-                    <Filter className="w-5 h-5 mr-3 text-blue-600" />
-                    Categories
-                  </span>
-                  <div className="flex flex-wrap gap-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCategoryFilter('all')}
-                      className={`category-pill transition-all duration-300 micro-elevation ${
-                        categoryFilter === 'all' 
-                          ? 'filter-pill-active' 
-                          : 'filter-pill-inactive'
-                      }`}
-                    >
-                      All Categories ({products.length})
-                    </Button>
-                    {categories.slice(0, 6).map(category => {
-                      const count = products.filter(p => p.category === category).length;
-                      const isActive = categoryFilter === category;
-                      return (
-                        <Button
-                          key={category}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setCategoryFilter(category)}
-                          className={`category-pill transition-all duration-300 micro-elevation ${
-                            isActive 
-                              ? 'filter-pill-active' 
-                              : 'filter-pill-inactive'
-                          }`}
-                        >
-                          {category} ({count})
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Right side: Controls */}
-                <div className="flex gap-6 items-center flex-wrap">
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="w-56 sort-dropdown border-0"
-                      style={{
-                        height: 'var(--token-button-height)',
-                        padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
-                        background: '#fff',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: 'var(--token-border-radius)',
-                        boxShadow: 'var(--token-shadow-secondary)',
-                        fontWeight: 'var(--token-font-weight)',
-                        fontSize: 'var(--token-font-size)',
-                        color: '#333',
-                        transition: 'var(--token-transition-default)'
-                      }}>
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-0 shadow-2xl backdrop-blur-xl"
-                      style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(16px)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)'
-                      }}>
-                      <SelectItem value="newest">🆕 Newest First</SelectItem>
-                      <SelectItem value="popular">🔥 Most Popular</SelectItem>
-                      <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
-                      <SelectItem value="price-high">💎 Price: High to Low</SelectItem>
-                      <SelectItem value="name">📝 Name A-Z</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Unified Favorites Button */}
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => setShowFavorites(!showFavorites)}
-                    className={`favorites-chip border-0 ${showFavorites ? 'active' : ''}`}
-                    style={showFavorites ? {
-                      height: 'var(--token-button-height)',
-                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
-                      background: 'var(--token-gradient-primary)',
-                      color: '#fff',
-                      border: 'none',
-                      boxShadow: 'var(--token-shadow-primary)',
-                      borderRadius: 'var(--token-border-radius)',
-                      fontWeight: '600',
-                      fontSize: 'var(--token-font-size)',
-                      transition: 'var(--token-transition-default)'
-                    } : {
-                      height: 'var(--token-button-height)',
-                      padding: 'var(--token-button-padding-y) var(--token-button-padding-x)',
-                      background: '#fff',
-                      color: '#333',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: 'var(--token-border-radius)',
-                      boxShadow: 'var(--token-shadow-secondary)',
-                      fontWeight: 'var(--token-font-weight)',
-                      fontSize: 'var(--token-font-size)',
-                      transition: 'var(--token-transition-default)'
-                    }}
-                    data-testid="button-toggle-favorites"
-                  >
-                    <Heart className={`w-6 h-6 mr-3 transition-transform hover:scale-110 ${showFavorites ? 'fill-current' : ''}`} />
-                    Favorites {favorites.size > 0 && (
-                      <span className="ml-3 inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-all duration-300 hover:scale-110 favorites-badge">
-                        {favorites.size}
-                      </span>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-          </Card>
-
+              {/* Product Grid - Clean Layout */}
+              <div className="space-y-8">
+              
           {/* Enhanced Results Summary */}
           {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
             <div className="mb-8">
@@ -2996,6 +2831,9 @@ ${productUrl}`;
               </Card>
             </div>
           )}
+              </div>
+            </div>
+          </Card>
         </FullWidthContainer>
 
         {/* Floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
