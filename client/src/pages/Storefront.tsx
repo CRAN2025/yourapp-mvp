@@ -1956,6 +1956,142 @@ export default function Storefront() {
               </div>
             </div>
           )}
+          
+          {/* Product Detail Modal */}
+          {showProductModal && selectedProduct && (
+            <div 
+              className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
+              onClick={() => setShowProductModal(false)}
+            >
+              <Card 
+                className="max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Product Image Header */}
+                <div className="relative">
+                  <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
+                    <img
+                      src={getProductImageUrl(selectedProduct) || '/placeholder.jpg'}
+                      alt={selectedProduct.name}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Close Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowProductModal(false)}
+                      className="absolute top-6 right-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                    >
+                      <X className="w-7 h-7" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Product Details */}
+                <CardContent className="p-6 space-y-6">
+                  {/* Header Section */}
+                  <div className="space-y-4">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                      <div className="flex-1 space-y-4">
+                        <div className="space-y-3">
+                          <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">
+                            {selectedProduct.name}
+                          </h2>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <div className="inline-flex items-center px-4 py-2 rounded-md bg-slate-800 text-white text-sm font-semibold">
+                              <span className="mr-2 text-sm flex items-center">📦</span>
+                              {selectedProduct.category}
+                            </div>
+                            {(selectedProduct as any).subcategory && (
+                              <div className="inline-flex items-center px-3 py-1.5 rounded-md bg-slate-600 text-white text-sm font-medium">
+                                {(selectedProduct as any).subcategory}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="lg:text-right space-y-2">
+                        <div className="text-3xl lg:text-4xl font-bold" style={{ color: '#27AE60' }}>
+                          {formatPrice(selectedProduct.price)}
+                        </div>
+                        <div className="text-sm text-slate-500 font-medium">per unit</div>
+                      </div>
+                    </div>
+                    
+                    {/* Stock Status */}
+                    <div className="p-5 rounded-xl border-2" style={{
+                      backgroundColor: selectedProduct.quantity > 10 ? '#E8F5E8' : 
+                                     selectedProduct.quantity > 0 ? '#FFF4E6' : '#FFE6E6',
+                      borderColor: selectedProduct.quantity > 10 ? '#27AE60' : 
+                                  selectedProduct.quantity > 0 ? '#F39C12' : '#E63946'
+                    }}>
+                      <div className="flex items-center gap-4">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-lg ${
+                          selectedProduct.quantity > 10 ? 'bg-emerald-500' :
+                          selectedProduct.quantity > 0 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}>
+                          <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-lg" style={{
+                            color: selectedProduct.quantity > 10 ? '#27AE60' : 
+                                   selectedProduct.quantity > 0 ? '#D68910' : '#C0392B'
+                          }}>
+                            {selectedProduct.quantity > 10 ? 'In stock & ready to ship' :
+                             selectedProduct.quantity > 0 ? `Limited stock — Only ${selectedProduct.quantity} left` : 
+                             'Currently out of stock'}
+                          </div>
+                          <div className="text-sm text-slate-600">
+                            {selectedProduct.quantity > 10 ? 'Available for immediate delivery' :
+                             selectedProduct.quantity > 0 ? 'Order soon to secure your item' :
+                             'Contact seller for availability updates'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {selectedProduct.description && (
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-bold text-gray-800">Product Description</h3>
+                      <div className="prose prose-slate max-w-none">
+                        <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                          {selectedProduct.description}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* CTA Section */}
+                  <div className="pt-6 border-t border-slate-200">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      {seller?.whatsappNumber ? (
+                        <Button
+                          size="lg"
+                          className="flex-1 bg-[#25D366] hover:bg-[#1DA851] text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                          onClick={() => {
+                            if (selectedProduct) {
+                              handleContactProduct(selectedProduct);
+                            }
+                          }}
+                        >
+                          <MessageCircle className="w-6 h-6 mr-3" />
+                          Contact Seller on WhatsApp
+                        </Button>
+                      ) : (
+                        <div className="flex-1 p-4 bg-gray-100 rounded-xl text-center">
+                          <p className="text-gray-600 font-medium">Preview Mode - WhatsApp Required</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </DashboardLayout>
     </>
