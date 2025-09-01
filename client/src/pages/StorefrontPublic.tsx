@@ -2233,7 +2233,7 @@ ${productUrl}`;
         }
       `}</style>
 
-      <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
+      <div className="min-h-screen" style={{ background: '#f6f8ff' }}>
         {/* Premium Hero Store Header */}
         <div className="relative overflow-hidden">
           {/* Background pattern overlay */}
@@ -2353,11 +2353,31 @@ ${productUrl}`;
               <Button
                 onClick={() => openWhatsApp(seller.whatsappNumber, `Hi! I found your store on ShopLynk and I'm interested in your products.`)}
                 style={{
-                  ..._ui.ctaPrimary,
+                  height: '52px',
+                  borderRadius: '16px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  color: '#fff',
                   background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                  boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)'
+                  backgroundSize: '180% 100%',
+                  backgroundPosition: '0% 50%',
+                  boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)',
+                  border: 'none',
+                  transition: 'transform .15s ease, box-shadow .15s ease, background-position .2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
-                className="text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundPosition = '100% 50%';
+                  e.currentTarget.style.boxShadow = '0 16px 40px rgba(37, 211, 102, 0.35)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundPosition = '0% 50%';
+                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(37, 211, 102, 0.28)';
+                }}
+                onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(1px)'}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 <MessageCircle className="w-6 h-6 mr-3" />
                 Contact on WhatsApp
@@ -2366,8 +2386,22 @@ ${productUrl}`;
           </div>
         </div>
 
-        {/* ShopLynk Branded Header Section */}
-        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-b border-slate-100">
+        {/* ShopLynk Branded Header Section - Landing Page Style */}
+        <div className="glass card" style={{
+          width: '100vw',
+          position: 'relative',
+          left: '50%',
+          right: '50%',
+          marginLeft: '-50vw',
+          marginRight: '-50vw',
+          background: 'rgba(255,255,255,.85)',
+          border: '1px solid rgba(255,255,255,.4)',
+          backdropFilter: 'saturate(160%) blur(14px)',
+          WebkitBackdropFilter: 'saturate(160%) blur(14px)',
+          boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
+          borderRadius: '0',
+          marginBottom: '24px'
+        }}>
           <div className="max-w-7xl mx-auto px-6 py-6">
             <div className="flex items-center justify-between">
               {/* ShopLynk Brand */}
@@ -2378,9 +2412,9 @@ ${productUrl}`;
               </Link>
               
               {/* Powered by ShopLynk */}
-              <div className="flex items-center gap-3 text-slate-600">
+              <div className="flex items-center gap-3" style={{ color: '#374151' }}>
                 <span className="text-sm font-medium">Powered by</span>
-                <Link href="/" className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                <Link href="/" className="text-sm font-bold" style={{ color: '#5a6bff' }}>
                   ShopLynk
                 </Link>
               </div>
@@ -2388,55 +2422,100 @@ ${productUrl}`;
           </div>
         </div>
 
-        {/* Edge-to-Edge Search & Filter Section */}
-        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
+        {/* Edge-to-Edge Search & Filter Section - Landing Page Glass */}
+        <div className="glass heroGlass" style={{
+          width: '100vw',
+          position: 'relative',
+          left: '50%',
+          right: '50%',
+          marginLeft: '-50vw',
+          marginRight: '-50vw',
+          background: 'rgba(255,255,255,.75)',
+          border: '1px solid rgba(255,255,255,.4)',
+          backdropFilter: 'saturate(160%) blur(14px)',
+          WebkitBackdropFilter: 'saturate(160%) blur(14px)',
+          boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
+          borderRadius: '24px',
+          marginBottom: '24px',
+          paddingTop: '64px',
+          paddingBottom: '64px'
+        }}>
           <div className="max-w-7xl mx-auto px-6">
-            {/* Section title with landing page typography */}
+            {/* Section title with exact landing page typography */}
             <div className="text-center mb-12">
-              <h2 className="font-black text-gray-900 mb-4" style={{
+              <h2 style={{
                 fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
                 fontSize: 'clamp(40px, 7vw, 64px)',
-                lineHeight: 1.1,
-                letterSpacing: '-0.02em'
+                lineHeight: 1.06,
+                letterSpacing: '-0.02em',
+                fontWeight: 900,
+                color: '#111827',
+                margin: '0 0 16px 0'
               }}>
                 Discover Amazing Products
               </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
+              <p style={{
+                color: '#374151',
+                fontSize: '18px',
+                lineHeight: 1.65,
+                margin: '0 0 24px 0',
+                fontWeight: 500,
+                maxWidth: '32rem',
+                marginLeft: 'auto',
+                marginRight: 'auto'
+              }}>
                 Explore our curated collection of premium products designed to exceed your expectations
               </p>
             </div>
             
-            {/* Ultra-Premium Search Bar */}
-              <div className="relative mb-8">
-                <div className="relative group">
-                  {/* Animated gradient border on focus */}
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-sm opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
-                  <div className="relative">
-                    {/* Enhanced search icon with color transition */}
-                    <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-blue-600 transition-all duration-300" />
-                    <Input
-                      type="text"
-                      placeholder="Search for products, brands, categories..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="h-14 pl-16 pr-16 text-lg bg-white/80 border-2 border-gray-200 rounded-2xl focus:border-transparent focus:ring-0 transition-all duration-300 shadow-lg hover:shadow-xl focus:shadow-2xl"
-                      style={{ 
-                        backdropFilter: 'blur(8px)',
-                        WebkitBackdropFilter: 'blur(8px)'
-                      }}
-                    />
-                    {searchQuery && (
-                      <Button
-                        variant="ghost"
-                        onClick={() => setSearchQuery('')}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
+            {/* Landing Page Style Search Bar */}
+            <div className="glass card" style={{
+              marginBottom: '32px',
+              background: 'rgba(255,255,255,.75)',
+              border: '1px solid rgba(255,255,255,.4)',
+              backdropFilter: 'saturate(160%) blur(14px)',
+              WebkitBackdropFilter: 'saturate(160%) blur(14px)',
+              boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
+              borderRadius: '16px',
+              padding: '24px'
+            }}>
+              <div className="relative">
+                <div className="relative">
+                  <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6" style={{ color: '#374151', opacity: 0.6 }} />
+                  <Input
+                    type="text"
+                    placeholder="Search for products, brands, categories..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                      height: '52px',
+                      paddingLeft: '56px',
+                      paddingRight: '56px',
+                      fontSize: '16px',
+                      fontWeight: 500,
+                      border: '1px solid rgba(255,255,255,.4)',
+                      borderRadius: '16px',
+                      background: 'rgba(255,255,255,.85)',
+                      backdropFilter: 'saturate(160%) blur(14px)',
+                      WebkitBackdropFilter: 'saturate(160%) blur(14px)',
+                      boxShadow: '0 4px 12px rgba(15, 23, 42, .06)',
+                      transition: 'all 0.15s ease'
+                    }}
+                    className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
+                  />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-white/50 transition-all duration-300"
+                      style={{ background: 'transparent' }}
+                    >
+                      <X className="w-4 h-4" style={{ color: '#374151' }} />
+                    </Button>
+                  )}
                 </div>
               </div>
+            </div>
 
               {/* Smart filter container */}
               <div className="space-y-6">
@@ -2538,19 +2617,26 @@ ${productUrl}`;
           </div>
         </div>
 
-        {/* Premium Products Section */}
-        <FullWidthContainer className="py-0">
-          <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
-            style={{
-              background: 'linear-gradient(135deg, #F9FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
-              backdropFilter: 'blur(8px)',
-              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
-            }}>
-            {/* Clean frosted glass effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-white/20 rounded-3xl"></div>
-            <div className="relative z-10">
-              {/* Product Grid - Clean Layout */}
-              <div className="space-y-8">
+        {/* Premium Products Section - Landing Page Glass */}
+        <div className="glass heroGlass" style={{
+          width: '100vw',
+          position: 'relative',
+          left: '50%',
+          right: '50%',
+          marginLeft: '-50vw',
+          marginRight: '-50vw',
+          background: 'rgba(255,255,255,.75)',
+          border: '1px solid rgba(255,255,255,.4)',
+          backdropFilter: 'saturate(160%) blur(14px)',
+          WebkitBackdropFilter: 'saturate(160%) blur(14px)',
+          boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
+          borderRadius: '24px',
+          marginBottom: '24px',
+          paddingTop: '40px',
+          paddingBottom: '40px'
+        }}>
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="space-y-8">
               
           {/* Enhanced Results Summary */}
           {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
@@ -2699,14 +2785,14 @@ ${productUrl}`;
                           {formatPrice(product.price)}
                         </span>
                         {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
-                          <>
+                          <div>
                             <span className="product-compare-price">
                               {formatPrice((product as any).compareAtPrice)}
                             </span>
                             <span className="product-discount-badge">
                               -{Math.round((((product as any).compareAtPrice - product.price) / (product as any).compareAtPrice) * 100)}%
                             </span>
-                          </>
+                          </div>
                         )}
                       </div>
 
@@ -2729,26 +2815,41 @@ ${productUrl}`;
                           <button
                             className="product-cta-primary"
                             style={{
+                              height: '52px',
+                              borderRadius: '16px',
+                              fontSize: '16px',
+                              fontWeight: 700,
+                              color: '#fff',
                               background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                              boxShadow: '0 8px 20px rgba(37, 211, 102, 0.25)',
-                              borderRadius: '12px',
-                              height: '44px',
-                              padding: '0 16px',
-                              fontWeight: '700',
-                              fontSize: '14px',
-                              color: 'white',
+                              backgroundSize: '180% 100%',
+                              backgroundPosition: '0% 50%',
+                              boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)',
                               border: 'none',
                               cursor: 'pointer',
-                              transition: 'all 0.2s ease'
+                              transition: 'transform .15s ease, box-shadow .15s ease, background-position .2s ease',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '100%'
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleContactProduct(product);
                             }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundPosition = '100% 50%';
+                              e.currentTarget.style.boxShadow = '0 16px 40px rgba(37, 211, 102, 0.35)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundPosition = '0% 50%';
+                              e.currentTarget.style.boxShadow = '0 12px 30px rgba(37, 211, 102, 0.28)';
+                            }}
+                            onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(1px)'}
+                            onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                             aria-label={`Contact seller about ${product.name} on WhatsApp`}
                             data-testid={`button-whatsapp-${product.id}`}
                           >
-                            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                            <MessageCircle className="h-5 w-5 mr-2" aria-hidden="true" />
                             Contact Seller
                           </button>
                         ) : isOwner ? (
@@ -2920,8 +3021,8 @@ ${productUrl}`;
           )}
               </div>
             </div>
-          </Card>
-        </FullWidthContainer>
+          </div>
+        </div>
 
         {/* Floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
 
@@ -3154,7 +3255,7 @@ ${productUrl}`;
 
                   {/* Navigation Arrows */}
                   {filteredProducts.length > 1 && (
-                    <>
+                    <div>
                       {filteredProducts.findIndex(p => p.id === selectedProduct.id) > 0 && (
                         <Button
                           variant="ghost"
@@ -3186,7 +3287,7 @@ ${productUrl}`;
                           <ChevronDown className="w-7 h-7 -rotate-90" />
                         </Button>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
