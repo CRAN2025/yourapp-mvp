@@ -1295,6 +1295,22 @@ export default function Storefront() {
           letter-spacing: -0.02em;
         }
         
+        .product-compare-price {
+          font-size: 14px;
+          color: #6B7280;
+          text-decoration: line-through;
+        }
+        
+        .product-discount-badge {
+          background: #EF4444;
+          color: #ffffff;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 2px 6px;
+          border-radius: 4px;
+          margin-left: 8px;
+        }
+        
         /* ENTERPRISE CATEGORY PILLS */
         .product-category-section {
           display: flex;
@@ -1329,6 +1345,30 @@ export default function Storefront() {
           flex-direction: column;
           gap: 8px;
           margin-top: 12px;
+        }
+        
+        .product-cta-primary {
+          width: 100%;
+          background: #25D366;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);
+        }
+        
+        .product-cta-primary:hover {
+          background: #1DA851;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(37, 211, 102, 0.4);
         }
         
         .whatsapp-cta-primary {
@@ -1725,9 +1765,9 @@ export default function Storefront() {
                             <span className="product-category-pill">
                               📦 {product.category}
                             </span>
-                            {(product as any).subcategory && (
+                            {product.subcategory && (
                               <span className="product-category-pill">
-                                {(product as any).subcategory}
+                                {product.subcategory}
                               </span>
                             )}
                           </div>
@@ -1742,18 +1782,14 @@ export default function Storefront() {
                                   e.stopPropagation();
                                   handleContactProduct(product);
                                 }}
-                                disabled={cardLoadingStates[`contact-${product.id}`]}
                                 aria-label={`Contact seller about ${product.name} on WhatsApp`}
                                 data-testid={`button-whatsapp-${product.id}`}
                               >
-                                {cardLoadingStates[`contact-${product.id}`] ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                                )}
-                                Contact Seller (Preview)
+                                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                                Contact Seller
                               </button>
-                            ) : (
+                            ) : isOwner ? (
+                              // Seller console preview - disabled button with tooltip
                               <div className="relative group">
                                 <Button
                                   disabled
@@ -1767,7 +1803,7 @@ export default function Storefront() {
                                   data-testid={`button-whatsapp-disabled-${product.id}`}
                                 >
                                   <MessageCircle className="h-4 w-4 mr-2" aria-hidden="true" />
-                                  Contact Seller (Preview)
+                                  Contact Seller
                                 </Button>
                                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                   <div className="bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
@@ -1776,7 +1812,7 @@ export default function Storefront() {
                                   </div>
                                 </div>
                               </div>
-                            )}
+                            ) : null}
                             
                             {/* Out of stock caption */}
                             {seller?.whatsappNumber && product.quantity <= 0 && (
