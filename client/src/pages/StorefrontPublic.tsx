@@ -2854,13 +2854,13 @@ ${productUrl}`;
             className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
             onClick={() => setShowProductModal(false)}
           >
-            <Card 
-              className="max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
+            <div 
+              className="max-w-7xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Ultra-Premium Product Image Header */}
+              {/* Hero Product Image */}
               <div className="relative">
-                <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
+                <div className="aspect-[21/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-100 via-white to-gray-50">
                   <img
                     src={getProductImageUrl(selectedProduct) || PLACEHOLDER_IMAGE}
                     alt={selectedProduct.name}

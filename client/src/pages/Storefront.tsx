@@ -1968,36 +1968,44 @@ export default function Storefront() {
             </div>
           )}
           
-          {/* Ultra-Premium Product Detail Modal */}
+          {/* Revolutionary Product Detail Modal */}
           {showProductModal && selectedProduct && (
             <div 
               className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
               onClick={() => setShowProductModal(false)}
             >
-              <Card 
-                className="max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
+              <div 
+                className="max-w-7xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Ultra-Premium Product Image Header */}
+                {/* Hero Product Image */}
                 <div className="relative">
-                  <div className="aspect-[16/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-slate-100 to-slate-50">
+                  <div className="aspect-[21/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-100 via-white to-gray-50">
                     <img
                       src={getProductImageUrl(selectedProduct) || '/placeholder.jpg'}
                       alt={selectedProduct.name}
                       className="w-full h-full object-cover"
+                      onLoad={(e) => handleImageLoad(selectedProduct.id, e)}
+                      onError={handleImageError}
                     />
                     
-                    {/* Enhanced overlay with gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                    {/* Premium overlay gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
                     
-                    {/* Enhanced Close Button */}
+                    {/* Quality warning for sellers */}
+                    {lowResImages[selectedProduct.id] && isOwner && (
+                      <div className="absolute top-6 left-6 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-full font-bold shadow-xl animate-pulse">
+                        ⚠️ Low Quality Image - Upload HD for better conversions
+                      </div>
+                    )}
+                    
+                    {/* Navigation Controls */}
                     <Button
                       variant="ghost"
-                      size="sm"
                       onClick={() => setShowProductModal(false)}
-                      className="absolute top-6 right-6 w-14 h-14 bg-white/90 backdrop-blur-md hover:bg-white rounded-full shadow-xl transition-all duration-300 hover:scale-110"
+                      className="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-full shadow-xl transition-all duration-300 hover:scale-110 border border-white/20"
                     >
-                      <X className="w-7 h-7" />
+                      <X className="w-6 h-6 text-white" />
                     </Button>
 
                     {/* Navigation Arrows */}
@@ -2036,6 +2044,59 @@ export default function Storefront() {
                         )}
                       </>
                     )}
+
+                    {/* Premium floating info card */}
+                    <div className="absolute bottom-6 left-6 right-6">
+                      <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/50">
+                        <div className="flex items-start justify-between gap-6">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h2 className="text-2xl font-black text-gray-900">
+                                {selectedProduct.name}
+                              </h2>
+                              <Badge className="bg-blue-500 text-white px-3 py-1 text-sm">
+                                {selectedProduct.category}
+                              </Badge>
+                            </div>
+                            
+                            {selectedProduct.brand && (
+                              <p className="text-gray-600 font-medium mb-3 uppercase tracking-wider text-sm">
+                                {selectedProduct.brand}
+                              </p>
+                            )}
+                            
+                            <div className="flex items-center gap-4">
+                              <div className="text-3xl font-black text-green-600">
+                                {formatPrice(selectedProduct.price)}
+                              </div>
+                              {(selectedProduct as any).compareAtPrice && (selectedProduct as any).compareAtPrice > selectedProduct.price && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl text-gray-400 line-through">
+                                    {formatPrice((selectedProduct as any).compareAtPrice)}
+                                  </span>
+                                  <Badge className="bg-red-500 text-white">
+                                    -{Math.round((((selectedProduct as any).compareAtPrice - selectedProduct.price) / (selectedProduct as any).compareAtPrice) * 100)}% OFF
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Quick action buttons */}
+                          <div className="flex gap-3">
+                            {seller?.whatsappNumber && !isOwner && (
+                              <Button
+                                onClick={() => handleContactProduct(selectedProduct)}
+                                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                              >
+                                <MessageCircle className="w-5 h-5 mr-2" />
+                                Contact Now
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
@@ -2109,6 +2170,86 @@ export default function Storefront() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Product Description */}
+                  {selectedProduct.description && (
+                    <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                        <Info className="w-6 h-6 text-blue-600" />
+                        Product Description
+                      </h3>
+                      <p className="text-gray-700 leading-relaxed text-lg">
+                        {selectedProduct.description}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Product Attributes Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[
+                      { label: 'Brand', value: selectedProduct.brand, icon: '🏷️', color: 'blue' },
+                      { label: 'Condition', value: selectedProduct.condition, icon: '⭐', color: 'green' },
+                      { label: 'Size', value: selectedProduct.size, icon: '📏', color: 'purple' },
+                      { label: 'Color', value: selectedProduct.color, icon: '🎨', color: 'pink' },
+                      { label: 'Material', value: selectedProduct.material, icon: '🧵', color: 'indigo' },
+                      { label: 'Weight', value: (selectedProduct as any).weight, icon: '⚖️', color: 'gray' },
+                    ].filter(item => item.value).map((item, index) => (
+                      <div key={index} className={`bg-${item.color}-50 border border-${item.color}-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300`}>
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-2xl">{item.icon}</span>
+                          <span className={`text-sm font-bold text-${item.color}-700 uppercase tracking-wider`}>
+                            {item.label}
+                          </span>
+                        </div>
+                        <p className={`font-bold text-xl text-${item.color}-900 capitalize`}>{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Special Features */}
+                  {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).giftWrapping) && (
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                        <Sparkles className="w-6 h-6 text-purple-600" />
+                        Special Features
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {(selectedProduct as any).isHandmade && (
+                          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm">
+                            <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-lg">🎨</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-purple-900">Handmade</p>
+                              <p className="text-purple-700 text-sm">Crafted with care</p>
+                            </div>
+                          </div>
+                        )}
+                        {(selectedProduct as any).isCustomizable && (
+                          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm">
+                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-lg">⚙️</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-blue-900">Customizable</p>
+                              <p className="text-blue-700 text-sm">Made to order</p>
+                            </div>
+                          </div>
+                        )}
+                        {(selectedProduct as any).giftWrapping && (
+                          <div className="flex items-center gap-3 p-4 bg-white rounded-xl shadow-sm">
+                            <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-lg">🎁</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-pink-900">Gift Wrapping</p>
+                              <p className="text-pink-700 text-sm">Available upon request</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Enhanced Special Features Showcase */}
                   {(selectedProduct.isHandmade || selectedProduct.isCustomizable || selectedProduct.giftWrapping) && (
@@ -2314,7 +2455,7 @@ export default function Storefront() {
                     </div>
                   )}
                 </CardContent>
-              </Card>
+              </div>
             </div>
           )}
         </div>
