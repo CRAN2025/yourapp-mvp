@@ -1732,8 +1732,17 @@ export default function Storefront() {
             </FullWidthContainer>
           )}
 
-          {/* ShopLynk Branded Header Section */}
-          <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-b border-slate-100">
+          {/* ShopLynk Branded Header Section - Landing Page Glass */}
+          <div className="glass card" style={{
+            width: '100vw',
+            position: 'relative',
+            left: '50%',
+            right: '50%',
+            marginLeft: '-50vw',
+            marginRight: '-50vw',
+            borderRadius: '0',
+            marginBottom: '24px'
+          }}>
             <div className="max-w-7xl mx-auto px-6 py-6">
               <div className="flex items-center justify-between">
                 {/* ShopLynk Brand */}
@@ -1744,10 +1753,10 @@ export default function Storefront() {
                 </Link>
                 
                 {/* Seller Preview Mode */}
-                <div className="flex items-center gap-3 text-slate-600">
-                  <Badge className="bg-blue-100 text-blue-800">Seller Preview</Badge>
+                <div className="flex items-center gap-3" style={{ color: '#374151' }}>
+                  <Badge style={{ background: '#e7ecff', color: '#5a6bff', border: 'none' }}>Seller Preview</Badge>
                   <span className="text-sm font-medium">Powered by</span>
-                  <Link href="/" className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                  <Link href="/" className="text-sm font-bold" style={{ color: '#5a6bff' }}>
                     ShopLynk
                   </Link>
                 </div>
@@ -1755,20 +1764,42 @@ export default function Storefront() {
             </div>
           </div>
 
-          {/* Edge-to-Edge Search & Filter Section - Seller Preview */}
-          <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
+          {/* Edge-to-Edge Search & Filter Section - Landing Page Glass */}
+          <div className="glass heroGlass" style={{
+            width: '100vw',
+            position: 'relative',
+            left: '50%',
+            right: '50%',
+            marginLeft: '-50vw',
+            marginRight: '-50vw',
+            marginBottom: '24px',
+            paddingTop: '64px',
+            paddingBottom: '64px'
+          }}>
             <div className="max-w-7xl mx-auto px-6">
-              {/* Section title with landing page typography */}
+              {/* Section title with exact landing page typography */}
               <div className="text-center mb-12">
-                <h2 className="font-black text-gray-900 mb-4" style={{
+                <h2 style={{
                   fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
                   fontSize: 'clamp(40px, 7vw, 64px)',
-                  lineHeight: 1.1,
-                  letterSpacing: '-0.02em'
+                  lineHeight: 1.06,
+                  letterSpacing: '-0.02em',
+                  fontWeight: 900,
+                  color: '#111827',
+                  margin: '0 0 16px 0'
                 }}>
                   Discover Amazing Products
                 </h2>
-                <p className="text-xl text-gray-600 max-w-2xl mx-auto font-medium">
+                <p style={{
+                  color: '#374151',
+                  fontSize: '18px',
+                  lineHeight: 1.65,
+                  margin: '0 0 24px 0',
+                  fontWeight: 500,
+                  maxWidth: '32rem',
+                  marginLeft: 'auto',
+                  marginRight: 'auto'
+                }}>
                   Preview how customers explore your curated collection
                 </p>
               </div>

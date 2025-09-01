@@ -242,3 +242,25 @@
     background-clip: unset !important; 
   }
 }
+
+/* Landing Page Background for Store Pages */
+body {
+  background: #f6f8ff;
+}
+
+/* Glass morphism effects matching landing page */
+.glass {
+  background: rgba(255,255,255,.75);
+  border: 1px solid rgba(255,255,255,.4);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .08);
+}
+
+.glass.card { 
+  border-radius: 16px; 
+}
+
+.glass.heroGlass { 
+  border-radius: 24px; 
+}
