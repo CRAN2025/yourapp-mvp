@@ -1,0 +1,252 @@
+        {/* Revolutionary Product Detail Modal */}
+        {showProductModal && selectedProduct && (
+          <div 
+            className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4" 
+            onClick={() => setShowProductModal(false)}
+          >
+            <div 
+              className="max-w-7xl w-full max-h-[95vh] overflow-y-auto bg-white shadow-2xl border-0 rounded-3xl animate-fadeInScale" 
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Hero Product Image */}
+              <div className="relative">
+                <div className="aspect-[21/9] relative overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-100 via-white to-gray-50">
+                  <img
+                    src={getProductImageUrl(selectedProduct) || PLACEHOLDER_IMAGE}
+                    alt={selectedProduct.name}
+                    className="w-full h-full object-cover"
+                    onLoad={(e) => handleImageLoad(selectedProduct.id, e)}
+                    onError={handleImageError}
+                  />
+                  
+                  {/* Premium overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                  
+                  {/* Quality warning for sellers */}
+                  {lowResImages[selectedProduct.id] && isOwner && (
+                    <div className="absolute top-6 left-6 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-full font-bold shadow-xl animate-pulse">
+                      ⚠️ Low Quality Image - Upload HD for better conversions
+                    </div>
+                  )}
+                  
+                  {/* Navigation Controls */}
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowProductModal(false)}
+                    className="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-full shadow-xl transition-all duration-300 hover:scale-110 border border-white/20"
+                  >
+                    <X className="w-6 h-6 text-white" />
+                  </Button>
+                  
+                  {!isOwner && (
+                    <Button
+                      variant="ghost"
+                      onClick={(e) => toggleFavorite(selectedProduct.id, e)}
+                      className={`absolute top-6 left-6 w-12 h-12 backdrop-blur-sm rounded-full shadow-xl transition-all duration-300 hover:scale-110 border ${
+                        favorites.has(selectedProduct.id)
+                          ? 'bg-red-500/20 hover:bg-red-500/30 border-red-300/50 text-red-100'
+                          : 'bg-white/10 hover:bg-white/20 border-white/20 text-white'
+                      }`}
+                    >
+                      <Heart 
+                        className="w-6 h-6" 
+                        fill={favorites.has(selectedProduct.id) ? 'currentColor' : 'none'} 
+                      />
+                    </Button>
+                  )}
+
+                  {/* Product navigation arrows */}
+                  {filteredProducts.length > 1 && (
+                    <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-6 pointer-events-none">
+                      {filteredProducts.findIndex(p => p.id === selectedProduct.id) > 0 && (
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+                            const prevProduct = filteredProducts[currentIndex - 1];
+                            setSelectedProduct(prevProduct);
+                            window.history.replaceState(null, '', `#${prevProduct.id}`);
+                          }}
+                          className="w-12 h-12 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-full shadow-xl transition-all duration-300 hover:scale-110 border border-white/20 text-white pointer-events-auto"
+                        >
+                          <ChevronDown className="w-6 h-6 rotate-90" />
+                        </Button>
+                      )}
+                      
+                      {filteredProducts.findIndex(p => p.id === selectedProduct.id) < filteredProducts.length - 1 && (
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            const currentIndex = filteredProducts.findIndex(p => p.id === selectedProduct.id);
+                            const nextProduct = filteredProducts[currentIndex + 1];
+                            setSelectedProduct(nextProduct);
+                            window.history.replaceState(null, '', `#${nextProduct.id}`);
+                          }}
+                          className="w-12 h-12 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-full shadow-xl transition-all duration-300 hover:scale-110 border border-white/20 text-white pointer-events-auto"
+                        >
+                          <ChevronDown className="w-6 h-6 -rotate-90" />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Premium floating info card */}
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <div className="bg-white/95 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/50">
+                      <div className="flex items-start justify-between gap-6">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h2 className="text-2xl font-black text-gray-900">
+                              {selectedProduct.name}
+                            </h2>
+                            <Badge className="bg-blue-500 text-white px-3 py-1 text-sm">
+                              {selectedProduct.category}
+                            </Badge>
+                          </div>
+                          
+                          {selectedProduct.brand && (
+                            <p className="text-gray-600 font-medium mb-3 uppercase tracking-wider text-sm">
+                              {selectedProduct.brand}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-4">
+                            <div className="text-3xl font-black text-green-600">
+                              {formatPrice(selectedProduct.price)}
+                            </div>
+                            {(selectedProduct as any).compareAtPrice && (selectedProduct as any).compareAtPrice > selectedProduct.price && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xl text-gray-400 line-through">
+                                  {formatPrice((selectedProduct as any).compareAtPrice)}
+                                </span>
+                                <Badge className="bg-red-500 text-white">
+                                  -{Math.round((((selectedProduct as any).compareAtPrice - selectedProduct.price) / (selectedProduct as any).compareAtPrice) * 100)}% OFF
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Quick action buttons */}
+                        <div className="flex gap-3">
+                          {seller?.whatsappNumber && !isOwner && (
+                            <Button
+                              onClick={() => handleContactProduct(selectedProduct)}
+                              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                            >
+                              <MessageCircle className="w-5 h-5 mr-2" />
+                              Contact Now
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Detailed Product Information */}
+              <div className="p-8 space-y-8">
+                {/* Stock Status */}
+                <div className={`rounded-2xl p-6 border-2 ${
+                  selectedProduct.quantity > 10 
+                    ? 'bg-green-50 border-green-200' 
+                    : selectedProduct.quantity > 0 
+                      ? 'bg-orange-50 border-orange-200'
+                      : 'bg-red-50 border-red-200'
+                }`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
+                      selectedProduct.quantity > 10 ? 'bg-green-500' :
+                      selectedProduct.quantity > 0 ? 'bg-orange-500' : 'bg-red-500'
+                    }`}>
+                      <div className="w-4 h-4 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className={`font-bold text-xl ${
+                        selectedProduct.quantity > 10 ? 'text-green-700' :
+                        selectedProduct.quantity > 0 ? 'text-orange-700' : 'text-red-700'
+                      }`}>
+                        {selectedProduct.quantity > 10 ? 'In Stock & Ready to Ship' :
+                         selectedProduct.quantity > 0 ? `Limited Stock - Only ${selectedProduct.quantity} Left!` : 
+                         'Currently Out of Stock'}
+                      </h3>
+                      <p className="text-gray-600 mt-1">
+                        {selectedProduct.quantity > 0 
+                          ? `${selectedProduct.quantity} ${selectedProduct.quantity === 1 ? 'unit' : 'units'} available for immediate purchase`
+                          : 'Contact seller for restocking information'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Product Description */}
+                {selectedProduct.description && (
+                  <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                      <Info className="w-6 h-6 text-blue-600" />
+                      Product Description
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed text-lg">
+                      {selectedProduct.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Product Attributes Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[
+                    { label: 'Brand', value: selectedProduct.brand, icon: '🏷️', color: 'blue' },
+                    { label: 'Condition', value: selectedProduct.condition, icon: '⭐', color: 'green' },
+                    { label: 'Size', value: selectedProduct.size, icon: '📏', color: 'purple' },
+                    { label: 'Color', value: selectedProduct.color, icon: '🎨', color: 'pink' },
+                    { label: 'Material', value: selectedProduct.material, icon: '🧵', color: 'indigo' },
+                    { label: 'Weight', value: (selectedProduct as any).weight, icon: '⚖️', color: 'gray' },
+                  ].filter(item => item.value).map((item, index) => (
+                    <div key={index} className={`bg-${item.color}-50 border border-${item.color}-200 rounded-2xl p-6 hover:shadow-lg transition-all duration-300`}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-2xl">{item.icon}</span>
+                        <span className={`text-sm font-bold text-${item.color}-700 uppercase tracking-wider`}>
+                          {item.label}
+                        </span>
+                      </div>
+                      <p className={`font-bold text-xl text-${item.color}-900 capitalize`}>{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Special Features */}
+                {((selectedProduct as any).isHandmade || (selectedProduct as any).isCustomizable || (selectedProduct as any).giftWrapping) && (
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                      <Sparkles className="w-6 h-6 text-purple-600" />
+                      Special Features
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {(selectedProduct as any).isHandmade && (
+                        <div className="flex items-center gap-        {/* Store Preview Banner for Sellers */}
+        {isOwner && (
+          <div className="mb-8">
+            <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-xl border-0 overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                      <Globe className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold">Store Preview Mode</h2>
+                      <p className="text-blue-100 text-sm">This is how your customers see your store</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge className="bg-white/20 text-white border-white/30">
+                      Public View
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
