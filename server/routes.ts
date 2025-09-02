@@ -21,7 +21,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const admin = await import('firebase-admin');
       const firestore = await import('firebase-admin/firestore');
       
-      if (!admin.getApps().length) {
+      try {
+        admin.app();
+      } catch {
         admin.initializeApp({
           projectId: 'yourapp-mvp'
         });
@@ -111,7 +113,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const admin = await import('firebase-admin');
       const firestore = await import('firebase-admin/firestore');
       
-      if (!admin.getApps().length) {
+      try {
+        admin.app();
+      } catch {
         admin.initializeApp({
           projectId: 'yourapp-mvp'
         });

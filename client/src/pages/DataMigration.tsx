@@ -111,10 +111,10 @@ export default function DataMigration() {
       } else {
         throw new Error(result.error || 'Migration failed');
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Migration Failed',
-        description: error.message,
+        description: error?.message || 'An error occurred during migration',
         variant: 'destructive',
       });
     } finally {
@@ -243,7 +243,7 @@ export default function DataMigration() {
                   disabled={loading || !newUserId || !userData}
                   className="w-full"
                 >
-                  {loading ? <LoadingSpinner className="mr-2" /> : null}
+                  {loading ? <LoadingSpinner size="sm" className="mr-2" /> : null}
                   Migrate Data
                 </Button>
               </>
