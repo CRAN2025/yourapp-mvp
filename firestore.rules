@@ -19,8 +19,10 @@ service cloud.firestore {
     
     // Stores collection - users can read/write stores they own
     match /stores/{storeId} {
-      allow read, write: if request.auth != null && 
-        request.auth.uid == resource.data.ownerUid;
+      allow read: if request.auth != null && 
+        (resource == null || request.auth.uid == resource.data.ownerUid);
+      allow write: if request.auth != null && 
+        (resource == null || request.auth.uid == resource.data.ownerUid);
       allow create: if request.auth != null && 
         request.auth.uid == request.resource.data.ownerUid;
     }
