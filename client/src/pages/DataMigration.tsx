@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ClientMigration from '@/components/ClientMigration';
 
 interface MigrationCandidate {
   collection: string;
@@ -19,6 +20,21 @@ interface MigrationCandidate {
 }
 
 export default function DataMigration() {
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Data Migration Tool</h1>
+        
+        {/* Client-Side Migration Tool */}
+        <div className="mb-8">
+          <ClientMigration />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LegacyDataMigration() {
   const [candidates, setCandidates] = useState<MigrationCandidate[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<MigrationCandidate | null>(null);
