@@ -18,11 +18,8 @@ export default function SellerDashboard() {
       return;
     }
 
-    // Redirect users who haven't completed onboarding
-    if (!loading && user && seller && !seller.onboardingCompleted) {
-      navigate('/onboarding/step-1');
-      return;
-    }
+    // Optional: Show onboarding prompt for incomplete sellers but don't redirect
+    // This allows sellers to access their dashboard regardless of onboarding status
   }, [user, seller, loading, navigate]);
 
   if (loading) {
@@ -71,23 +68,52 @@ export default function SellerDashboard() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
+        {/* Onboarding Alert - if incomplete */}
+        {!seller.onboardingCompleted && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                <Settings className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-amber-800">Complete Your Store Setup</h3>
+                <p className="text-amber-700 text-sm mt-1">
+                  Finish your onboarding to unlock all features and make your store public.
+                </p>
+              </div>
+              <Button
+                onClick={() => navigate('/onboarding/step-1')}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                Continue Setup
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
           <h1 className="text-3xl font-bold mb-2">
             Welcome back, {seller.fullName || 'Seller'}!
           </h1>
           <p className="text-blue-100 text-lg">
-            Manage your store: <span className="font-semibold">{seller.storeName}</span>
+            Manage your store: <span className="font-semibold">{seller.storeName || 'Your Store'}</span>
           </p>
           <div className="mt-4 flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <Store className="w-4 h-4" />
-              <span>{seller.category}</span>
+              <span>{seller.category || 'General Store'}</span>
             </div>
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              <span>{seller.country}</span>
+              <span>{seller.country || 'Unknown'}</span>
             </div>
+            {!seller.onboardingCompleted && (
+              <div className="flex items-center gap-2 bg-amber-500 bg-opacity-20 px-3 py-1 rounded-full">
+                <Settings className="w-4 h-4" />
+                <span>Setup Incomplete</span>
+              </div>
+            )}
           </div>
         </div>
 
