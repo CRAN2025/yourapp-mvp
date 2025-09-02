@@ -1,0 +1,138 @@
+1) Bind servers the Replit way
+
+vite.config.js
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: true,                                  // bind 0.0.0.0
+    port: parseInt(process.env.PORT) || 5173,    // Replit provides PORT
+    hmr: { clientPort: 443 }                     // stable HMR behind Replit proxy
+  }
+})
+
+
+server (Express)
+
+// index.js or server.js
+import express from 'express'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const app = express()
+const PORT = process.env.PORT || 5000
+
+app.set('trust proxy', 1) // Replit proxy/cookies
+
+// --- API routes here ---
+
+// If serving the built React app:
+app.use(express.static('dist'))
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/index.html'))
+})
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server listening on http://0.0.0.0:${PORT}`)
+})
+
+2) Remove hard-coded localhost references
+
+Run these searches and fix them:
+
+grep -Rni "localhost:" src server . | sed -n '1,200p'
+
+
+React Router links: use relative paths
+
+<Link to="/seller-dashboard">Seller Dashboard</Link>
+
+
+API calls: use a base var, defaulting to same-origin
+
+const API_BASE = import.meta.env.VITE_API_BASE || '';
+const r = await fetch(`${API_BASE}/api/whatever`);
+
+3) Set Replit Secrets (env)
+
+Open Tools → Secrets and set:
+
+VITE_API_BASE → (leave empty string)
+(Same-origin on Replit. Locally you can set http://localhost:5000 in a .env.local.)
+
+If your backend verifies Firebase ID tokens, ensure your Firebase Admin creds are set too.
+
+4) Attach Firebase ID token (if backend requires auth)
+
+Front end (where you call secure APIs):
+
+import { auth } from './firebase'
+
+async function authedFetch(url, options = {}) {
+  const token = await auth.currentUser?.getIdToken()
+  const headers = { ...(options.headers || {}) }
+  if (token) headers.Authorization = `Bearer ${token}`
+  return fetch(url, { ...options, headers })
+}
+
+// example:
+await authedFetch(`${API_BASE}/api/secure-stuff`)
+
+
+Backend middleware (Express)
+
+// requireAuth.js
+import admin from 'firebase-admin'
+
+export default async function requireAuth(req, res, next) {
+  const h = req.headers.authorization || ''
+  const token = h.startsWith('Bearer ') ? h.slice(7) : null
+  if (!token) return res.status(401).send('Missing token')
+  try { req.user = await admin.auth().verifyIdToken(token); next() }
+  catch { return res.status(403).send('Invalid token') }
+}
+
+5) Ensure SPA deep links work
+
+You already added the catch-all above. Keep app.use(express.static('dist')) + app.get('*', …) so refreshing /seller-dashboard works.
+
+6) Package scripts (one process on Replit)
+
+If you serve the built React app from Express:
+
+package.json
+
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "node server.js",
+    "start": "npm run build && npm run serve"
+  }
+}
+
+
+Then in Replit, set the Run command to:
+
+npm start
+
+
+(If you prefer two processes—Vite + API—you’ll need concurrently or Replit’s Nix PM2, but the single-process “serve built app” is simpler.)
+
+7) Produce the final URL
+
+Click “Open in new tab” in Replit.
+
+Copy the base URL shown (looks like:
+https://<project-name>.<your-username>.repl.co)
+
+The seller dashboard URL is:
+
+https://<project-name>.<your-username>.repl.co/seller-dashboard

@@ -138,7 +138,7 @@ export default function SimpleSellerDashboard() {
           <h3 className="font-semibold text-gray-900 mb-4">Your Public Store Link</h3>
           <div className="flex items-center gap-3">
             <div className="flex-1 bg-gray-50 p-3 rounded-lg text-sm font-mono">
-              {typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000'}/store/{seller.id}
+              {typeof window !== 'undefined' ? window.location.origin : ''}/store/{seller.id}
             </div>
             <button
               onClick={() => {
