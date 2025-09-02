@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRoute } from "wouter";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
+import { ref, onValue, off } from "firebase/database";
 import { Eye, Search, X, Heart, MessageCircle, Filter, CreditCard, Truck, Globe, Loader2, Info, Sparkles } from "lucide-react";
-import { db } from "@/lib/firebase";
+import { db, database } from "@/lib/firebase";
 import type { Product, Seller } from "@shared/schema";
 import { formatPrice, getProductImageUrl } from "@/lib/utils/formatting";
 import { Button } from "@/components/ui/button";
@@ -56,15 +57,12 @@ export default function PublicStorefrontAligned() {
   // localStorage key
   const favKey = `shoplink_public_favs_${sellerId || "anon"}`;
 
-  // Load seller + products from Firestore
+  // Load seller from Firestore
   useEffect(() => {
     if (!sellerId) return;
 
-    const loadData = async () => {
+    const loadSeller = async () => {
       try {
-        setLoading(true);
-
-        // Load seller data from Firestore
         const sellerRef = doc(db, 'sellers', sellerId);
         const sellerSnap = await getDoc(sellerRef);
         
@@ -72,36 +70,52 @@ export default function PublicStorefrontAligned() {
           const sellerData = { id: sellerId, ...sellerSnap.data() } as Seller;
           console.log('✅ Public Store: Loaded seller data:', sellerData);
           setSeller(sellerData);
-
-          // Load products from Firestore subcollection
-          const productsRef = collection(db, 'sellers', sellerId, 'products');
-          const productsSnap = await getDocs(productsRef);
-          
-          const productsList: Product[] = [];
-          productsSnap.forEach((doc) => {
-            const productData = doc.data() as Omit<Product, 'id'>;
-            if (productData.isActive !== false) { // Include products that are active or undefined
-              productsList.push({ id: doc.id, ...productData });
-            }
-          });
-          
-          setProducts(productsList);
-          console.log('✅ Public Store: Loaded products:', productsList.length);
         } else {
           console.log('❌ Public Store: Seller not found for ID:', sellerId);
           setSeller(null);
-          setProducts([]);
         }
       } catch (error) {
-        console.error('❌ Public Store: Error loading store data:', error);
+        console.error('❌ Public Store: Error loading seller data:', error);
         setSeller(null);
+      }
+    };
+
+    loadSeller();
+  }, [sellerId]);
+
+  // Load products from Realtime Database (matching seller dashboard)
+  useEffect(() => {
+    if (!sellerId) return;
+
+    setLoading(true);
+    const productsRef = ref(database, `sellers/${sellerId}/products`);
+    
+    const unsubscribe = onValue(productsRef, (snapshot) => {
+      try {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const productsList = Object.entries(data)
+            .map(([id, productData]) => ({
+              id,
+              ...(productData as Omit<Product, 'id'>),
+            }))
+            .filter((p) => p.isActive !== false); // Only show active products
+          
+          setProducts(productsList);
+          console.log('✅ Public Store: Loaded products from RTDB:', productsList.length);
+        } else {
+          setProducts([]);
+          console.log('✅ Public Store: No products found in RTDB for seller:', sellerId);
+        }
+      } catch (error) {
+        console.error('❌ Public Store: Error loading products from RTDB:', error);
         setProducts([]);
       } finally {
         setLoading(false);
       }
-    };
+    });
 
-    loadData();
+    return () => off(productsRef, 'value', unsubscribe);
   }, [sellerId]);
 
   // Load favorites
