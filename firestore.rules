@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Profiles collection - users can read/write their own profile
+    match /profiles/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    
+    // Sellers collection - users can read/write their own seller data
+    match /sellers/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      
+      // Products subcollection - seller can read/write their own products
+      match /products/{productId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+    
+    // Stores collection - users can read/write stores they own
+    match /stores/{storeId} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid == resource.data.ownerUid;
+      allow create: if request.auth != null && 
+        request.auth.uid == request.resource.data.ownerUid;
+    }
+    
+    // Onboarding collection - users can read/write their own onboarding progress
+    match /onboarding/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    
+    // Admin collection - only for admin users
+    match /admin/{document=**} {
+      allow read, write: if request.auth != null && 
+        get(/databases/$(database)/documents/sellers/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Default deny all other documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
