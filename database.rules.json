@@ -22,7 +22,7 @@
         ".read": "auth != null && auth.uid == $sellerId",
         "$eid": {
           ".write": "auth != null && auth.token.sign_in_provider == 'anonymous' && root.child('publicStores').child($sellerId).exists()",
-          ".validate": "newData.hasChildren(['type','timestamp']) && newData.child('type').val().matches(/^(store_view|product_view|wa_click)$/) && newData.child('timestamp').isNumber()"
+          ".validate": "newData.hasChildren(['type','timestamp']) && newData.child('type').val().matches('^(store_view|product_view|wa_click)$') && newData.child('timestamp').isNumber()"
         }
       }
     },
