@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { normalizeToE164, isValidPhoneNumber } from '@/lib/utils/phone';
 import { Button } from '@/components/ui/button';
@@ -105,16 +107,45 @@ export default function Auth() {
     const initializeUser = async () => {
       if (user) {
         try {
-          // Initialize user data (profile, store, onboarding)
+          console.log('🔧 Auth: Initializing user bootstrap for UID:', user.uid);
+          
+          // Check if seller profile exists
+          const sellerRef = doc(db, 'sellers', user.uid);
+          const sellerSnap = await getDoc(sellerRef);
+          
+          if (!sellerSnap.exists()) {
+            console.log('🔧 Auth: Creating new seller profile');
+            // Create seller profile with proper structure
+            await setDoc(sellerRef, {
+              id: user.uid,
+              email: user.email || '',
+              storeName: '',
+              category: '',
+              whatsappNumber: '',
+              country: '',
+              onboardingCompleted: false,
+              isAdmin: false,
+              isPublic: false,
+              status: 'draft',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            });
+          }
+
+          // Create/update profile link
+          const profileRef = doc(db, 'profiles', user.uid);
+          await setDoc(profileRef, {
+            sellerId: user.uid, // For current structure, sellerId equals UID
+            updatedAt: Date.now()
+          }, { merge: true });
+
+          // Initialize user data (store, onboarding)
           await ensureBootstrap(user.uid);
           navigate(redirectUrl, { replace: true });
         } catch (error) {
           console.error('Failed to initialize user:', error);
-          toast({
-            title: 'Setup Error',
-            description: 'Failed to initialize your account. Please try again.',
-            variant: 'destructive',
-          });
+          // On Firestore error, redirect to onboarding to ensure user can continue
+          navigate('/onboarding/step-1', { replace: true });
         }
       }
     };
