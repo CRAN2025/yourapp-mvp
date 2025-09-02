@@ -2,34 +2,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isSignedIn() { return request.auth != null; }
-    function isAdmin() {
-      return isSignedIn() && (
-        exists(/databases/$(database)/documents/sellers/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/sellers/$(request.auth.uid)).data.isAdmin == true
-      );
-    }
 
     // Owner profile (keyed by UID)
     match /profiles/{uid} {
-      allow read, write: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
     }
 
     // Seller docs keyed by UID (current app structure)
     match /sellers/{uid} {
-      // read: owner or admin; optionally public storefront
-      allow read: if (isSignedIn() && request.auth.uid == uid) || isAdmin() ||
+      // read: owner or public storefront
+      allow read: if (isSignedIn() && request.auth.uid == uid) ||
                   (resource != null && resource.data.isPublic == true);
 
-      // create/update/delete: owner or admin
-      allow create, update, delete: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+      // create/update/delete: owner only
+      allow create, update, delete: if isSignedIn() && request.auth.uid == uid;
 
       // products subcollection 
       match /products/{productId} {
-        allow read: if (isSignedIn() && request.auth.uid == uid) || isAdmin() ||
+        allow read: if (isSignedIn() && request.auth.uid == uid) ||
                     (resource != null && resource.data.isPublic == true) ||
                     (exists(/databases/$(database)/documents/sellers/$(uid)) &&
                      get(/databases/$(database)/documents/sellers/$(uid)).data.isPublic == true);
-        allow create, update, delete: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+        allow create, update, delete: if isSignedIn() && request.auth.uid == uid;
       }
     }
 
@@ -37,13 +31,13 @@ service cloud.firestore {
     match /stores/{storeId} {
       allow create: if isSignedIn() &&
         request.resource.data.ownerUid == request.auth.uid;
-      allow read, write: if (resource != null &&
-        resource.data.ownerUid == request.auth.uid) || isAdmin();
+      allow read, write: if resource != null &&
+        resource.data.ownerUid == request.auth.uid;
     }
 
     // Onboarding progress keyed by UID
     match /onboarding/{uid} {
-      allow read, write: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
     }
 
     // Public read-only docs (marketing, etc.)
