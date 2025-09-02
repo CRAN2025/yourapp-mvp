@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.isAdmin == true;
+    }
+    function isOwner(sellerId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/sellers/$(sellerId)).data.ownerUid == request.auth.uid;
+    }
+
+    // Owner profile (keyed by UID)
+    match /profiles/{uid} {
+      allow read, write: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+    }
+
+    // Seller docs keyed by sellerId (not UID)
+    // Each seller doc MUST include: { ownerUid: <uid>, isPublic?: bool }
+    match /sellers/{sellerId} {
+      // read: owner or admin; optionally public storefront
+      allow read: if isOwner(sellerId) || isAdmin() ||
+                  (resource != null && resource.data.isPublic == true);
+
+      // create: only if ownerUid equals auth.uid on the incoming doc
+      allow create: if isSignedIn() &&
+                    request.resource.data.ownerUid == request.auth.uid;
+
+      // update/delete: owner or admin
+      allow update, delete: if isOwner(sellerId) || isAdmin();
+
+      // products subcollection (optional isPublic per product)
+      match /products/{productId} {
+        allow read: if isOwner(sellerId) || isAdmin() ||
+                    (resource != null && resource.data.isPublic == true) ||
+                    get(/databases/$(database)/documents/sellers/$(sellerId)).data.isPublic == true;
+        allow create, update, delete: if isOwner(sellerId) || isAdmin();
+      }
+    }
+
+    // Stores keyed by any id, owned by ownerUid
+    match /stores/{storeId} {
+      allow create: if isSignedIn() &&
+        request.resource.data.ownerUid == request.auth.uid;
+      allow read, write: if (resource != null &&
+        resource.data.ownerUid == request.auth.uid) || isAdmin();
+    }
+
+    // Onboarding progress keyed by UID
+    match /onboarding/{uid} {
+      allow read, write: if (isSignedIn() && request.auth.uid == uid) || isAdmin();
+    }
+
+    // Public read-only docs (marketing, etc.)
+    match /public/{doc=**} { allow read: if true; allow write: if false; }
+
+    // Deny everything else
+    match /{document=**} { allow read, write: if false; }
+  }
+}
