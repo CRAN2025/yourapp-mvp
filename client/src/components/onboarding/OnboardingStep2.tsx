@@ -101,11 +101,16 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
   // Remove auto-save - using explicit save buttons instead
 
   const onSubmit = async (data: Step2FormData) => {
-    if (!user) return;
+    if (!user) {
+      console.error('❌ Step 2: No user found for submission');
+      return;
+    }
     
     setIsSubmitting(true);
     try {
       console.log('✅ Step 2: Starting save with data:', data);
+      console.log('✅ Step 2: User UID:', user.uid);
+      console.log('✅ Step 2: Form errors:', form.formState.errors);
       
       // Save the form data to Firestore sellers collection
       const { doc, updateDoc, serverTimestamp } = await import('firebase/firestore');
@@ -317,15 +322,23 @@ export default function OnboardingStep2({ storeId }: OnboardingStep2Props) {
               </Button>
               <Button 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoading}
                 data-testid="button-continue"
                 className="min-w-[120px]"
+                onClick={(e) => {
+                  console.log('✅ Step 2: Continue button clicked');
+                  console.log('✅ Step 2: Form valid:', form.formState.isValid);
+                  console.log('✅ Step 2: Form dirty:', form.formState.isDirty);
+                  console.log('✅ Step 2: Current form values:', form.getValues());
+                }}
               >
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Saving...
                   </div>
+                ) : isLoading ? (
+                  'Loading...'
                 ) : (
                   'Continue'
                 )}
