@@ -35,8 +35,8 @@ const waUrl = (phone?: string, msg?: string) => {
 };
 
 export default function PublicStorefrontAligned() {
-  // /store/:sellerId  (works with wouter; if you pass sellerId as a prop, you can swap this out)
-  const [, params] = useRoute("/store/:sellerId");
+  // /store-aligned/:sellerId  (works with wouter; if you pass sellerId as a prop, you can swap this out)
+  const [, params] = useRoute("/store-aligned/:sellerId");
   const sellerId = params?.sellerId;
 
   const [seller, setSeller] = useState<Seller | null>(null);
