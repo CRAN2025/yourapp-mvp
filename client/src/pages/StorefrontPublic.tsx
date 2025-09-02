@@ -24,48 +24,6 @@ import logoUrl from '@/assets/logo.png';
 // Marketing URL for ShopLink promotion
 const SHOPLINK_MARKETING_URL = import.meta.env.VITE_MARKETING_URL || 'https://shoplink.app';
 
-// Landing page design system constants
-const _ui = {
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 0', gap: '24px' },
-  ctaPrimary: { 
-    display: 'inline-flex', 
-    alignItems: 'center', 
-    justifyContent: 'center',
-    height: '52px',
-    padding: '0 24px',
-    borderRadius: '16px',
-    border: 'none',
-    cursor: 'pointer',
-    fontWeight: 700,
-    fontSize: '16px',
-    color: '#fff',
-    background: 'linear-gradient(135deg,#5a6bff 0%, #67d1ff 100%)',
-    backgroundSize: '180% 100%',
-    backgroundPosition: '0% 50%',
-    boxShadow: '0 12px 30px rgba(90,107,255,.28)',
-    transition: 'background-position .2s ease, box-shadow .15s ease',
-    textDecoration: 'none'
-  }
-};
-
-// Brand wordmark styling matching landing page
-const _brand = {
-  link: { display: 'inline-block', textDecoration: 'none' as const, padding: '10px 0' },
-  text: {
-    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-    fontWeight: 700,
-    letterSpacing: '-0.01em',
-    fontSize: 'clamp(24px, 2.05vw, 30px)',
-    lineHeight: 1.05,
-    whiteSpace: 'nowrap' as const,
-    background: 'linear-gradient(90deg,#3A49FF 0%, #1873FF 100%)',
-    WebkitBackgroundClip: 'text', 
-    backgroundClip: 'text', 
-    color: 'transparent',
-    textShadow: '0 1px 0 rgba(0,0,0,0.06)'
-  }
-};
-
 // Category icon helper function
 const getCategoryIcon = (category: string): string => {
   const iconMap: { [key: string]: string } = {
@@ -2233,7 +2191,7 @@ ${productUrl}`;
         }
       `}</style>
 
-      <div className="min-h-screen" style={{ background: '#f6f8ff' }}>
+      <div className="min-h-screen bg-gradient-to-br from-white to-slate-50 bg-mesh">
         {/* Premium Hero Store Header */}
         <div className="relative overflow-hidden">
           {/* Background pattern overlay */}
@@ -2348,36 +2306,11 @@ ${productUrl}`;
               </div>
             )}
 
-            {/* Primary WhatsApp CTA button - Landing Page Style */}
+            {/* Primary WhatsApp CTA button */}
             {seller?.whatsappNumber && (
               <Button
                 onClick={() => openWhatsApp(seller.whatsappNumber, `Hi! I found your store on ShopLynk and I'm interested in your products.`)}
-                style={{
-                  height: '52px',
-                  borderRadius: '16px',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  color: '#fff',
-                  background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                  backgroundSize: '180% 100%',
-                  backgroundPosition: '0% 50%',
-                  boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)',
-                  border: 'none',
-                  transition: 'transform .15s ease, box-shadow .15s ease, background-position .2s ease',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundPosition = '100% 50%';
-                  e.currentTarget.style.boxShadow = '0 16px 40px rgba(37, 211, 102, 0.35)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundPosition = '0% 50%';
-                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(37, 211, 102, 0.28)';
-                }}
-                onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(1px)'}
-                onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-8 py-4 rounded-2xl text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <MessageCircle className="w-6 h-6 mr-3" />
                 Contact on WhatsApp
@@ -2386,136 +2319,50 @@ ${productUrl}`;
           </div>
         </div>
 
-        {/* ShopLynk Branded Header Section - Landing Page Style */}
-        <div className="glass card" style={{
-          width: '100vw',
-          position: 'relative',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          background: 'rgba(255,255,255,.85)',
-          border: '1px solid rgba(255,255,255,.4)',
-          backdropFilter: 'saturate(160%) blur(14px)',
-          WebkitBackdropFilter: 'saturate(160%) blur(14px)',
-          boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
-          borderRadius: '0',
-          marginBottom: '24px'
-        }}>
-          <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="flex items-center justify-between">
-              {/* ShopLynk Brand */}
-              <Link href="/" style={_brand.link}>
-                <span style={_brand.text} className="brandText">
-                  ShopLynk
-                </span>
-              </Link>
-              
-              {/* Powered by ShopLynk */}
-              <div className="flex items-center gap-3" style={{ color: '#374151' }}>
-                <span className="text-sm font-medium">Powered by</span>
-                <Link href="/" className="text-sm font-bold" style={{ color: '#5a6bff' }}>
-                  ShopLynk
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Edge-to-Edge Search & Filter Section - Landing Page Glass */}
-        <div className="glass heroGlass" style={{
-          width: '100vw',
-          position: 'relative',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          background: 'rgba(255,255,255,.75)',
-          border: '1px solid rgba(255,255,255,.4)',
-          backdropFilter: 'saturate(160%) blur(14px)',
-          WebkitBackdropFilter: 'saturate(160%) blur(14px)',
-          boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
-          borderRadius: '24px',
-          marginBottom: '24px',
-          paddingTop: '64px',
-          paddingBottom: '64px'
-        }}>
+        {/* Edge-to-Edge Search & Filter Section */}
+        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
           <div className="max-w-7xl mx-auto px-6">
-            {/* Section title with exact landing page typography */}
+            {/* Section title */}
             <div className="text-center mb-12">
-              <h2 style={{
-                fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-                fontSize: 'clamp(40px, 7vw, 64px)',
-                lineHeight: 1.06,
-                letterSpacing: '-0.02em',
-                fontWeight: 900,
-                color: '#111827',
-                margin: '0 0 16px 0'
-              }}>
+              <h2 className="text-4xl font-black text-gray-900 mb-4">
                 Discover Amazing Products
               </h2>
-              <p style={{
-                color: '#374151',
-                fontSize: '18px',
-                lineHeight: 1.65,
-                margin: '0 0 24px 0',
-                fontWeight: 500,
-                maxWidth: '32rem',
-                marginLeft: 'auto',
-                marginRight: 'auto'
-              }}>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Explore our curated collection of premium products designed to exceed your expectations
               </p>
             </div>
             
-            {/* Landing Page Style Search Bar */}
-            <div className="glass card" style={{
-              marginBottom: '32px',
-              background: 'rgba(255,255,255,.75)',
-              border: '1px solid rgba(255,255,255,.4)',
-              backdropFilter: 'saturate(160%) blur(14px)',
-              WebkitBackdropFilter: 'saturate(160%) blur(14px)',
-              boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
-              borderRadius: '16px',
-              padding: '24px'
-            }}>
-              <div className="relative">
-                <div className="relative">
-                  <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6" style={{ color: '#374151', opacity: 0.6 }} />
-                  <Input
-                    type="text"
-                    placeholder="Search for products, brands, categories..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{
-                      height: '52px',
-                      paddingLeft: '56px',
-                      paddingRight: '56px',
-                      fontSize: '16px',
-                      fontWeight: 500,
-                      border: '1px solid rgba(255,255,255,.4)',
-                      borderRadius: '16px',
-                      background: 'rgba(255,255,255,.85)',
-                      backdropFilter: 'saturate(160%) blur(14px)',
-                      WebkitBackdropFilter: 'saturate(160%) blur(14px)',
-                      boxShadow: '0 4px 12px rgba(15, 23, 42, .06)',
-                      transition: 'all 0.15s ease'
-                    }}
-                    className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent"
-                  />
-                  {searchQuery && (
-                    <Button
-                      variant="ghost"
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-white/50 transition-all duration-300"
-                      style={{ background: 'transparent' }}
-                    >
-                      <X className="w-4 h-4" style={{ color: '#374151' }} />
-                    </Button>
-                  )}
+            {/* Ultra-Premium Search Bar */}
+              <div className="relative mb-8">
+                <div className="relative group">
+                  {/* Animated gradient border on focus */}
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-sm opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
+                  <div className="relative">
+                    {/* Enhanced search icon with color transition */}
+                    <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-blue-600 transition-all duration-300" />
+                    <Input
+                      type="text"
+                      placeholder="Search for products, brands, categories..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="h-14 pl-16 pr-16 text-lg bg-white/80 border-2 border-gray-200 rounded-2xl focus:border-transparent focus:ring-0 transition-all duration-300 shadow-lg hover:shadow-xl focus:shadow-2xl"
+                      style={{ 
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)'
+                      }}
+                    />
+                    {searchQuery && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full hover:bg-gray-100 transition-all duration-300 hover:scale-110"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
               {/* Smart filter container */}
               <div className="space-y-6">
@@ -2617,26 +2464,19 @@ ${productUrl}`;
           </div>
         </div>
 
-        {/* Premium Products Section - Landing Page Glass */}
-        <div className="glass heroGlass" style={{
-          width: '100vw',
-          position: 'relative',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          background: 'rgba(255,255,255,.75)',
-          border: '1px solid rgba(255,255,255,.4)',
-          backdropFilter: 'saturate(160%) blur(14px)',
-          WebkitBackdropFilter: 'saturate(160%) blur(14px)',
-          boxShadow: '0 10px 30px rgba(15, 23, 42, .08)',
-          borderRadius: '24px',
-          marginBottom: '24px',
-          paddingTop: '40px',
-          paddingBottom: '40px'
-        }}>
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="space-y-8">
+        {/* Premium Products Section */}
+        <FullWidthContainer className="py-0">
+          <Card className="p-10 mb-12 rounded-3xl relative overflow-hidden border border-white/40"
+            style={{
+              background: 'linear-gradient(135deg, #F9FBFF 0%, rgba(255, 255, 255, 0.95) 100%)',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.04)'
+            }}>
+            {/* Clean frosted glass effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-white/20 rounded-3xl"></div>
+            <div className="relative z-10">
+              {/* Product Grid - Clean Layout */}
+              <div className="space-y-8">
               
           {/* Enhanced Results Summary */}
           {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
@@ -2785,14 +2625,14 @@ ${productUrl}`;
                           {formatPrice(product.price)}
                         </span>
                         {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
-                          <div>
+                          <>
                             <span className="product-compare-price">
                               {formatPrice((product as any).compareAtPrice)}
                             </span>
                             <span className="product-discount-badge">
                               -{Math.round((((product as any).compareAtPrice - product.price) / (product as any).compareAtPrice) * 100)}%
                             </span>
-                          </div>
+                          </>
                         )}
                       </div>
 
@@ -2814,42 +2654,14 @@ ${productUrl}`;
                         {seller?.whatsappNumber ? (
                           <button
                             className="product-cta-primary"
-                            style={{
-                              height: '52px',
-                              borderRadius: '16px',
-                              fontSize: '16px',
-                              fontWeight: 700,
-                              color: '#fff',
-                              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                              backgroundSize: '180% 100%',
-                              backgroundPosition: '0% 50%',
-                              boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)',
-                              border: 'none',
-                              cursor: 'pointer',
-                              transition: 'transform .15s ease, box-shadow .15s ease, background-position .2s ease',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: '100%'
-                            }}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleContactProduct(product);
                             }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundPosition = '100% 50%';
-                              e.currentTarget.style.boxShadow = '0 16px 40px rgba(37, 211, 102, 0.35)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundPosition = '0% 50%';
-                              e.currentTarget.style.boxShadow = '0 12px 30px rgba(37, 211, 102, 0.28)';
-                            }}
-                            onMouseDown={(e) => e.currentTarget.style.transform = 'translateY(1px)'}
-                            onMouseUp={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                             aria-label={`Contact seller about ${product.name} on WhatsApp`}
                             data-testid={`button-whatsapp-${product.id}`}
                           >
-                            <MessageCircle className="h-5 w-5 mr-2" aria-hidden="true" />
+                            <MessageCircle className="h-4 w-4" aria-hidden="true" />
                             Contact Seller
                           </button>
                         ) : isOwner ? (
@@ -3021,8 +2833,8 @@ ${productUrl}`;
           )}
               </div>
             </div>
-          </div>
-        </div>
+          </Card>
+        </FullWidthContainer>
 
         {/* Floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD specification */}
 
@@ -3053,30 +2865,6 @@ ${productUrl}`;
           </div>
         )}
         
-        {/* ShopLynk Footer Branding */}
-        <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white border-t border-slate-100 py-12">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-lg text-slate-600 font-medium">Powered by</span>
-                <Link href="/" style={_brand.link}>
-                  <span style={{..._brand.text, fontSize: 'clamp(28px, 2.5vw, 36px)'}} className="brandText">
-                    ShopLynk
-                  </span>
-                </Link>
-              </div>
-              <p className="text-slate-600 max-w-lg mx-auto">
-                Create your own premium online store in minutes. Join thousands of sellers building their business with ShopLynk.
-              </p>
-              <div className="mt-6">
-                <Link href="/" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors">
-                  Start Your Store <ArrowLeft className="w-4 h-4 rotate-180" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Ultra-Premium Payment Methods Modal */}
         {showPaymentModal && (
           <div 
@@ -3255,7 +3043,7 @@ ${productUrl}`;
 
                   {/* Navigation Arrows */}
                   {filteredProducts.length > 1 && (
-                    <div>
+                    <>
                       {filteredProducts.findIndex(p => p.id === selectedProduct.id) > 0 && (
                         <Button
                           variant="ghost"
@@ -3287,7 +3075,7 @@ ${productUrl}`;
                           <ChevronDown className="w-7 h-7 -rotate-90" />
                         </Button>
                       )}
-                    </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -3618,15 +3406,7 @@ ${productUrl}`;
                 <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t-2 border-slate-200">
                   <Button
                     onClick={() => handleContactProduct(selectedProduct)}
-                    style={{
-                      ..._ui.ctaPrimary,
-                      background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-                      boxShadow: '0 12px 30px rgba(37, 211, 102, 0.28)',
-                      fontSize: '18px',
-                      padding: '0 32px',
-                      height: '60px'
-                    }}
-                    className="flex-1 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
+                    className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 py-6 text-xl font-bold rounded-2xl"
                     size="lg"
                   >
                     <MessageCircle className="w-7 h-7 mr-4" />
