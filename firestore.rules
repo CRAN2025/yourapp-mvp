@@ -31,8 +31,9 @@ service cloud.firestore {
     match /stores/{storeId} {
       allow create: if isSignedIn() &&
         request.resource.data.ownerUid == request.auth.uid;
-      allow read, write: if resource != null &&
-        resource.data.ownerUid == request.auth.uid;
+      allow read, write: if isSignedIn() && (
+        resource == null || resource.data.ownerUid == request.auth.uid
+      );
     }
 
     // Onboarding progress keyed by UID
