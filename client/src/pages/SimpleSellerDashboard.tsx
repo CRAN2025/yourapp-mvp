@@ -67,8 +67,8 @@ export default function SimpleSellerDashboard() {
           --ink:#0f172a; --ink-2:#334155; --ink-3:#64748b;
           --surface:rgba(255,255,255,.78); --surface-strong:rgba(255,255,255,.86);
           --border:rgba(2,6,23,.08);
-          --shadow: 0 6px 18px rgba(2,6,23,.06);
-          --shadow-strong: 0 16px 36px rgba(2,6,23,.10);
+          --shadow: 0 5px 14px rgba(2,6,23,.06);
+          --shadow-strong: 0 12px 28px rgba(2,6,23,.10);
           --accent:#5b7cff; --grad-soft:linear-gradient(180deg,#eef5ff 0%,#ffffff 100%);
           --radius-hero:20px; --radius-card:14px; --radius-btn:14px;
         }
@@ -84,13 +84,19 @@ export default function SimpleSellerDashboard() {
           -webkit-backdrop-filter:saturate(140%) blur(10px);
           box-shadow:var(--shadow);
         }
-        .card{border-radius:var(--radius-card)}
+        .card{
+          border-radius:var(--radius-card);
+          border:1px solid rgba(2,6,23,.07);
+        }
         .hero{
           border-radius:var(--radius-hero);
           background:var(--grad-soft);
           border:1px solid rgba(2,6,23,.06);
         }
-        .hero h1 { letter-spacing: -0.015em; }
+        .hero h1 { 
+          letter-spacing: -0.0125em;
+          font-size: clamp(34px, 5vw, 52px);
+        }
 
         /* Buttons (calm + unified) */
         .btn{
@@ -113,23 +119,29 @@ export default function SimpleSellerDashboard() {
 
         /* Grid */
         .grid{display:grid;gap:22px}
-        @media (min-width:769px){ .gridCols{grid-template-columns:repeat(4,minmax(0,1fr))} }
-        @media (max-width:768px){ .gridCols{grid-template-columns:1fr} }
+        @media (min-width:1024px){ .gridCols{grid-template-columns:repeat(4,minmax(0,1fr))} }
+        @media (min-width: 640px) and (max-width: 1023px){ .gridCols{grid-template-columns: repeat(2, minmax(0,1fr))} }
+        @media (max-width:639px){ .gridCols{grid-template-columns:1fr} }
 
         /* Tiles */
-        .tile{padding:22px}
+        .tile{
+          padding:22px;
+          transition:box-shadow .18s ease, transform .12s ease;
+        }
+        .tile:hover{
+          box-shadow:var(--shadow-strong);
+          transform:translateY(-1px);
+        }
         .tileHead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
         .tileIcon{
           width:52px;height:52px;border-radius:12px;display:grid;place-items:center;color:#0f172a;
-          background: linear-gradient(180deg,#f9fbff,#ffffff);
-          border: 1px solid rgba(2,6,23,.05);
+          background:linear-gradient(180deg,#fafcff,#ffffff);
+          border:1px solid rgba(2,6,23,.05);
         }
         
-        /* Tile hover effects */
-        .tile:hover{
-          box-shadow: var(--shadow-strong);
-          transform: translateY(-1px);
-          transition: box-shadow .18s ease, transform .12s ease;
+        /* Mobile tile padding */
+        @media (max-width: 640px){
+          .tile{ padding:18px; }
         }
 
         .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
@@ -151,7 +163,7 @@ export default function SimpleSellerDashboard() {
         {/* Welcome */}
         <section className="glass hero" style={{ padding:22, marginBottom:20 }}>
           <h1 style={{
-            fontSize:'clamp(36px, 6vw, 56px)', lineHeight:1.06, margin:'0 0 8px',
+            lineHeight:1.06, margin:'0 0 8px',
             fontWeight:900, color:'var(--ink)'
           }}>
             Welcome, {seller.fullName || 'Seller'}!
@@ -280,8 +292,8 @@ const btnPrimary = {
   borderRadius: 14,
   fontWeight: 700,
   color: '#0f172a',
-  background: 'linear-gradient(135deg,#e7eeff 0%, #ffffff 100%)',
-  boxShadow: '0 6px 16px rgba(2,6,23,.08)',
+  background: 'linear-gradient(180deg,#ffffff 0%, #f7faff 100%)',
+  boxShadow: '0 5px 14px rgba(2,6,23,.07)',
   cursor: 'pointer',
   transition: 'background-position .2s ease, box-shadow .15s ease, transform .1s ease',
 };
