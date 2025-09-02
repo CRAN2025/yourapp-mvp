@@ -70,6 +70,7 @@ export default function PublicStorefrontAligned() {
         
         if (sellerSnap.exists()) {
           const sellerData = { id: sellerId, ...sellerSnap.data() } as Seller;
+          console.log('✅ Public Store: Loaded seller data:', sellerData);
           setSeller(sellerData);
 
           // Load products from Firestore subcollection
@@ -85,12 +86,14 @@ export default function PublicStorefrontAligned() {
           });
           
           setProducts(productsList);
+          console.log('✅ Public Store: Loaded products:', productsList.length);
         } else {
+          console.log('❌ Public Store: Seller not found for ID:', sellerId);
           setSeller(null);
           setProducts([]);
         }
       } catch (error) {
-        console.error('Error loading store data:', error);
+        console.error('❌ Public Store: Error loading store data:', error);
         setSeller(null);
         setProducts([]);
       } finally {
