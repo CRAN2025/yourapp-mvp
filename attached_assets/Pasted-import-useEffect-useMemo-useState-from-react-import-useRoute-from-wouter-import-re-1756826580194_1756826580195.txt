@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRoute } from "wouter";
 import { ref, onValue, off } from "firebase/database";
-import { doc, getDoc } from "firebase/firestore";
 import { Eye, Search, X, Heart, MessageCircle, Filter, CreditCard, Truck, Globe, Loader2, Info, Sparkles } from "lucide-react";
-import { database, db } from "@/lib/firebase";
+import { database } from "@/lib/firebase";
 import type { Product, Seller } from "@shared/schema";
 import { formatPrice, getProductImageUrl } from "@/lib/utils/formatting";
 import { Button } from "@/components/ui/button";
@@ -35,9 +34,9 @@ const waUrl = (phone?: string, msg?: string) => {
   return `https://wa.me/${digits.replace(/^\+/, "")}?text=${encodeURIComponent(msg || "")}`;
 };
 
-export default function PublicStorefrontAligned() {
-  // /store-aligned/:sellerId  (works with wouter; if you pass sellerId as a prop, you can swap this out)
-  const [, params] = useRoute("/store-aligned/:sellerId");
+export default function PublicStorefront() {
+  // /store/:sellerId  (works with wouter; if you pass sellerId as a prop, you can swap this out)
+  const [, params] = useRoute("/store/:sellerId");
   const sellerId = params?.sellerId;
 
   const [seller, setSeller] = useState<Seller | null>(null);
@@ -57,65 +56,37 @@ export default function PublicStorefrontAligned() {
   // localStorage key
   const favKey = `shoplink_public_favs_${sellerId || "anon"}`;
 
-  // Load seller from Firestore
+  // Load seller + products
   useEffect(() => {
     if (!sellerId) return;
+    const sRef = ref(database, `sellers/${sellerId}`);
+    const pRef = ref(database, `sellers/${sellerId}/products`);
 
-    const loadSeller = async () => {
-      try {
-        const sellerRef = doc(db, 'sellers', sellerId);
-        const sellerSnap = await getDoc(sellerRef);
-        
-        if (sellerSnap.exists()) {
-          const sellerData = { id: sellerId, ...sellerSnap.data() } as Seller;
-          console.log('✅ Public Store: Loaded seller data:', sellerData);
-          setSeller(sellerData);
-        } else {
-          console.log('❌ Public Store: Seller not found for ID:', sellerId);
-          setSeller(null);
+    const unsubS = onValue(sRef, (snap) => setSeller(snap.exists() ? ({ id: sellerId, ...(snap.val() as any) }) : null));
+    const unsubP = onValue(
+      pRef,
+      (snap) => {
+        try {
+          if (!snap.exists()) {
+            setProducts([]);
+          } else {
+            const raw = snap.val();
+            const list = Object.entries(raw)
+              .map(([id, p]) => ({ id, ...(p as Omit<Product, "id">) }))
+              .filter((p) => p.isActive);
+            setProducts(list);
+          }
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('❌ Public Store: Error loading seller data:', error);
-        setSeller(null);
-      }
+      },
+      () => setLoading(false)
+    );
+
+    return () => {
+      off(sRef, "value", unsubS);
+      off(pRef, "value", unsubP);
     };
-
-    loadSeller();
-  }, [sellerId]);
-
-  // Load products from Realtime Database (matching seller dashboard)
-  useEffect(() => {
-    if (!sellerId) return;
-
-    setLoading(true);
-    const productsRef = ref(database, `sellers/${sellerId}/products`);
-    
-    const unsubscribe = onValue(productsRef, (snapshot) => {
-      try {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          const productsList = Object.entries(data)
-            .map(([id, productData]) => ({
-              id,
-              ...(productData as Omit<Product, 'id'>),
-            }))
-            .filter((p) => p.isActive !== false); // Only show active products
-          
-          setProducts(productsList);
-          console.log('✅ Public Store: Loaded products from RTDB:', productsList.length);
-        } else {
-          setProducts([]);
-          console.log('✅ Public Store: No products found in RTDB for seller:', sellerId);
-        }
-      } catch (error) {
-        console.error('❌ Public Store: Error loading products from RTDB:', error);
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    return () => off(productsRef, 'value', unsubscribe);
   }, [sellerId]);
 
   // Load favorites
