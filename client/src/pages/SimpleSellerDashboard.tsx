@@ -150,14 +150,16 @@ export default function SimpleSellerDashboard() {
             >
               Copy Link
             </button>
-            <a
-              href={`/store/${seller.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
+            <button
+              onClick={() => {
+                const storeUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/store/${seller.id}`;
+                const message = encodeURIComponent(`Check out my store: ${storeUrl}`);
+                window.open(`https://wa.me/?text=${message}`, '_blank');
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700"
             >
-              Preview Store
-            </a>
+              Share Link
+            </button>
           </div>
         </div>
       </div>
