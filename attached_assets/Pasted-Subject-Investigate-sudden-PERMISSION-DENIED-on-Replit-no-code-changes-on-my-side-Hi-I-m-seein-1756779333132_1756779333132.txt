@@ -1,0 +1,89 @@
+Subject: Investigate sudden PERMISSION_DENIED on Replit (no code changes on my side)
+
+Hi — I’m seeing a Vite-style runtime overlay in Replit showing Firebase PERMISSION_DENIED. I didn’t change code locally. Please confirm whether anything changed and provide evidence.
+
+Please verify and respond with YES/NO + proof for each:
+
+Auth domains
+
+Did you add/remove any domains under Firebase → Authentication → Settings → Authorized domains?
+
+Expected: my Replit host(s) (e.g., *.replit.dev and the exact Replit preview domain) are listed.
+
+Action: Paste the current domain list.
+
+Auth providers
+
+Did you enable/disable Google/Email/Anonymous/etc. or change redirect settings?
+
+Action: Paste the enabled providers list.
+
+Realtime Database vs Firestore
+
+Did you switch which database the app uses (RTDB ↔ Firestore) or import the wrong SDK?
+
+Action: Grep the codebase and paste counts:
+
+grep -RIn "getDatabase\|ref\(" src | wc -l
+grep -RIn "getFirestore\|doc(" src | wc -l
+
+
+Security rules (with timestamps)
+
+RTDB rules last published time & full JSON.
+
+Firestore rules last published time & full rules text.
+
+Action: Paste both rule sets and the “last published” timestamps.
+
+Expected baseline (user-scoped + public read-only):
+
+RTDB: /public read: true, write: false; /users/{uid} read/write only for auth.uid == uid.
+
+Firestore: same idea for /public/** and /users/{uid}/**.
+
+Data paths changed
+
+Did any path change from a public area to a protected one?
+
+Action: List any edits in the last 7 days touching ref(db, ...), set/update/push, doc/collection, or query paths.
+
+Auth gating
+
+Did any component start reading the DB before onAuthStateChanged resolves?
+
+Action: Show a snippet where DB reads are gated on a non-null user.
+
+Firebase config
+
+Did firebase.js (or env/secrets) change — projectId, databaseURL, authDomain?
+
+Action: git diff for config files and Replit secrets changes (redact secrets but show project IDs/URLs).
+
+Git evidence (last 7 days)
+
+Action:
+
+git log --since="7 days ago" --oneline
+git diff HEAD~20..HEAD -- src/firebase* src/**/firebase* src/**/**.jsx src/**/**.tsx | head -n 200
+
+
+If repo isn’t on git in Replit, export a change log from the Replit history.
+
+Repro details
+
+Open the app logged out in Replit and capture the Network tab request that fails (URL shows the exact DB path).
+
+Action: Paste the failing request URL and the full Firebase error object from Console.
+
+Acceptance criteria (please fix if failing)
+
+Logged-out: marketing/demo pages load with no Firebase errors (read-only data must come from a /public path or equivalent).
+
+Logged-in: user can read/write only their own /users/{uid}/... data; no PERMISSION_DENIED.
+
+All DB reads/writes are correctly gated by auth state.
+
+Authorized domains include our Replit preview domain(s).
+
+If you changed anything, please revert or push a patch and reply with exactly what changed and why.
