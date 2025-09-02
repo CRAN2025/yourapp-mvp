@@ -67,7 +67,43 @@ export function useAuth() {
             const sellerRef = doc(db, 'sellers', user.uid);
             const sellerSnap = await getDoc(sellerRef);
             
-            const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
+            let sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
+            
+            // If no seller data exists, create it and bootstrap the user
+            if (!sellerData) {
+              console.log('🔐 Auth: No seller data found, creating seller profile and bootstrapping...');
+              const { ensureBootstrap } = await import('@/lib/ensureBootstrap');
+              const { setDoc, serverTimestamp } = await import('firebase/firestore');
+              
+              try {
+                // First create the seller profile
+                const sellerProfile = {
+                  id: user.uid,
+                  email: user.email || '',
+                  phone: user.phoneNumber || '',
+                  storeName: '',
+                  category: '',
+                  whatsappNumber: user.phoneNumber || '',
+                  isAdmin: false,
+                  onboardingCompleted: false,
+                  createdAt: serverTimestamp(),
+                  updatedAt: serverTimestamp(),
+                };
+                
+                await setDoc(sellerRef, sellerProfile);
+                console.log('✅ Auth: Created seller profile in Firestore');
+                
+                // Then bootstrap the onboarding documents
+                await ensureBootstrap(user.uid);
+                console.log('✅ Auth: Bootstrap completed successfully');
+                
+                // Set the seller data to what we just created
+                sellerData = sellerProfile as any;
+                console.log('✅ Auth: Seller data after creation:', sellerData);
+              } catch (bootstrapError) {
+                console.error('❌ Auth: Bootstrap/creation failed:', bootstrapError);
+              }
+            }
             
             console.log('✅ Auth: Loaded seller data from Firestore:', sellerData);
             console.log('✅ Auth: User UID:', user.uid);
