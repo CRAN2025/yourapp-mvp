@@ -21,6 +21,10 @@
       }
     },
     "events": {
+      "marketing": {
+        ".read": false,
+        ".write": "auth != null"
+      },
       "$uid": {
         ".read": "auth != null && (auth.uid == $uid || root.child('sellers').child(auth.uid).child('isAdmin').val() == true)",
         "$eid": { 
