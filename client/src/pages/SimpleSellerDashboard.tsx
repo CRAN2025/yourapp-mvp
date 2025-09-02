@@ -67,7 +67,8 @@ export default function SimpleSellerDashboard() {
           --ink:#0f172a; --ink-2:#334155; --ink-3:#64748b;
           --surface:rgba(255,255,255,.78); --surface-strong:rgba(255,255,255,.86);
           --border:rgba(2,6,23,.08);
-          --shadow:0 8px 24px rgba(2,6,23,.06); --shadow-strong:0 18px 42px rgba(2,6,23,.10);
+          --shadow: 0 6px 18px rgba(2,6,23,.06);
+          --shadow-strong: 0 16px 36px rgba(2,6,23,.10);
           --accent:#5b7cff; --grad-soft:linear-gradient(180deg,#eef5ff 0%,#ffffff 100%);
           --radius-hero:20px; --radius-card:14px; --radius-btn:14px;
         }
@@ -89,6 +90,7 @@ export default function SimpleSellerDashboard() {
           background:var(--grad-soft);
           border:1px solid rgba(2,6,23,.06);
         }
+        .hero h1 { letter-spacing: -0.015em; }
 
         /* Buttons (calm + unified) */
         .btn{
@@ -99,10 +101,10 @@ export default function SimpleSellerDashboard() {
         .btn:active{ transform:translateY(1px) }
         .btnPrimary{
           color:#0f172a;
-          background:linear-gradient(135deg,#e7eeff 0%,#ffffff 100%);
-          box-shadow:0 6px 16px rgba(2,6,23,.08);
+          background: linear-gradient(180deg,#ffffff 0%, #f7faff 100%);
+          box-shadow: 0 5px 14px rgba(2,6,23,.07);
         }
-        .btnPrimary:hover{ box-shadow:0 10px 24px rgba(2,6,23,.10) }
+        .btnPrimary:hover{ box-shadow: 0 8px 20px rgba(2,6,23,.09); }
         .btnSecondary{
           background:#ffffff; color:#0f172a; border:1px solid rgba(2,6,23,.10);
           box-shadow:0 4px 12px rgba(2,6,23,.06);
@@ -119,7 +121,15 @@ export default function SimpleSellerDashboard() {
         .tileHead{display:flex;align-items:center;gap:12px;margin-bottom:14px}
         .tileIcon{
           width:52px;height:52px;border-radius:12px;display:grid;place-items:center;color:#0f172a;
-          background:linear-gradient(180deg,#f1f6ff,#ffffff); border:1px solid rgba(2,6,23,.06);
+          background: linear-gradient(180deg,#f9fbff,#ffffff);
+          border: 1px solid rgba(2,6,23,.05);
+        }
+        
+        /* Tile hover effects */
+        .tile:hover{
+          box-shadow: var(--shadow-strong);
+          transform: translateY(-1px);
+          transition: box-shadow .18s ease, transform .12s ease;
         }
 
         .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
@@ -142,7 +152,7 @@ export default function SimpleSellerDashboard() {
         <section className="glass hero" style={{ padding:22, marginBottom:20 }}>
           <h1 style={{
             fontSize:'clamp(36px, 6vw, 56px)', lineHeight:1.06, margin:'0 0 8px',
-            fontWeight:900, letterSpacing:'-0.02em', color:'var(--ink)'
+            fontWeight:900, color:'var(--ink)'
           }}>
             Welcome, {seller.fullName || 'Seller'}!
           </h1>
@@ -239,7 +249,15 @@ export default function SimpleSellerDashboard() {
 
 /* ---------- Subcomponents & styles ---------- */
 
-function Tile({ icon, title, body, onClick, buttonText }) {
+interface TileProps {
+  icon: string;
+  title: string;
+  body: string;
+  onClick: () => void;
+  buttonText: string;
+}
+
+function Tile({ icon, title, body, onClick, buttonText }: TileProps) {
   return (
     <div className="glass card tile">
       <div className="tileHead">
