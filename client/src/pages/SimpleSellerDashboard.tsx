@@ -53,8 +53,14 @@ export default function SimpleSellerDashboard() {
     window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
   };
 
+  const [copied, setCopied] = React.useState(false);
+
   const copyLink = async () => {
-    try { await window.navigator?.clipboard?.writeText(publicStoreUrl); } catch {}
+    try {
+      await window.navigator?.clipboard?.writeText(publicStoreUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
   };
 
   return (
@@ -249,7 +255,14 @@ export default function SimpleSellerDashboard() {
               {publicStoreUrl}
             </div>
             <div style={{ display:'flex', gap:10 }}>
-              <button onClick={copyLink} className="btn btnSecondary" aria-label="Copy store link">Copy Link</button>
+              <div style={{ position:'relative' }}>
+                <div role="status" aria-live="polite" style={{position:'absolute',width:0,height:0,overflow:'hidden'}}>
+                  {copied ? 'Link copied' : ''}
+                </div>
+                <button onClick={copyLink} className="btn btnSecondary" aria-label="Copy store link">
+                  {copied ? 'Copied!' : 'Copy Link'}
+                </button>
+              </div>
               <button onClick={shareToWhatsApp} className="btn btnPrimary" aria-label="Share store link on WhatsApp">Share Link</button>
             </div>
           </div>
