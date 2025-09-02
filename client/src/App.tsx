@@ -1,4 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
+import { useEffect } from 'react';
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -22,6 +23,8 @@ import Storefront from "@/pages/Storefront";
 import StorefrontPublic from "@/pages/StorefrontPublic";
 import Admin from "@/pages/Admin";
 import Upgrade from "@/pages/Upgrade";
+import SellerDashboard from "@/pages/SellerDashboard";
+import MarketplaceOwnerConsole from "@/pages/MarketplaceOwnerConsole";
 import TermsOfService from "@/pages/TermsOfService";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import CookiePolicy from "@/pages/CookiePolicy";
@@ -35,13 +38,38 @@ import Pricing from "@/pages/Pricing";
 import ContactSupport from "@/pages/ContactSupport";
 import DataMigration from "@/pages/DataMigration";
 import NotFound from "@/pages/not-found";
+import CustomerStorefrontEntry from "@/components/CustomerStorefrontEntry";
 
-// App Router - handles unified /app destination
+// App Router - handles unified /app destination and smart routing
 function AppRouter() {
   const [, navigate] = useLocation();
+  const { user, seller, loading } = useAuth();
   
-  // Redirect to products page (AppGuard will handle state validation)
-  navigate('/products', { replace: true });
+  useEffect(() => {
+    if (loading) return;
+    
+    if (!user) {
+      // Not authenticated - redirect to auth
+      navigate('/auth?mode=signin', { replace: true });
+      return;
+    }
+    
+    if (seller?.isAdmin) {
+      // Marketplace owner - redirect to admin console
+      navigate('/marketplace-console', { replace: true });
+      return;
+    }
+    
+    if (seller?.onboardingCompleted) {
+      // Existing seller - redirect to seller dashboard
+      navigate('/seller-dashboard', { replace: true });
+      return;
+    }
+    
+    // Incomplete onboarding - redirect to onboarding
+    navigate('/onboarding/step-1', { replace: true });
+  }, [user, seller, loading, navigate]);
+  
   return null;
 }
 
@@ -55,6 +83,9 @@ function Router() {
         <AppRouter />
       </Route>
       <Route path="/store/:sellerId" component={StorefrontPublic} />
+      <Route path="/customer/:sellerId">
+        {(params) => <CustomerStorefrontEntry sellerId={params.sellerId} />}
+      </Route>
       
       {/* Legal and support pages */}
       <Route path="/terms" component={TermsOfService} />
@@ -92,6 +123,12 @@ function Router() {
           <Products />
         </AppGuard>
       </Route>
+      <Route path="/seller-dashboard">
+        <SellerDashboard />
+      </Route>
+      <Route path="/marketplace-console">
+        <MarketplaceOwnerConsole />
+      </Route>
       <Route path="/products">
         <AppGuard>
           <Products />
@@ -127,6 +164,16 @@ function Router() {
       <Route path="/admin">
         <AppGuard>
           <Admin />
+        </AppGuard>
+      </Route>
+      <Route path="/admin/analytics">
+        <AppGuard>
+          <Analytics />
+        </AppGuard>
+      </Route>
+      <Route path="/admin/settings">
+        <AppGuard>
+          <Settings />
         </AppGuard>
       </Route>
       <Route path="/admin/migration">
