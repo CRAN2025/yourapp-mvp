@@ -57,7 +57,7 @@ export default function SimpleSellerDashboard() {
   const copyLink = async () => {
     try {
       await window.navigator?.clipboard?.writeText(publicStoreUrl);
-    } catch (_) {}
+  } catch (_) {}
   };
 
   return (
