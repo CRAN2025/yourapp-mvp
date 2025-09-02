@@ -24,6 +24,7 @@ import StorefrontPublic from "@/pages/StorefrontPublic";
 import Admin from "@/pages/Admin";
 import Upgrade from "@/pages/Upgrade";
 import SellerDashboard from "@/pages/SellerDashboard";
+import SimpleSellerDashboard from "@/pages/SimpleSellerDashboard";
 import MarketplaceOwnerConsole from "@/pages/MarketplaceOwnerConsole";
 import TermsOfService from "@/pages/TermsOfService";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
@@ -124,7 +125,7 @@ function Router() {
         </AppGuard>
       </Route>
       <Route path="/seller-dashboard">
-        <SellerDashboard />
+        <SimpleSellerDashboard />
       </Route>
       <Route path="/marketplace-console">
         <MarketplaceOwnerConsole />
