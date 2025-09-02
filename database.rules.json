@@ -5,12 +5,12 @@
 
     "sellers": {
       "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
+        ".read": true,
         ".write": "auth != null && auth.uid == $uid",
         "products": {
-          ".read": "auth != null && auth.uid == $uid",
+          ".read": true,
           "$productId": {
-            ".read": "auth != null && auth.uid == $uid",
+            ".read": true,
             ".write": "auth != null && auth.uid == $uid"
           }
         }
