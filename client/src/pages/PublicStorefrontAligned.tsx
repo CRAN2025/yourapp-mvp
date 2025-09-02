@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRoute } from "wouter";
-import { ref, onValue, off } from "firebase/database";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { Eye, Search, X, Heart, MessageCircle, Filter, CreditCard, Truck, Globe, Loader2, Info, Sparkles } from "lucide-react";
-import { database } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import type { Product, Seller } from "@shared/schema";
 import { formatPrice, getProductImageUrl } from "@/lib/utils/formatting";
 import { Button } from "@/components/ui/button";
@@ -56,37 +56,49 @@ export default function PublicStorefrontAligned() {
   // localStorage key
   const favKey = `shoplink_public_favs_${sellerId || "anon"}`;
 
-  // Load seller + products
+  // Load seller + products from Firestore
   useEffect(() => {
     if (!sellerId) return;
-    const sRef = ref(database, `sellers/${sellerId}`);
-    const pRef = ref(database, `sellers/${sellerId}/products`);
 
-    const unsubS = onValue(sRef, (snap) => setSeller(snap.exists() ? ({ id: sellerId, ...(snap.val() as any) }) : null));
-    const unsubP = onValue(
-      pRef,
-      (snap) => {
-        try {
-          if (!snap.exists()) {
-            setProducts([]);
-          } else {
-            const raw = snap.val();
-            const list = Object.entries(raw)
-              .map(([id, p]) => ({ id, ...(p as Omit<Product, "id">) }))
-              .filter((p) => p.isActive);
-            setProducts(list);
-          }
-        } finally {
-          setLoading(false);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+
+        // Load seller data from Firestore
+        const sellerRef = doc(db, 'sellers', sellerId);
+        const sellerSnap = await getDoc(sellerRef);
+        
+        if (sellerSnap.exists()) {
+          const sellerData = { id: sellerId, ...sellerSnap.data() } as Seller;
+          setSeller(sellerData);
+
+          // Load products from Firestore subcollection
+          const productsRef = collection(db, 'sellers', sellerId, 'products');
+          const productsSnap = await getDocs(productsRef);
+          
+          const productsList: Product[] = [];
+          productsSnap.forEach((doc) => {
+            const productData = doc.data() as Omit<Product, 'id'>;
+            if (productData.isActive !== false) { // Include products that are active or undefined
+              productsList.push({ id: doc.id, ...productData });
+            }
+          });
+          
+          setProducts(productsList);
+        } else {
+          setSeller(null);
+          setProducts([]);
         }
-      },
-      () => setLoading(false)
-    );
-
-    return () => {
-      off(sRef, "value", unsubS);
-      off(pRef, "value", unsubP);
+      } catch (error) {
+        console.error('Error loading store data:', error);
+        setSeller(null);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
     };
+
+    loadData();
   }, [sellerId]);
 
   // Load favorites
