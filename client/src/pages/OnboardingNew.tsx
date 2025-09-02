@@ -7,6 +7,7 @@ import { ensureBootstrap, firstIncompleteStep, isOnboardingComplete } from '@/li
 import OnboardingStep1 from '../components/onboarding/OnboardingStep1';
 import OnboardingStep2 from '../components/onboarding/OnboardingStep2';
 import OnboardingStep3 from '../components/onboarding/OnboardingStep3';
+import QuickLogout from '@/components/QuickLogout';
 
 interface OnboardingNewProps {
   step: string;
@@ -99,6 +100,17 @@ export default function OnboardingNew({ step }: OnboardingNewProps) {
         {step === 'step-1' && <OnboardingStep1 storeId={progress.storeId} />}
         {step === 'step-2' && <OnboardingStep2 storeId={progress.storeId} />}
         {step === 'step-3' && <OnboardingStep3 storeId={progress.storeId} />}
+        
+        {/* Quick logout for account switching */}
+        <div className="mt-8 text-center">
+          <QuickLogout 
+            variant="ghost" 
+            size="sm" 
+            className="text-muted-foreground hover:text-foreground"
+            showText={true}
+            showIcon={true}
+          />
+        </div>
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import QuickLogout from '@/components/QuickLogout';
 import { useAuth } from '@/hooks/use-auth';
 import { ensureBootstrap } from '@/lib/ensureBootstrap';
 
@@ -497,6 +498,17 @@ export default function Auth() {
 
         {/* reCAPTCHA container */}
         <div id="recaptcha-container" />
+        
+        {/* Quick logout for switching accounts */}
+        <div className="mt-6 text-center">
+          <QuickLogout 
+            variant="ghost" 
+            size="sm" 
+            className="text-muted-foreground hover:text-foreground"
+            showText={true}
+            showIcon={true}
+          />
+        </div>
       </div>
     </div>
   );
