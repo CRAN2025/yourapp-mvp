@@ -33,6 +33,7 @@ import FAQ from "@/pages/FAQ";
 import Features from "@/pages/Features";
 import Pricing from "@/pages/Pricing";
 import ContactSupport from "@/pages/ContactSupport";
+import DataMigration from "@/pages/DataMigration";
 import NotFound from "@/pages/not-found";
 
 // App Router - handles unified /app destination
@@ -126,6 +127,11 @@ function Router() {
       <Route path="/admin">
         <AppGuard>
           <Admin />
+        </AppGuard>
+      </Route>
+      <Route path="/admin/migration">
+        <AppGuard>
+          <DataMigration />
         </AppGuard>
       </Route>
 
