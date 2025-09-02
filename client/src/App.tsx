@@ -21,6 +21,7 @@ import Orders from "@/pages/Orders";
 import Settings from "@/pages/Settings";
 import Storefront from "@/pages/Storefront";
 import StorefrontPublic from "@/pages/StorefrontPublic";
+import PublicStorefrontAligned from "@/pages/PublicStorefrontAligned";
 import Admin from "@/pages/Admin";
 import Upgrade from "@/pages/Upgrade";
 import SellerDashboard from "@/pages/SellerDashboard";
@@ -84,6 +85,7 @@ function Router() {
         <AppRouter />
       </Route>
       <Route path="/store/:sellerId" component={StorefrontPublic} />
+      <Route path="/store-aligned/:sellerId" component={PublicStorefrontAligned} />
       <Route path="/customer/:sellerId">
         {(params) => <CustomerStorefrontEntry sellerId={params.sellerId} />}
       </Route>
