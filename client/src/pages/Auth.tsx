@@ -111,33 +111,48 @@ export default function Auth() {
           
           // Check if seller profile exists
           const sellerRef = doc(db, 'sellers', user.uid);
-          const sellerSnap = await getDoc(sellerRef);
+          let sellerSnap;
+          
+          try {
+            sellerSnap = await getDoc(sellerRef);
+          } catch (firestoreError) {
+            console.error('🔧 Auth: Firestore access error:', firestoreError);
+            // Continue with onboarding if we can't access Firestore
+            await ensureBootstrap(user.uid);
+            navigate(redirectUrl, { replace: true });
+            return;
+          }
           
           if (!sellerSnap.exists()) {
             console.log('🔧 Auth: Creating new seller profile');
-            // Create seller profile with proper structure
-            await setDoc(sellerRef, {
-              id: user.uid,
-              email: user.email || '',
-              storeName: '',
-              category: '',
-              whatsappNumber: '',
-              country: '',
-              onboardingCompleted: false,
-              isAdmin: false,
-              isPublic: false,
-              status: 'draft',
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-            });
+            try {
+              // Create seller profile with proper structure
+              await setDoc(sellerRef, {
+                id: user.uid,
+                email: user.email || '',
+                storeName: '',
+                category: '',
+                whatsappNumber: '',
+                country: '',
+                onboardingCompleted: false,
+                isAdmin: false,
+                isPublic: false,
+                status: 'draft',
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+              });
+              
+              // Create/update profile link
+              const profileRef = doc(db, 'profiles', user.uid);
+              await setDoc(profileRef, {
+                sellerId: user.uid, // For current structure, sellerId equals UID
+                updatedAt: Date.now()
+              }, { merge: true });
+            } catch (createError) {
+              console.error('🔧 Auth: Failed to create seller profile:', createError);
+              // Continue to onboarding even if Firestore fails
+            }
           }
-
-          // Create/update profile link
-          const profileRef = doc(db, 'profiles', user.uid);
-          await setDoc(profileRef, {
-            sellerId: user.uid, // For current structure, sellerId equals UID
-            updatedAt: Date.now()
-          }, { merge: true });
 
           // Initialize user data (store, onboarding)
           await ensureBootstrap(user.uid);
