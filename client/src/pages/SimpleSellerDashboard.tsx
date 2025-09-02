@@ -59,34 +59,30 @@ export default function SimpleSellerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 rounded-2xl shadow-xl p-8 mb-8 text-white">
-          <div className="relative">
-            <div className="absolute inset-0 bg-white/10 rounded-2xl backdrop-blur-sm"></div>
-            <div className="relative z-10">
-              <h1 className="text-4xl font-bold mb-3">
-                Welcome, {seller.fullName || 'Seller'}!
-              </h1>
-              <p className="text-xl text-indigo-100 mb-2">
-                Store: {seller.storeName || 'Your Store'}
-              </p>
-              <p className="text-sm text-indigo-200/80">
-                User ID: {user.uid} | Onboarding: {seller.onboardingCompleted ? '✅ Complete' : '⚠️ Incomplete'}
-              </p>
-            </div>
-          </div>
+        <div className="bg-blue-600 rounded-2xl p-8 mb-8 text-white" style={{ backgroundColor: '#4F46E5' }}>
+          <h1 className="text-4xl font-bold mb-3">
+            Welcome, {seller.fullName || 'Seller'}!
+          </h1>
+          <p className="text-xl text-blue-100 mb-2">
+            Store: {seller.storeName || 'Your Store'}
+          </p>
+          <p className="text-sm text-blue-200">
+            User ID: {user.uid} | Onboarding: {seller.onboardingCompleted ? '✅ Complete' : '⚠️ Incomplete'}
+          </p>
         </div>
 
         {!seller.onboardingCompleted && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 rounded-2xl p-6 mb-8 shadow-lg">
-            <h3 className="text-xl font-bold text-amber-900 mb-2">Complete Your Store Setup</h3>
-            <p className="text-amber-800 mb-4">
+          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-8">
+            <h3 className="text-xl font-bold text-orange-900 mb-2">Complete Your Store Setup</h3>
+            <p className="text-orange-800 mb-4">
               Finish your onboarding to unlock all features and make your store public.
             </p>
             <a 
               href="/onboarding/step-1"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-full hover:from-amber-700 hover:to-orange-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              className="inline-flex items-center px-6 py-3 text-white font-semibold rounded-full hover:opacity-90 transition-all duration-200"
+              style={{ backgroundColor: '#4F46E5' }}
             >
               Continue Setup
             </a>
@@ -94,8 +90,8 @@ export default function SimpleSellerDashboard() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: '#4F46E5' }}>
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
               </svg>
@@ -104,14 +100,15 @@ export default function SimpleSellerDashboard() {
             <p className="text-gray-600 mb-4">Add, edit, or remove products from your store</p>
             <a 
               href="/products"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-full hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              className="inline-flex items-center px-6 py-3 text-white font-semibold rounded-full hover:opacity-90 transition-all duration-200"
+              style={{ backgroundColor: '#4F46E5' }}
             >
               Open Products
             </a>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-green-600 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -121,14 +118,14 @@ export default function SimpleSellerDashboard() {
             <p className="text-gray-600 mb-4">See how your store looks to customers</p>
             <a 
               href="/storefront"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-full hover:from-emerald-700 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-all duration-200"
             >
               View Storefront
             </a>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className="bg-gradient-to-br from-violet-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: '#4F46E5' }}>
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
               </svg>
@@ -137,14 +134,15 @@ export default function SimpleSellerDashboard() {
             <p className="text-gray-600 mb-4">Track views, clicks, and performance</p>
             <a 
               href="/analytics"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-full hover:from-violet-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              className="inline-flex items-center px-6 py-3 text-white font-semibold rounded-full hover:opacity-90 transition-all duration-200"
+              style={{ backgroundColor: '#4F46E5' }}
             >
               View Analytics
             </a>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className="bg-gradient-to-br from-orange-500 to-red-600 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-orange-500 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -154,17 +152,17 @@ export default function SimpleSellerDashboard() {
             <p className="text-gray-600 mb-4">Update store info and preferences</p>
             <a 
               href="/settings"
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-full hover:from-orange-700 hover:to-red-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              className="inline-flex items-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition-all duration-200"
             >
               Open Settings
             </a>
           </div>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 mt-8">
+        <div className="bg-white rounded-2xl p-8 mt-8 shadow-sm">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">Your Public Store Link</h3>
           <div className="flex flex-col md:flex-row items-stretch gap-4">
-            <div className="flex-1 bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 p-4 rounded-xl text-sm font-mono break-all">
+            <div className="flex-1 bg-gray-50 border border-gray-200 p-4 rounded-xl text-sm font-mono break-all">
               {typeof window !== 'undefined' ? window.location.origin : ''}/store/{seller.id}
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -174,7 +172,7 @@ export default function SimpleSellerDashboard() {
                     window.navigator.clipboard.writeText(`${window.location.origin}/store/${seller.id}`);
                   }
                 }}
-                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white font-semibold rounded-full hover:from-gray-700 hover:to-gray-800 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                className="inline-flex items-center justify-center px-6 py-3 bg-gray-600 text-white font-semibold rounded-full hover:bg-gray-700 transition-all duration-200"
               >
                 Copy Link
               </button>
@@ -184,7 +182,7 @@ export default function SimpleSellerDashboard() {
                   const message = encodeURIComponent(`Check out my store: ${storeUrl}`);
                   window.open(`https://wa.me/?text=${message}`, '_blank');
                 }}
-                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-full hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                className="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-all duration-200"
               >
                 Share Link
               </button>
