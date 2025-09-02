@@ -2,6 +2,9 @@
   "database": {
     "rules": "firebase.rules.json"
   },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "public": "dist/public",
     "ignore": ["**/.*", "**/node_modules/**"],
