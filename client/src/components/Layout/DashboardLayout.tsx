@@ -13,6 +13,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import logoUrl from '@/assets/logo.png';
 
+/** Shared container for consistent margins across all dashboard pages */
+export function PageContainer({ children }: { children: React.ReactNode }) {
+  return (
+    <div 
+      style={{ paddingInline: 'clamp(16px, 4vw, 32px)' }} 
+      className="mx-auto max-w-[1280px] py-8"
+    >
+      {children}
+    </div>
+  );
+}
+
 interface DashboardLayoutProps {
   children: ReactNode;
 }

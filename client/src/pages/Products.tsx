@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import DashboardLayout from '@/components/Layout/DashboardLayout';
+import DashboardLayout, { PageContainer } from '@/components/Layout/DashboardLayout';
 import ProductModal from '@/components/ProductModal';
 import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -245,16 +245,16 @@ export default function Products() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <PageContainer>
           <LoadingSpinner size="lg" className="mx-auto" />
-        </div>
+        </PageContainer>
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageContainer>
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
@@ -683,18 +683,18 @@ export default function Products() {
             </Card>
           </div>
         )}
-      </div>
 
-      {/* Product Modal */}
-      <ProductModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        product={editingProduct}
-        onSuccess={() => {
-          setShowModal(false);
-          // Products will be automatically updated via onValue listener
-        }}
-      />
+        {/* Product Modal */}
+        <ProductModal
+          open={showModal}
+          onClose={() => setShowModal(false)}
+          product={editingProduct}
+          onSuccess={() => {
+            setShowModal(false);
+            // Products will be automatically updated via onValue listener
+          }}
+        />
+      </PageContainer>
     </DashboardLayout>
   );
 }
