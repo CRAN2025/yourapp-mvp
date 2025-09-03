@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAuthContext } from '@/context/AuthContext';
 import { Store, Package, BarChart3, Settings, Users, Eye } from 'lucide-react';
@@ -7,24 +7,20 @@ import { Button } from '@/components/ui/button';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-/** Centered, responsive container (keeps content calm on ultrawide screens) */
-function PageContainer({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="w-full mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8 py-8">
-      {children}
-    </div>
-  );
-}
-
 export default function SellerDashboard() {
   const { user, seller, loading } = useAuthContext();
   const [, navigate] = useLocation();
 
   useEffect(() => {
+    // Redirect non-authenticated users
     if (!loading && !user) {
       navigate('/auth?mode=signin&redirect=/seller-dashboard');
+      return;
     }
-  }, [user, loading, navigate]);
+
+    // Optional: Show onboarding prompt for incomplete sellers but don't redirect
+    // This allows sellers to access their dashboard regardless of onboarding status
+  }, [user, seller, loading, navigate]);
 
   if (loading) {
     return (
@@ -34,15 +30,9 @@ export default function SellerDashboard() {
     );
   }
 
-  if (!user || !seller) return null;
-
-  /** Subtle accent classes for quick actions (kept explicit for Tailwind purge) */
-  const tones = {
-    blue: 'text-blue-600 bg-blue-50',
-    green: 'text-green-600 bg-green-50',
-    purple: 'text-purple-600 bg-purple-50',
-    orange: 'text-orange-600 bg-orange-50',
-  } as const;
+  if (!user || !seller) {
+    return null;
+  }
 
   const quickActions = [
     {
@@ -50,207 +40,186 @@ export default function SellerDashboard() {
       description: 'Add, edit, or remove products from your store',
       icon: Package,
       href: '/products',
-      tone: 'blue' as const,
+      color: 'bg-blue-500',
     },
     {
       title: 'View Storefront',
       description: 'See how your store looks to customers',
       icon: Eye,
       href: '/storefront',
-      tone: 'green' as const,
+      color: 'bg-green-500',
     },
     {
       title: 'Analytics',
       description: 'Track views, clicks, and performance',
       icon: BarChart3,
       href: '/analytics',
-      tone: 'purple' as const,
+      color: 'bg-purple-500',
     },
     {
       title: 'Store Settings',
       description: 'Update store info, categories, and preferences',
       icon: Settings,
       href: '/settings',
-      tone: 'orange' as const,
+      color: 'bg-orange-500',
     },
   ];
 
-  const publicUrl = `${window.location.origin}/store/${seller.id}`;
-
   return (
     <DashboardLayout>
-      {/* Light full-width background is okay; content stays centered in PageContainer */}
-      <PageContainer>
-        <div className="space-y-8">
-          {/* Onboarding hint (non-blocking) */}
-          {!seller.onboardingCompleted && (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-              <div className="flex items-start gap-3">
-                <div className="h-10 w-10 rounded-full bg-amber-100 grid place-items-center">
-                  <Settings className="h-5 w-5 text-amber-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-amber-800">Complete your store setup</h3>
-                  <p className="text-sm text-amber-700 mt-0.5">
-                    Finish onboarding to unlock all features and publish confidently.
-                  </p>
-                </div>
-                <Button
-                  onClick={() => navigate('/onboarding/step-1')}
-                  className="bg-amber-600 hover:bg-amber-700"
-                >
-                  Continue setup
-                </Button>
+      <div className="space-y-8">
+        {/* Onboarding Alert - if incomplete */}
+        {!seller.onboardingCompleted && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                <Settings className="w-5 h-5 text-amber-600" />
               </div>
-            </div>
-          )}
-
-          {/* Welcome / hero card (subtle gradient & border, not loud) */}
-          <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-8 shadow-sm">
-            <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
-                Welcome, {seller.storeName || 'Your Store'}!
-              </h1>
-              <p className="text-slate-600">
-                Manage everything in one place. Keep it simple, ship fast.
-              </p>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
-                <Store className="h-4 w-4" />
-                {seller.category || 'General Store'}
+              <div className="flex-1">
+                <h3 className="font-semibold text-amber-800">Complete Your Store Setup</h3>
+                <p className="text-amber-700 text-sm mt-1">
+                  Finish your onboarding to unlock all features and make your store public.
+                </p>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
-                <Users className="h-4 w-4" />
-                {seller.country || 'Unknown'}
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700">
-                <span className="font-medium">User ID:</span>
-                <span className="font-mono text-slate-500">{seller.id}</span>
-              </div>
-              {!seller.onboardingCompleted ? (
-                <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-amber-800">
-                  <Settings className="h-4 w-4" />
-                  Setup incomplete
-                </div>
-              ) : (
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-emerald-800">
-                  <span className="h-2 w-2 rounded-full bg-emerald-600" />
-                  Onboarding complete
-                </div>
-              )}
+              <Button
+                onClick={() => navigate('/onboarding/step-1')}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                Continue Setup
+              </Button>
             </div>
           </div>
+        )}
 
-          {/* Quick actions (calm icons, neutral shells, soft motion) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickActions.map((action) => {
-              const Icon = action.icon;
-              const toneClass =
-                action.tone === 'blue'
-                  ? tones.blue
-                  : action.tone === 'green'
-                  ? tones.green
-                  : action.tone === 'purple'
-                  ? tones.purple
-                  : tones.orange;
-
-              return (
-                <Card
-                  key={action.href}
-                  onClick={() => navigate(action.href)}
-                  className="group cursor-pointer border-slate-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,24,40,.12)] transition"
-                  role="link"
-                  aria-label={action.title}
-                >
-                  <CardHeader className="pb-4">
-                    <div
-                      className={`h-12 w-12 rounded-xl grid place-items-center ${toneClass} mb-3 group-hover:scale-105 transition-transform`}
-                    >
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <CardTitle className="text-lg">{action.title}</CardTitle>
-                    <CardDescription>{action.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <Button className="w-full" variant="outline">
-                      Open
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+        {/* Welcome Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white">
+          <h1 className="text-3xl font-bold mb-2">
+            Welcome back, {seller.fullName || 'Seller'}!
+          </h1>
+          <p className="text-blue-100 text-lg">
+            Manage your store: <span className="font-semibold">{seller.storeName || 'Your Store'}</span>
+          </p>
+          <div className="mt-4 flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Store className="w-4 h-4" />
+              <span>{seller.category || 'General Store'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <span>{seller.country || 'Unknown'}</span>
+            </div>
+            {!seller.onboardingCompleted && (
+              <div className="flex items-center gap-2 bg-amber-500 bg-opacity-20 px-3 py-1 rounded-full">
+                <Settings className="w-4 h-4" />
+                <span>Setup Incomplete</span>
+              </div>
+            )}
           </div>
+        </div>
 
-          {/* Lightweight stats (placeholders until wired to analytics) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border-slate-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Products</CardTitle>
-                <Package className="h-4 w-4 text-slate-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">—</div>
-                <p className="text-xs text-slate-500">Total products in your store</p>
-              </CardContent>
-            </Card>
+        {/* Quick Actions Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {quickActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Card key={action.href} className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <CardHeader className="pb-4">
+                  <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">{action.title}</CardTitle>
+                  <CardDescription className="text-sm">
+                    {action.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Button 
+                    onClick={() => navigate(action.href)}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    Open
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-            <Card className="border-slate-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Store Views</CardTitle>
-                <Eye className="h-4 w-4 text-slate-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">—</div>
-                <p className="text-xs text-slate-500">Total storefront views</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-200">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">WhatsApp Clicks</CardTitle>
-                <BarChart3 className="h-4 w-4 text-slate-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">—</div>
-                <p className="text-xs text-slate-500">Customer contact attempts</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Public link (calm, copy + preview) */}
-          <Card className="border-slate-200">
-            <CardHeader>
-              <CardTitle>Your public store</CardTitle>
-              <CardDescription>Share this link with your customers</CardDescription>
+        {/* Store Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Products</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-700 select-all">
-                  {publicUrl}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => navigator.clipboard.writeText(publicUrl)}
-                    variant="outline"
-                    aria-label="Copy public store link"
-                  >
-                    Copy link
-                  </Button>
-                  <Button
-                    onClick={() => window.open(`/store/${seller.id}`, '_blank', 'noopener,noreferrer')}
-                    aria-label="Open public store preview"
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Preview
-                  </Button>
-                </div>
-              </div>
+              <div className="text-2xl font-bold">-</div>
+              <p className="text-xs text-muted-foreground">
+                Total products in your store
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Store Views</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">-</div>
+              <p className="text-xs text-muted-foreground">
+                Total storefront views
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">WhatsApp Clicks</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">-</div>
+              <p className="text-xs text-muted-foreground">
+                Customer contact attempts
+              </p>
             </CardContent>
           </Card>
         </div>
-      </PageContainer>
+
+        {/* Public Store Link */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Public Store</CardTitle>
+            <CardDescription>
+              Share this link with your customers
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 bg-gray-50 p-3 rounded-lg text-sm font-mono">
+                {window.location.origin}/store/{seller.id}
+              </div>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/store/${seller.id}`);
+                }}
+                variant="outline"
+              >
+                Copy Link
+              </Button>
+              <Button
+                onClick={() => window.open(`/store/${seller.id}`, '_blank')}
+                variant="default"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </DashboardLayout>
   );
 }
