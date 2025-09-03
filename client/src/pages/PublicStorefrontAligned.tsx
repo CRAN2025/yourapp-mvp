@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRoute } from "wouter";
 import { ref, onValue, off } from "firebase/database";
 import { doc, getDoc } from "firebase/firestore";
 import {
-  Globe,
+  Eye,
   Search,
   X,
   Heart,
@@ -11,97 +11,66 @@ import {
   Filter,
   CreditCard,
   Truck,
+  Globe,
   Loader2,
   Info,
-  Sparkles,
-  Share2,
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
+  Sparkles
 } from "lucide-react";
 import { database, db } from "@/lib/firebase";
 import type { Product, Seller } from "@shared/schema";
 import { formatPrice, getProductImageUrl } from "@/lib/utils/formatting";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-/** ——— constants & helpers ——— */
+/** ——— helpers ——— */
 const PLACEHOLDER_IMAGE = "/placeholder-product.png";
-const isNew = (p: Product) => Date.now() - (p.createdAt || 0) < 7 * 24 * 60 * 60 * 1000;
+const isNew = (p: Product) =>
+  Date.now() - (p.createdAt || 0) < 7 * 24 * 60 * 60 * 1000;
 const normList = (v: any): string[] =>
-  Array.isArray(v) ? v.filter(Boolean) : Object.entries(v || {}).filter(([, x]) => !!x).map(([k]) => k);
+  Array.isArray(v)
+    ? v
+    : Object.entries(v || {})
+        .filter(([, x]) => !!x)
+        .map(([k]) => k);
 
-const normalizeSocialUrl = (value?: string, platform?: "instagram" | "facebook" | "tiktok") => {
+const normalizeSocialUrl = (
+  value?: string,
+  platform?: "instagram" | "facebook" | "tiktok"
+) => {
   if (!value) return undefined;
   const trimmed = value.trim();
   if (!trimmed || /^javascript:|^data:/i.test(trimmed)) return undefined;
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   const handle = trimmed.replace(/^@/, "");
-  if (platform === "instagram") return `https://instagram.com/${encodeURIComponent(handle)}`;
-  if (platform === "facebook") return `https://facebook.com/${encodeURIComponent(handle)}`;
-  if (platform === "tiktok") return `https://www.tiktok.com/@${encodeURIComponent(handle)}`;
+  if (platform === "instagram")
+    return `https://instagram.com/${encodeURIComponent(handle)}`;
+  if (platform === "facebook")
+    return `https://facebook.com/${encodeURIComponent(handle)}`;
+  if (platform === "tiktok")
+    return `https://www.tiktok.com/@${encodeURIComponent(handle)}`;
   return trimmed;
 };
 
 const waUrl = (phone?: string, msg?: string) => {
   if (!phone) return undefined;
   const digits = phone.replace(/[^\d+]/g, "");
-  return `https://wa.me/${digits.replace(/^\+/, "")}?text=${encodeURIComponent(msg || "")}`;
+  return `https://wa.me/${digits.replace(/^\+/, "")}?text=${encodeURIComponent(
+    msg || ""
+  )}`;
 };
 
-const getCategoryIcon = (category: string): string => {
-  const iconMap: { [key: string]: string } = {
-    '💄 Beauty & Cosmetics': '💄',
-    '📱 Electronics': '📱',
-    '💍 Jewelry & Accessories': '💍',
-    '🏡 Home & Garden': '🏡',
-    '👕 Clothing': '👕',
-    '📚 Books': '📚',
-    '⚽ Sports': '⚽',
-    '🧸 Toys': '🧸',
-    '🍎 Food': '🍎',
-    '💊 Health': '💊',
-    '🎨 Art': '🎨',
-    '🎵 Music': '🎵',
-    '🚗 Automotive': '🚗',
-    '✈️ Travel': '✈️',
-    '📸 Photography': '📸',
-    '👗 Fashion': '👗',
-    '👜 Accessories': '👜',
-    '👟 Footwear': '👟',
-    '⌚ Watches': '⌚',
-    '🎮 Gaming': '🎮',
-    '🪑 Furniture': '🪑',
-    '🔌 Appliances': '🔌',
-    '🔧 Tools': '🔧',
-    '📊 Office': '📊',
-    '🧒 Kids': '🧒',
-    '🐾 Pet Supplies': '🐾',
-    '🏕️ Outdoor': '🏕️',
-    '✂️ Crafts': '✂️',
-    '🕰️ Vintage': '🕰️',
-    '🤲 Handmade': '🤲'
-  };
-  
-  // Try exact match first
-  if (iconMap[category]) return iconMap[category];
-  
-  // Try partial match by checking if category contains key words
-  for (const [key, icon] of Object.entries(iconMap)) {
-    const cleanKey = key.replace(/[💄📱💍🏡👕📚⚽🧸🍎💊🎨🎵🚗✈️📸👗👜👟⌚🎮🪑🔌🔧📊🧒🐾🏕️✂️🕰️🤲]/g, '').trim().toLowerCase();
-    if (category.toLowerCase().includes(cleanKey)) return icon;
-  }
-  
-  return '📦';
-};
-
-/** ——— UI components ——— */
-
+/** ——— main ——— */
 export default function PublicStorefrontAligned() {
-  // Route: /store-aligned/:sellerId
+  // /store-aligned/:sellerId
   const [, params] = useRoute("/store-aligned/:sellerId");
   const sellerId = params?.sellerId;
 
@@ -111,19 +80,20 @@ export default function PublicStorefrontAligned() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high" | "name" | "popular">("newest");
+  const [sortBy, setSortBy] = useState<
+    "newest" | "price-low" | "price-high" | "name" | "popular"
+  >("newest");
 
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showProductModal, setShowProductModal] = useState(false);
 
   const [imageLoading, setImageLoading] = useState<Record<string, boolean>>({});
-  const [sharePulseId, setSharePulseId] = useState<string | null>(null); // brief "copied" pulse
 
   // localStorage key
   const favKey = `shoplink_public_favs_${sellerId || "anon"}`;
 
-  /** ——— data: seller (Firestore) ——— */
+  // Load seller from Firestore
   useEffect(() => {
     if (!sellerId) return;
 
@@ -131,7 +101,13 @@ export default function PublicStorefrontAligned() {
       try {
         const sellerRef = doc(db, "sellers", sellerId);
         const sellerSnap = await getDoc(sellerRef);
-        setSeller(sellerSnap.exists() ? ({ id: sellerId, ...(sellerSnap.data() as any) } as Seller) : null);
+
+        if (sellerSnap.exists()) {
+          const sellerData = { id: sellerId, ...sellerSnap.data() } as Seller;
+          setSeller(sellerData);
+        } else {
+          setSeller(null);
+        }
       } catch {
         setSeller(null);
       }
@@ -140,37 +116,39 @@ export default function PublicStorefrontAligned() {
     loadSeller();
   }, [sellerId]);
 
-  /** ——— data: products (RTDB) ——— */
+  // Load products from Realtime Database
   useEffect(() => {
     if (!sellerId) return;
 
     setLoading(true);
     const productsRef = ref(database, `sellers/${sellerId}/products`);
 
-    const unsubscribe = onValue(
-      productsRef,
-      (snapshot) => {
-        try {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            const list = Object.entries(data)
-              .map(([id, productData]) => ({ id, ...(productData as Omit<Product, "id">) }))
-              .filter((p) => p.isActive !== false);
-            setProducts(list);
-          } else {
-            setProducts([]);
-          }
-        } finally {
-          setLoading(false);
+    const unsubscribe = onValue(productsRef, (snapshot) => {
+      try {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const productsList = Object.entries(data)
+            .map(([id, productData]) => ({
+              id,
+              ...(productData as Omit<Product, "id">)
+            }))
+            .filter((p) => p.isActive !== false);
+
+          setProducts(productsList);
+        } else {
+          setProducts([]);
         }
-      },
-      () => setLoading(false)
-    );
+      } catch {
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    });
 
     return () => off(productsRef, "value", unsubscribe);
   }, [sellerId]);
 
-  /** ——— favorites ——— */
+  // Load favorites
   useEffect(() => {
     try {
       const saved = localStorage.getItem(favKey);
@@ -189,25 +167,37 @@ export default function PublicStorefrontAligned() {
     } catch {}
   };
 
-  /** ——— categories ——— */
+  // Categories
   const categories = useMemo(() => {
     const counts: Record<string, number> = {};
-    products.forEach((p) => (counts[p.category] = (counts[p.category] || 0) + 1));
+    products.forEach(
+      (p) => (counts[p.category] = (counts[p.category] || 0) + 1)
+    );
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
       .map(([c]) => c);
   }, [products]);
 
-  /** ——— filter/sort ——— */
+  // Filter/sort
   const filtered = useMemo(() => {
     const terms = searchQuery.toLowerCase().split(" ").filter(Boolean);
     let list = products.filter((p) => {
-      const text = [p.name, p.description, p.category, p.brand, p.color, (p as any).tags?.join(" ")]
+      const text = [
+        p.name,
+        p.description,
+        p.category,
+        p.brand,
+        p.color,
+        (p as any).tags?.join(" ")
+      ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
       const matchesSearch =
-        terms.length === 0 || terms.every((t) => text.includes(t) || text.split(" ").some((w) => w.includes(t)));
+        terms.length === 0 ||
+        terms.every(
+          (t) => text.includes(t) || text.split(" ").some((w) => w.includes(t))
+        );
       const matchesCat = categoryFilter === "all" || p.category === categoryFilter;
       return matchesSearch && matchesCat;
     });
@@ -223,7 +213,9 @@ export default function PublicStorefrontAligned() {
         list.sort((a, b) => a.name.localeCompare(b.name));
         break;
       case "popular": {
-        const score = (p: Product) => ((p as any).analytics?.views || 0) + ((p as any).analytics?.favorites || 0);
+        const score = (p: Product) =>
+          ((p as any).analytics?.views || 0) +
+          ((p as any).analytics?.favorites || 0);
         list.sort((a, b) => score(b) - score(a));
         break;
       }
@@ -231,125 +223,64 @@ export default function PublicStorefrontAligned() {
       default:
         list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     }
+
     return list;
   }, [products, searchQuery, categoryFilter, sortBy]);
 
-  /** ——— images ——— */
-  const onImageStart = (id: string) => setImageLoading((s) => ({ ...s, [id]: true }));
-  const onImageLoad = (id: string) => setImageLoading((s) => ({ ...s, [id]: false }));
+  const onImageStart = (id: string) =>
+    setImageLoading((s) => ({ ...s, [id]: true }));
+  const onImageLoad = (id: string) =>
+    setImageLoading((s) => ({ ...s, [id]: false }));
   const onImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const id = e.currentTarget.getAttribute("data-product-id") || "";
     setImageLoading((s) => ({ ...s, [id]: false }));
     e.currentTarget.src = PLACEHOLDER_IMAGE;
   };
 
-  /** ——— product open/close + deep link ——— */
   const openProduct = (p: Product) => {
     setSelectedProduct(p);
     setShowProductModal(true);
     window.history.pushState(null, "", `#${p.id}`);
-    document.body.classList.add("overflow-hidden");
   };
 
-  const closeModal = useCallback(() => {
-    setShowProductModal(false);
-    setSelectedProduct(null);
-    document.body.classList.remove("overflow-hidden");
-    // preserve route; only clear hash
-    if (window.location.hash) history.replaceState(null, "", window.location.pathname);
-  }, []);
-
-  // deep-link support: open #product-id if present
-  useEffect(() => {
-    const hash = window.location.hash?.replace("#", "");
-    if (!hash || !filtered.length) return;
-    const p = filtered.find((x) => x.id === hash);
-    if (p) setTimeout(() => openProduct(p), 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered.length]);
-
-  // respond to hashchange directly (e.g., back/forward)
-  useEffect(() => {
-    const onHash = () => {
-      const id = window.location.hash?.replace("#", "");
-      if (!id) return closeModal();
-      const p = filtered.find((x) => x.id === id);
-      if (p) openProduct(p);
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, [filtered, closeModal]);
-
-  /** ——— keyboard nav inside modal ——— */
-  useEffect(() => {
-    if (!showProductModal || !selectedProduct) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") return closeModal();
-      const idx = filtered.findIndex((p) => p.id === selectedProduct.id);
-      if (e.key === "ArrowLeft" && idx > 0) {
-        const prev = filtered[idx - 1];
-        if (prev) openProduct(prev);
-      }
-      if (e.key === "ArrowRight" && idx < filtered.length - 1) {
-        const next = filtered[idx + 1];
-        if (next) openProduct(next);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [showProductModal, selectedProduct, filtered]);
-
-  /** ——— contact & share ——— */
   const contactNow = (p: Product) => {
     const number = seller?.whatsappNumber;
-    const message = `Hi ${seller?.storeName || "there"}! I'm interested in "${p.name}" (${formatPrice(p.price)}).`;
+    const message = `Hi ${
+      seller?.storeName || "there"
+    }! I'm interested in "${p.name}" (${formatPrice(p.price)}).`;
     const url = waUrl(number, message);
     if (url) window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const shareProduct = async (p: Product) => {
-    const url = `${window.location.origin}/store-aligned/${sellerId}#${p.id}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: p.name, text: `${p.name} • ${formatPrice(p.price)}`, url });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        setSharePulseId(p.id);
-        setTimeout(() => setSharePulseId((v) => (v === p.id ? null : v)), 1500);
-      } else {
-        // minimal fallback
-        window.open(url, "_blank");
-      }
-    } catch {
-      // ignore user cancel
-    }
-  };
-
-  /** ——— UI states (guard rails) ——— */
+  /** ——— UI ——— */
   if (!sellerId) {
     return (
-      <Shell>
-        <CenterCard>Invalid store link.</CenterCard>
-      </Shell>
+      <div className="min-h-screen grid place-items-center bg-slate-50">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-slate-700 shadow-sm">
+          Invalid store link.
+        </div>
+      </div>
     );
   }
 
   if (loading) {
     return (
-      <Shell>
-        <div className="flex items-center justify-center gap-3 text-slate-600 py-24">
+      <div className="min-h-screen grid place-items-center bg-slate-50">
+        <div className="flex items-center gap-3 text-slate-600">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span className="font-medium">Loading store…</span>
         </div>
-      </Shell>
+      </div>
     );
   }
 
   if (!seller) {
     return (
-      <Shell>
-        <CenterCard>Store not found.</CenterCard>
-      </Shell>
+      <div className="min-h-screen grid place-items-center bg-slate-50">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-slate-700 shadow-sm">
+          Store not found.
+        </div>
+      </div>
     );
   }
 
@@ -361,117 +292,148 @@ export default function PublicStorefrontAligned() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8 py-3 flex items-center justify-center gap-2">
+      {/* slim top ribbon */}
+      <div className="bg-gradient-to-r from-sky-600 via-indigo-600 to-violet-600 text-white">
+        <div className="mx-auto max-w-7xl px-6 py-2 flex items-center justify-center gap-2">
           <Globe className="h-4 w-4" />
           <span className="font-semibold">Official Storefront</span>
           <span className="opacity-80">• {seller.storeName || "Store"}</span>
         </div>
       </div>
 
-      {/* header */}
-      <div className="mx-auto max-w-6xl px-6 lg:px-8 pt-10 pb-8">
-        <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 md:p-8 shadow-sm">
-          <div className="flex flex-col items-center text-center gap-6">
-            <div className="h-24 w-24 rounded-full bg-white border border-slate-200 shadow-sm overflow-hidden grid place-items-center">
-              {seller.logoUrl ? (
-                <img src={seller.logoUrl} alt={`${seller.storeName || "Store"} logo`} className="h-full w-full object-cover" />
-              ) : (
-                <div className="h-16 w-16 rounded-full bg-blue-600 grid place-items-center text-white text-2xl font-bold">
-                  {(seller.storeName || "S").slice(0, 1)}
+      {/* Hero: brand gradient + glass panel */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_20%_-10%,rgba(59,130,246,0.25),transparent),radial-gradient(1200px_500px_at_80%_-10%,rgba(99,102,241,0.25),transparent)]" />
+        <div className="mx-auto max-w-7xl px-6 pt-8 pb-6 relative">
+          <div className="rounded-3xl border border-white/40 bg-white/60 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-6 md:p-8">
+            <div className="flex flex-col items-center text-center gap-6">
+              {/* logo */}
+              <div className="h-28 w-28 rounded-full grid place-items-center bg-gradient-to-br from-indigo-500 to-violet-600 p-[2px] shadow-lg">
+                <div className="h-full w-full rounded-full overflow-hidden bg-white">
+                  {seller.logoUrl ? (
+                    <img
+                      src={seller.logoUrl}
+                      alt="logo"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full grid place-items-center text-indigo-600 text-3xl font-black">
+                      {(seller.storeName || "S").slice(0, 1)}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* title */}
+              <div>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900">
+                  {seller.storeName || "Store"}
+                </h1>
+                <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-indigo-200/60 bg-white/70 px-3 py-1 text-sm font-semibold text-indigo-700 shadow-sm">
+                  <Sparkles className="h-4 w-4" />
+                  Powered by ShopLynk
+                </div>
+                {seller.storeDescription && (
+                  <p className="mt-3 max-w-2xl text-slate-600">
+                    {seller.storeDescription}
+                  </p>
+                )}
+              </div>
+
+              {/* stat chips */}
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <GlassChip
+                  icon={<Eye className="h-4 w-4" />}
+                  label={`${products.length} ${
+                    products.length === 1 ? "Product" : "Products"
+                  }`}
+                />
+                <GlassChip
+                  icon={<CreditCard className="h-4 w-4" />}
+                  label={`${payments.length} Payment Methods`}
+                />
+                <GlassChip
+                  icon={<Truck className="h-4 w-4" />}
+                  label={`${deliveries.length} Delivery Options`}
+                />
+              </div>
+
+              {/* Socials: keep as icons (your preference) */}
+              {(ig || fb || tk) && (
+                <div className="flex items-center gap-3">
+                  {ig && (
+                    <a
+                      href={ig}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-10 w-10 rounded-full bg-gradient-to-br from-[#F56040] to-[#E1306C] grid place-items-center text-white shadow-md"
+                      aria-label="Instagram"
+                      title="Instagram"
+                    >
+                      {/* simple IG glyph */}
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-5 w-5"
+                        fill="currentColor"
+                      >
+                        <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm0 2h10c1.66 0 3 1.34 3 3v10c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3V7c0-1.66 1.34-3 3-3zm5 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zm0 2a3.5 3.5 0 110 7 3.5 3.5 0 010-7zm5.75-.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0z" />
+                      </svg>
+                    </a>
+                  )}
+                  {fb && (
+                    <a
+                      href={fb}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-10 w-10 rounded-full bg-[#1877F2] grid place-items-center text-white shadow-md"
+                      aria-label="Facebook"
+                      title="Facebook"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-5 w-5"
+                        fill="currentColor"
+                      >
+                        <path d="M22 12.07C22 6.48 17.52 2 11.93 2S2 6.48 2 12.07C2 17.1 5.66 21.22 10.44 22v-7.03H7.9v-2.9h2.54V9.41c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.22.2 2.22.2v2.43h-1.25c-1.23 0-1.61.77-1.61 1.56v1.87h2.73l-.44 2.9h-2.29V22C18.34 21.22 22 17.1 22 12.07z" />
+                      </svg>
+                    </a>
+                  )}
+                  {tk && (
+                    <a
+                      href={tk}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="h-10 w-10 rounded-full bg-black grid place-items-center text-white shadow-md"
+                      aria-label="TikTok"
+                      title="TikTok"
+                    >
+                      <svg
+                        viewBox="0 0 48 48"
+                        className="h-5 w-5"
+                        fill="currentColor"
+                      >
+                        <path d="M33.94 18.02a13 13 0 01-4.21-8.35h-.03v-1.6h-4.41v21.33a5.43 5.43 0 11-5.43-5.43c.37 0 .73.04 1.07.12v-4.5a9.93 9.93 0 00-1.07-.06 9.93 9.93 0 109.93 9.93V15.5a17.43 17.43 0 009.93 3.09v-4.1a13.3 13.3 0 01-5.78-1.47z" />
+                      </svg>
+                    </a>
+                  )}
                 </div>
               )}
             </div>
-
-            <div>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900">{seller.storeName || "Store"}</h1>
-              <div className="mt-2 flex items-center justify-center gap-2 text-sm font-semibold text-blue-700">
-                <Sparkles className="h-4 w-4" />
-                Powered by ShopLynk
-              </div>
-              {seller.storeDescription && <p className="mt-3 max-w-2xl text-slate-600">{seller.storeDescription}</p>}
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <InteractiveChip 
-                icon={<Globe className="h-4 w-4" />} 
-                label={`${products.length} ${products.length === 1 ? "Product" : "Products"}`}
-                onClick={() => {
-                  // Scroll to products section
-                  const productsSection = document.querySelector('#products-section');
-                  if (productsSection) {
-                    productsSection.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              />
-              <InteractiveChip 
-                icon={<CreditCard className="h-4 w-4" />} 
-                label={`${payments.length} Payment Methods`}
-                onClick={() => {
-                  // Show payment methods modal/info
-                  alert(`We accept: ${payments.join(', ')}`);
-                }}
-              />
-              <InteractiveChip 
-                icon={<Truck className="h-4 w-4" />} 
-                label={`${deliveries.length} Delivery Options`}
-                onClick={() => {
-                  // Show delivery options modal/info
-                  alert(`Available delivery: ${deliveries.join(', ')}`);
-                }}
-              />
-            </div>
-
-            {(ig || fb || tk) && (
-              <div className="flex items-center gap-3">
-                {ig && (
-                  <a
-                    href={ig}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-blue-300"
-                  >
-                    Instagram
-                  </a>
-                )}
-                {fb && (
-                  <a
-                    href={fb}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-blue-300"
-                  >
-                    Facebook
-                  </a>
-                )}
-                {tk && (
-                  <a
-                    href={tk}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-blue-300"
-                  >
-                    TikTok
-                  </a>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* search & filters */}
-      <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm">
+      {/* Smart Filters — single source of truth (removed any secondary/duplicate section) */}
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="rounded-3xl border border-white/40 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-5 md:p-6">
+          {/* search */}
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products, brands, categories…"
-              className="h-14 pl-12 pr-10 rounded-xl border-slate-200 focus-visible:ring-0 focus-visible:border-blue-600 shadow-[0_1px_2px_rgba(16,24,40,.04)]"
-              aria-label="Search products"
+              placeholder="Search for products, brands, categories…"
+              className="pl-12 pr-10 h-12 rounded-xl border-slate-200 focus-visible:ring-0 focus-visible:border-indigo-600 bg-white"
             />
             {searchQuery && (
               <button
@@ -484,54 +446,89 @@ export default function PublicStorefrontAligned() {
             )}
           </div>
 
+          {/* row */}
           <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                <Filter className="h-4 w-4" />
-                Smart Filters
-                <span className="inline-flex items-center justify-center h-6 w-auto min-w-[24px] px-2 bg-blue-600 text-white text-xs font-bold rounded-full">
-                  {filtered.length} Result{filtered.length !== 1 ? 's' : ''}
+            {/* left: filter chips */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <Filter className="h-4 w-4" />
+                  Smart Filters
+                </span>
+
+                <span className="rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 px-3 py-1 text-white text-sm font-semibold shadow-sm">
+                  {filtered.length} {filtered.length === 1 ? "Result" : "Results"}
                 </span>
               </div>
-              
-              <SmartPill 
-                icon="❤️" 
-                label={`Show All`} 
-                count={products.length}
-                active={categoryFilter === "all"} 
-                onClick={() => setCategoryFilter("all")} 
-                variant="dark"
-              />
-              
-              {categories.map((c) => {
-                const categoryIcon = getCategoryIcon(c);
-                const count = products.filter((p) => p.category === c).length;
-                return (
-                  <SmartPill
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Pill
+                  active={categoryFilter === "all"}
+                  onClick={() => setCategoryFilter("all")}
+                  label={
+                    <div className="flex items-center gap-2">
+                      <span className="inline-grid h-5 w-5 place-items-center rounded-full bg-slate-800 text-white text-[10px]">
+                        🎯
+                      </span>
+                      <span>Show All</span>
+                      <span className="ml-1 rounded-full bg-slate-900/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {products.length}
+                      </span>
+                    </div>
+                  }
+                />
+                {categories.map((c) => (
+                  <Pill
                     key={c}
-                    icon={categoryIcon}
-                    label={c.replace(/💄|📱|💍|🏡|👕/g, '').trim() || c}
-                    count={count}
                     active={categoryFilter === c}
-                    onClick={() => setCategoryFilter(categoryFilter === c ? "all" : c)}
-                    variant="light"
+                    onClick={() =>
+                      setCategoryFilter(categoryFilter === c ? "all" : c)
+                    }
+                    label={
+                      <div className="flex items-center gap-2">
+                        <span className="inline-grid h-5 w-5 place-items-center rounded-full bg-white text-slate-700 border border-slate-200">
+                          📦
+                        </span>
+                        <span>{c}</span>
+                        <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-700">
+                          {products.filter((p) => p.category === c).length}
+                        </span>
+                      </div>
+                    }
                   />
-                );
-              })}
+                ))}
+
+                {/* Favorites (preview-only counter) */}
+                <div className="ml-1 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-400 opacity-70">
+                  <Heart className="h-4 w-4" />
+                  Favorites (Preview)
+                  <span className="ml-1 inline-grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-700">
+                    {favorites.size}
+                  </span>
+                </div>
+              </div>
             </div>
 
+            {/* right: sort */}
             <div className="flex items-center gap-3">
               <span className="text-sm text-slate-600">Sort by:</span>
               <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-                <SelectTrigger className="h-10 w-48 rounded-lg border-slate-200">
-                  <SelectValue placeholder="🔽 Newest First" />
+                <SelectTrigger className="h-10 w-52 rounded-xl border-slate-200 bg-white">
+                  <SelectValue placeholder="Newest first" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">🔽 Newest First</SelectItem>
-                  <SelectItem value="popular">⭐ Most Popular</SelectItem>
-                  <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">💰 Price: High to Low</SelectItem>
-                  <SelectItem value="name">🔤 Name A–Z</SelectItem>
+                  <SelectItem value="newest">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="inline-grid h-5 w-5 place-items-center rounded-md bg-sky-100 text-[10px] font-bold text-sky-700">
+                        NEW
+                      </span>
+                      Newest First
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="popular">Most Popular</SelectItem>
+                  <SelectItem value="price-low">Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="name">Name A–Z</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -539,8 +536,8 @@ export default function PublicStorefrontAligned() {
         </div>
       </div>
 
-      {/* grid */}
-      <div id="products-section" className="mx-auto max-w-6xl px-6 lg:px-8 py-6">
+      {/* Grid — product card content unchanged */}
+      <div className="mx-auto max-w-7xl px-6 py-6">
         {filtered.length === 0 ? (
           <Empty />
         ) : (
@@ -548,20 +545,22 @@ export default function PublicStorefrontAligned() {
             {filtered.map((p) => {
               const fav = favorites.has(p.id);
               return (
-                <Card key={p.id} className="group rounded-2xl overflow-hidden border border-slate-200 shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,24,40,.12)] transition">
+                <Card
+                  key={p.id}
+                  className="overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow"
+                >
                   <div className="relative">
                     <div className="aspect-square bg-slate-100">
                       <img
                         src={getProductImageUrl(p) || PLACEHOLDER_IMAGE}
                         alt={p.name}
                         data-product-id={p.id}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+                        className="h-full w-full object-cover"
                         onLoad={() => onImageLoad(p.id)}
                         onError={onImageError}
                         onLoadStart={() => onImageStart(p.id)}
                         loading="lazy"
                         decoding="async"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
                     </div>
 
@@ -575,74 +574,58 @@ export default function PublicStorefrontAligned() {
                     <button
                       onClick={() => toggleFavorite(p.id)}
                       className={[
-                        "absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 border border-slate-200 hover:ring-1 hover:ring-slate-200 transition-transform active:scale-95",
-                        fav ? "text-rose-600" : "text-slate-400",
+                        "absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border bg-white/90 shadow-sm",
+                        fav
+                          ? "border-rose-300 text-rose-600"
+                          : "border-slate-200 text-slate-400"
                       ].join(" ")}
-                      aria-pressed={fav}
-                      aria-label={fav ? "Remove from favorites" : "Add to favorites"}
+                      aria-label={
+                        fav ? "Remove from favorites" : "Add to favorites"
+                      }
                     >
                       <Heart className={`h-4 w-4 ${fav ? "fill-current" : ""}`} />
-                      <span className="sr-only">{fav ? "Favorited" : "Not favorited"}</span>
                     </button>
 
-                    {/* overlays */}
-                    <div className="absolute left-3 bottom-3 flex flex-wrap gap-2">
-                      {isNew(p) && <SoftBadge color="emerald">New</SoftBadge>}
-                      {p.quantity > 0 && p.quantity <= 5 && <SoftBadge color="rose">Limited</SoftBadge>}
-                      {(p as any).features?.includes("featured") && <SoftBadge color="violet">Featured</SoftBadge>}
+                    {/* badges */}
+                    <div className="absolute left-3 top-3 flex flex-col gap-2">
+                      {isNew(p) && (
+                        <Badge className="bg-emerald-500 text-white">New</Badge>
+                      )}
                     </div>
                   </div>
 
                   <CardContent className="p-4">
                     <div className="space-y-2">
-                      <h3 className="line-clamp-2 text-base font-semibold text-slate-900">{p.name}</h3>
-                      {p.brand && <div className="text-xs font-medium uppercase tracking-wider text-slate-500">{p.brand}</div>}
-
-                      <div className="flex items-center gap-2">
-                        <div className="text-lg font-bold text-emerald-600">{formatPrice(p.price)}</div>
-                        {(p as any).compareAtPrice && (p as any).compareAtPrice > p.price && (
-                          <>
-                            <div className="text-sm text-slate-400 line-through">{formatPrice((p as any).compareAtPrice)}</div>
-                            <Badge className="bg-rose-600 text-white">
-                              -{Math.round((((p as any).compareAtPrice - p.price) / (p as any).compareAtPrice) * 100)}%
-                            </Badge>
-                          </>
-                        )}
+                      <h3 className="line-clamp-2 text-base font-semibold text-slate-900">
+                        {p.name}
+                      </h3>
+                      <p className="line-clamp-3 text-sm text-slate-600">
+                        {p.description}
+                      </p>
+                      <div className="pt-2">
+                        <p className="text-2xl font-bold text-slate-900">
+                          {formatPrice(p.price)}
+                        </p>
                       </div>
+                    </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        <Tag>{p.category}</Tag>
-                        {p.subcategory && <Tag>{p.subcategory}</Tag>}
-                      </div>
-
-                      {p.quantity > 0 && p.quantity <= 10 && (
-                        <div className="pt-1">
-                          <Badge className="border border-rose-200 bg-rose-50 text-rose-700">Only {p.quantity} left</Badge>
-                        </div>
-                      )}
-
-                      <div className="mt-3 grid grid-cols-2 gap-2">
-                        <Button variant="outline" className="border-slate-200 hover:bg-slate-50" onClick={() => openProduct(p)}>
-                          View details
-                        </Button>
-                        <Button
-                          disabled={!seller.whatsappNumber}
-                          className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60"
-                          onClick={() => contactNow(p)}
-                          title={seller.whatsappNumber ? "Contact seller on WhatsApp" : "Seller has not enabled WhatsApp"}
-                        >
-                          <MessageCircle className="mr-2 h-4 w-4" />
-                          Contact
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className={`col-span-2 border-slate-200 hover:bg-slate-50 ${sharePulseId === p.id ? "border-blue-500 text-blue-700" : ""}`}
-                          onClick={() => shareProduct(p)}
-                        >
-                          <Share2 className="mr-2 h-4 w-4" />
-                          {sharePulseId === p.id ? "Link copied" : "Share"}
-                        </Button>
-                      </div>
+                    {/* Actions */}
+                    <div className="mt-4 space-y-2">
+                      <Button
+                        onClick={() => openProduct(p)}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </Button>
+                      <Button
+                        onClick={() => contactNow(p)}
+                        className="w-full bg-green-600 hover:bg-green-700"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Contact Seller
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -652,305 +635,136 @@ export default function PublicStorefrontAligned() {
         )}
       </div>
 
-      {/* modal */}
+      {/* Product Modal */}
       {showProductModal && selectedProduct && (
-        <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
-          onClick={closeModal}
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${selectedProduct.name} details`}
-        >
-          <div className="mx-auto mt-6 max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="relative">
-              <div className="aspect-[21/9] bg-slate-100">
-                <img
-                  src={getProductImageUrl(selectedProduct) || PLACEHOLDER_IMAGE}
-                  alt={selectedProduct.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-
-              <div className="absolute left-3 top-3 flex items-center gap-2">
-                <Button variant="ghost" className="h-9 rounded-full bg-white/90" onClick={closeModal}>
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="ml-2 hidden sm:inline">Back</span>
-                </Button>
-              </div>
-
-              {/* next/prev */}
-              {filtered.length > 1 && (
-                <>
-                  <button
-                    className="absolute left-3 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow hover:bg-white"
-                    onClick={() => {
-                      const idx = filtered.findIndex((p) => p.id === selectedProduct.id);
-                      if (idx > 0) openProduct(filtered[idx - 1]);
-                    }}
-                    aria-label="Previous product"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow hover:bg-white"
-                    onClick={() => {
-                      const idx = filtered.findIndex((p) => p.id === selectedProduct.id);
-                      if (idx < filtered.length - 1) openProduct(filtered[idx + 1]);
-                    }}
-                    aria-label="Next product"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </>
-              )}
-
-              <div className="absolute left-3 bottom-3 flex flex-wrap gap-2">
-                <SoftBadge color="slate">{selectedProduct.category}</SoftBadge>
-                {selectedProduct.subcategory && <SoftBadge color="slate">{selectedProduct.subcategory}</SoftBadge>}
-                {isNew(selectedProduct) && <SoftBadge color="emerald">New</SoftBadge>}
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                <div className="max-w-2xl space-y-2">
-                  <h2 className="text-2xl font-bold text-slate-900">{selectedProduct.name}</h2>
-                  {selectedProduct.brand && (
-                    <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">{selectedProduct.brand}</div>
-                  )}
-                </div>
-
-                <div className="text-right">
-                  <div className="text-3xl font-black text-emerald-600">{formatPrice(selectedProduct.price)}</div>
-                  {(selectedProduct as any).compareAtPrice && (selectedProduct as any).compareAtPrice > selectedProduct.price && (
-                    <div className="mt-1 flex items-center gap-2 justify-end">
-                      <div className="text-slate-400 line-through">{formatPrice((selectedProduct as any).compareAtPrice)}</div>
-                      <Badge className="bg-rose-600 text-white">
-                        -
-                        {Math.round(
-                          (((selectedProduct as any).compareAtPrice - selectedProduct.price) /
-                            (selectedProduct as any).compareAtPrice) *
-                            100
-                        )}
-                        %
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {selectedProduct.description && (
-                <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-slate-700">
-                    <Info className="h-4 w-4" />
-                    <span className="text-sm font-semibold">Product description</span>
-                  </div>
-                  <p className="text-slate-700">{selectedProduct.description}</p>
-                </div>
-              )}
-
-              <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
-                {row("Condition", selectedProduct.condition)}
-                {row("Size", selectedProduct.size)}
-                {row("Color", selectedProduct.color)}
-                {row("Material", selectedProduct.material)}
-              </div>
-
-              <div
-                className={[
-                  "mt-6 rounded-xl border p-4",
-                  selectedProduct.quantity > 10
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                    : selectedProduct.quantity > 0
-                    ? "border-amber-200 bg-amber-50 text-amber-800"
-                    : "border-rose-200 bg-rose-50 text-rose-800",
-                ].join(" ")}
-              >
-                {selectedProduct.quantity > 10
-                  ? "In stock & ready to ship"
-                  : selectedProduct.quantity > 0
-                  ? `Limited stock — only ${selectedProduct.quantity} left`
-                  : "Currently out of stock"}
-              </div>
-
-              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <Button
-                  variant="outline"
-                  className={`border-slate-200 hover:bg-slate-50 ${sharePulseId === selectedProduct.id ? "border-blue-500 text-blue-700" : ""}`}
-                  onClick={() => shareProduct(selectedProduct)}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  {sharePulseId === selectedProduct.id ? "Link copied" : "Share"}
-                </Button>
-                <Button
-                  disabled={!seller.whatsappNumber}
-                  className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60"
-                  onClick={() => contactNow(selectedProduct)}
-                >
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Contact seller
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProductModal
+          product={selectedProduct}
+          seller={seller}
+          onClose={() => {
+            setShowProductModal(false);
+            setSelectedProduct(null);
+            window.history.pushState(null, "", window.location.pathname);
+          }}
+          onContact={() => contactNow(selectedProduct)}
+        />
       )}
     </div>
   );
 }
 
-/** ——— UI components ——— */
-function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-screen bg-slate-50">{children}</div>;
-}
-
-function CenterCard({ children }: { children: React.ReactNode }) {
+// Helper components
+function GlassChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <div className="min-h-screen grid place-items-center">
-      <div className="rounded-xl border border-slate-200 bg-white p-6 text-slate-700 shadow-sm">{children}</div>
-    </div>
-  );
-}
-
-function Chip({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
+    <div className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/60 px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-sm">
       {icon}
-      {label}
-    </div>
-  );
-}
-
-function InteractiveChip({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button 
-      onClick={onClick}
-      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer"
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
-
-function Pill({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) {
-  const basePill = "h-8 px-3.5 text-sm font-semibold rounded-full border transition-colors";
-  const pillInactive = `${basePill} bg-white text-slate-700 border-slate-200 hover:border-blue-300`;
-  const pillActive = `${basePill} bg-blue-600 text-white border-blue-600`;
-  
-  return (
-    <button
-      onClick={onClick}
-      className={active ? pillActive : pillInactive}
-    >
-      {label}
-    </button>
-  );
-}
-
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-      {children}
-    </span>
-  );
-}
-
-function SoftBadge({ children, color = "slate" }: { children: React.ReactNode; color?: "slate" | "emerald" | "rose" | "violet" }) {
-  const map: Record<string, string> = {
-    slate: "bg-slate-900/80 text-white",
-    emerald: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-    rose: "bg-rose-50 text-rose-700 border border-rose-200",
-    violet: "bg-violet-600 text-white",
-  };
-  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${map[color]}`}>{children}</span>;
-}
-
-function row(label?: string, value?: string) {
-  if (!value) return null;
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2">
-      <span className="text-sm font-medium text-slate-600">{label}</span>
-      <span className="text-sm font-semibold text-slate-900">{value}</span>
-    </div>
-  );
-}
-
-function SmartPill({ 
-  icon, 
-  label, 
-  count, 
-  active, 
-  onClick, 
-  variant = "light" 
-}: { 
-  icon: string; 
-  label: string; 
-  count: number; 
-  active?: boolean; 
-  onClick: () => void; 
-  variant?: "light" | "dark"; 
-}) {
-  const baseClasses = "h-8 px-3 text-sm font-semibold rounded-full border transition-colors inline-flex items-center gap-1.5";
-  
-  if (variant === "dark" && active) {
-    return (
-      <button
-        onClick={onClick}
-        className={`${baseClasses} bg-slate-800 text-white border-slate-800`}
-      >
-        <span className="text-sm">{icon}</span>
-        <span>{label}</span>
-        <span className="text-xs opacity-80">{count}</span>
-      </button>
-    );
-  }
-  
-  if (variant === "dark") {
-    return (
-      <button
-        onClick={onClick}
-        className={`${baseClasses} bg-slate-200 text-slate-700 border-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-800`}
-      >
-        <span className="text-sm">{icon}</span>
-        <span>{label}</span>
-        <span className="text-xs opacity-70">{count}</span>
-      </button>
-    );
-  }
-  
-  // Light variant
-  if (active) {
-    return (
-      <button
-        onClick={onClick}
-        className={`${baseClasses} bg-blue-600 text-white border-blue-600`}
-      >
-        <span className="text-sm">{icon}</span>
-        <span>{label}</span>
-        <span className="text-xs opacity-90">{count}</span>
-      </button>
-    );
-  }
-  
-  return (
-    <button
-      onClick={onClick}
-      className={`${baseClasses} bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-blue-50`}
-    >
-      <span className="text-sm">{icon}</span>
       <span>{label}</span>
-      <span className="text-xs opacity-70">{count}</span>
+    </div>
+  );
+}
+
+function Pill({
+  active,
+  onClick,
+  label
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={[
+        "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition-all",
+        active
+          ? "border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm"
+          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+      ].join(" ")}
+    >
+      {label}
     </button>
   );
 }
 
 function Empty() {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-      <Search className="mx-auto h-10 w-10 text-slate-300" />
-      <h3 className="mt-3 text-xl font-semibold text-slate-900">No products found</h3>
-      <p className="mt-1 text-slate-600">Try a different search or adjust your filters.</p>
+    <div className="grid place-items-center py-12">
+      <div className="text-center">
+        <div className="mx-auto h-24 w-24 rounded-full bg-slate-100 grid place-items-center">
+          <Search className="h-8 w-8 text-slate-400" />
+        </div>
+        <h3 className="mt-4 text-lg font-semibold text-slate-900">
+          No products found
+        </h3>
+        <p className="mt-2 text-slate-600">
+          Try adjusting your search or filter criteria.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProductModal({
+  product,
+  seller,
+  onClose,
+  onContact
+}: {
+  product: Product;
+  seller: Seller;
+  onClose: () => void;
+  onContact: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <h2 className="text-2xl font-bold text-slate-900">{product.name}</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-slate-100 rounded-full"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="aspect-square bg-slate-100 rounded-xl mb-4 overflow-hidden">
+            <img
+              src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <p className="text-3xl font-bold text-slate-900">
+                {formatPrice(product.price)}
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-2">Description</h3>
+              <p className="text-slate-600">{product.description}</p>
+            </div>
+
+            {product.category && (
+              <div>
+                <h3 className="font-semibold text-slate-900 mb-2">Category</h3>
+                <Badge variant="secondary">{product.category}</Badge>
+              </div>
+            )}
+
+            <div className="pt-4 border-t">
+              <Button onClick={onContact} className="w-full bg-green-600 hover:bg-green-700">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Contact {seller.storeName || "Seller"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
