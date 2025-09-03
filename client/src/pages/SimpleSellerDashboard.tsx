@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { useAuthContext } from '@/context/AuthContext';
-import { Store, Package, BarChart3, Settings, Users, Eye } from 'lucide-react';
+import { Store, Package, BarChart3, Settings, Users, Eye, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DashboardLayout, { PageContainer } from '@/components/Layout/DashboardLayout';
@@ -67,6 +67,31 @@ export default function SellerDashboard() {
   ];
 
   const publicUrl = `${window.location.origin}/store/${seller.id}`;
+  const shareText = `Check out my ${seller.storeName || 'ShopLynk'} store: ${publicUrl}`;
+
+  const shareViaWhatsApp = () => {
+    // Try the native share sheet first (best on mobile)
+    if (navigator.share && typeof navigator.share === 'function') {
+      navigator
+        .share({ title: seller.storeName || 'My Store', text: shareText, url: publicUrl })
+        .catch(() => {
+          // If user cancels or it fails, silently ignore
+        });
+      return;
+    }
+    // Fallback to WhatsApp share
+    const wa = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+    window.open(wa, '_blank', 'noopener,noreferrer');
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+    } catch {
+      // Fallback: open a prompt if clipboard fails
+      window.prompt('Copy your store link:', publicUrl);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -221,19 +246,15 @@ export default function SellerDashboard() {
                   {publicUrl}
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    onClick={() => navigator.clipboard.writeText(publicUrl)}
-                    variant="outline"
-                    aria-label="Copy public store link"
-                  >
+                  <Button onClick={copyLink} variant="outline">
                     Copy link
                   </Button>
                   <Button
-                    onClick={() => window.open(`/store/${seller.id}`, '_blank', 'noopener,noreferrer')}
-                    aria-label="Open public store preview"
+                    onClick={shareViaWhatsApp}
+                    className="bg-emerald-600 hover:bg-emerald-700"
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Preview
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Share
                   </Button>
                 </div>
               </div>
