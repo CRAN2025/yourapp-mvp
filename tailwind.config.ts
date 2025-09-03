@@ -61,6 +61,20 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        brand: {
+          blue: "var(--brand-blue)",
+          indigo: "var(--brand-indigo)",
+          violet: "var(--brand-violet)",
+          fuchsia: "var(--brand-fuchsia)",
+        },
+        text: {
+          strong: "var(--text-strong)",
+          muted: "var(--text-muted)",
+        },
+        glass: {
+          bg: "var(--glass-bg)",
+          border: "var(--glass-border)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

@@ -45,6 +45,19 @@
   --font-mono: Menlo, monospace;
   --radius: 0.75rem;
   --shadow-soft: 0 8px 24px rgba(0,0,0,0.08);
+  
+  /* Brand Tokens - Seller Salesfront */
+  --brand-blue: hsl(214, 88%, 55%);
+  --brand-indigo: hsl(245, 65%, 59%);
+  --brand-violet: hsl(258, 76%, 57%);
+  --brand-fuchsia: hsl(330, 81%, 60%);
+  --text-strong: hsl(222, 84%, 5%);
+  --text-muted: hsl(215, 20%, 65%);
+  
+  /* Glass Effect Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 8px 30px rgba(2, 6, 23, 0.06);
 }
 
 .dark {
@@ -79,6 +92,19 @@
   --sidebar-accent-foreground: hsl(186.5306, 73.5714%, 33.3333%);
   --sidebar-border: hsl(205.7143, 15.7895%, 26.0784%);
   --sidebar-ring: hsl(186.5306, 73.5714%, 33.3333%);
+  
+  /* Brand Tokens - Seller Salesfront (Dark Mode) */
+  --brand-blue: hsl(214, 88%, 55%);
+  --brand-indigo: hsl(245, 65%, 59%);
+  --brand-violet: hsl(258, 76%, 57%);
+  --brand-fuchsia: hsl(330, 81%, 60%);
+  --text-strong: hsl(210, 40%, 98%);
+  --text-muted: hsl(215, 20%, 65%);
+  
+  /* Glass Effect Tokens (Dark Mode) */
+  --glass-bg: rgba(0, 0, 0, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 @layer base {
@@ -109,6 +135,10 @@
 
   .shadow-soft {
     box-shadow: var(--shadow-soft);
+  }
+
+  .shadow-glass {
+    box-shadow: var(--glass-shadow);
   }
 
   .input-field {
