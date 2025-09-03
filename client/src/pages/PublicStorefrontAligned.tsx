@@ -98,6 +98,8 @@ const getCategoryIcon = (category: string): string => {
   return '📦';
 };
 
+/** ——— UI components ——— */
+
 export default function PublicStorefrontAligned() {
   // Route: /store-aligned/:sellerId
   const [, params] = useRoute("/store-aligned/:sellerId");
@@ -392,9 +394,33 @@ export default function PublicStorefrontAligned() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Chip icon={<Globe className="h-4 w-4" />} label={`${products.length} ${products.length === 1 ? "Product" : "Products"}`} />
-              <Chip icon={<CreditCard className="h-4 w-4" />} label={`${payments.length} Payment Methods`} />
-              <Chip icon={<Truck className="h-4 w-4" />} label={`${deliveries.length} Delivery Options`} />
+              <InteractiveChip 
+                icon={<Globe className="h-4 w-4" />} 
+                label={`${products.length} ${products.length === 1 ? "Product" : "Products"}`}
+                onClick={() => {
+                  // Scroll to products section
+                  const productsSection = document.querySelector('#products-section');
+                  if (productsSection) {
+                    productsSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              />
+              <InteractiveChip 
+                icon={<CreditCard className="h-4 w-4" />} 
+                label={`${payments.length} Payment Methods`}
+                onClick={() => {
+                  // Show payment methods modal/info
+                  alert(`We accept: ${payments.join(', ')}`);
+                }}
+              />
+              <InteractiveChip 
+                icon={<Truck className="h-4 w-4" />} 
+                label={`${deliveries.length} Delivery Options`}
+                onClick={() => {
+                  // Show delivery options modal/info
+                  alert(`Available delivery: ${deliveries.join(', ')}`);
+                }}
+              />
             </div>
 
             {(ig || fb || tk) && (
@@ -514,7 +540,7 @@ export default function PublicStorefrontAligned() {
       </div>
 
       {/* grid */}
-      <div className="mx-auto max-w-6xl px-6 lg:px-8 py-6">
+      <div id="products-section" className="mx-auto max-w-6xl px-6 lg:px-8 py-6">
         {filtered.length === 0 ? (
           <Empty />
         ) : (
@@ -792,6 +818,18 @@ function Chip({ icon, label }: { icon: React.ReactNode; label: string }) {
       {icon}
       {label}
     </div>
+  );
+}
+
+function InteractiveChip({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-colors cursor-pointer"
+    >
+      {icon}
+      {label}
+    </button>
   );
 }
 
