@@ -414,32 +414,52 @@ export default function PublicStorefrontAligned() {
 
           <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-2 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                <Filter className="h-4 w-4" /> Categories
-              </span>
-              <Pill active={categoryFilter === "all"} onClick={() => setCategoryFilter("all")} label={`All (${products.length})`} />
-              {categories.map((c) => (
-                <Pill
-                  key={c}
-                  active={categoryFilter === c}
-                  onClick={() => setCategoryFilter(categoryFilter === c ? "all" : c)}
-                  label={`${c} (${products.filter((p) => p.category === c).length})`}
-                />
-              ))}
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <Filter className="h-4 w-4" />
+                Smart Filters
+                <span className="inline-flex items-center justify-center h-6 w-auto min-w-[24px] px-2 bg-blue-600 text-white text-xs font-bold rounded-full">
+                  {filtered.length} Result{filtered.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              
+              <SmartPill 
+                icon="❤️" 
+                label={`Show All`} 
+                count={products.length}
+                active={categoryFilter === "all"} 
+                onClick={() => setCategoryFilter("all")} 
+                variant="dark"
+              />
+              
+              {categories.map((c) => {
+                const categoryIcon = getCategoryIcon(c);
+                const count = products.filter((p) => p.category === c).length;
+                return (
+                  <SmartPill
+                    key={c}
+                    icon={categoryIcon}
+                    label={c.replace(/💄|📱|💍|🏡|👕/g, '').trim() || c}
+                    count={count}
+                    active={categoryFilter === c}
+                    onClick={() => setCategoryFilter(categoryFilter === c ? "all" : c)}
+                    variant="light"
+                  />
+                );
+              })}
             </div>
 
             <div className="flex items-center gap-3">
               <span className="text-sm text-slate-600">Sort by:</span>
               <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
                 <SelectTrigger className="h-10 w-48 rounded-lg border-slate-200">
-                  <SelectValue placeholder="Newest first" />
+                  <SelectValue placeholder="🔽 Newest First" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">Newest first</SelectItem>
-                  <SelectItem value="popular">Most popular</SelectItem>
-                  <SelectItem value="price-low">Price: low to high</SelectItem>
-                  <SelectItem value="price-high">Price: high to low</SelectItem>
-                  <SelectItem value="name">Name A–Z</SelectItem>
+                  <SelectItem value="newest">🔽 Newest First</SelectItem>
+                  <SelectItem value="popular">⭐ Most Popular</SelectItem>
+                  <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
+                  <SelectItem value="price-high">💰 Price: High to Low</SelectItem>
+                  <SelectItem value="name">🔤 Name A–Z</SelectItem>
                 </SelectContent>
               </Select>
             </div>
