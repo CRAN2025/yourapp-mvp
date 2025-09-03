@@ -1,11 +1,20 @@
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { useAuthContext } from '@/context/AuthContext';
-import { Store, Package, BarChart3, Settings, Users, Eye, MessageCircle } from 'lucide-react';
+import { Store, Package, BarChart3, Settings, Users, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import DashboardLayout, { PageContainer } from '@/components/Layout/DashboardLayout';
+import DashboardLayout from '@/components/Layout/DashboardLayout';
 import LoadingSpinner from '@/components/LoadingSpinner';
+
+/** Centered, responsive container (keeps content calm on ultrawide screens) */
+function PageContainer({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-full mx-auto max-w-[1240px] px-4 sm:px-6 lg:px-8 py-8">
+      {children}
+    </div>
+  );
+}
 
 export default function SellerDashboard() {
   const { user, seller, loading } = useAuthContext();
@@ -67,34 +76,10 @@ export default function SellerDashboard() {
   ];
 
   const publicUrl = `${window.location.origin}/store/${seller.id}`;
-  const shareText = `Check out my ${seller.storeName || 'ShopLynk'} store: ${publicUrl}`;
-
-  const shareViaWhatsApp = () => {
-    // Try the native share sheet first (best on mobile)
-    if (navigator.share && typeof navigator.share === 'function') {
-      navigator
-        .share({ title: seller.storeName || 'My Store', text: shareText, url: publicUrl })
-        .catch(() => {
-          // If user cancels or it fails, silently ignore
-        });
-      return;
-    }
-    // Fallback to WhatsApp share
-    const wa = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-    window.open(wa, '_blank', 'noopener,noreferrer');
-  };
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(publicUrl);
-    } catch {
-      // Fallback: open a prompt if clipboard fails
-      window.prompt('Copy your store link:', publicUrl);
-    }
-  };
 
   return (
     <DashboardLayout>
+      {/* Light full-width background is okay; content stays centered in PageContainer */}
       <PageContainer>
         <div className="space-y-8">
           {/* Onboarding hint (non-blocking) */}
@@ -242,19 +227,23 @@ export default function SellerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-700 select-all overflow-x-auto whitespace-nowrap">
+                <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-sm text-slate-700 select-all">
                   {publicUrl}
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={copyLink} variant="outline">
+                  <Button
+                    onClick={() => navigator.clipboard.writeText(publicUrl)}
+                    variant="outline"
+                    aria-label="Copy public store link"
+                  >
                     Copy link
                   </Button>
                   <Button
-                    onClick={shareViaWhatsApp}
-                    className="bg-emerald-600 hover:bg-emerald-700"
+                    onClick={() => window.open(`/store/${seller.id}`, '_blank', 'noopener,noreferrer')}
+                    aria-label="Open public store preview"
                   >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Share
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview
                   </Button>
                 </div>
               </div>
