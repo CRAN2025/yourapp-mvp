@@ -75,12 +75,8 @@ export default function SellerDashboard() {
   const shareText = `Check out my ${seller.storeName || 'ShopLynk'} store: ${storeUrl}`;
 
   const shareLink = () => {
-    if (navigator.share && typeof navigator.share === 'function') {
-      navigator.share({ title: seller.storeName || 'My Store', text: shareText, url: storeUrl }).catch(() => {});
-    } else {
-      const wa = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
-      window.open(wa, '_blank', 'noopener,noreferrer');
-    }
+    const text = `Check out my ${seller.storeName || 'ShopLynk'} store: ${storeUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   };
 
   const copyLink = async () => {
@@ -165,7 +161,7 @@ export default function SellerDashboard() {
                   Copy Link
                 </Button>
                 <Button onClick={shareLink} className="bg-slate-900 hover:bg-slate-800">
-                  Share Link
+                  Share on WhatsApp
                 </Button>
               </div>
             </div>
