@@ -315,7 +315,7 @@ export default function PublicStorefrontAligned() {
     <div className="min-h-screen bg-slate-50">
       {/* banner */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-center gap-2">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8 py-3 flex items-center justify-center gap-2">
           <Globe className="h-4 w-4" />
           <span className="font-semibold">Official Storefront</span>
           <span className="opacity-80">• {seller.storeName || "Store"}</span>
@@ -323,8 +323,8 @@ export default function PublicStorefrontAligned() {
       </div>
 
       {/* header */}
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
+      <div className="mx-auto max-w-6xl px-6 lg:px-8 pt-10 pb-8">
+        <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col items-center text-center gap-6">
             <div className="h-24 w-24 rounded-full bg-white border border-slate-200 shadow-sm overflow-hidden grid place-items-center">
               {seller.logoUrl ? (
@@ -390,7 +390,7 @@ export default function PublicStorefrontAligned() {
       </div>
 
       {/* search & filters */}
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-6xl px-6 lg:px-8">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-sm">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -398,7 +398,7 @@ export default function PublicStorefrontAligned() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products, brands, categories…"
-              className="pl-12 pr-10 h-12 rounded-xl border-slate-200 focus-visible:ring-0 focus-visible:border-blue-600"
+              className="h-14 pl-12 pr-10 rounded-xl border-slate-200 focus-visible:ring-0 focus-visible:border-blue-600 shadow-[0_1px_2px_rgba(16,24,40,.04)]"
               aria-label="Search products"
             />
             {searchQuery && (
@@ -448,7 +448,7 @@ export default function PublicStorefrontAligned() {
       </div>
 
       {/* grid */}
-      <div className="mx-auto max-w-7xl px-6 py-6">
+      <div className="mx-auto max-w-6xl px-6 lg:px-8 py-6">
         {filtered.length === 0 ? (
           <Empty />
         ) : (
@@ -456,14 +456,14 @@ export default function PublicStorefrontAligned() {
             {filtered.map((p) => {
               const fav = favorites.has(p.id);
               return (
-                <Card key={p.id} className="overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                <Card key={p.id} className="group rounded-2xl overflow-hidden border border-slate-200 shadow-[0_1px_2px_rgba(16,24,40,.06)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,24,40,.12)] transition">
                   <div className="relative">
                     <div className="aspect-square bg-slate-100">
                       <img
                         src={getProductImageUrl(p) || PLACEHOLDER_IMAGE}
                         alt={p.name}
                         data-product-id={p.id}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
                         onLoad={() => onImageLoad(p.id)}
                         onError={onImageError}
                         onLoadStart={() => onImageStart(p.id)}
@@ -483,8 +483,8 @@ export default function PublicStorefrontAligned() {
                     <button
                       onClick={() => toggleFavorite(p.id)}
                       className={[
-                        "absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border bg-white/90 shadow-sm transition-transform active:scale-95",
-                        fav ? "border-rose-300 text-rose-600" : "border-slate-200 text-slate-400",
+                        "absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 border border-slate-200 hover:ring-1 hover:ring-slate-200 transition-transform active:scale-95",
+                        fav ? "text-rose-600" : "text-slate-400",
                       ].join(" ")}
                       aria-pressed={fav}
                       aria-label={fav ? "Remove from favorites" : "Add to favorites"}
@@ -525,12 +525,12 @@ export default function PublicStorefrontAligned() {
 
                       {p.quantity > 0 && p.quantity <= 10 && (
                         <div className="pt-1">
-                          <Badge className="bg-rose-600 text-white">Only {p.quantity} left</Badge>
+                          <Badge className="border border-rose-200 bg-rose-50 text-rose-700">Only {p.quantity} left</Badge>
                         </div>
                       )}
 
                       <div className="mt-3 grid grid-cols-2 gap-2">
-                        <Button variant="outline" className="border-slate-200" onClick={() => openProduct(p)}>
+                        <Button variant="outline" className="border-slate-200 hover:bg-slate-50" onClick={() => openProduct(p)}>
                           View details
                         </Button>
                         <Button
@@ -544,7 +544,7 @@ export default function PublicStorefrontAligned() {
                         </Button>
                         <Button
                           variant="outline"
-                          className={`col-span-2 border-slate-200 ${sharePulseId === p.id ? "border-blue-500 text-blue-700" : ""}`}
+                          className={`col-span-2 border-slate-200 hover:bg-slate-50 ${sharePulseId === p.id ? "border-blue-500 text-blue-700" : ""}`}
                           onClick={() => shareProduct(p)}
                         >
                           <Share2 className="mr-2 h-4 w-4" />
@@ -684,7 +684,7 @@ export default function PublicStorefrontAligned() {
               <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <Button
                   variant="outline"
-                  className={`border-slate-200 ${sharePulseId === selectedProduct.id ? "border-blue-500 text-blue-700" : ""}`}
+                  className={`border-slate-200 hover:bg-slate-50 ${sharePulseId === selectedProduct.id ? "border-blue-500 text-blue-700" : ""}`}
                   onClick={() => shareProduct(selectedProduct)}
                 >
                   <Share2 className="mr-2 h-4 w-4" />
@@ -730,13 +730,14 @@ function Chip({ icon, label }: { icon: React.ReactNode; label: string }) {
 }
 
 function Pill({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) {
+  const basePill = "h-8 px-3.5 text-sm font-semibold rounded-full border transition-colors";
+  const pillInactive = `${basePill} bg-white text-slate-700 border-slate-200 hover:border-blue-300`;
+  const pillActive = `${basePill} bg-blue-600 text-white border-blue-600`;
+  
   return (
     <button
       onClick={onClick}
-      className={[
-        "rounded-full border px-3.5 py-2 text-sm font-semibold transition-colors",
-        active ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-blue-300",
-      ].join(" ")}
+      className={active ? pillActive : pillInactive}
     >
       {label}
     </button>
@@ -754,8 +755,8 @@ function Tag({ children }: { children: React.ReactNode }) {
 function SoftBadge({ children, color = "slate" }: { children: React.ReactNode; color?: "slate" | "emerald" | "rose" | "violet" }) {
   const map: Record<string, string> = {
     slate: "bg-slate-900/80 text-white",
-    emerald: "bg-emerald-600 text-white",
-    rose: "bg-rose-600 text-white",
+    emerald: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    rose: "bg-rose-50 text-rose-700 border border-rose-200",
     violet: "bg-violet-600 text-white",
   };
   return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${map[color]}`}>{children}</span>;
