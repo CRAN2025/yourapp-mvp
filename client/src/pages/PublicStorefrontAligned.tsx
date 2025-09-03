@@ -52,6 +52,52 @@ const waUrl = (phone?: string, msg?: string) => {
   return `https://wa.me/${digits.replace(/^\+/, "")}?text=${encodeURIComponent(msg || "")}`;
 };
 
+const getCategoryIcon = (category: string): string => {
+  const iconMap: { [key: string]: string } = {
+    '💄 Beauty & Cosmetics': '💄',
+    '📱 Electronics': '📱',
+    '💍 Jewelry & Accessories': '💍',
+    '🏡 Home & Garden': '🏡',
+    '👕 Clothing': '👕',
+    '📚 Books': '📚',
+    '⚽ Sports': '⚽',
+    '🧸 Toys': '🧸',
+    '🍎 Food': '🍎',
+    '💊 Health': '💊',
+    '🎨 Art': '🎨',
+    '🎵 Music': '🎵',
+    '🚗 Automotive': '🚗',
+    '✈️ Travel': '✈️',
+    '📸 Photography': '📸',
+    '👗 Fashion': '👗',
+    '👜 Accessories': '👜',
+    '👟 Footwear': '👟',
+    '⌚ Watches': '⌚',
+    '🎮 Gaming': '🎮',
+    '🪑 Furniture': '🪑',
+    '🔌 Appliances': '🔌',
+    '🔧 Tools': '🔧',
+    '📊 Office': '📊',
+    '🧒 Kids': '🧒',
+    '🐾 Pet Supplies': '🐾',
+    '🏕️ Outdoor': '🏕️',
+    '✂️ Crafts': '✂️',
+    '🕰️ Vintage': '🕰️',
+    '🤲 Handmade': '🤲'
+  };
+  
+  // Try exact match first
+  if (iconMap[category]) return iconMap[category];
+  
+  // Try partial match by checking if category contains key words
+  for (const [key, icon] of Object.entries(iconMap)) {
+    const cleanKey = key.replace(/[💄📱💍🏡👕📚⚽🧸🍎💊🎨🎵🚗✈️📸👗👜👟⌚🎮🪑🔌🔧📊🧒🐾🏕️✂️🕰️🤲]/g, '').trim().toLowerCase();
+    if (category.toLowerCase().includes(cleanKey)) return icon;
+  }
+  
+  return '📦';
+};
+
 export default function PublicStorefrontAligned() {
   // Route: /store-aligned/:sellerId
   const [, params] = useRoute("/store-aligned/:sellerId");
@@ -789,6 +835,75 @@ function row(label?: string, value?: string) {
       <span className="text-sm font-medium text-slate-600">{label}</span>
       <span className="text-sm font-semibold text-slate-900">{value}</span>
     </div>
+  );
+}
+
+function SmartPill({ 
+  icon, 
+  label, 
+  count, 
+  active, 
+  onClick, 
+  variant = "light" 
+}: { 
+  icon: string; 
+  label: string; 
+  count: number; 
+  active?: boolean; 
+  onClick: () => void; 
+  variant?: "light" | "dark"; 
+}) {
+  const baseClasses = "h-8 px-3 text-sm font-semibold rounded-full border transition-colors inline-flex items-center gap-1.5";
+  
+  if (variant === "dark" && active) {
+    return (
+      <button
+        onClick={onClick}
+        className={`${baseClasses} bg-slate-800 text-white border-slate-800`}
+      >
+        <span className="text-sm">{icon}</span>
+        <span>{label}</span>
+        <span className="text-xs opacity-80">{count}</span>
+      </button>
+    );
+  }
+  
+  if (variant === "dark") {
+    return (
+      <button
+        onClick={onClick}
+        className={`${baseClasses} bg-slate-200 text-slate-700 border-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-800`}
+      >
+        <span className="text-sm">{icon}</span>
+        <span>{label}</span>
+        <span className="text-xs opacity-70">{count}</span>
+      </button>
+    );
+  }
+  
+  // Light variant
+  if (active) {
+    return (
+      <button
+        onClick={onClick}
+        className={`${baseClasses} bg-blue-600 text-white border-blue-600`}
+      >
+        <span className="text-sm">{icon}</span>
+        <span>{label}</span>
+        <span className="text-xs opacity-90">{count}</span>
+      </button>
+    );
+  }
+  
+  return (
+    <button
+      onClick={onClick}
+      className={`${baseClasses} bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-blue-50`}
+    >
+      <span className="text-sm">{icon}</span>
+      <span>{label}</span>
+      <span className="text-xs opacity-70">{count}</span>
+    </button>
   );
 }
 
