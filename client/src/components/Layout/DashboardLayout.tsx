@@ -59,7 +59,7 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
             <Link href="/">
               <a className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg" aria-label="ShopLynk">
                 <span className="font-black tracking-tight text-lg text-slate-900">
-                  Shop<span className="bg-gradient-to-r from-sky-500 to-violet-500 bg-clip-text text-transparent">Lynk</span>
+                  ShopLynk
                 </span>
               </a>
             </Link>

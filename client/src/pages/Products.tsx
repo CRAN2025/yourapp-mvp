@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Checkbox } from '@/components/ui/checkbox';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import PageShell from '@/components/PageShell';
+import Container from '@/components/Container';
 import ProductModal from '@/components/ProductModal';
 import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -159,7 +160,7 @@ export default function Products() {
       );
     } else {
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-800">
           IN STOCK
         </span>
       );
@@ -282,14 +283,14 @@ export default function Products() {
         <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border border-slate-200 shadow-sm rounded-2xl p-4 md:p-5 mb-8">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex-1 relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+              <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search products..."
                 aria-label="Search products"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                className="pl-12 h-14 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
                 data-testid="input-search"
               />
             </div>
@@ -354,11 +355,11 @@ export default function Products() {
               <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white shadow-soft transition hover:shadow-lift hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
-                <div className="relative">
+                <div className="aspect-[16/9] overflow-hidden rounded-xl bg-slate-100">
                   <img
                     src={getProductImageUrl(product)}
                     alt={product.name}
-                    className="w-full h-48 object-cover aspect-[4/3] rounded-t-2xl transition-transform duration-200 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
                     fetchPriority="low"
@@ -399,7 +400,7 @@ export default function Products() {
                     
                     {/* v1.6 Enhanced Product Title & Brand */}
                     <div className="space-y-3">
-                      <h3 className="font-bold text-2xl text-gray-900 leading-tight" data-testid={`product-name-${product.id}`}>
+                      <h3 className="font-bold text-xl text-gray-900 leading-tight line-clamp-2" data-testid={`product-name-${product.id}`}>
                         {product.name}
                       </h3>
                       {product.brand && (
@@ -478,7 +479,7 @@ export default function Products() {
                     </div>
                     
                     {/* v1.7 Premium Action Buttons - Enhanced Styling */}
-                    <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200 min-h-[44px]">
                       <Button
                         size="sm"
                         className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 rounded-lg flex-1 min-w-[80px] font-medium"

@@ -1,0 +1,77 @@
+Keep
+
+Page header size/spacing and the current 3-up grid.
+
+Price pill + badge styling on cards.
+
+Search/filters block shape and elevation.
+
+Tighten (safe tweaks)
+
+Navbar + brand
+
+Use the single wordmark ShopLynk everywhere (capital S + L).
+
+Keep the small monochrome mark in the app header; avoid the big blue logo that clashed earlier.
+
+Container + grid
+
+Lock page width and gaps so nothing “blows up” on large screens:
+container max-w-[1200px] md:max-w-[1280px] mx-auto px-6
+Grid: grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-7.
+
+Card stability
+
+Fix image ratio and card height so rows line up:
+Image wrapper aspect-[16/9] overflow-hidden rounded-xl.
+Title line-clamp-2, description/labels in a fixed stack to prevent jumpiness.
+
+Make action row heights identical (min-h-[44px]) so buttons don’t shift.
+
+Filters bar
+
+Keep it one line at md+, but on small screens collapse advanced controls behind a “Filters” sheet.
+
+Ensure the input is a consistent 56px height across pages.
+
+Accessibility
+
+Ensure every icon button has an aria-label (heart/favorite, kebab, copy link).
+
+Keep visible focus rings on all interactive elements (focus:ring-brand/40).
+
+Check the green “IN STOCK” pill contrast; use a darker text (text-emerald-800) if needed.
+
+Performance
+
+Images: loading="lazy" decoding="async" and set width/height attributes.
+
+First row images can be loading="eager" to avoid LCP jank.
+
+Theme consistency
+
+Primary CTA (Add Product, primary actions): the brand gradient you’re already using is good—apply it only to primaries so the UI doesn’t get loud. Keep secondary buttons light/outline.
+
+Backgrounds stay very light (your current gray-50/100), shadow at sm/md only (no heavy glassy blur on this page).
+
+Why the prior try “broke” the UI
+
+The header/hero scale and full-bleed container removed the page’s consistent max-width, causing giant image tiles and misaligned gutters.
+
+Typography was bumped to display sizes on cards, which overwhelmed the layout and pushed controls off rhythm.
+
+Developer TODO (incremental, low-risk)
+
+ Add a Container wrapper component with max-w-[1200px] md:max-w-[1280px] mx-auto px-6.
+
+ Wrap product images in an aspect-[16/9] div; apply object-cover.
+
+ Add line-clamp-2 to card titles; unify action row to min-h-[44px].
+
+ Normalize the search bar to h-14 with icon alignment and consistent padding.
+
+ Ensure all icon buttons have aria-label and visible focus states.
+
+ Verify contrast on status pills (green/amber/rose).
+
+ Keep brand gradient for primary buttons only; leave the rest outline/neutral.
