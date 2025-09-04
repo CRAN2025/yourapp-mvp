@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Upload, Trash2, Plus, Minus } from 'lucide-react';
-import { ref, push, update, serverTimestamp } from 'firebase/database';
+import { ref, push, update, set, remove, serverTimestamp } from 'firebase/database';
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { database, storage } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
@@ -288,8 +288,14 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
         await update(productRef, updatedProduct);
 
         // Mirror to public store
-        const { mirrorProduct } = await import('@/lib/utils/dataMirror');
-        await mirrorProduct(user.uid, product.id, { ...product, ...updatedProduct });
+        const publicProductRef = ref(database, `publicStores/${user.uid}/products/${product.id}`);
+        const shouldPublish = updatedProduct.quantity > 0 && updatedProduct.isActive;
+        if (shouldPublish) {
+          await set(publicProductRef, { ...product, ...updatedProduct });
+        } else {
+          // Remove from public if shouldn't be published
+          try { await remove(publicProductRef); } catch (e) { /* Ignore if doesn't exist */ }
+        }
 
         toast({
           title: 'Product updated',
@@ -308,8 +314,11 @@ export default function ProductModal({ open, onClose, product, onSuccess }: Prod
         const newProductId = newProductRef.key;
         if (newProductId) {
           // Mirror to public store
-          const { mirrorProduct } = await import('@/lib/utils/dataMirror');
-          await mirrorProduct(user.uid, newProductId, productData);
+          const publicProductRef = ref(database, `publicStores/${user.uid}/products/${newProductId}`);
+          const shouldPublish = productData.quantity > 0 && productData.isActive;
+          if (shouldPublish) {
+            await set(publicProductRef, { ...productData, sellerId: user.uid });
+          }
         }
 
         toast({
