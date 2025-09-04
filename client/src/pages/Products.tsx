@@ -267,7 +267,7 @@ export default function Products() {
             <h1 className="sl-h1 mb-2">Products</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          <Button onClick={handleAddProduct} data-testid="button-add-product" className="rounded-full bg-gradient-to-r from-sky-500 to-violet-500 text-white px-4 py-2 font-semibold shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 flex items-center gap-2">
+          <Button onClick={handleAddProduct} data-testid="button-add-product" className="rounded-full bg-gradient-to-r from-sky-500 to-violet-500 px-4 py-2 text-white font-semibold shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 flex items-center gap-2">
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>
@@ -346,14 +346,14 @@ export default function Products() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="group bg-white border border-slate-200 rounded-2xl shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
+              <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white shadow-soft transition hover:shadow-lift hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
                 <div className="relative">
                   <img
                     src={getProductImageUrl(product)}
                     alt={product.name}
-                    className="w-full h-48 object-cover aspect-[4/3] transition-transform duration-200 group-hover:scale-105"
+                    className="w-full h-48 object-cover aspect-[4/3] rounded-t-2xl transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
                     fetchPriority="low"
@@ -374,7 +374,7 @@ export default function Products() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
                       favorites.has(product.id) ? 'text-red-500' : 'text-slate-400'
                     }`}
                     onClick={() => toggleFavorite(product.id)}
@@ -463,7 +463,7 @@ export default function Products() {
                       </div>
                     )}
                     
-                    <div className="min-h-[72px] md:min-h-[56px]" />
+                    <div className="min-h-[64px] md:min-h-[56px]" />
                     
                     {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
                     <div className="flex items-center gap-4 text-xs text-slate-500">
@@ -476,7 +476,7 @@ export default function Products() {
                     <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg flex-1 min-w-[80px] font-medium"
+                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 rounded-lg flex-1 min-w-[80px] font-medium"
                         onClick={() => handleEditProduct(product)}
                         data-testid={`button-edit-${product.id}`}
                         title="Edit product"
@@ -488,7 +488,7 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-3 border-slate-200 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                        className="px-3 border-slate-200 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
                         onClick={() => handlePreviewProduct(product)}
                         title="Preview product"
                         aria-label="Preview product"
@@ -504,6 +504,8 @@ export default function Products() {
                         className="px-3 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
                         onClick={() => handleCopyLink(product)}
                         data-testid={`button-copy-link-${product.id}`}
+                        aria-label="Copy product link"
+                        title="Copy product link"
                       >
                         <Copy className="w-4 h-4 mr-2" />
                         Copy Link
@@ -669,12 +671,13 @@ export default function Products() {
 
             {/* Add Product Card */}
             <div
-              className="bg-white border border-dashed border-2 border-slate-300 hover:border-sky-500 hover:bg-slate-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center rounded-2xl shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+              className="bg-white border border-dashed border-2 border-slate-300 hover:border-sky-500 hover:bg-slate-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center rounded-2xl shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
               onClick={handleAddProduct}
               data-testid="card-add-product"
               tabIndex={0}
               role="button"
               aria-label="Add new product"
+              title="Add new product"
             >
               <div className="text-center">
                 <Plus className="w-12 h-12 text-sky-500 mx-auto mb-4" />

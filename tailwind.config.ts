@@ -9,6 +9,8 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        'xl-2': '1.25rem',
+        'pill': '9999px',
       },
       colors: {
         background: "var(--background)",
@@ -68,6 +70,8 @@ export default {
           fuchsia: "var(--brand-fuchsia)",
           from: '#3b82f6',
           to: '#6366f1',
+          sky: '#0ea5e9',
+          violet: '#7c3aed',
         },
         sl: {
           primary: { 500: '#0ea5e9', 600: '#2563eb' }, // sky-500, blue-600
@@ -114,10 +118,8 @@ export default {
         'elev-hover': '0 10px 28px rgba(2,6,23,0.08)',
         'brand': '0 8px 24px rgba(59,130,246,0.25)',
         'sl': '0 10px 40px -12px rgba(2,6,23,0.12)',
-      },
-      borderRadius: {
-        'xl-2': '1.25rem',
-        'pill': '9999px',
+        soft: '0 1px 2px rgba(15, 23, 42, .06)',
+        lift: '0 6px 20px rgba(15, 23, 42, .08)',
       },
     },
   },
