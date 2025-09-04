@@ -1,0 +1,15 @@
+{
+  "name": "shoplink-migration-scripts",
+  "version": "1.0.0", 
+  "type": "module",
+  "scripts": {
+    "migrate": "tsx runMigration.ts",
+    "test-migration": "tsx testCurrentSeller.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  },
+  "dependencies": {
+    "firebase": "^10.7.1"
+  }
+}
