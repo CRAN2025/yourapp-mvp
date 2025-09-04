@@ -1,0 +1,119 @@
+POLISH PASS — Global Header + Products Screen (seller)
+Guardrails
+
+Do not change product data, card fields, or card layout content. This is a visual/UX consistency pass only.
+
+Brand spelling is ShopLynk (capital S + L) everywhere.
+
+1) Normalize the global header
+
+Files: your header/nav component (e.g., components/Nav/Header.tsx or in DashboardLayout)
+
+Replace the mixed icon+text with a single SVG ShopLynk wordmark. Remove any extra logo glyph that doesn’t match the wordmark.
+
+Active nav tab gets a 2px gradient underline (same gradient as primary CTA).
+
+Add sticky + blur:
+
+className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-100"
+
+Update hover/focus:
+
+Links: text-slate-600 hover:text-slate-800 transition-colors
+
+Focus ring: focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400
+
+Active underline snippet
+
+function NavLink({ href, label, active }: { href:string; label:string; active?:boolean }) {
+  return (
+    <a
+      href={href}
+      className={[
+        "relative px-3 py-2 text-sm font-medium transition-colors",
+        active ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
+      ].join(" ")}
+    >
+      {label}
+      {active && <span className="absolute inset-x-2 -bottom-[2px] h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-violet-500" />}
+    </a>
+  );
+}
+
+2) Standardize brand gradient + primary CTAs
+
+Design tokens (Tailwind Ok):
+
+Gradient: from-sky-500 to-violet-500
+
+Shadow: shadow-sm hover:shadow-md
+
+Focus: ring sky-400
+
+Buttons
+
+Apply to Add Product and price chips inside cards.
+
+// Primary CTA
+<Button className="rounded-full bg-gradient-to-r from-sky-500 to-violet-500 text-white px-4 py-2 font-semibold shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">
+  + Add Product
+</Button>
+
+// Price chip
+<div className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-500 to-violet-500 px-4 py-2 text-white font-semibold shadow-sm">
+  $20.00
+</div>
+
+3) Products grid visual consistency
+
+Files: products list page
+
+Grid: grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6
+
+Card container: rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition hover:-translate-y-0.5
+
+Product image: rounded-t-2xl + loading="lazy" decoding="async"
+
+Footer alignment even with many tags: add a spacer above the footer.
+
+{/* spacer to align card footers across varying tag rows */}
+<div className="min-h-[68px] md:min-h-[56px]" />
+
+
+Stock pills:
+
+In stock: bg-emerald-50 text-emerald-700
+
+Low stock: bg-amber-50 text-amber-700
+
+Micro stats row (“views · sold”): text-xs text-slate-500 gap-4
+
+4) Accessibility & semantics
+
+All interactive icons (favorite/ellipsis) get aria-label and title.
+
+Search input includes aria-label="Search products".
+
+Ensure focus is visible on all actionable elements.
+
+5) Brand audit (one-time)
+
+Replace any variants like ShopLYnk, shoplynk, or ShopLynk. with ShopLynk.
+
+Update <title>, og:site_name, favicon, and any meta strings.
+
+6) Acceptance criteria
+
+Header is sticky with blur; active tab shows gradient underline.
+
+Only one canonical ShopLynk wordmark is visible; no stray glyphs.
+
+Gradient style is consistent across Add Product and price chips.
+
+Products cards hover-lift uniformly; footers line up across rows.
+
+All icons have a11y labels; keyboard focus rings are visible.
+
+No changes to product card content or schema.
+
+Spelling is ShopLynk everywhere (UI + metadata).

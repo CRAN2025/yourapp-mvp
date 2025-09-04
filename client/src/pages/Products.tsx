@@ -152,7 +152,7 @@ export default function Products() {
       );
     } else if (quantity < 10) {
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-orange-50 text-orange-700">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700">
           LOW STOCK
         </span>
       );
@@ -267,7 +267,7 @@ export default function Products() {
             <h1 className="sl-h1 mb-2">Products</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          <Button onClick={handleAddProduct} data-testid="button-add-product" className="bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-400 rounded-full px-5 h-11 flex items-center justify-center">
+          <Button onClick={handleAddProduct} data-testid="button-add-product" className="rounded-full bg-gradient-to-r from-sky-500 to-violet-500 text-white px-4 py-2 font-semibold shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 flex items-center gap-2">
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>
@@ -281,6 +281,7 @@ export default function Products() {
               <Input
                 type="text"
                 placeholder="Search products..."
+                aria-label="Search products"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
@@ -373,7 +374,7 @@ export default function Products() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-400 ${
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
                       favorites.has(product.id) ? 'text-red-500' : 'text-slate-400'
                     }`}
                     onClick={() => toggleFavorite(product.id)}
@@ -405,8 +406,8 @@ export default function Products() {
                     
                     {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
                     <div className="flex items-center justify-between gap-3">
-                      <div className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 rounded-full">
-                        <span className="text-xl font-bold" data-testid={`product-price-${product.id}`}>
+                      <div className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-500 to-violet-500 px-4 py-2 text-white font-semibold shadow-sm">
+                        <span className="text-xl" data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
@@ -475,7 +476,7 @@ export default function Products() {
                     <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus:ring-2 focus:ring-sky-400 rounded-lg flex-1 min-w-[80px] font-medium"
+                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg flex-1 min-w-[80px] font-medium"
                         onClick={() => handleEditProduct(product)}
                         data-testid={`button-edit-${product.id}`}
                         title="Edit product"
@@ -487,7 +488,7 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-3 border-slate-200 text-slate-700 hover:bg-slate-50"
+                        className="px-3 border-slate-200 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                         onClick={() => handlePreviewProduct(product)}
                         title="Preview product"
                         aria-label="Preview product"
@@ -668,7 +669,7 @@ export default function Products() {
 
             {/* Add Product Card */}
             <div
-              className="bg-white border border-dashed border-2 border-slate-300 hover:border-sky-500 hover:bg-slate-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
+              className="bg-white border border-dashed border-2 border-slate-300 hover:border-sky-500 hover:bg-slate-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center rounded-2xl shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               onClick={handleAddProduct}
               data-testid="card-add-product"
               tabIndex={0}
