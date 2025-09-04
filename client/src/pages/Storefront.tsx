@@ -1521,7 +1521,9 @@ export default function Storefront() {
             }}></div>
             
             {/* Seller Preview Notice */}
-            <div className="relative z-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-3">
+            <div className="relative z-20 text-white text-center py-3" style={{
+              background: 'linear-gradient(135deg, #5a6bff 0%, #67d1ff 100%)'
+            }}>
               <div className="flex items-center justify-center gap-2">
                 <Eye className="w-5 h-5" />
                 <span className="font-bold">Store Preview Mode</span>
