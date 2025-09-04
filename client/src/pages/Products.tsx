@@ -140,25 +140,25 @@ export default function Products() {
   const getStockPill = (quantity: number) => {
     if (quantity === 0) {
       return (
-        <span className="sl-chip bg-red-50 text-red-700 border-red-200">
+        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1 text-xs font-medium border border-red-200">
           OUT OF STOCK
         </span>
       );
     } else if (quantity === 1) {
       return (
-        <span className="sl-chip bg-red-50 text-red-700 border-red-200">
+        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1 text-xs font-medium border border-red-200">
           LAST ONE!
         </span>
       );
     } else if (quantity < 10) {
       return (
-        <span className="sl-chip bg-red-50 text-red-700 border-red-200">
+        <span className="rounded-full bg-orange-50 text-orange-700 px-2.5 py-1 text-xs font-medium border border-orange-200">
           LOW STOCK
         </span>
       );
     } else {
       return (
-        <span className="sl-chip">
+        <span className="rounded-full bg-green-50 text-green-700 px-2.5 py-1 text-xs font-medium border border-green-200">
           IN STOCK
         </span>
       );
@@ -322,6 +322,7 @@ export default function Products() {
               variant={showFavorites ? 'default' : 'outline'}
               onClick={() => setShowFavorites(!showFavorites)}
               data-testid="button-favorites-filter"
+              className={`rounded-lg h-10 px-4 ${showFavorites ? 'bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
             >
               <Heart className="w-4 h-4 mr-2" />
               Favorites
@@ -354,8 +355,9 @@ export default function Products() {
                   <img
                     src={getProductImageUrl(product)}
                     alt={product.name}
-                    className="w-full h-48 object-cover"
+                    className="w-full h-48 object-cover aspect-[4/3]"
                     loading="lazy"
+                    decoding="async"
                   />
                   
                   {/* v1.5 Bulk Mode Checkbox - Top Left Corner */}
@@ -378,6 +380,8 @@ export default function Products() {
                     }`}
                     onClick={() => toggleFavorite(product.id)}
                     data-testid={`button-favorite-${product.id}`}
+                    title={`${favorites.has(product.id) ? 'Remove from' : 'Add to'} favorites`}
+                    aria-label={`${favorites.has(product.id) ? 'Remove from' : 'Add to'} favorites`}
                   >
                     <Heart className="w-4 h-4" fill={favorites.has(product.id) ? 'currentColor' : 'none'} />
                   </Button>
@@ -403,7 +407,7 @@ export default function Products() {
                     
                     {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 rounded-pill">
+                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 rounded-full">
                         <span className="text-xl font-bold" data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
@@ -464,18 +468,20 @@ export default function Products() {
                     
                     {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
                     <div className="flex items-center gap-3 text-sm font-medium mt-1 text-slate-500">
-                      <span>{getViewCount(product.id)} views</span>
+                      <span>{new Intl.NumberFormat().format(getViewCount(product.id))} views</span>
                       <span className="mx-2">·</span>
-                      <span>{getSoldCount(product.id)} sold</span>
+                      <span>{getSoldCount(product.id) === 0 ? '—' : new Intl.NumberFormat().format(getSoldCount(product.id))} sold</span>
                     </div>
                     
                     {/* v1.7 Premium Action Buttons - Enhanced Styling */}
                     <div className="flex flex-wrap gap-2 pt-4 mt-auto border-t border-gray-200">
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-400 rounded-lg flex-1 min-w-[80px] font-medium"
+                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus:ring-2 focus:ring-sky-400 rounded-lg flex-1 min-w-[80px] font-medium"
                         onClick={() => handleEditProduct(product)}
                         data-testid={`button-edit-${product.id}`}
+                        title="Edit product"
+                        aria-label="Edit product"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Edit
@@ -483,8 +489,10 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-3 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
+                        className="px-3 border-slate-200 text-slate-700 hover:bg-slate-50"
                         onClick={() => handlePreviewProduct(product)}
+                        title="Preview product"
+                        aria-label="Preview product"
                         data-testid={`button-preview-${product.id}`}
                       >
                         <Eye className="w-4 h-4 mr-2" />
@@ -662,13 +670,16 @@ export default function Products() {
 
             {/* Add Product Card */}
             <div
-              className="sl-card border-dashed border-2 border-slate-300 hover:border-sl-primary-500 hover:bg-slate-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center sl-focus"
+              className="bg-white border border-dashed border-2 border-slate-300 hover:border-sky-500 hover:bg-slate-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400"
               onClick={handleAddProduct}
               data-testid="card-add-product"
+              tabIndex={0}
+              role="button"
+              aria-label="Add new product"
             >
               <div className="text-center">
-                <Plus className="w-12 h-12 text-sl-primary-500 mx-auto mb-4" />
-                <p className="text-sl-primary-600 font-medium">Add New Product</p>
+                <Plus className="w-12 h-12 text-sky-500 mx-auto mb-4" />
+                <p className="text-sky-600 font-medium">Add New Product</p>
               </div>
             </div>
           </div>
