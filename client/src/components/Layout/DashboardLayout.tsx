@@ -54,10 +54,10 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
       {!hideTopNav && (
         <header 
           data-scrolled={scrolled ? 'true' : 'false'}
-          className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 data-[scrolled=true]:shadow-sm">
+          className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-100 data-[scrolled=true]:shadow-sm">
           <div className="mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <Link href="/">
-              <a className="flex items-center gap-2" aria-label="ShopLynk">
+              <a className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg" aria-label="ShopLynk">
                 <span className="font-black tracking-tight text-lg text-slate-900">
                   Shop<span className="bg-gradient-to-r from-sky-500 to-violet-500 bg-clip-text text-transparent">Lynk</span>
                 </span>
@@ -71,14 +71,15 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
                 return (
                   <Link key={item.name} href={item.href}>
                     <a
-                      className={`${
+                      className={`relative px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg ${
                         isActive
-                          ? 'text-slate-900 bg-slate-100 rounded-lg px-3 py-1.5'
-                          : 'text-slate-600 hover:text-slate-900 px-3 py-1.5'
+                          ? 'text-slate-900'
+                          : 'text-slate-600 hover:text-slate-800'
                       }`}
                       data-testid={`nav-${item.name.toLowerCase()}`}
                     >
                       {item.name}
+                      {isActive && <span className="absolute inset-x-2 -bottom-[2px] h-[2px] rounded-full bg-gradient-to-r from-sky-500 to-violet-500" />}
                     </a>
                   </Link>
                 );
