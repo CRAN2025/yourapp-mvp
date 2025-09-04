@@ -158,7 +158,7 @@ export default function Products() {
       );
     } else {
       return (
-        <span className="rounded-full bg-green-50 text-green-700 px-2.5 py-1 text-xs font-medium border border-green-200">
+        <span className="rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-1 text-xs font-medium border border-emerald-200">
           IN STOCK
         </span>
       );
@@ -274,7 +274,7 @@ export default function Products() {
         </div>
 
         {/* Filters and Search */}
-        <div className="sl-glass p-4 md:p-5 mb-8">
+        <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border border-slate-200 shadow-sm rounded-2xl p-4 md:p-5 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -283,7 +283,7 @@ export default function Products() {
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                className="pl-10 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
                 data-testid="input-search"
               />
             </div>
@@ -294,7 +294,7 @@ export default function Products() {
                 id="bulk-mode"
                 checked={bulkMode}
                 onCheckedChange={(checked) => setBulkMode(checked === true)}
-                className="opacity-60 hover:opacity-100 transition-opacity"
+                className="opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               />
               <label 
                 htmlFor="bulk-mode" 
@@ -304,7 +304,7 @@ export default function Products() {
               </label>
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-48" data-testid="select-category-filter">
+              <SelectTrigger className="w-full md:w-48 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400" data-testid="select-category-filter">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -348,16 +348,17 @@ export default function Products() {
         ) : (
           <div className="grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="sl-card transition-transform hover:-translate-y-0.5 sl-focus overflow-hidden">
+              <div key={product.id} className="group bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
                 <div className="relative">
                   <img
                     src={getProductImageUrl(product)}
                     alt={product.name}
-                    className="w-full h-48 object-cover aspect-[4/3]"
+                    className="w-full h-48 object-cover aspect-[4/3] transition-transform duration-200 group-hover:scale-105"
                     loading="lazy"
                     decoding="async"
+                    fetchPriority="low"
                   />
                   
                   {/* v1.5 Bulk Mode Checkbox - Top Left Corner */}
@@ -391,7 +392,7 @@ export default function Products() {
                 <div className="p-5 flex flex-col h-full">
                   
                   {/* v1.6 ALWAYS VISIBLE TOP SECTION - Normalized Spacing */}
-                  <div className="space-y-5 mb-5 min-h-[120px]">
+                  <div className="space-y-3 flex-1">
                     
                     {/* v1.6 Enhanced Product Title & Brand */}
                     <div className="space-y-3">
@@ -466,15 +467,17 @@ export default function Products() {
                       </div>
                     )}
                     
-                    {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
-                    <div className="flex items-center gap-3 text-sm font-medium mt-1 text-slate-500">
-                      <span>{new Intl.NumberFormat().format(getViewCount(product.id))} views</span>
-                      <span className="mx-2">·</span>
-                      <span>{getSoldCount(product.id) === 0 ? '—' : new Intl.NumberFormat().format(getSoldCount(product.id))} sold</span>
+                    <div className="min-h-[72px] space-y-2">
+                      {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
+                      <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
+                        <span>{new Intl.NumberFormat().format(getViewCount(product.id))} views</span>
+                        <span className="mx-2">·</span>
+                        <span>{getSoldCount(product.id) === 0 ? '—' : new Intl.NumberFormat().format(getSoldCount(product.id))} sold</span>
+                      </div>
                     </div>
                     
                     {/* v1.7 Premium Action Buttons - Enhanced Styling */}
-                    <div className="flex flex-wrap gap-2 pt-4 mt-auto border-t border-gray-200">
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
                       <Button
                         size="sm"
                         className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus:ring-2 focus:ring-sky-400 rounded-lg flex-1 min-w-[80px] font-medium"

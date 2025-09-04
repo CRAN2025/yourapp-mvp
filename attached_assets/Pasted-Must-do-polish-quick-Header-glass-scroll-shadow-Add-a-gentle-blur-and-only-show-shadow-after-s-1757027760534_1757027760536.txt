@@ -1,0 +1,74 @@
+Must-do polish (quick)
+
+Header glass + scroll shadow
+
+Add a gentle blur and only show shadow after scroll.
+
+Tailwind: sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 data-[scrolled=true]:shadow-sm.
+
+Consistent radii
+
+Match corners across search, filter bar, and cards (e.g., rounded-2xl for card, rounded-xl for pills). Right now the search bar looks slightly “flatter” than the cards.
+
+Card footer alignment
+
+Ensure Edit / Preview / Copy Link sit on the same baseline regardless of tag rows above.
+
+Wrap the meta rows (views/sold + chips) in a min-h-[72px] container so footers line up across columns.
+
+Hit-targets & a11y
+
+Heart/favorite button at least 32×32 with tooltip (aria-label, title).
+
+Add title to the three action buttons (Edit, Preview, Copy Link).
+
+Chip contrast
+
+“IN STOCK” green on white can be borderline on some screens. Either:
+
+Soft pill: bg-emerald-50 text-emerald-700, or
+
+Solid: bg-emerald-600 text-white.
+
+Nice-to-have
+
+Image perf: loading="lazy" decoding="async" fetchpriority="low", add srcSet/sizes, and a blur placeholder to prevent layout shift.
+
+Hover affordances: Slight image scale + soft shadow on card hover to match our marketing feel (hover:shadow-md hover:-translate-y-0.5 transition).
+
+Focus rings: For keyboard users: focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:outline-none.
+
+Empty state: If no products, reuse your storefront empty pattern for parity.
+
+Bulk select alignment: Nudge the checkbox + label vertically center with the filter row (items-center gap-2).
+
+Tiny snippets
+
+Header (glass):
+
+<header
+  data-scrolled={scrolled ? 'true' : 'false'}
+  className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 data-[scrolled=true]:shadow-sm"
+>
+  {/* nav content */}
+</header>
+
+
+Card footer leveling:
+
+<div className="space-y-3">
+  {/* price + stock row */}
+  {/* chips/attributes */}
+  <div className="min-h-[72px]" />
+  <div className="flex items-center gap-2">
+    <Button size="sm" className="...">Edit</Button>
+    <Button size="sm" variant="outline" className="...">Preview</Button>
+    <Button size="sm" variant="outline" className="...">Copy Link</Button>
+  </div>
+</div>
+
+
+Buttons (brand gradient + outline):
+
+const primary = "bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus-visible:ring-2 focus-visible:ring-sky-400";
+const outline = "border-slate-200 text-slate-700 hover:bg-slate-50";

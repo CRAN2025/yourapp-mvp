@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Bell, ShoppingBag, Store, BarChart3, Settings, Package, LogOut } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
@@ -21,6 +21,16 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, hideTopNav = false }: DashboardLayoutProps) {
   const [location] = useLocation();
   const { seller, signOut } = useAuthContext();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navigation = [
     { name: 'Products', href: '/products', icon: Package },
@@ -42,7 +52,9 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       {!hideTopNav && (
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 shadow-sm">
+        <header 
+          data-scrolled={scrolled ? 'true' : 'false'}
+          className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 data-[scrolled=true]:shadow-sm">
           <div className="mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <Link href="/">
               <a className="flex items-center gap-2" aria-label="ShopLynk">
