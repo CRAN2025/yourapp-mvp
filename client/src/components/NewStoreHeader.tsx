@@ -38,7 +38,7 @@ export default function NewStoreHeader({
   return (
     <header className="relative">
       {/* compact cover */}
-      <div className="h-40 w-full rounded-b-3xl bg-[radial-gradient(1200px_600px_at_10%_-10%,#EAF2FF_0%,transparent_60%),linear-gradient(135deg,#1d4ed8_0%,#2563eb_50%,#3b82f6_100%)]" />
+      <div className="h-40 w-full rounded-b-3xl bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100" />
 
       <div className="-mt-10 px-6">
         <div className="mx-auto max-w-7xl">
