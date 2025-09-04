@@ -403,8 +403,8 @@ export default function Products() {
                     
                     {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
                     <div className="flex items-center gap-3">
-                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full brand-gradient shadow-sm">
-                        <span className="text-xl font-bold text-white" data-testid={`product-price-${product.id}`}>
+                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 sl-cta">
+                        <span className="text-xl font-bold" data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
