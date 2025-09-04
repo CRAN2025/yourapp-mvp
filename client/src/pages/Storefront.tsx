@@ -1554,18 +1554,8 @@ export default function Storefront() {
 
 
           {/* Edge-to-Edge Search & Filter Section - Seller Preview */}
-          <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
+          <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-12">
             <div className="max-w-7xl mx-auto px-6">
-              {/* Section title */}
-              <div className="text-center mb-12">
-                <h2 className="text-4xl font-black text-gray-900 mb-4">
-                  Discover Amazing Products
-                </h2>
-                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                  Preview how customers explore your curated collection
-                </p>
-              </div>
-
             {/* Ultra-Premium search and filter container */}
             <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-black/10 mb-12" style={{
               backdropFilter: 'blur(8px)',
