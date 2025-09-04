@@ -1,0 +1,37 @@
+/* ShopLynk Enterprise Glass Theme Utilities */
+
+.sl-cta {
+  @apply bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sl rounded-pill px-5 h-11;
+}
+
+.sl-cta:hover {
+  @apply brightness-105;
+}
+
+.sl-glass {
+  @apply backdrop-blur-sm bg-white/70 border border-white/60 shadow-sl rounded-2xl;
+}
+
+.sl-chip {
+  @apply bg-slate-900/5 text-slate-700 border border-slate-900/10 rounded-pill px-3 py-1 text-sm;
+}
+
+.sl-chip-strong {
+  @apply bg-white text-slate-800 border border-slate-200;
+}
+
+.sl-heart {
+  @apply bg-white/90 border border-slate-200 text-slate-400 hover:text-slate-600 rounded-full;
+}
+
+.sl-card {
+  @apply bg-white border border-slate-200 rounded-2xl shadow-sl;
+}
+
+.sl-h1 {
+  @apply text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900;
+}
+
+.sl-focus {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400;
+}

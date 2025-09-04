@@ -1,0 +1,191 @@
+ShopLynk UI polish — make Products page match landing (enterprise glass theme)
+Objectives
+
+Visually align the Seller → Products page with the public Landing page.
+
+Keep our enterprise glass theming (soft gradient CTAs, glass cards, unified shadows/radii).
+
+Do not change product-card content or the product “View details” modal.
+
+Do not change the Smart Filters logic/content (keep Instagram/Facebook icons exactly as-is).
+
+Remove the duplicate/second filter group that still shows up on the storefront page.
+
+Non-negotiables (do not modify)
+
+Product card content, structure, and the full details panel opened by “View details”.
+
+Smart Filters content and icons (Instagram + Facebook) and their behavior.
+
+Data models & API calls.
+
+Theme tokens (add once, reuse everywhere)
+A. Tailwind (preferred)
+
+Extend Tailwind so we stop hand-rolling styles.
+
+// tailwind.config.ts
+export default {
+  theme: {
+    extend: {
+      colors: {
+        sl: {
+          primary: { 500: '#0ea5e9', 600: '#2563eb' }, // sky-500, blue-600
+          accent:  { 500: '#7c3aed' },                // violet-600
+        },
+      },
+      borderRadius: {
+        'xl': '0.75rem',
+        '2xl': '1rem',
+        'pill': '9999px',
+      },
+      boxShadow: {
+        sl: '0 10px 40px -12px rgba(2,6,23,0.12)',
+      },
+    },
+  },
+};
+
+B. Utility layer (global CSS)
+
+Create reuseable utilities (Tailwind @apply) so the UI is consistent.
+
+/* src/styles/sl-theme.css */
+.sl-cta         { @apply bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-sl rounded-pill px-5 h-11; }
+.sl-cta:hover   { @apply brightness-105; }
+.sl-glass       { @apply backdrop-blur-sm bg-white/70 border border-white/60 shadow-sl rounded-2xl; }
+.sl-chip        { @apply bg-slate-900/5 text-slate-700 border border-slate-900/10 rounded-pill px-3 py-1 text-sm; }
+.sl-chip-strong { @apply bg-white text-slate-800 border border-slate-200; }
+.sl-heart       { @apply bg-white/90 border border-slate-200 text-slate-400 hover:text-slate-600 rounded-full; }
+.sl-card        { @apply bg-white border border-slate-200 rounded-2xl shadow-sl; }
+.sl-h1          { @apply text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900; }
+.sl-focus       { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400; }
+
+
+Import this file once (e.g., in globals.css).
+
+Component-level changes
+1) Seller → Products page
+
+File(s): pages/products/* or equivalent route component.
+
+Page title
+Replace current heading classes with .sl-h1.
+
+“Add Product” button
+Replace current classes with .sl-cta sl-focus.
+
+Search + filters shell
+Wrap the whole search/filters block in .sl-glass.
+Keep internal controls the same; just update the container:
+
+<div className="sl-glass p-4 md:p-5">
+  {/* existing search + filters content unchanged */}
+</div>
+
+
+Chips & badges
+Convert lightweight tags (features like Eco-friendly, Gift Wrap, etc.) to .sl-chip.
+Keep category chips slightly bolder: use .sl-chip-strong.
+
+Product cards
+Apply .sl-card to the card root. Unify hover and focus:
+
+<div className="sl-card transition-transform hover:-translate-y-0.5 sl-focus">
+  {/* existing card content untouched */}
+</div>
+
+
+Card image aspect ratio
+Ensure a consistent aspect: aspect-[16/10] (or keep your current, just make it uniform).
+
+Favorite heart button
+Apply .sl-heart to the button container.
+
+Card stats row (views/sold)
+Tone down color: text-slate-500, add small separators (·) with mx-2 spacing.
+
+2) Storefront page — remove duplicate filter bar
+
+File: PublicStorefrontAligned (you pasted this earlier).
+
+Keep the Smart Filters row you like.
+
+Remove the leftover/duplicate filter strip below it (the one that reintroduces “Categories/Favorites” a second time).
+Specifically, delete the second filter section that renders another set of category/favorites controls. Leave the primary Smart Filters bar intact.
+
+Do not change the Instagram and Facebook icons/links or behavior.
+
+Small UX polish (consistent across pages)
+
+Buttons: use rounded-xl for standard, rounded-pill for CTA/chips.
+
+Transitions: add transition-colors and transition-transform where appropriate.
+
+Focus rings: add .sl-focus to all interactive elements without browser default rings.
+
+Shadows: prefer shadow-sl everywhere (cards, glass shells), avoid mixing multiple shadow styles.
+
+Acceptance Criteria (QA checklist)
+
+Visual alignment
+
+Products page heading matches landing (weight, size, tracking).
+
+CTAs use the gradient pill style on both pages.
+
+Search/filters container has the glass surface look.
+
+Chips/badges look translucent and consistent; category chips are slightly bolder.
+
+Card parity
+
+Product card spacing, radius, and shadow match the landing card feel.
+
+Favorite heart is subdued (white/90, slate border), not a heavy solid.
+
+No functional regressions
+
+Product “View details” modal unchanged (content + layout).
+
+Filters work exactly as before.
+
+Social icons (Instagram, Facebook) unchanged and clickable.
+
+No duplicate filter bar on storefront.
+
+Responsive
+
+Check sm/md/lg/xl breakpoints: headings wrap cleanly; grid doesn’t jump; images keep aspect ratio.
+
+Accessibility
+
+All interactive elements have visible focus via .sl-focus.
+
+Color contrast meets WCAG AA for text on glass backgrounds.
+
+Deliverables
+
+PR touching only:
+
+tailwind.config.ts (extend tokens)
+
+src/styles/sl-theme.css (new)
+
+Products page JSX className updates
+
+Storefront component: remove the duplicate filter section
+
+Before/after screenshots:
+
+Products page (md + lg)
+
+Storefront header + filters area
+
+Notes
+
+Do not refactor data or business logic.
+
+Do not change product card markup or modal content.
+
+If you see ad-hoc shadows/radii left over, replace with shadow-sl, rounded-2xl (or rounded-pill for chips/CTAs).

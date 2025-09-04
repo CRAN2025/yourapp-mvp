@@ -69,6 +69,10 @@ export default {
           from: '#3b82f6',
           to: '#6366f1',
         },
+        sl: {
+          primary: { 500: '#0ea5e9', 600: '#2563eb' }, // sky-500, blue-600
+          accent:  { 500: '#7c3aed' },                // violet-600
+        },
         text: {
           strong: "var(--text-strong)",
           muted: "var(--text-muted)",
@@ -109,9 +113,11 @@ export default {
         'elev': '0 6px 24px rgba(2,6,23,0.06)',
         'elev-hover': '0 10px 28px rgba(2,6,23,0.08)',
         'brand': '0 8px 24px rgba(59,130,246,0.25)',
+        'sl': '0 10px 40px -12px rgba(2,6,23,0.12)',
       },
       borderRadius: {
         'xl-2': '1.25rem',
+        'pill': '9999px',
       },
     },
   },
