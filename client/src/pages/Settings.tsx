@@ -79,7 +79,7 @@ type PaymentsDeliveryForm = z.infer<typeof paymentsDeliverySchema>;
 type AccountSecurityForm = z.infer<typeof accountSecuritySchema>;
 
 export default function Settings() {
-  const { seller, updateSellerProfile, loading } = useAuthContext();
+  const { seller, updateSellerProfile, loading, user } = useAuthContext();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('store');
   const [logoFiles, setLogoFiles] = useState<File[]>([]);
@@ -202,7 +202,6 @@ export default function Settings() {
 
   const handleStoreProfileUpdate = async (data: StoreProfileForm) => {
     try {
-      setLoading(true);
       const tags = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
       
       // Upload logo if new file selected
@@ -252,8 +251,6 @@ export default function Settings() {
         description: error instanceof Error ? error.message : 'Failed to update store profile.',
         variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
