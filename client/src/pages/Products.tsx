@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
+import PageShell from '@/components/PageShell';
 import ProductModal from '@/components/ProductModal';
 import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -267,10 +268,14 @@ export default function Products() {
             <h1 className="sl-h1 mb-2">Products</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          <Button onClick={handleAddProduct} data-testid="button-add-product" className="rounded-full bg-gradient-to-r from-sky-500 to-violet-500 px-4 py-2 text-white font-semibold shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 flex items-center gap-2">
+          <button 
+            onClick={handleAddProduct}
+            data-testid="button-add-product"
+            className="inline-flex items-center rounded-xl bg-gradient-to-r from-brand-600 to-accent-500 px-4 py-2 text-white shadow-soft hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Product
-          </Button>
+          </button>
         </div>
 
         {/* Filters and Search */}
