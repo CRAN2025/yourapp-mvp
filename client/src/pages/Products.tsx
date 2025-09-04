@@ -267,7 +267,7 @@ export default function Products() {
             <h1 className="sl-h1 mb-2">Products</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          <Button onClick={handleAddProduct} data-testid="button-add-product" className="sl-cta sl-focus flex items-center justify-center">
+          <Button onClick={handleAddProduct} data-testid="button-add-product" className="bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-400 rounded-full px-5 h-11 flex items-center justify-center">
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>
@@ -283,7 +283,7 @@ export default function Products() {
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-glass pl-10"
+                className="pl-10 focus:outline-none focus:ring-2 focus:ring-sky-400"
                 data-testid="input-search"
               />
             </div>
@@ -373,8 +373,8 @@ export default function Products() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`absolute top-2 right-2 w-8 h-8 sl-heart sl-focus ${
-                      favorites.has(product.id) ? 'text-red-500' : ''
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-400 ${
+                      favorites.has(product.id) ? 'text-red-500' : 'text-slate-400'
                     }`}
                     onClick={() => toggleFavorite(product.id)}
                     data-testid={`button-favorite-${product.id}`}
@@ -384,10 +384,10 @@ export default function Products() {
                   
                   {/* v1.6 Removed floating stock badge - now integrated in price section only */}
                 </div>
-                <div className="p-5">
+                <div className="p-5 flex flex-col h-full">
                   
                   {/* v1.6 ALWAYS VISIBLE TOP SECTION - Normalized Spacing */}
-                  <div className="space-y-5 mb-5">
+                  <div className="space-y-5 mb-5 min-h-[120px]">
                     
                     {/* v1.6 Enhanced Product Title & Brand */}
                     <div className="space-y-3">
@@ -402,13 +402,13 @@ export default function Products() {
                     </div>
                     
                     {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 sl-cta">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 rounded-pill">
                         <span className="text-xl font-bold" data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex items-center">
                         {getStockPill(product.quantity)}
                       </div>
                     </div>
@@ -470,10 +470,10 @@ export default function Products() {
                     </div>
                     
                     {/* v1.7 Premium Action Buttons - Enhanced Styling */}
-                    <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
+                    <div className="flex flex-wrap gap-2 pt-4 mt-auto border-t border-gray-200">
                       <Button
                         size="sm"
-                        className="sl-cta sl-focus flex-1 min-w-[80px] font-medium"
+                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-400 rounded-lg flex-1 min-w-[80px] font-medium"
                         onClick={() => handleEditProduct(product)}
                         data-testid={`button-edit-${product.id}`}
                       >
