@@ -14,10 +14,11 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import type { Seller } from '@shared/schema';
+import { normalizeSeller, type SellerV2 } from '@shared/sellerV2';
 
 export interface AuthState {
   user: User | null;
-  seller: Seller | null;
+  seller: SellerV2 | null;
   loading: boolean;
   error: string | null;
 }
@@ -67,7 +68,8 @@ export function useAuth() {
             const sellerRef = doc(db, 'sellers', user.uid);
             const sellerSnap = await getDoc(sellerRef);
             
-            const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
+            const rawSellerData = sellerSnap.exists() ? sellerSnap.data() : null;
+            const sellerData = rawSellerData ? normalizeSeller(rawSellerData) : null;
             
             console.log('✅ Auth: Loaded seller data from Firestore:', sellerData);
             console.log('✅ Auth: User UID:', user.uid);
@@ -98,7 +100,8 @@ export function useAuth() {
               const storedSeller = sessionStorage.getItem('seller_profile');
               if (storedSeller) {
                 console.log('🔐 Auth: Loading seller from sessionStorage fallback');
-                const sellerData = JSON.parse(storedSeller);
+                const rawSellerData = JSON.parse(storedSeller);
+                const sellerData = normalizeSeller(rawSellerData);
                 setState({
                   user,
                   seller: sellerData,
@@ -382,7 +385,7 @@ export function useAuth() {
   };
 
   // Update seller profile
-  const updateSellerProfile = async (updates: Partial<Seller>) => {
+  const updateSellerProfile = async (updates: Partial<SellerV2>) => {
     if (!state.user) throw new Error('No authenticated user');
     
     try {
@@ -415,10 +418,11 @@ export function useAuth() {
         console.log('✅ updateSellerProfile: RTDB mirroring completed');
       }
       
-      // Update local state with the new values
+      // Update local state with normalized values
+      const normalizedUpdates = normalizeSeller(updates);
       setState(prev => ({
         ...prev,
-        seller: prev.seller ? { ...prev.seller, ...updates } : null,
+        seller: prev.seller ? { ...prev.seller, ...normalizedUpdates } : null,
         loading: false,
       }));
       
@@ -446,7 +450,8 @@ export function useAuth() {
       
       const sellerRef = doc(db, 'sellers', state.user.uid);
       const sellerSnap = await getDoc(sellerRef);
-      const sellerData = sellerSnap.exists() ? sellerSnap.data() as Seller : null;
+      const rawSellerData = sellerSnap.exists() ? sellerSnap.data() : null;
+      const sellerData = rawSellerData ? normalizeSeller(rawSellerData) : null;
       
       console.log('✅ Auth: Refreshed seller data:', sellerData);
       
