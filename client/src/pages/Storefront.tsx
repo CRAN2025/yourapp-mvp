@@ -1664,31 +1664,6 @@ export default function Storefront() {
             </div>
           </div>
 
-          {/* Store Preview Banner for Sellers */}
-          {isOwner && (
-            <FullWidthContainer className="pt-8">
-              <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-xl border-0 overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Globe className="w-8 h-8 text-white" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold">Store Preview Mode</h2>
-                        <p className="text-blue-100 text-sm">This is how your customers see your store</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge className="bg-white/20 text-white border-white/30">
-                        Public View
-                      </Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </FullWidthContainer>
-          )}
 
           {/* Edge-to-Edge Search & Filter Section - Seller Preview */}
           <div className="w-full bg-gradient-to-br from-slate-50 via-blue-50/30 to-white py-16">
