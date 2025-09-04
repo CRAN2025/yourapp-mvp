@@ -1,0 +1,67 @@
+Quick wins (UI polish)
+
+Header polish
+
+Make the header slightly “glassier”: bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200.
+
+Add a subtle shadow only on scroll.
+
+Active tab
+
+Keep the pill but bump contrast: text-slate-900 bg-slate-100 rounded-lg px-3 py-1.5.
+
+Card bars alignment
+
+Ensure price bar and stock pill share the same baseline on every card (items-center gap-2 on the row).
+
+Chips consistency
+
+Categories (e.g., Electronics, Jewelry & Accessories) = neutral/outline.
+
+Attributes (Eco-friendly, Gift Wrap, Handmade, Customizable) = soft fills.
+
+Standardize spacing: gap-2 between rows, gap-1.5 within a row.
+
+Card footers
+
+Equalize footer height so Edit/Preview/Copy Link align across cards. E.g., give the meta block a small min-h so varying text lengths don’t push buttons around.
+
+Button/icon ergonomics
+
+32px hit area for icon buttons (heart/favorite).
+
+Add title/aria-label to Edit/Preview/Copy Link for a11y.
+
+Numbers & currency
+
+Use your formatPrice everywhere (you already do).
+
+Format counters with Intl.NumberFormat (e.g., 100 views · 3 sold) and show — for zero (instead of 0 sold) if you want a softer look.
+
+Image perf
+
+Add srcSet/sizes, loading="lazy", decoding="async", and a fixed aspect-[4/3] to prevent layout shift.
+
+Favorites filter chip
+
+Keep visual parity with other filter controls (same height/pill radius). Disabled state = reduced opacity + no shadow.
+
+Brand tokens (stay consistent)
+
+Gradient: from-sky-500 to-violet-500
+
+Primary text: #0f172a (slate-900)
+
+Muted text: #64748b (slate-500/600)
+
+Surfaces: white with border-slate-200 and soft shadow
+
+Tiny Tailwind snippets
+
+Gradient CTA: bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus:ring-2 focus:ring-sky-400
+
+Outline secondary: border-slate-200 text-slate-700 hover:bg-slate-50
+
+Chip (outline): rounded-full border border-slate-200 px-2.5 py-1 text-xs font-medium
+
+Chip (soft): rounded-full bg-slate-100 text-slate-700 px-2.5 py-1 text-xs font-medium

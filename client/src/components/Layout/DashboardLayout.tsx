@@ -42,7 +42,7 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       {!hideTopNav && (
-        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200">
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200 shadow-sm">
           <div className="mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <Link href="/">
               <a className="flex items-center gap-2" aria-label="ShopLynk">
