@@ -1510,14 +1510,13 @@ export default function Storefront() {
 
       <DashboardLayout>
         <div className="min-h-screen" style={{
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+          background: '#f6f8ff',
         }}>
           {/* Premium Hero Store Header - Seller Preview */}
           <div className="relative overflow-hidden">
             {/* Background pattern overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-25 to-pink-50 opacity-60"></div>
             <div className="absolute inset-0" style={{
-              backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(255, 159, 98, 0.3) 0%, transparent 50%)'
+              background: '#f6f8ff'
             }}></div>
             
             {/* Seller Preview Notice */}
