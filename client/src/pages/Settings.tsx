@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
 import { Store, Phone, CreditCard, Shield, User, Globe, MessageSquare, Tag, Palette, Mail, Languages, CheckCircle } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
 import { normalizeToE164, isValidPhoneNumber } from '@/lib/utils/phone';
@@ -200,7 +202,30 @@ export default function Settings() {
 
   const handleStoreProfileUpdate = async (data: StoreProfileForm) => {
     try {
+      setLoading(true);
       const tags = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
+      
+      // Upload logo if new file selected
+      let logoUrl = seller?.logoUrl;
+      if (logoFiles.length > 0) {
+        const logoFile = logoFiles[0];
+        const fileName = `logo_${Date.now()}_${logoFile.name}`;
+        const logoRef = storageRef(storage, `sellers/${user?.uid}/${fileName}`);
+        
+        await uploadBytes(logoRef, logoFile);
+        logoUrl = await getDownloadURL(logoRef);
+      }
+
+      // Upload banner if new file selected
+      let bannerUrl = seller?.bannerUrl;
+      if (bannerFiles.length > 0) {
+        const bannerFile = bannerFiles[0];
+        const fileName = `banner_${Date.now()}_${bannerFile.name}`;
+        const bannerRef = storageRef(storage, `sellers/${user?.uid}/${fileName}`);
+        
+        await uploadBytes(bannerRef, bannerFile);
+        bannerUrl = await getDownloadURL(bannerRef);
+      }
       
       await updateSellerProfile({
         storeName: data.storeName,
@@ -209,7 +234,13 @@ export default function Settings() {
         tags: tags,
         returnPolicy: data.returnPolicy,
         operatingHours: data.operatingHours,
+        logoUrl: logoUrl,
+        bannerUrl: bannerUrl,
       });
+
+      // Clear file selections after successful upload
+      setLogoFiles([]);
+      setBannerFiles([]);
 
       toast({
         title: 'Store profile updated',
@@ -221,6 +252,8 @@ export default function Settings() {
         description: error instanceof Error ? error.message : 'Failed to update store profile.',
         variant: 'destructive',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
