@@ -1,0 +1,128 @@
+// StoreHeader.tsx
+import { BadgeCheck, Share2, MessageCircle, Package, CreditCard, Truck } from "lucide-react";
+
+type Props = {
+  name: string;
+  description?: string;
+  logoUrl?: string;
+  productsCount: number;
+  paymentsCount: number;
+  deliveriesCount: number;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  onShare: () => void;      // opens WhatsApp share
+  onContact?: () => void;   // optional WhatsApp contact CTA
+};
+
+export default function StoreHeader({
+  name,
+  description,
+  logoUrl,
+  productsCount,
+  paymentsCount,
+  deliveriesCount,
+  instagramUrl,
+  facebookUrl,
+  onShare,
+  onContact,
+}: Props) {
+  return (
+    <header className="relative">
+      {/* low-height cover to avoid empty space */}
+      <div className="h-48 w-full rounded-b-3xl bg-[radial-gradient(1200px_600px_at_10%_-10%,#EAF2FF_0%,transparent_60%),linear-gradient(135deg,#2563EB_0%,#4F46E5_55%,#EC4899_100%)]" />
+
+      <div className="-mt-12 px-6">
+        <div className="mx-auto max-w-7xl">
+          {/* brand bar card */}
+          <div className="rounded-2xl border border-white/60 bg-white/55 backdrop-blur-2xl shadow-[0_8px_30px_rgba(2,6,23,.06)]">
+            <div className="flex flex-col gap-5 p-5 md:flex-row md:items-center md:justify-between">
+              {/* left: avatar + name */}
+              <div className="flex items-center gap-4">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/70 bg-white">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt={`${name} logo`} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="grid h-full w-full place-items-center text-lg font-bold text-slate-700">
+                      {name?.slice(0, 1) || "S"}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-black tracking-tight text-slate-900">{name}</h1>
+                    <BadgeCheck className="h-5 w-5 text-blue-600" aria-hidden />
+                  </div>
+                  {description && (
+                    <p className="mt-1 max-w-xl text-sm text-slate-600 line-clamp-2">{description}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* middle: trust chips */}
+              <div className="flex flex-wrap items-center gap-2">
+                <GlassChip icon={<Package className="h-4 w-4" />} label={`${productsCount} ${productsCount === 1 ? "Product" : "Products"}`} />
+                <GlassChip icon={<CreditCard className="h-4 w-4" />} label={`${paymentsCount} Payment Methods`} />
+                <GlassChip icon={<Truck className="h-4 w-4" />} label={`${deliveriesCount} Delivery Options`} />
+              </div>
+
+              {/* right: socials + CTAs (IG/FB untouched) */}
+              <div className="flex items-center gap-2">
+                {instagramUrl && <SocialCircle brand="ig" href={instagramUrl} />}
+                {facebookUrl && <SocialCircle brand="fb" href={facebookUrl} />}
+
+                <button
+                  onClick={onShare}
+                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </button>
+
+                {onContact && (
+                  <button
+                    onClick={onContact}
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:border-blue-300"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Contact
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* — UI bits — */
+function GlassChip({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3.5 py-2 text-sm font-medium text-slate-800 backdrop-blur-2xl shadow-sm">
+      {icon}
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function SocialCircle({ brand, href }: { brand: "ig" | "fb"; href: string }) {
+  const cls =
+    brand === "ig"
+      ? "bg-[radial-gradient(circle_at_30%_107%,#fdf497_0%,#fdf497_5%,#fd5949_45%,#d6249f_60%,#285AEB_90%)]"
+      : "bg-[#1877F2]";
+  const label = brand === "ig" ? "Instagram" : "Facebook";
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={label}
+      className={`grid h-10 w-10 place-items-center rounded-full text-white shadow-sm ${cls}`}
+    >
+      {/* keep your existing IG/FB icons/styles; just linking container here */}
+      <span className="sr-only">{label}</span>
+      {/* your icon components would go inside here */}
+    </a>
+  );
+}
