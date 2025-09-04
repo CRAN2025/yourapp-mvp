@@ -140,25 +140,25 @@ export default function Products() {
   const getStockPill = (quantity: number) => {
     if (quantity === 0) {
       return (
-        <span className="chip-status bg-red-50 text-red-700 border-red-200">
+        <span className="sl-chip bg-red-50 text-red-700 border-red-200">
           OUT OF STOCK
         </span>
       );
     } else if (quantity === 1) {
       return (
-        <span className="chip-status bg-red-50 text-red-700 border-red-200">
+        <span className="sl-chip bg-red-50 text-red-700 border-red-200">
           LAST ONE!
         </span>
       );
     } else if (quantity < 10) {
       return (
-        <span className="chip-status bg-red-50 text-red-700 border-red-200">
+        <span className="sl-chip bg-red-50 text-red-700 border-red-200">
           LOW STOCK
         </span>
       );
     } else {
       return (
-        <span className="chip-status">
+        <span className="sl-chip">
           IN STOCK
         </span>
       );
@@ -264,17 +264,17 @@ export default function Products() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="page-title mb-2">Products</h1>
+            <h1 className="sl-h1 mb-2">Products</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          <Button onClick={handleAddProduct} data-testid="button-add-product" className="btn-brand">
+          <Button onClick={handleAddProduct} data-testid="button-add-product" className="sl-cta sl-focus flex items-center justify-center">
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>
         </div>
 
         {/* Filters and Search */}
-        <div className="glass elev p-4 md:p-5 mb-8">
+        <div className="sl-glass p-4 md:p-5 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -347,7 +347,7 @@ export default function Products() {
         ) : (
           <div className="grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <Card key={product.id} className="card-shell overflow-hidden">
+              <div key={product.id} className="sl-card transition-transform hover:-translate-y-0.5 sl-focus overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
                 <div className="relative">
@@ -373,8 +373,8 @@ export default function Products() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`absolute top-2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg ${
-                      favorites.has(product.id) ? 'text-red-500' : 'text-gray-400'
+                    className={`absolute top-2 right-2 w-8 h-8 sl-heart sl-focus ${
+                      favorites.has(product.id) ? 'text-red-500' : ''
                     }`}
                     onClick={() => toggleFavorite(product.id)}
                     data-testid={`button-favorite-${product.id}`}
@@ -384,12 +384,7 @@ export default function Products() {
                   
                   {/* v1.6 Removed floating stock badge - now integrated in price section only */}
                 </div>
-                <CardContent style={{ 
-                  paddingTop: '20px', 
-                  paddingBottom: '20px', 
-                  paddingLeft: '20px', 
-                  paddingRight: '20px' 
-                }}>
+                <div className="p-5">
                   
                   {/* v1.6 ALWAYS VISIBLE TOP SECTION - Normalized Spacing */}
                   <div className="space-y-5 mb-5">
@@ -468,10 +463,9 @@ export default function Products() {
                     )}
                     
                     {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
-                    <div className="flex items-center gap-3 text-sm font-medium mt-1"
-                         style={{ color: '#6B7280' }}>
+                    <div className="flex items-center gap-3 text-sm font-medium mt-1 text-slate-500">
                       <span>{getViewCount(product.id)} views</span>
-                      <span>|</span>
+                      <span className="mx-2">·</span>
                       <span>{getSoldCount(product.id)} sold</span>
                     </div>
                     
@@ -479,7 +473,7 @@ export default function Products() {
                     <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
                       <Button
                         size="sm"
-                        className="btn-brand flex-1 min-w-[80px] font-medium"
+                        className="sl-cta sl-focus flex-1 min-w-[80px] font-medium"
                         onClick={() => handleEditProduct(product)}
                         data-testid={`button-edit-${product.id}`}
                       >
@@ -662,21 +656,21 @@ export default function Products() {
                     )}
                   </div>
                   
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
 
             {/* Add Product Card */}
-            <Card
-              className="border-dashed border-2 border-brand-200 hover:border-brand-400 hover:bg-brand-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center"
+            <div
+              className="sl-card border-dashed border-2 border-slate-300 hover:border-sl-primary-500 hover:bg-slate-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center sl-focus"
               onClick={handleAddProduct}
               data-testid="card-add-product"
             >
               <div className="text-center">
-                <Plus className="w-12 h-12 text-brand-400 mx-auto mb-4" />
-                <p className="text-brand-600 font-medium">Add New Product</p>
+                <Plus className="w-12 h-12 text-sl-primary-500 mx-auto mb-4" />
+                <p className="text-sl-primary-600 font-medium">Add New Product</p>
               </div>
-            </Card>
+            </div>
           </div>
         )}
       </div>
