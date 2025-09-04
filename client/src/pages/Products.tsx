@@ -140,25 +140,25 @@ export default function Products() {
   const getStockPill = (quantity: number) => {
     if (quantity === 0) {
       return (
-        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1 text-xs font-medium border border-red-200">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-700">
           OUT OF STOCK
         </span>
       );
     } else if (quantity === 1) {
       return (
-        <span className="rounded-full bg-red-50 text-red-700 px-2.5 py-1 text-xs font-medium border border-red-200">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-700">
           LAST ONE!
         </span>
       );
     } else if (quantity < 10) {
       return (
-        <span className="rounded-full bg-orange-50 text-orange-700 px-2.5 py-1 text-xs font-medium border border-orange-200">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-orange-50 text-orange-700">
           LOW STOCK
         </span>
       );
     } else {
       return (
-        <span className="rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-1 text-xs font-medium border border-emerald-200">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700">
           IN STOCK
         </span>
       );
@@ -275,7 +275,7 @@ export default function Products() {
 
         {/* Filters and Search */}
         <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border border-slate-200 shadow-sm rounded-2xl p-4 md:p-5 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -289,20 +289,17 @@ export default function Products() {
             </div>
             
             {/* v1.5 Bulk Mode Toggle */}
-            <div className="flex items-center gap-2">
+            <label className="inline-flex items-center gap-2">
               <Checkbox
                 id="bulk-mode"
                 checked={bulkMode}
                 onCheckedChange={(checked) => setBulkMode(checked === true)}
-                className="opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                className="h-4 w-4 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
               />
-              <label 
-                htmlFor="bulk-mode" 
-                className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-              >
+              <span className="text-sm text-slate-600">
                 Bulk select
-              </label>
-            </div>
+              </span>
+            </label>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full md:w-48 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400" data-testid="select-category-filter">
                 <SelectValue placeholder="All Categories" />
@@ -346,9 +343,9 @@ export default function Products() {
             }}
           />
         ) : (
-          <div className="grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="group bg-white border border-slate-200 rounded-2xl shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
+              <div key={product.id} className="group bg-white border border-slate-200 rounded-2xl shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
                 <div className="relative">
@@ -392,7 +389,7 @@ export default function Products() {
                 <div className="p-5 flex flex-col h-full">
                   
                   {/* v1.6 ALWAYS VISIBLE TOP SECTION - Normalized Spacing */}
-                  <div className="space-y-3 flex-1">
+                  <div className="space-y-3">
                     
                     {/* v1.6 Enhanced Product Title & Brand */}
                     <div className="space-y-3">
@@ -407,15 +404,13 @@ export default function Products() {
                     </div>
                     
                     {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 rounded-full">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-sky-500 to-violet-500 text-white shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 rounded-full">
                         <span className="text-xl font-bold" data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
-                      <div className="flex items-center">
-                        {getStockPill(product.quantity)}
-                      </div>
+                      {getStockPill(product.quantity)}
                     </div>
                     
                     {/* Category & Subcategory */}
@@ -467,13 +462,13 @@ export default function Products() {
                       </div>
                     )}
                     
-                    <div className="min-h-[72px] space-y-2">
-                      {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
-                      <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
-                        <span>{new Intl.NumberFormat().format(getViewCount(product.id))} views</span>
-                        <span className="mx-2">·</span>
-                        <span>{getSoldCount(product.id) === 0 ? '—' : new Intl.NumberFormat().format(getSoldCount(product.id))} sold</span>
-                      </div>
+                    <div className="min-h-[72px] md:min-h-[56px]" />
+                    
+                    {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
+                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                      <span>{new Intl.NumberFormat().format(getViewCount(product.id))} views</span>
+                      <span>·</span>
+                      <span>{getSoldCount(product.id) === 0 ? '—' : new Intl.NumberFormat().format(getSoldCount(product.id))} sold</span>
                     </div>
                     
                     {/* v1.7 Premium Action Buttons - Enhanced Styling */}
