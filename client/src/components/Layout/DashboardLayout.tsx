@@ -73,9 +73,6 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
               })}
             </nav>
 
-            <button className="hidden sm:inline-flex bg-gradient-to-r from-sky-500 to-violet-500 text-white rounded-full h-10 px-4 shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-400">
-              + Add Product
-            </button>
           </div>
         </header>
       )}
