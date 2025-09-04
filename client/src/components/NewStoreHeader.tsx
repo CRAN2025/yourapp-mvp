@@ -6,6 +6,7 @@ type Props = {
   name: string;
   description?: string;
   logoUrl?: string;
+  bannerUrl?: string;
   productsCount: number;
   paymentsCount: number;
   deliveriesCount: number;
@@ -19,6 +20,7 @@ export default function NewStoreHeader({
   name,
   description,
   logoUrl,
+  bannerUrl,
   productsCount,
   paymentsCount,
   deliveriesCount,
@@ -38,7 +40,14 @@ export default function NewStoreHeader({
   return (
     <header className="relative">
       {/* compact cover */}
-      <div className="h-40 w-full rounded-b-3xl bg-[radial-gradient(1200px_600px_at_10%_-10%,#EAF2FF_0%,transparent_60%),linear-gradient(135deg,#1d4ed8_0%,#2563eb_50%,#3b82f6_100%)]" />
+      <div 
+        className={`h-40 w-full rounded-b-3xl ${
+          bannerUrl 
+            ? 'bg-cover bg-center bg-no-repeat' 
+            : 'bg-[radial-gradient(1200px_600px_at_10%_-10%,#EAF2FF_0%,transparent_60%),linear-gradient(135deg,#1d4ed8_0%,#2563eb_50%,#3b82f6_100%)]'
+        }`}
+        style={bannerUrl ? { backgroundImage: `url('${bannerUrl}')` } : undefined}
+      />
 
       <div className="-mt-10 px-6">
         <div className="mx-auto max-w-7xl">
