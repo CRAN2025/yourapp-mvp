@@ -46,8 +46,8 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
           <div className="mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
             <Link href="/">
               <a className="flex items-center gap-2" aria-label="ShopLynk">
-                <span className="text-slate-900 font-black tracking-tight text-lg">
-                  Shop<span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-violet-500">Lynk</span>
+                <span className="font-black tracking-tight text-lg text-slate-900">
+                  Shop<span className="bg-gradient-to-r from-sky-500 to-violet-500 bg-clip-text text-transparent">Lynk</span>
                 </span>
               </a>
             </Link>
@@ -59,10 +59,10 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
                 return (
                   <Link key={item.name} href={item.href}>
                     <a
-                      className={`px-3 py-2 rounded-lg ${
+                      className={`${
                         isActive
-                          ? 'text-slate-900 bg-slate-100'
-                          : 'text-slate-600 hover:text-slate-900'
+                          ? 'text-slate-900 bg-slate-100 rounded-lg px-3 py-1.5'
+                          : 'text-slate-600 hover:text-slate-900 px-3 py-1.5'
                       }`}
                       data-testid={`nav-${item.name.toLowerCase()}`}
                     >
