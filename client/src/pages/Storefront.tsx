@@ -1842,64 +1842,6 @@ export default function Storefront() {
 
           <FullWidthContainer>
             <div className="py-0">
-              <div className="ultimate-filters">
-                <div className="ultimate-categories">
-                  <div className="ultimate-category-label">
-                    <Filter className="w-6 h-6" />
-                    Categories
-                  </div>
-                  <button
-                    onClick={() => setCategoryFilter('all')}
-                    className={`ultimate-category-pill ${
-                      categoryFilter === 'all' 
-                        ? 'ultimate-category-pill-active' 
-                        : 'ultimate-category-pill-inactive'
-                    }`}
-                  >
-                    All ({products.length})
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setCategoryFilter(category)}
-                      className={`ultimate-category-pill ${
-                        categoryFilter === category 
-                          ? 'ultimate-category-pill-active' 
-                          : 'ultimate-category-pill-inactive'
-                      }`}
-                    >
-                      {category} ({products.filter(p => p.category === category).length})
-                    </button>
-                  ))}
-                </div>
-
-                <div className="ultimate-controls">
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="ultimate-select">
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="newest">🆕 Newest First</SelectItem>
-                      <SelectItem value="popular">🔥 Most Popular</SelectItem>
-                      <SelectItem value="price-low">💰 Price: Low to High</SelectItem>
-                      <SelectItem value="price-high">💎 Price: High to Low</SelectItem>
-                      <SelectItem value="name">📝 Name A-Z</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <button
-                    onClick={(e) => e.preventDefault()}
-                    disabled
-                    className="ultimate-favorites opacity-50 cursor-not-allowed"
-                    title="Favorites feature disabled in seller preview mode"
-                  >
-                    <Heart className="w-7 h-7" />
-                    Favorites
-                    <span className="ultimate-favorites-badge">0</span>
-                  </button>
-                </div>
-              </div>
-
               {/* Enhanced Results Summary */}
               {(searchQuery || categoryFilter !== 'all' || showFavorites) && (
                 <div className="mb-16">
