@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { ref, onValue, off, get } from 'firebase/database';
 import { ExternalLink, Eye, Search, Heart, RefreshCw, X, MessageCircle, ChevronDown, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook, ArrowUpRight, Loader2 } from 'lucide-react';
 import StoreHeader from '@/components/StoreHeader';
+import NewStoreHeader from '@/components/NewStoreHeader';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -1512,158 +1513,44 @@ export default function Storefront() {
         <div className="min-h-screen" style={{
           background: '#f6f8ff',
         }}>
-          {/* Premium Hero Store Header - Seller Preview */}
-          <div className="relative overflow-hidden">
-            {/* Background pattern overlay */}
-            <div className="absolute inset-0" style={{
-              background: '#f6f8ff'
-            }}></div>
-            
-            {/* Seller Preview Notice */}
-            <div className="relative z-20 text-white text-center py-3" style={{
-              background: 'linear-gradient(135deg, #5a6bff 0%, #67d1ff 100%)'
-            }}>
-              <div className="flex items-center justify-center gap-2">
-                <Eye className="w-5 h-5" />
-                <span className="font-bold">Store Preview Mode</span>
-                <span className="text-blue-100">•</span>
-                <span className="text-blue-100">This is how customers see your store</span>
-              </div>
-            </div>
-            
-            <div className="relative z-10 text-center py-16 px-6">
-              {/* Large logo with animations */}
-              <div className="mb-8">
-                <div className="w-32 h-32 mx-auto bg-white rounded-full shadow-2xl border-4 border-white hover:scale-105 transition-all duration-300 flex items-center justify-center overflow-hidden">
-                  {seller?.logoUrl ? (
-                    <img 
-                      src={seller.logoUrl} 
-                      alt={`${seller.storeName} logo`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-2xl font-bold">
-                        {seller?.storeName?.charAt(0) || 'S'}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Store name as main heading */}
-              <h1 className="text-5xl lg:text-6xl font-black text-gray-900 mb-4 leading-tight">
-                {seller?.storeName || 'Amazing Store'}
-              </h1>
-
-              {/* Powered by ShopLynk tagline */}
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <Sparkles className="w-5 h-5 text-blue-600" />
-                <span className="text-blue-600 font-bold text-lg">Powered by ShopLynk</span>
-                <Sparkles className="w-5 h-5 text-blue-600" />
-              </div>
-
-              {/* Store description */}
-              {seller?.storeDescription && (
-                <p className="text-xl text-gray-700 max-w-2xl mx-auto leading-relaxed mb-8">
-                  {seller.storeDescription}
-                </p>
-              )}
-
-              {/* Trust signals row */}
-              <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-                {/* Product count badge */}
-                <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold">{products.length}</span>
-                    </div>
-                    <span className="font-semibold text-gray-800">
-                      {products.length === 1 ? 'Product' : 'Products'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Payment methods badge - clickable */}
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowPaymentModal(true)}
-                  className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="w-5 h-5 text-green-600" />
-                    <span className="font-semibold text-gray-800">
-                      {paymentMethods.length} Payment {paymentMethods.length === 1 ? 'Method' : 'Methods'}
-                    </span>
-                  </div>
-                </Button>
-
-                {/* Delivery options badge - clickable */}
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowDeliveryModal(true)}
-                  className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                  <div className="flex items-center gap-3">
-                    <Truck className="w-5 h-5 text-blue-600" />
-                    <span className="font-semibold text-gray-800">
-                      {deliveryOptions.length} Delivery {deliveryOptions.length === 1 ? 'Option' : 'Options'}
-                    </span>
-                  </div>
-                </Button>
-              </div>
-
-              {/* Social media icons */}
-              {(seller?.socialMedia?.instagram || seller?.socialMedia?.facebook) && (
-                <div className="flex items-center justify-center gap-4 mb-8">
-                  {seller?.socialMedia?.instagram && (
-                    <div className="relative group">
-                      <Button
-                        variant="ghost"
-                        className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 opacity-50 cursor-not-allowed shadow-lg"
-                        disabled
-                      >
-                        <Instagram className="w-6 h-6 text-white" />
-                      </Button>
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        Preview Mode - Not clickable for sellers
-                      </div>
-                    </div>
-                  )}
-                  {seller?.socialMedia?.facebook && (
-                    <div className="relative group">
-                      <Button
-                        variant="ghost"
-                        className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 opacity-50 cursor-not-allowed shadow-lg"
-                        disabled
-                      >
-                        <Facebook className="w-6 h-6 text-white" />
-                      </Button>
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        Preview Mode - Not clickable for sellers
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* WhatsApp CTA button - disabled for seller preview */}
-              {seller?.whatsappNumber && (
-                <div className="relative group">
-                  <Button
-                    disabled
-                    className="bg-gray-300 text-gray-500 font-bold px-8 py-4 rounded-2xl text-lg shadow-xl cursor-not-allowed opacity-60"
-                  >
-                    <MessageCircle className="w-6 h-6 mr-3" />
-                    Contact on WhatsApp (Preview Mode)
-                  </Button>
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-black text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    This button works for customers, not in preview mode
-                  </div>
-                </div>
-              )}
+          {/* Seller Preview Notice */}
+          <div className="relative z-20 text-white text-center py-3" style={{
+            background: 'linear-gradient(135deg, #5a6bff 0%, #67d1ff 100%)'
+          }}>
+            <div className="flex items-center justify-center gap-2">
+              <Eye className="w-5 h-5" />
+              <span className="font-bold">Store Preview Mode</span>
+              <span className="text-blue-100">•</span>
+              <span className="text-blue-100">This is how customers see your store</span>
             </div>
           </div>
+
+          {/* New Store Header */}
+          <NewStoreHeader
+            name={seller?.storeName || 'Amazing Store'}
+            description={seller?.storeDescription || undefined}
+            logoUrl={seller?.logoUrl || undefined}
+            productsCount={products.length}
+            paymentsCount={paymentMethods.length}
+            deliveriesCount={deliveryOptions.length}
+            instagramUrl={seller?.socialMedia?.instagram || undefined}
+            facebookUrl={seller?.socialMedia?.facebook || undefined}
+            onShare={() => {
+              if (seller?.whatsappNumber) {
+                const message = `Check out ${seller.storeName}! Amazing products available. ${window.location.origin}/store/${seller.id}`;
+                openWhatsApp(seller.whatsappNumber, message);
+              }
+            }}
+            onContact={() => {
+              if (seller?.whatsappNumber) {
+                const message = createWhatsAppMessage({
+                  storeName: seller.storeName || 'Store',
+                  productName: 'your products'
+                });
+                openWhatsApp(seller.whatsappNumber, message);
+              }
+            }}
+          />
 
 
           {/* Edge-to-Edge Search & Filter Section - Seller Preview */}
