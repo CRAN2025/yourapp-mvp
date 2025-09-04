@@ -6,6 +6,7 @@ import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Tr
 import StoreHeader from '@/components/StoreHeader';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
+import { normalizeSeller, type SellerV2 } from '@shared/sellerV2';
 import { trackInteraction } from '@/lib/utils/analytics';
 import { openWhatsApp, createWhatsAppMessage } from '@/lib/utils/whatsapp';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
@@ -120,7 +121,7 @@ const FullBleedSection = ({ children }: { children: React.ReactNode }) => (
 export default function StorefrontPublic() {
   const [, params] = useRoute('/store/:sellerId');
   const { toast } = useToast();
-  const [seller, setSeller] = useState<Seller | null>(null);
+  const [seller, setSeller] = useState<SellerV2 | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -356,7 +357,7 @@ export default function StorefrontPublic() {
         }
         
 
-        setSeller(sellerData);
+        setSeller(sellerData ? normalizeSeller(sellerData) : null);
 
         // Load products from public store with enhanced filtering
         const productsRef = ref(database, `publicStores/${sellerId}/products`);
