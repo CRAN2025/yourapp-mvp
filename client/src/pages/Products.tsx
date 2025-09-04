@@ -484,10 +484,10 @@ export default function Products() {
                     </div>
                     
                     {/* v1.7 Premium Action Buttons - Enhanced Styling */}
-                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
                       <Button
                         size="sm"
-                        className="flex-1 font-medium transition-all duration-300 border-2 shadow-md hover:shadow-lg"
+                        className="flex-1 min-w-[80px] font-medium transition-all duration-300 border-2 shadow-md hover:shadow-lg"
                         style={{ 
                           backgroundColor: '#22C55E', 
                           color: 'white',
@@ -502,7 +502,7 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-4 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
+                        className="px-3 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
                         onClick={() => handlePreviewProduct(product)}
                         data-testid={`button-preview-${product.id}`}
                       >
@@ -513,7 +513,7 @@ export default function Products() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="px-4 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
+                        className="px-3 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
                         onClick={() => handleCopyLink(product)}
                         data-testid={`button-copy-link-${product.id}`}
                       >
