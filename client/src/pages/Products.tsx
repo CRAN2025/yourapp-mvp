@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ref, onValue, off } from 'firebase/database';
+import { ref, onValue, off, remove } from 'firebase/database';
 import { Plus, Search, Heart, Edit, Trash2, Filter, ChevronDown, ChevronUp, ExternalLink, Eye, Copy, MoreHorizontal, Check } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
@@ -111,8 +111,17 @@ export default function Products() {
   const handleDeleteProduct = async (product: Product) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
+    if (!user) return;
+
     try {
-      // TODO: Implement product deletion
+      // Delete from seller's products in RTDB
+      const productRef = ref(database, `sellers/${user.uid}/products/${product.id}`);
+      await remove(productRef);
+
+      // Remove from public store mirror
+      const { mirrorProduct } = await import('@/lib/utils/dataMirror');
+      await mirrorProduct(user.uid, product.id, null);
+
       toast({
         title: 'Product deleted',
         description: `${product.name} has been deleted.`,
