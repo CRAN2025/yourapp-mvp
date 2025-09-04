@@ -66,6 +66,8 @@ export default {
           indigo: "var(--brand-indigo)",
           violet: "var(--brand-violet)",
           fuchsia: "var(--brand-fuchsia)",
+          from: '#3b82f6',
+          to: '#6366f1',
         },
         text: {
           strong: "var(--text-strong)",
@@ -102,6 +104,14 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      boxShadow: {
+        'elev': '0 6px 24px rgba(2,6,23,0.06)',
+        'elev-hover': '0 10px 28px rgba(2,6,23,0.08)',
+        'brand': '0 8px 24px rgba(59,130,246,0.25)',
+      },
+      borderRadius: {
+        'xl-2': '1.25rem',
       },
     },
   },
