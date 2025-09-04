@@ -109,7 +109,7 @@ export default function Products() {
   };
 
   const handleDeleteProduct = async (product: Product) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+    if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) return;
 
     if (!user) return;
 
@@ -119,14 +119,15 @@ export default function Products() {
       await remove(productRef);
 
       // Remove from public store mirror
-      const { mirrorProduct } = await import('@/lib/utils/dataMirror');
-      await mirrorProduct(user.uid, product.id, null);
+      const publicProductRef = ref(database, `publicStores/${user.uid}/products/${product.id}`);
+      await remove(publicProductRef);
 
       toast({
         title: 'Product deleted',
-        description: `${product.name} has been deleted.`,
+        description: `${product.name} has been deleted successfully.`,
       });
     } catch (error) {
+      console.error('Delete product error:', error);
       toast({
         title: 'Error',
         description: 'Failed to delete product.',
