@@ -140,31 +140,27 @@ export default function Products() {
   const getStockPill = (quantity: number) => {
     if (quantity === 0) {
       return (
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
-             style={{ backgroundColor: '#EF4444', color: 'white' }}>
+        <span className="chip-status bg-red-50 text-red-700 border-red-200">
           OUT OF STOCK
-        </div>
+        </span>
       );
     } else if (quantity === 1) {
       return (
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
-             style={{ backgroundColor: '#EF4444', color: 'white' }}>
+        <span className="chip-status bg-red-50 text-red-700 border-red-200">
           LAST ONE!
-        </div>
+        </span>
       );
     } else if (quantity < 10) {
       return (
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
-             style={{ backgroundColor: '#EF4444', color: 'white' }}>
+        <span className="chip-status bg-red-50 text-red-700 border-red-200">
           LOW STOCK
-        </div>
+        </span>
       );
     } else {
       return (
-        <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium" 
-             style={{ backgroundColor: '#22C55E', color: 'white' }}>
+        <span className="chip-status">
           IN STOCK
-        </div>
+        </span>
       );
     }
   };
@@ -255,7 +251,7 @@ export default function Products() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="section-container py-8">
           <LoadingSpinner size="lg" className="mx-auto" />
         </div>
       </DashboardLayout>
@@ -264,21 +260,21 @@ export default function Products() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="section-container py-8">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Products</h1>
+            <h1 className="page-title mb-2">Products</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          <Button onClick={handleAddProduct} data-testid="button-add-product">
+          <Button onClick={handleAddProduct} data-testid="button-add-product" className="btn-brand">
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>
         </div>
 
         {/* Filters and Search */}
-        <Card className="p-6 mb-8">
+        <div className="glass elev p-4 md:p-5 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -287,7 +283,7 @@ export default function Products() {
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="input-glass pl-10"
                 data-testid="input-search"
               />
             </div>
@@ -331,7 +327,7 @@ export default function Products() {
               Favorites
             </Button>
           </div>
-        </Card>
+        </div>
 
         {/* Products Grid */}
         {filteredProducts.length === 0 ? (
@@ -351,11 +347,7 @@ export default function Products() {
         ) : (
           <div className="grid sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden border-0 transition-all duration-200 hover:shadow-xl"
-                    style={{ 
-                      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
-                      borderRadius: '14px'
-                    }}>
+              <Card key={product.id} className="card-shell overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
                 <div className="relative">
@@ -416,9 +408,8 @@ export default function Products() {
                     
                     {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
                     <div className="flex items-center gap-3">
-                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full shadow-sm"
-                           style={{ backgroundColor: '#22C55E', color: 'white' }}>
-                        <span className="text-xl font-bold" data-testid={`product-price-${product.id}`}>
+                      <div className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full brand-gradient shadow-sm">
+                        <span className="text-xl font-bold text-white" data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
@@ -488,12 +479,7 @@ export default function Products() {
                     <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200">
                       <Button
                         size="sm"
-                        className="flex-1 min-w-[80px] font-medium transition-all duration-300 border-2 shadow-md hover:shadow-lg"
-                        style={{ 
-                          backgroundColor: '#22C55E', 
-                          color: 'white',
-                          borderColor: '#16A34A'
-                        }}
+                        className="btn-brand flex-1 min-w-[80px] font-medium"
                         onClick={() => handleEditProduct(product)}
                         data-testid={`button-edit-${product.id}`}
                       >
@@ -559,17 +545,17 @@ export default function Products() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-all duration-200"
+                      className="w-full flex items-center justify-between p-3 hover:bg-brand-50 rounded-lg transition-all duration-200"
                       onClick={() => toggleCardExpansion(product.id)}
                       data-testid={`button-expand-${product.id}`}
                     >
-                      <span className="text-sm font-semibold" style={{ color: '#374151' }}>
+                      <span className="text-sm font-semibold text-brand-700">
                         {expandedCards.has(product.id) ? 'Hide Details' : 'Show Details'}
                       </span>
                       {expandedCards.has(product.id) ? (
-                        <ChevronUp className="w-4 h-4" style={{ color: '#374151' }} />
+                        <ChevronUp className="w-4 h-4 text-brand-700" />
                       ) : (
-                        <ChevronDown className="w-4 h-4" style={{ color: '#374151' }} />
+                        <ChevronDown className="w-4 h-4 text-brand-700" />
                       )}
                     </Button>
                     
@@ -644,28 +630,28 @@ export default function Products() {
                         
                         {/* Shipping & Returns */}
                         {(product.shipsFrom || product.returnPolicy || product.warranty) && (
-                          <div className="p-4 bg-purple-50 rounded-lg">
-                            <h4 className="text-sm font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                          <div className="p-4 bg-brand-50 rounded-lg">
+                            <h4 className="text-sm font-semibold text-brand-800 mb-3 flex items-center gap-2">
                               <span>📦</span>
                               Shipping & Returns
                             </h4>
                             <div className="space-y-2">
                               {product.shipsFrom && (
                                 <div className="text-xs">
-                                  <span className="font-medium text-purple-700">Ships From:</span>
-                                  <span className="ml-2 text-purple-800">{product.shipsFrom}</span>
+                                  <span className="font-medium text-brand-700">Ships From:</span>
+                                  <span className="ml-2 text-brand-800">{product.shipsFrom}</span>
                                 </div>
                               )}
                               {product.returnPolicy && (
                                 <div className="text-xs">
-                                  <span className="font-medium text-purple-700">Returns:</span>
-                                  <span className="ml-2 text-purple-800">{product.returnPolicy}</span>
+                                  <span className="font-medium text-brand-700">Returns:</span>
+                                  <span className="ml-2 text-brand-800">{product.returnPolicy}</span>
                                 </div>
                               )}
                               {product.warranty && (
                                 <div className="text-xs">
-                                  <span className="font-medium text-purple-700">Warranty:</span>
-                                  <span className="ml-2 text-purple-800">{product.warranty}</span>
+                                  <span className="font-medium text-brand-700">Warranty:</span>
+                                  <span className="ml-2 text-brand-800">{product.warranty}</span>
                                 </div>
                               )}
                             </div>
@@ -682,13 +668,13 @@ export default function Products() {
 
             {/* Add Product Card */}
             <Card
-              className="border-dashed border-2 border-muted-foreground/25 hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center"
+              className="border-dashed border-2 border-brand-200 hover:border-brand-400 hover:bg-brand-50/50 transition-colors cursor-pointer min-h-[320px] flex items-center justify-center"
               onClick={handleAddProduct}
               data-testid="card-add-product"
             >
               <div className="text-center">
-                <Plus className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground font-medium">Add New Product</p>
+                <Plus className="w-12 h-12 text-brand-400 mx-auto mb-4" />
+                <p className="text-brand-600 font-medium">Add New Product</p>
               </div>
             </Card>
           </div>

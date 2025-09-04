@@ -1,0 +1,227 @@
+Implementation plan for visual alignment (for the dev)
+
+Scope & guardrails
+
+Do not change product card content/structure or the product details modal.
+
+Do not change the filter logic/labels; keep the Instagram & Facebook icons as-is.
+
+Remove the stray/duplicate “second” filter bar if it renders.
+
+All changes are styling + light markup for consistency with the landing page.
+
+1) Add shared design tokens (one source of truth)
+A. Global CSS variables (recommended)
+
+Create (or extend) a global CSS file that’s loaded app-wide (e.g., src/styles/theme.css), then import it once in your root layout.
+
+:root{
+  --brand-from: #3b82f6;  /* blue-500  */
+  --brand-to:   #6366f1;  /* indigo-500*/
+  --brand-ring: #3b82f6;
+
+  --glass-bg:    rgba(255,255,255,0.70);
+  --glass-brd:   rgba(148,163,184,0.35); /* slate-400/35 */
+  --glass-blur:  8px;
+
+  --card-brd:    #e2e8f0; /* slate-200 */
+  --text-900:    #0f172a; /* slate-900 */
+  --text-700:    #334155; /* slate-700 */
+  --text-600:    #475569; /* slate-600 */
+
+  --shadow-lg:   0 6px 24px rgba(2,6,23,0.06);
+  --shadow-md:   0 4px 16px rgba(2,6,23,0.05);
+  --radius:      1rem;     /* base */
+  --radius-xl:   1.25rem;  /* ~ rounded-2xl */
+}
+
+/* Reusable helpers */
+.brand-gradient { background-image: linear-gradient(to right, var(--brand-from), var(--brand-to)); }
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: saturate(120%) blur(var(--glass-blur));
+  border: 1px solid var(--glass-brd);
+}
+.elev   { box-shadow: var(--shadow-lg); border-radius: var(--radius-xl); }
+.ring-brand:focus-visible { outline: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-ring), transparent 70%); }
+
+B. Tailwind theme (optional but nice)
+
+Extend Tailwind so tokens are available as utilities:
+
+// tailwind.config.ts
+export default {
+  theme: {
+    extend: {
+      colors: {
+        brand: { from: '#3b82f6', to: '#6366f1' },
+      },
+      boxShadow: {
+        elev: '0 6px 24px rgba(2,6,23,0.06)',
+      },
+      borderRadius: {
+        'xl-2': '1.25rem', // rounded-2xl feel
+      },
+    },
+  },
+};
+
+2) Standardize primitives
+
+Apply the same look used on the landing page:
+
+Cards: rounded-2xl, border-slate-200, bg-white, shadow-[var(--shadow-lg)]
+
+Chips (3 variants):
+
+Neutral (glass): inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-3 py-1 text-sm text-slate-700 shadow-sm
+
+Brand: inline-flex items-center gap-2 rounded-full text-white px-3 py-1 text-sm shadow brand-gradient
+
+Status (success): inline-flex items-center gap-2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 text-sm
+
+Rings/focus: use .ring-brand helper above on interactive inputs.
+
+3) Update specific UI on the Seller → Products page
+
+Again: don’t touch the internal product card structure/content or the details modal—only wrapper classes.
+
+A. Page H1 & section spacing
+<h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
+  Products
+</h1>
+
+
+Ensure sections use consistent max-w-7xl mx-auto px-6 where applicable.
+
+B. Search + filter container → glass panel
+
+Wrap search/filters in a glassy, elevated panel:
+
+<div className="glass elev p-4 md:p-5 rounded-2xl">
+  {/* existing search input */}
+  <input
+    className="w-full h-12 rounded-xl border border-slate-200 bg-white/80 ring-brand px-4"
+    /* ...existing props... */
+  />
+  {/* existing filters … keep logic and labels as-is */}
+</div>
+
+
+Remove any duplicate/“remnant” filter bar from the DOM.
+
+C. “Add Product” CTA → brand pill
+
+Replace className on the primary CTA:
+
+<Button
+  className="h-11 rounded-full px-5 brand-gradient text-white shadow-[0_8px_24px_rgba(59,130,246,0.25)] hover:brightness-110"
+>
+  + Add Product
+</Button>
+
+D. Product cards: unify shell styles (not the content)
+
+At the Card container level only:
+
+<Card className="rounded-2xl border border-slate-200 bg-white shadow-[var(--shadow-lg)] hover:shadow-[0_10px_28px_rgba(2,6,23,0.08)] transition-shadow">
+  {/* keep everything inside untouched */}
+</Card>
+
+E. Price & status
+
+Price: Use neutral/brand combo (avoid green as the main price color).
+
+Status (e.g., “IN STOCK”, “LOW STOCK”): keep green/status colors—this is the signal color.
+
+Example inside the existing price area (don’t restructure, just style):
+
+<div className="flex items-center gap-2">
+  <div className="text-2xl font-bold text-slate-900">
+    {formatPrice(p.price)}
+  </div>
+  {/* optional tiny brand chip for currency/compareAt flag */}
+  {(p as any).compareAtPrice && (p as any).compareAtPrice > p.price && (
+    <span className="inline-flex items-center rounded-full brand-gradient text-white px-2 py-0.5 text-xs">
+      Sale
+    </span>
+  )}
+</div>
+
+F. Chips beneath the card
+
+Change chip classNames to the standardized ones above (Neutral/Brand/Status), but don’t change which chips render or their content.
+
+4) Apply the same accents to the Storefront header (preview mode)
+
+Keep social icons exactly as they are.
+
+Header info bar can be a glass floating bar (as in your screenshot) with brand-gradient dots/indicators to echo the landing page.
+
+Keep paddings light so the header doesn’t create a huge empty block above the products grid.
+
+5) Accessibility + QA checklist
+
+Keyboard: all focusable controls show the brand focus ring (.ring-brand).
+
+Contrast: text contrast ≥ 4.5:1 on glass backgrounds.
+
+Hover/active states: buttons and chips have visible changes (brightness/opacity).
+
+Responsive: test at 360px, 768px, 1024px, 1280px.
+
+No duplicates: confirm the stray second filter never appears.
+
+No logic changes: filtering, favorites, and product modals behave identically.
+
+6) Quick snippet replacements (copy/paste)
+
+Button (primary CTA):
+
+<Button className="h-11 rounded-full px-5 brand-gradient text-white shadow-[0_8px_24px_rgba(59,130,246,0.25)] hover:brightness-110">
+  + Add Product
+</Button>
+
+
+Card wrapper:
+
+<Card className="rounded-2xl border border-slate-200 bg-white shadow-[var(--shadow-lg)] hover:shadow-[0_10px_28px_rgba(2,6,23,0.08)] transition-shadow">
+  {children}
+</Card>
+
+
+Neutral chip:
+
+<span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 backdrop-blur px-3 py-1 text-sm text-slate-700 shadow-sm">
+  {label}
+</span>
+
+
+Brand chip:
+
+<span className="inline-flex items-center gap-2 rounded-full text-white px-3 py-1 text-sm shadow brand-gradient">
+  {label}
+</span>
+
+
+Success chip (status):
+
+<span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 text-sm">
+  {label}
+</span>
+
+7) Definition of Done
+
+Visual alignment with the landing page (brand gradient, glass, soft shadows, rounded-2xl).
+
+Product cards & details modal unchanged in content; only shell styles updated.
+
+Search/filters appear once, in a glass panel; favorites & category chips preserved.
+
+Social icons (IG/FB) unchanged.
+
+Price no longer uses green; green reserved for stock/status.
+
+All interactive elements show a consistent brand focus ring.
+
+No regressions in filtering, favorites, or modal behavior.
