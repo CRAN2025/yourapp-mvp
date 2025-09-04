@@ -64,14 +64,19 @@ export default {
           ring: "var(--sidebar-ring)",
         },
         brand: {
-          blue: "var(--brand-blue)",
-          indigo: "var(--brand-indigo)",
-          violet: "var(--brand-violet)",
-          fuchsia: "var(--brand-fuchsia)",
-          from: '#3b82f6',
-          to: '#6366f1',
-          sky: '#0ea5e9',
-          violet: '#7c3aed',
+          50:  '#eef5ff',
+          100: '#d9e7ff',
+          200: '#b9d3ff',
+          300: '#8fb7ff',
+          400: '#5e94ff',
+          500: '#3b82f6', // primary
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+        accent: {
+          500: '#7c3aed', // indigo/violet for gradient tail
         },
         sl: {
           primary: { 500: '#0ea5e9', 600: '#2563eb' }, // sky-500, blue-600
@@ -118,8 +123,10 @@ export default {
         'elev-hover': '0 10px 28px rgba(2,6,23,0.08)',
         'brand': '0 8px 24px rgba(59,130,246,0.25)',
         'sl': '0 10px 40px -12px rgba(2,6,23,0.12)',
-        soft: '0 1px 2px rgba(15, 23, 42, .06)',
-        lift: '0 6px 20px rgba(15, 23, 42, .08)',
+        soft: '0 10px 30px -12px rgb(2 6 23 / 0.12)',
+      },
+      backdropBlur: {
+        xs: '2px',
       },
     },
   },
