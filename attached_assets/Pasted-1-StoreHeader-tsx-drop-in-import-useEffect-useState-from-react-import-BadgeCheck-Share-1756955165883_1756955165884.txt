@@ -1,4 +1,4 @@
-// StoreHeader.tsx
+1) StoreHeader.tsx (drop-in)
 import { useEffect, useState } from "react";
 import { BadgeCheck, Share2, MessageCircle, Package, CreditCard, Truck } from "lucide-react";
 
@@ -11,11 +11,11 @@ type Props = {
   deliveriesCount: number;
   instagramUrl?: string;
   facebookUrl?: string;
-  onShare: () => void;      // opens WhatsApp share
-  onContact?: () => void;   // optional WhatsApp contact CTA
+  onShare: () => void;      // WhatsApp share
+  onContact?: () => void;   // WhatsApp contact (optional)
 };
 
-export default function NewStoreHeader({
+export default function StoreHeader({
   name,
   description,
   logoUrl,
@@ -110,7 +110,6 @@ export default function NewStoreHeader({
   );
 }
 
-/* — UI bits — */
 function GlassChip({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3.5 py-2 text-sm font-medium text-slate-800 backdrop-blur-2xl shadow-sm">
@@ -134,9 +133,43 @@ function SocialCircle({ brand, href }: { brand: "ig" | "fb"; href: string }) {
       aria-label={label}
       className={`grid h-10 w-10 place-items-center rounded-full text-white shadow-sm ${cls}`}
     >
-      {/* keep your existing IG/FB icons/styles; just linking container here */}
       <span className="sr-only">{label}</span>
-      {/* your icon components would go inside here */}
+      {/* keep your existing IG/FB glyphs inside if you have custom ones */}
     </a>
   );
 }
+
+2) Minimal integration in your storefront page
+
+Keep your product cards and filters as-is.
+
+Remove the big “Discover Amazing Products” section.
+
+Mount the header above the filter block.
+
+Ensure only one filter row renders.
+
+// inside PublicStorefrontAligned (near the top of the return), replace your current header block with:
+<StoreHeader
+  name={seller.storeName || "Store"}
+  description={seller.storeDescription}
+  logoUrl={seller.logoUrl}
+  productsCount={products.length}
+  paymentsCount={normList(seller.paymentMethods).length}
+  deliveriesCount={normList(seller.deliveryOptions).length}
+  instagramUrl={normalizeSocialUrl(seller.socialMedia?.instagram, "instagram")}
+  facebookUrl={normalizeSocialUrl(seller.socialMedia?.facebook, "facebook")}
+  onShare={() => {
+    const storeUrl = `${window.location.origin}/store/${seller.id}`;
+    const text = `Check out my ${seller.storeName || "ShopLynk"} store: ${storeUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  }}
+  onContact={seller.whatsappNumber ? () => {
+    const msg = `Hi ${seller.storeName || "there"}! I'm interested in your products.`;
+    const digits = seller.whatsappNumber.replace(/[^\d+]/g, "");
+    window.open(`https://wa.me/${digits.replace(/^\+/, "")}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+  } : undefined}
+/>
+
+// then go straight into your existing Search & Filters block.
+// Delete/disable any second/legacy filter container to avoid duplication.
