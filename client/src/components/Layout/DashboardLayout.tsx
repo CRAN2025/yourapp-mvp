@@ -42,84 +42,40 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       {!hideTopNav && (
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-8">
-                <Link href="/">
-                  <div className="flex items-center space-x-2 cursor-pointer">
-                    <img 
-                      src={logoUrl} 
-                      alt="ShoplYnk" 
-                      className="w-8 h-8"
-                    />
-                    <span className="text-xl font-bold text-primary">
-                      ShoplYnk
-                    </span>
-                  </div>
-                </Link>
+        <header className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200">
+          <div className="mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <Link href="/">
+              <a className="flex items-center gap-2" aria-label="ShopLynk">
+                <span className="text-slate-900 font-black tracking-tight text-lg">
+                  Shop<span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-violet-500">Lynk</span>
+                </span>
+              </a>
+            </Link>
+
+            <nav className="hidden md:flex items-center gap-2">
+              {navigation.map((item) => {
+                const isActive = location === item.href;
                 
-                <nav className="hidden md:flex space-x-8">
-                  {navigation.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location === item.href;
-                    
-                    return (
-                      <Link key={item.name} href={item.href}>
-                        <a
-                          className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                            isActive
-                              ? 'text-primary bg-primary/10'
-                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                          }`}
-                          data-testid={`nav-${item.name.toLowerCase()}`}
-                        >
-                          <Icon className="w-4 h-4" />
-                          <span>{item.name}</span>
-                        </a>
-                      </Link>
-                    );
-                  })}
-                </nav>
-              </div>
+                return (
+                  <Link key={item.name} href={item.href}>
+                    <a
+                      className={`px-3 py-2 rounded-lg ${
+                        isActive
+                          ? 'text-slate-900 bg-slate-100'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                      data-testid={`nav-${item.name.toLowerCase()}`}
+                    >
+                      {item.name}
+                    </a>
+                  </Link>
+                );
+              })}
+            </nav>
 
-              <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm" data-testid="notifications">
-                  <Bell className="w-5 h-5" />
-                </Button>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={seller?.logoUrl} alt={seller?.storeName} />
-                        <AvatarFallback>
-                          {seller?.storeName?.[0]?.toUpperCase() || seller?.fullName?.[0]?.toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <div className="px-2 py-1.5 text-sm">
-                      <p className="font-medium">{seller?.storeName || 'Your Store'}</p>
-                      <p className="text-muted-foreground">{seller?.email}</p>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Settings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} data-testid="sign-out">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
+            <button className="hidden sm:inline-flex bg-gradient-to-r from-sky-500 to-violet-500 text-white rounded-full h-10 px-4 shadow-[0_10px_40px_-12px_rgba(2,6,23,0.12)] hover:brightness-105 focus:outline-none focus:ring-2 focus:ring-sky-400">
+              + Add Product
+            </button>
           </div>
         </header>
       )}
