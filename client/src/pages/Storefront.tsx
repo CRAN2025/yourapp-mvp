@@ -1530,6 +1530,7 @@ export default function Storefront() {
             name={seller?.storeName || 'Amazing Store'}
             description={seller?.storeDescription || undefined}
             logoUrl={seller?.logoUrl || undefined}
+            bannerUrl={seller?.bannerUrl || undefined}
             productsCount={products.length}
             paymentsCount={paymentMethods.length}
             deliveriesCount={deliveryOptions.length}
