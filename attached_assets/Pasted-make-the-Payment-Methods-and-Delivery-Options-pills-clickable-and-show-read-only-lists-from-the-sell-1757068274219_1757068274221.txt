@@ -1,0 +1,203 @@
+make the Payment Methods and Delivery Options pills clickable and show read-only lists from the seller’s public data. Keep Products as a count only (not clickable).
+
+Below are exact, minimal changes. Do not change anything else.
+
+1) Read from the public mirror only (storefront-safe)
+
+Data paths (read-only):
+
+publicStores/{sellerId}/paymentMethods
+
+publicStores/{sellerId}/deliveryOptions
+
+Do not read from sellers/{sellerId}/… on the storefront to avoid leaking private/unpublished settings.
+
+Expected shapes
+
+type PaymentMethod = {
+  id: string;
+  type: 'cash'|'card'|'paypal'|'zelle'|'venmo'|'cashapp'|'bank'|string;
+  label?: string;
+  handle?: string;          // e.g. $mycashapp or @venmo
+  instructions?: string;    // short customer note
+  enabled?: boolean;        // default true
+};
+
+type DeliveryOption = {
+  id: string;
+  type: 'pickup'|'local'|'shipping'|string;
+  label?: string;
+  fee?: number;             // per order fee
+  regions?: string[];
+  minOrder?: number;
+  instructions?: string;
+  enabled?: boolean;        // default true
+};
+
+2) Files to touch
+
+src/pages/Storefront.tsx (or the component that renders the Grow Up header with the pills)
+
+Uses existing UI primitives (Button, Dialog from shadcn) you already have
+
+3) Code (drop-in)
+a) State + loader (public data only)
+import { useEffect, useState } from 'react';
+import { get, ref } from 'firebase/database';
+import { database } from '@/lib/firebase';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+// …inside Storefront component:
+const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+const [deliveryOptions, setDeliveryOptions] = useState<DeliveryOption[]>([]);
+const [showPayments, setShowPayments] = useState(false);
+const [showDelivery, setShowDelivery] = useState(false);
+const [loadingMeta, setLoadingMeta] = useState(true);
+
+// You should already have sellerId available on this page
+// (from route param, store context, or prop)
+useEffect(() => {
+  if (!sellerId) return;
+
+  const toArray = (obj: any) =>
+    obj ? Object.entries(obj).map(([id, v]) => ({ id, ...(v as object) })) : [];
+
+  (async () => {
+    setLoadingMeta(true);
+
+    const [pmSnap, delSnap] = await Promise.all([
+      get(ref(database, `publicStores/${sellerId}/paymentMethods`)),
+      get(ref(database, `publicStores/${sellerId}/deliveryOptions`)),
+    ]);
+
+    const pm = toArray(pmSnap.val()).filter((m: any) => m.enabled !== false);
+    const del = toArray(delSnap.val()).filter((d: any) => d.enabled !== false);
+
+    setPaymentMethods(pm);
+    setDeliveryOptions(del);
+    setLoadingMeta(false);
+  })();
+}, [sellerId]);
+
+b) Update the pills (Products disabled, others clickable)
+<div className="flex items-center gap-3">
+  {/* PRODUCTS (disabled – list is below) */}
+  <Button
+    variant="outline"
+    disabled
+    aria-disabled="true"
+    className="cursor-default"
+    title="Products list is shown below"
+  >
+    <span className="mr-2">📦</span>{products.length} Products
+  </Button>
+
+  {/* PAYMENTS (clickable) */}
+  <Button
+    variant="outline"
+    onClick={() => setShowPayments(true)}
+    aria-label="View payment methods"
+    data-testid="pill-payment-methods"
+  >
+    <span className="mr-2">💳</span>{paymentMethods.length} Payment Methods
+  </Button>
+
+  {/* DELIVERY (clickable) */}
+  <Button
+    variant="outline"
+    onClick={() => setShowDelivery(true)}
+    aria-label="View delivery options"
+    data-testid="pill-delivery-options"
+  >
+    <span className="mr-2">🚚</span>{deliveryOptions.length} Delivery Options
+  </Button>
+</div>
+
+c) Read-only modals
+{/* Payments Modal */}
+<Dialog open={showPayments} onOpenChange={setShowPayments}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Payment Methods</DialogTitle>
+    </DialogHeader>
+
+    {loadingMeta ? (
+      <p className="text-sm text-muted-foreground">Loading…</p>
+    ) : paymentMethods.length ? (
+      <ul className="divide-y">
+        {paymentMethods.map(m => (
+          <li key={m.id} className="py-3">
+            <div className="font-medium">
+              {m.label || m.type}
+              {m.handle && <span className="ml-2 text-sm text-muted-foreground">{m.handle}</span>}
+            </div>
+            {m.instructions && (
+              <div className="text-sm text-muted-foreground mt-1">{m.instructions}</div>
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-sm text-muted-foreground">No payment methods available.</p>
+    )}
+  </DialogContent>
+</Dialog>
+
+{/* Delivery Modal */}
+<Dialog open={showDelivery} onOpenChange={setShowDelivery}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Delivery Options</DialogTitle>
+    </DialogHeader>
+
+    {loadingMeta ? (
+      <p className="text-sm text-muted-foreground">Loading…</p>
+    ) : deliveryOptions.length ? (
+      <ul className="divide-y">
+        {deliveryOptions.map(d => (
+          <li key={d.id} className="py-3">
+            <div className="font-medium">{d.label || d.type}</div>
+            <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
+              {typeof d.fee === 'number' && <div>Fee: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.fee)}</div>}
+              {d.minOrder && <div>Min Order: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.minOrder)}</div>}
+              {d.regions?.length ? <div>Regions: {d.regions.join(', ')}</div> : null}
+              {d.instructions && <div>{d.instructions}</div>}
+            </div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-sm text-muted-foreground">No delivery options available.</p>
+    )}
+  </DialogContent>
+</Dialog>
+
+4) Acceptance criteria
+
+Products pill is visually active but not clickable (aria-disabled), since the list is below.
+
+Payment Methods pill opens a modal listing the public enabled methods.
+
+Delivery Options pill opens a modal listing the public enabled options.
+
+Graceful empty states and loading states.
+
+No private sellers/{sellerId} reads on the storefront.
+
+5) Notes for the agent (important)
+
+Scope: Only modify the storefront header component where those pills render and add two dialogs.
+
+Security: Use only publicStores/{sellerId}/… on this page.
+
+No side effects: Do not write or change any data from storefront.
+
+Design: Reuse existing shadcn/Button/Dialog styles; do not introduce new dependencies.
+
+Commit message suggestion
+
+feat(storefront): make Payment Methods & Delivery Options clickable using public store data; keep Products pill disabled
+
+
+This keeps the storefront safe, read-only, and user-friendly while reflecting the seller’s published configuration.

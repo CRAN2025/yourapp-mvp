@@ -137,6 +137,9 @@ export default function StorefrontPublic() {
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [publicPaymentMethods, setPublicPaymentMethods] = useState<any[]>([]);
   const [publicDeliveryOptions, setPublicDeliveryOptions] = useState<any[]>([]);
+  const [showPayments, setShowPayments] = useState(false);
+  const [showDelivery, setShowDelivery] = useState(false);
+  const [loadingMeta, setLoadingMeta] = useState(true);
   // Removed showChatFab state - floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD
   const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
   const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
@@ -381,23 +384,16 @@ export default function StorefrontPublic() {
           ]) as any
         ]);
 
-        // Process payment methods
-        if (paymentMethodsSnapshot.exists()) {
-          const paymentData = paymentMethodsSnapshot.val();
-          const paymentList = Object.entries(paymentData || {})
-            .map(([id, data]: [string, any]) => ({ id, ...data }))
-            .filter((method: any) => method.enabled !== false);
-          setPublicPaymentMethods(paymentList);
-        }
+        // Process payment methods and delivery options using the exact pattern from spec
+        const toArray = (obj: any) =>
+          obj ? Object.entries(obj).map(([id, v]) => ({ id, ...(v as object) })) : [];
 
-        // Process delivery options
-        if (deliveryOptionsSnapshot.exists()) {
-          const deliveryData = deliveryOptionsSnapshot.val();
-          const deliveryList = Object.entries(deliveryData || {})
-            .map(([id, data]: [string, any]) => ({ id, ...data }))
-            .filter((option: any) => option.enabled !== false);
-          setPublicDeliveryOptions(deliveryList);
-        }
+        const pm = toArray(paymentMethodsSnapshot.val()).filter((m: any) => m.enabled !== false);
+        const del = toArray(deliveryOptionsSnapshot.val()).filter((d: any) => d.enabled !== false);
+
+        setPublicPaymentMethods(pm);
+        setPublicDeliveryOptions(del);
+        setLoadingMeta(false);
 
         // Load products from public store with enhanced filtering
         const productsRef = ref(database, `publicStores/${sellerId}/products`);
@@ -2282,44 +2278,37 @@ ${productUrl}`;
 
             {/* Trust signals row */}
             <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-              {/* Product count badge */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">{products.length}</span>
-                  </div>
-                  <span className="font-semibold text-gray-800">
-                    {products.length === 1 ? 'Product' : 'Products'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Payment methods badge - clickable */}
+              {/* PRODUCTS (disabled – list is below) */}
               <Button
-                variant="ghost"
-                onClick={() => setShowPaymentModal(true)}
-                className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
+                variant="outline"
+                disabled
+                aria-disabled="true"
+                className="cursor-default bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200"
+                title="Products list is shown below"
               >
-                <div className="flex items-center gap-3">
-                  <CreditCard className="w-5 h-5 text-green-600" />
-                  <span className="font-semibold text-gray-800">
-                    {paymentMethods.length} Payment {paymentMethods.length === 1 ? 'Method' : 'Methods'}
-                  </span>
-                </div>
+                <span className="mr-2">📦</span>{products.length} Products
               </Button>
 
-              {/* Delivery options badge - clickable */}
+              {/* PAYMENTS (clickable) */}
               <Button
-                variant="ghost"
-                onClick={() => setShowDeliveryModal(true)}
+                variant="outline"
+                onClick={() => setShowPayments(true)}
+                aria-label="View payment methods"
+                data-testid="pill-payment-methods"
                 className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
               >
-                <div className="flex items-center gap-3">
-                  <Truck className="w-5 h-5 text-blue-600" />
-                  <span className="font-semibold text-gray-800">
-                    {deliveryOptions.length} Delivery {deliveryOptions.length === 1 ? 'Option' : 'Options'}
-                  </span>
-                </div>
+                <span className="mr-2">💳</span>{publicPaymentMethods.length} Payment Methods
+              </Button>
+
+              {/* DELIVERY (clickable) */}
+              <Button
+                variant="outline"
+                onClick={() => setShowDelivery(true)}
+                aria-label="View delivery options"
+                data-testid="pill-delivery-options"
+                className="bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <span className="mr-2">🚚</span>{publicDeliveryOptions.length} Delivery Options
               </Button>
             </div>
 
@@ -3485,85 +3474,61 @@ ${productUrl}`;
         )}
       </div>
 
-      {/* Payment Methods Modal */}
-      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
-        <DialogContent className="max-w-md mx-auto">
+      {/* Payments Modal */}
+      <Dialog open={showPayments} onOpenChange={setShowPayments}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-green-600" />
-              Payment Methods
-            </DialogTitle>
+            <DialogTitle>Payment Methods</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            {publicPaymentMethods.length > 0 ? (
-              publicPaymentMethods.map((method) => (
-                <div key={method.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <CreditCard className="w-4 h-4 text-green-600" />
+
+          {loadingMeta ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : publicPaymentMethods.length ? (
+            <ul className="divide-y">
+              {publicPaymentMethods.map(m => (
+                <li key={m.id} className="py-3">
+                  <div className="font-medium">
+                    {m.label || m.type}
+                    {m.handle && <span className="ml-2 text-sm text-muted-foreground">{m.handle}</span>}
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">
-                      {method.label || method.type.charAt(0).toUpperCase() + method.type.slice(1)}
-                    </div>
-                    {method.handle && (
-                      <div className="text-sm text-gray-600">{method.handle}</div>
-                    )}
-                    {method.instructions && (
-                      <div className="text-sm text-gray-500">{method.instructions}</div>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-6 text-gray-500">
-                No payment methods configured yet.
-              </div>
-            )}
-          </div>
+                  {m.instructions && (
+                    <div className="text-sm text-muted-foreground mt-1">{m.instructions}</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No payment methods available.</p>
+          )}
         </DialogContent>
       </Dialog>
 
-      {/* Delivery Options Modal */}
-      <Dialog open={showDeliveryModal} onOpenChange={setShowDeliveryModal}>
-        <DialogContent className="max-w-md mx-auto">
+      {/* Delivery Modal */}
+      <Dialog open={showDelivery} onOpenChange={setShowDelivery}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Truck className="w-5 h-5 text-blue-600" />
-              Delivery Options
-            </DialogTitle>
+            <DialogTitle>Delivery Options</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            {publicDeliveryOptions.length > 0 ? (
-              publicDeliveryOptions.map((option) => (
-                <div key={option.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Truck className="w-4 h-4 text-blue-600" />
+
+          {loadingMeta ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : publicDeliveryOptions.length ? (
+            <ul className="divide-y">
+              {publicDeliveryOptions.map(d => (
+                <li key={d.id} className="py-3">
+                  <div className="font-medium">{d.label || d.type}</div>
+                  <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
+                    {typeof d.fee === 'number' && <div>Fee: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.fee)}</div>}
+                    {d.minOrder && <div>Min Order: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.minOrder)}</div>}
+                    {d.regions?.length ? <div>Regions: {d.regions.join(', ')}</div> : null}
+                    {d.instructions && <div>{d.instructions}</div>}
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">
-                      {option.label || option.type.charAt(0).toUpperCase() + option.type.slice(1)}
-                    </div>
-                    {option.fee && (
-                      <div className="text-sm text-gray-600">Fee: {formatPrice(option.fee)}</div>
-                    )}
-                    {option.minOrder && (
-                      <div className="text-sm text-gray-600">Min order: {formatPrice(option.minOrder)}</div>
-                    )}
-                    {option.regions && option.regions.length > 0 && (
-                      <div className="text-sm text-gray-500">Available in: {option.regions.join(', ')}</div>
-                    )}
-                    {option.instructions && (
-                      <div className="text-sm text-gray-500">{option.instructions}</div>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-6 text-gray-500">
-                No delivery options configured yet.
-              </div>
-            )}
-          </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No delivery options available.</p>
+          )}
         </DialogContent>
       </Dialog>
     </>
