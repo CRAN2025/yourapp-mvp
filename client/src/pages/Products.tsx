@@ -170,35 +170,22 @@ export default function Products() {
       3000
     );
 
-    if (wasPresent && removed) {
-      toast({
-        title: 'Product deleted',
-        description: 'The product was removed.',
-      });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Could not delete',
-        description: 'Please try again.',
-      });
-    }
+    showOutcome(
+      wasPresent && removed,
+      'Product deleted',
+      'The product was removed.',
+      'Could not delete'
+    );
   };
 
-  // v1.7 Premium stock pill - smaller size for visual hierarchy
+  // v1.7 Premium stock pill - consistent styling
   const getStockPill = (product: Product) => {
-    if (product.isSold) {
-      return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-800 text-white">
-          SOLD
-        </span>
-      );
-    }
-    
     const quantity = product.quantity;
+    
     if (quantity === 0) {
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800">
-          OUT OF STOCK
+        <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-800">
+          {product.isActive === false ? 'SOLD' : 'OUT OF STOCK'}
         </span>
       );
     } else if (quantity === 1) {
@@ -261,61 +248,85 @@ export default function Products() {
     }
   };
 
+  // Unified toast helper
+  const showOutcome = (ok: boolean, okTitle: string, okDesc: string, errTitle: string) =>
+    toast(ok
+      ? { title: okTitle, description: okDesc }
+      : { variant: 'destructive', title: errTitle, description: 'Please try again.' }
+    );
+
   const handleMarkAsSold = async (product: Product) => {
     if (!user) return;
 
     try {
-      await update(ref(database, `sellers/${user.uid}/products/${product.id}`), {
-        isSold: true,
-        isActive: false,
+      const productRef = ref(database, `sellers/${user.uid}/products/${product.id}`);
+      await set(productRef, {
+        ...product,
         quantity: 0,
+        isActive: false,
         soldAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
 
-      // Hide from public store mirror
-      await remove(ref(database, `publicStores/${user.uid}/products/${product.id}`));
-
-      toast({
-        title: 'Marked as Sold',
-        description: `${product.name} is now shown as SOLD and hidden from your store.`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to mark as sold.',
-        variant: 'destructive',
-      });
+      // Also unpublish from public mirror
+      const publicRef = ref(database, `publicStores/${user.uid}/products/${product.id}`);
+      await remove(publicRef);
+    } catch (err) {
+      console.warn('[mark-as-sold] non-blocking error:', err);
     }
+
+    // Observe reflected state
+    const reflected = await waitFor(
+      () => {
+        const p = productsRef.current.find(p => p.id === product.id);
+        return !!p && p.quantity === 0 && p.isActive === false;
+      },
+      3000
+    );
+
+    showOutcome(
+      reflected,
+      'Marked as sold',
+      `"${product.name}" is no longer available.`,
+      'Could not mark as sold'
+    );
   };
 
   const handleMarkAsAvailable = async (product: Product) => {
     if (!user) return;
 
     try {
-      await update(ref(database, `sellers/${user.uid}/products/${product.id}`), {
-        isSold: false,
+      const productRef = ref(database, `sellers/${user.uid}/products/${product.id}`);
+      await update(productRef, {
+        isActive: true,
         updatedAt: serverTimestamp(),
       });
 
       // Re-publish if should be public
-      const shouldPublish = (product.quantity ?? 0) > 0 && product.isActive !== false;
+      const shouldPublish = (product.quantity ?? 0) > 0;
       if (shouldPublish) {
         const pubRef = ref(database, `publicStores/${user.uid}/products/${product.id}`);
-        await set(pubRef, { ...product, isSold: false, sellerId: user.uid });
+        await set(pubRef, { ...product, isActive: true, sellerId: user.uid });
       }
-
-      toast({
-        title: 'Marked as Available',
-        description: `${product.name} is available again.`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to mark as available.',
-        variant: 'destructive',
-      });
+    } catch (err) {
+      console.warn('[mark-as-available] non-blocking error:', err);
     }
+
+    // Observe reflected state
+    const reflected = await waitFor(
+      () => {
+        const p = productsRef.current.find(p => p.id === product.id);
+        return !!p && p.isActive === true;
+      },
+      3000
+    );
+
+    showOutcome(
+      reflected,
+      'Marked as available',
+      `"${product.name}" is available again.`,
+      'Could not mark as available'
+    );
   };
 
   const handleDuplicateProduct = async (product: Product) => {
@@ -365,18 +376,12 @@ export default function Products() {
       3000
     );
 
-    if (added) {
-      toast({
-        title: 'Product duplicated',
-        description: `Created copy of "${product.name}".`,
-      });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Could not duplicate',
-        description: 'Please try again.',
-      });
-    }
+    showOutcome(
+      added,
+      'Product duplicated',
+      `Created copy of "${product.name}".`,
+      'Could not duplicate'
+    );
   };
 
   const toggleBulkSelection = (productId: string) => {
@@ -508,7 +513,7 @@ export default function Products() {
                     src={getProductImageUrl(product)}
                     alt={product.name}
                     className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] ${
-                      product.isSold ? 'grayscale opacity-70' : ''
+                      product.quantity === 0 && product.isActive === false ? 'grayscale opacity-70' : ''
                     }`}
                     loading="lazy"
                     decoding="async"
@@ -518,7 +523,7 @@ export default function Products() {
                   />
                   
                   {/* SOLD ribbon */}
-                  {product.isSold && (
+                  {product.quantity === 0 && product.isActive === false && (
                     <span className="absolute left-3 top-3 rounded-md bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-white z-10">
                       SOLD
                     </span>
@@ -688,7 +693,7 @@ export default function Products() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {product.isSold ? (
+                          {product.quantity === 0 && product.isActive === false ? (
                             <DropdownMenuItem onClick={() => handleMarkAsAvailable(product)}>
                               <Check className="w-4 h-4 mr-2" />
                               Mark as Available
