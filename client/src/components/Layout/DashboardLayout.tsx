@@ -1,4 +1,5 @@
 import { ReactNode, useState, useEffect } from 'react';
+import { TopNavBrand } from '@/components/TopNavBrand';
 import { Link, useLocation } from 'wouter';
 import { Bell, ShoppingBag, Store, BarChart3, Settings, Package, LogOut } from 'lucide-react';
 import { useAuthContext } from '@/context/AuthContext';
@@ -54,15 +55,9 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
       {!hideTopNav && (
         <header 
           data-scrolled={scrolled ? 'true' : 'false'}
-          className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-100 data-[scrolled=true]:shadow-sm">
-          <div className="mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            <Link href="/">
-              <a className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg" aria-label="ShopLynk">
-                <span className="font-black tracking-tight text-lg text-slate-900">
-                  ShopLynk
-                </span>
-              </a>
-            </Link>
+          className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-100 data-[scrolled=true]:shadow-sm h-14">
+          <div className="mx-auto max-w-7xl px-4 md:px-6 flex items-center justify-between h-full">
+            <TopNavBrand />
 
             <nav className="hidden md:flex items-center gap-2">
               {navigation.map((item) => {
