@@ -1,0 +1,113 @@
+Please consider: replace window.confirm with an in-app confirmation dialog (no domain shown)
+
+Goal
+
+When deleting a product, show a friendly, branded modal that says e.g.
+Delete “Product 2 (Copy)” ?
+This can’t be undone. The product will be removed from your catalog and storefront.
+
+Buttons: Cancel (default focus) and Delete (destructive).
+
+Keep all existing delete logic, toasts, and styling elsewhere unchanged.
+
+Why
+
+window.confirm(...) surfaces the site origin in a native dialog (see screenshot), which looks unpolished and can expose long dev domains. An app-level modal avoids that and matches our UI.
+
+Minimal implementation (shadcn/ui AlertDialog)
+
+Add a small, promise-based confirm hook you can reuse anywhere:
+
+// src/hooks/useConfirmDialog.tsx
+import { useState } from "react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+
+type ConfirmOpts = { title: string; description?: string; confirmText?: string; cancelText?: string };
+
+export function useConfirmDialog() {
+  const [state, setState] = useState<{open:boolean; opts: ConfirmOpts; resolve?: (v:boolean)=>void}>({
+    open: false, opts: { title: "", description: "" }
+  });
+
+  const confirm = (opts: ConfirmOpts) =>
+    new Promise<boolean>((resolve) => setState({ open: true, opts, resolve }));
+
+  const close = (value: boolean) => {
+    state.resolve?.(value);
+    setState(s => ({ ...s, open: false }));
+  };
+
+  const dialog = (
+    <AlertDialog open={state.open} onOpenChange={(o) => !o && close(false)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{state.opts.title}</AlertDialogTitle>
+          {state.opts.description && (
+            <AlertDialogDescription>{state.opts.description}</AlertDialogDescription>
+          )}
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => close(false)}>
+            {state.opts.cancelText ?? "Cancel"}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => close(true)}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            {state.opts.confirmText ?? "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
+  return { confirm, dialog };
+}
+
+
+Use it in Products.tsx and remove the native confirm(...):
+
+// imports
+import { useConfirmDialog } from "@/hooks/useConfirmDialog";
+
+// inside component
+const { confirm, dialog: confirmDialog } = useConfirmDialog();
+
+// replace this line:
+// if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) return;
+
+// with:
+const proceed = await confirm({
+  title: `Delete “${product.name}”?`,
+  description: "This action can’t be undone. The product will be removed from your catalog and storefront.",
+  confirmText: "Delete",
+  cancelText: "Cancel",
+});
+if (!proceed) return;
+
+
+Render the dialog once near the bottom of the component (e.g. just before </DashboardLayout>):
+
+{confirmDialog}
+
+
+Notes
+
+Default focus should be on Cancel (shadcn does this); we style Delete as destructive.
+
+Do not alter the actual deletion logic, toasts, or any other UI (colors, layout, headers, etc.). Only replace the confirmation step.
+
+This removes the browser’s origin banner entirely, keeping the seller ID/dev URL out of view.
+
+Acceptance criteria
+
+Clicking Delete opens the custom modal with the product name, not a browser alert.
+
+Cancel: closes dialog; nothing changes.
+
+Delete: proceeds with the current handleDeleteProduct flow; success/error toasts behave exactly as they do now.
+
+No other parts of the page change.
