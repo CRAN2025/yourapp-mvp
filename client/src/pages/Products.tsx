@@ -148,8 +148,12 @@ export default function Products() {
     }
 
     const removed = await waitFor(
-      () => products.every(p => p.id !== product.id),
-      1500
+      () => {
+        const stillExists = products.some(p => p.id === product.id);
+        console.log('[delete] checking:', { productId: product.id, stillExists, productCount: products.length });
+        return !stillExists;
+      },
+      3000
     );
 
     if (wasPresent && removed) {
@@ -288,8 +292,13 @@ export default function Products() {
 
     // Decide the message purely by observed state:
     const added = await waitFor(
-      () => products.some(p => !beforeIds.has(p.id)),
-      1500
+      () => {
+        const currentIds = products.map(p => p.id);
+        const hasNew = products.some(p => !beforeIds.has(p.id));
+        console.log('[duplicate] checking:', { beforeCount: beforeIds.size, currentCount: currentIds.length, hasNew });
+        return hasNew;
+      },
+      3000
     );
 
     if (added) {
