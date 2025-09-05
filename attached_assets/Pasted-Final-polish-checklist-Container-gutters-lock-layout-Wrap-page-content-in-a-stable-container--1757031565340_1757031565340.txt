@@ -1,0 +1,94 @@
+Final polish checklist
+
+Container & gutters (lock layout)
+
+Wrap page content in a stable container:
+
+<div className="mx-auto max-w-[1200px] xl:max-w-[1280px] px-6 lg:px-8">
+
+
+Grid: grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-7 xl:gap-8.
+
+Card image & hover
+
+Ensure uniform media height and corners:
+
+<div className="aspect-[16/9] overflow-hidden rounded-xl">
+  <img className="h-full w-full object-cover transition-transform duration-300 hover:scale-[1.02]"
+       loading="lazy" decoding="async" width="640" height="360" />
+</div>
+
+
+Keep shadow subtle: card shadow-sm hover:shadow-md.
+
+Title & meta rhythm
+
+Title: line-clamp-2 text-[20px] font-semibold leading-tight.
+
+Brand/brandline: text-slate-500 text-sm.
+
+Use a space-y-3 stack inside the card to keep consistent vertical rhythm.
+
+Price + status row (baseline-aligned)
+
+<div className="flex items-center gap-3">
+  <div className="inline-flex h-9 items-center rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-3.5 text-white font-semibold">
+    $20.00
+  </div>
+  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+    IN STOCK
+  </span>
+</div>
+
+
+Chips / badges (compact & consistent)
+
+Category chips: text-xs font-medium px-2.5 py-1 rounded-full.
+
+Keep icon size 14–16px and gap-1.5.
+
+Use the same badge palette across pages (eco/handmade/customizable).
+
+Actions row (same height everywhere)
+
+<div className="mt-4 grid grid-cols-3 gap-2">
+  <Button className="h-10 px-3.5"><IconEdit className="mr-1.5 h-4 w-4"/>Edit</Button>
+  <Button variant="secondary" className="h-10 px-3.5"><IconEye className="mr-1.5 h-4 w-4"/>Preview</Button>
+  <Button variant="outline" className="h-10 px-3.5" aria-label="Copy link"><IconLink className="mr-1.5 h-4 w-4"/>Copy Link</Button>
+</div>
+
+
+Ensure every icon button has an aria-label and visible focus:ring.
+
+“Show Details” affordance
+
+Make the whole row clickable with a caret:
+
+<button className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
+  Show Details <svg className="h-4 w-4" />
+</button>
+
+
+Navbar & brand
+
+Stick with the small wordmark “ShopLynk” (capital S/L); current size/weight looks right.
+
+Active tab underline is good—keep it 2px and avoid heavy gradients in nav.
+
+A11y & perf
+
+Ensure product images have descriptive alt.
+
+First row images can be loading="eager" for LCP; all others lazy.
+
+Check contrast on “IN STOCK/LOW STOCK” pills (target WCAG AA; text ~text-emerald-800 / text-amber-800 on light tints).
+
+Theme tokens (optional but helpful)
+
+:root{
+  --brand-50:#eef2ff; --brand-100:#e0e7ff;
+  --brand-500:#6366f1; --brand-600:#4f46e5; --brand-700:#4338ca;
+}
+
+
+Use from-[var(--brand-600)] to-[var(--brand-500)] for primary gradient CTAs only; keep secondary/outline neutral to avoid noise.

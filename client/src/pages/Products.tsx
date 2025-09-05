@@ -154,13 +154,13 @@ export default function Products() {
       );
     } else if (quantity < 10) {
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700">
+        <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
           LOW STOCK
         </span>
       );
     } else {
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-800">
+        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
           IN STOCK
         </span>
       );
@@ -352,17 +352,18 @@ export default function Products() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white shadow-soft transition hover:shadow-lift hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
+              <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
-                <div className="aspect-[16/9] overflow-hidden rounded-xl bg-slate-100">
+                <div className="aspect-[16/9] overflow-hidden rounded-t-2xl bg-slate-100">
                   <img
                     src={getProductImageUrl(product)}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     loading="lazy"
                     decoding="async"
-                    fetchPriority="low"
+                    width="640"
+                    height="360"
                   />
                   
                   {/* v1.5 Bulk Mode Checkbox - Top Left Corner */}
@@ -400,11 +401,11 @@ export default function Products() {
                     
                     {/* v1.6 Enhanced Product Title & Brand */}
                     <div className="space-y-3">
-                      <h3 className="font-bold text-xl text-gray-900 leading-tight line-clamp-2" data-testid={`product-name-${product.id}`}>
+                      <h3 className="line-clamp-2 text-[20px] font-semibold leading-tight text-gray-900" data-testid={`product-name-${product.id}`}>
                         {product.name}
                       </h3>
                       {product.brand && (
-                        <div className="text-sm text-gray-500 font-medium">
+                        <div className="text-sm text-slate-500">
                           {product.brand}
                         </div>
                       )}
@@ -412,8 +413,8 @@ export default function Products() {
                     
                     {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
                     <div className="flex items-center justify-between gap-3">
-                      <div className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-500 to-violet-500 px-4 py-2 text-white font-semibold shadow-sm">
-                        <span className="text-xl" data-testid={`product-price-${product.id}`}>
+                      <div className="inline-flex h-9 items-center rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-3.5 text-white font-semibold">
+                        <span data-testid={`product-price-${product.id}`}>
                           {formatPrice(product.price)}
                         </span>
                       </div>
