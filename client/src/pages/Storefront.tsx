@@ -235,38 +235,57 @@ export default function Storefront() {
       setLoadingMeta(true);
 
       try {
-        // Use the new public data path
-        const { loadPublicPaymentDelivery } = await import('@/lib/paymentDelivery');
-        const { paymentMethods, deliveryOptions } = await loadPublicPaymentDelivery(user.uid);
-
-        // Convert object maps to arrays for modal display
-        const paymentList = Object.values(paymentMethods || {}).filter((p: any) => p.enabled);
-        const deliveryList = Object.values(deliveryOptions || {}).filter((d: any) => d.enabled);
-
-        setPublicPaymentMethods(paymentList);
-        setPublicDeliveryOptions(deliveryList);
-      } catch (error) {
-        console.error('Failed to load payment/delivery data:', error);
-        // Try legacy migration if new path fails
-        try {
-          const { migrateLegacyPaymentDelivery } = await import('@/lib/paymentDelivery');
-          const { migrated, payments, delivery } = await migrateLegacyPaymentDelivery(user.uid);
+        // Read directly from publicStores meta path (storefront should ONLY read public data)
+        const { get, ref, onValue } = await import('firebase/database');
+        
+        // Use onValue for real-time updates to storefront data
+        const metaRef = ref(database, `publicStores/${user.uid}/meta`);
+        
+        onValue(metaRef, (snap) => {
+          const meta = snap.val() || {};
+          const { paymentMethods = {}, deliveryOptions = {} } = meta;
           
-          if (migrated) {
-            console.log('✅ Legacy data migrated successfully');
+          console.log('📊 Storefront: Loaded public payment/delivery data:', { paymentMethods, deliveryOptions });
+          
+          // Convert object maps to arrays for modal display
+          const paymentList = Object.values(paymentMethods).filter((p: any) => p.enabled);
+          const deliveryList = Object.values(deliveryOptions).filter((d: any) => d.enabled);
+
+          setPublicPaymentMethods(paymentList);
+          setPublicDeliveryOptions(deliveryList);
+          setLoadingMeta(false);
+        }, (error) => {
+          console.error('❌ Failed to load public storefront data:', error);
+          
+          // Fallback: try to load from private settings if public mirror doesn't exist
+          console.log('🔄 Falling back to private settings data...');
+          
+          get(ref(database, `sellers/${user.uid}/storeSettings`)).then((settingsSnap) => {
+            const settings = settingsSnap.val() || {};
+            const { payments = {}, deliveryOptions = {} } = settings;
+            
+            // Convert private data to public format
             const paymentList = Object.values(payments).filter((p: any) => p.enabled);
-            const deliveryList = Object.values(delivery).filter((d: any) => d.enabled);
+            const deliveryList = Object.values(deliveryOptions).filter((d: any) => d.enabled);
+            
             setPublicPaymentMethods(paymentList);
             setPublicDeliveryOptions(deliveryList);
-          }
-        } catch (migrationError) {
-          console.error('Migration also failed:', migrationError);
-          setPublicPaymentMethods([]);
-          setPublicDeliveryOptions([]);
-        }
+            setLoadingMeta(false);
+            
+            console.log('📊 Storefront: Using fallback private data');
+          }).catch((fallbackError) => {
+            console.error('❌ Fallback also failed:', fallbackError);
+            setPublicPaymentMethods([]);
+            setPublicDeliveryOptions([]);
+            setLoadingMeta(false);
+          });
+        });
+      } catch (error) {
+        console.error('Failed to set up payment/delivery data listener:', error);
+        setPublicPaymentMethods([]);
+        setPublicDeliveryOptions([]);
+        setLoadingMeta(false);
       }
-      
-      setLoadingMeta(false);
     })();
   }, [user?.uid]);
 

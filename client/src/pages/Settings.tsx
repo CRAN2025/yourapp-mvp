@@ -284,9 +284,22 @@ export default function Settings() {
   };
 
   const handlePaymentsDeliveryUpdate = async (data: PaymentsDeliveryForm) => {
+    // Ensure we have authentication before proceeding
+    if (loading || !user?.uid) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please wait for authentication to complete.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
+      // Run probe tests first to identify permission issues
+      const { runPathProbes } = await import('@/lib/probeDatabase');
+      const { sellersOk, publicOk } = await runPathProbes(user.uid);
+      
       // Convert string arrays to proper payment/delivery objects
-      const { savePaymentAndDelivery } = await import('@/lib/paymentDelivery');
       const { normalizeArrayToMap } = await import('@shared/paymentDelivery');
       
       // Convert arrays to object maps with proper structure
@@ -306,17 +319,39 @@ export default function Settings() {
         }))
       );
       
-      // Use the new atomic save function
-      await savePaymentAndDelivery(user!.uid, payments, delivery);
-
-      toast({
-        title: 'Payment & delivery updated',
-        description: 'Your payment and delivery options have been updated successfully.',
-      });
+      // Use split save approach to handle permission issues
+      if (!publicOk) {
+        console.log('🔄 Using split save approach due to public path permissions');
+        const { savePaymentAndDeliverySplit } = await import('@/lib/paymentDeliverySplit');
+        const result = await savePaymentAndDeliverySplit(user.uid, payments, delivery);
+        
+        if (result.privateSuccess && !result.publicSuccess) {
+          toast({
+            title: 'Saved, but public info not updated',
+            description: 'Settings saved privately. An admin needs to allow writes to public store data.',
+            variant: 'default',
+          });
+        } else {
+          toast({
+            title: 'Payment & delivery updated',
+            description: 'Your payment and delivery options have been updated successfully.',
+          });
+        }
+      } else {
+        // Use atomic save if both paths are available
+        const { savePaymentAndDelivery } = await import('@/lib/paymentDelivery');
+        await savePaymentAndDelivery(user.uid, payments, delivery);
+        
+        toast({
+          title: 'Payment & delivery updated',
+          description: 'Your payment and delivery options have been updated successfully.',
+        });
+      }
     } catch (error: any) {
-      console.error('[payments/save]', { 
-        code: error?.code, 
-        msg: error?.message, 
+      console.error('[payments/save]', {
+        code: error?.code,
+        msg: error?.message,
+        name: error?.name,
         path: error?.path,
         fullError: error 
       });
@@ -325,9 +360,9 @@ export default function Settings() {
       let description = `${error?.code ?? 'UNKNOWN'}: ${error?.message ?? 'No details'}`;
       
       if (error?.code === 'PERMISSION_DENIED') {
-        description = "Your account can't write to this path. Check database rules.";
+        description = "Your account can't write to this path. Check database rules for /sellers/{uid} and /publicStores/{uid}/meta.";
       } else if (error?.code === 'INVALID_ARGUMENT' || error?.code === 'INVALID_DATA') {
-        description = "Data format issue. Please try again or contact support.";
+        description = "Payload shape doesn't match the schema. Ensure object-keyed maps, not arrays.";
       }
       
       toast({

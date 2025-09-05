@@ -31,6 +31,7 @@ export async function savePaymentAndDelivery(
   updates[`publicStores/${uid}/meta/updatedAt`] = serverTimestamp();
   
   console.log('💾 Saving payment/delivery data:', { payments, delivery, updates });
+  console.log('[payments/save] update keys:', Object.keys(updates || {}));
   
   await update(root, updates);
   

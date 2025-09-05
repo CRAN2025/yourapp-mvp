@@ -1,0 +1,119 @@
+Context: Saving Payments/Delivery fails with PERMISSION_DENIED. We’re writing both the seller’s private settings and the public mirror in one multi-path update. Current RTDB rules don’t allow at least one of those paths (very likely /publicStores/{uid}/meta/*).
+
+1) Surface the real error (right now it’s swallowed)
+
+Add this around the save call so we see the exact code/path:
+
+try {
+  await savePaymentAndDelivery(uid, payments, delivery);
+} catch (e: any) {
+  console.error('[payments/save]', {
+    code: e?.code,
+    msg: e?.message,
+    name: e?.name,
+  });
+  toast({
+    variant: 'destructive',
+    title: 'Save failed',
+    description: `${e?.code ?? 'UNKNOWN'}: ${e?.message ?? 'No details'}`,
+  });
+}
+
+
+Also log what we try to write:
+
+console.log('[payments/save] update keys',
+  Object.keys(updates || {}));
+
+2) Confirm the write paths we use
+
+Our save function should be doing a single atomic update like:
+
+updates[`sellers/${uid}/storeSettings/payments`]        = payments;
+updates[`sellers/${uid}/storeSettings/deliveryOptions`] = delivery;
+updates[`publicStores/${uid}/meta/paymentMethods`]       = toPublicPayments(payments);
+updates[`publicStores/${uid}/meta/deliveryOptions`]      = toPublicDelivery(delivery);
+
+
+If any one of those paths is forbidden, the entire update fails.
+
+3) Fix RTDB rules to match this behavior (fastest unblock)
+
+Either allow the seller to update their public meta or move mirroring to a Cloud Function. To unblock now, update rules to:
+
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "publicStores": {
+      "$uid": {
+        ".read": true,
+        "meta": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "products": { ".read": true, ".write": false }
+      }
+    }
+  }
+}
+
+
+If we don’t want client writes to /publicStores, then do not write it from the client. Instead, set .write: false for publicStores and add a Cloud Function that mirrors from sellers/{uid}/storeSettings → publicStores/{uid}/meta. Pick one path and be consistent.
+
+4) Quick probe to isolate the failing path
+
+Before changing rules, run these from the settings page (with a real uid) to see which path is blocked:
+
+// should succeed
+await set(ref(db, `sellers/${uid}/storeSettings/__probe`), serverTimestamp());
+
+// likely failing
+await set(ref(db, `publicStores/${uid}/meta/__probe`), serverTimestamp());
+
+5) Ensure we have auth + correct uid before saving
+
+Gate the save until auth is ready:
+
+const { user, loading } = useAuthContext();
+if (loading || !user?.uid) { /* disable Save */ }
+const uid = user.uid;
+
+6) (Optional) Split the write so private save still succeeds
+
+If we can’t change rules immediately, split updates:
+
+await update(dbRef(db), {
+  [`sellers/${uid}/storeSettings/payments`]: payments,
+  [`sellers/${uid}/storeSettings/deliveryOptions`]: delivery,
+}).catch(/* toast */);
+
+await update(dbRef(db), {
+  [`publicStores/${uid}/meta/paymentMethods`]: toPublicPayments(payments),
+  [`publicStores/${uid}/meta/deliveryOptions`]: toPublicDelivery(delivery),
+  [`publicStores/${uid}/meta/updatedAt`]: serverTimestamp(),
+}).catch(e => {
+  console.warn('[public mirror] skipped', e);
+  toast({
+    title: 'Saved, but public info not updated',
+    description: 'An admin needs to allow writes to /publicStores or enable the mirroring function.',
+  });
+});
+
+7) Storefront read path (verify)
+
+Storefront must read only from publicStores/{uid}/meta:
+
+onValue(ref(db, `publicStores/${sellerId}/meta`), snap => {
+  const { paymentMethods = {}, deliveryOptions = {} } = snap.val() ?? {};
+  setPaymentMethods(paymentMethods);
+  setDeliveryOptions(deliveryOptions);
+});
