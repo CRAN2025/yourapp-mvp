@@ -54,11 +54,11 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
       {!hideTopNav && (
         <header 
           data-scrolled={scrolled ? 'true' : 'false'}
-          className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-100 data-[scrolled=true]:shadow-sm h-14">
+          className="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-100 data-[scrolled=true]:shadow-sm h-16">
           <div className="mx-auto max-w-7xl px-4 md:px-6 flex items-center justify-between h-full">
             <Link href="/">
               <a className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg" aria-label="ShopLynk">
-                <span className="font-black tracking-tight text-xl text-slate-900">
+                <span className="font-black tracking-tight text-[28px] leading-none text-slate-900">
                   Shop<span className="bg-gradient-to-r from-sky-500 to-violet-500 bg-clip-text text-transparent">Lynk</span>
                 </span>
               </a>
@@ -71,7 +71,7 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
                 return (
                   <Link key={item.name} href={item.href}>
                     <a
-                      className={`relative px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg ${
+                      className={`relative px-3 py-2 text-[15px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg ${
                         isActive
                           ? 'text-slate-900'
                           : 'text-slate-600 hover:text-slate-800'
