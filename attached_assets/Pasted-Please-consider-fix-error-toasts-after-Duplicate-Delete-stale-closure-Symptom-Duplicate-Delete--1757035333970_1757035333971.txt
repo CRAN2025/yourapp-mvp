@@ -1,0 +1,72 @@
+Please consider: fix error toasts after Duplicate/Delete (stale-closure)
+
+Symptom
+
+Duplicate/Delete actually succeed in Firebase, but we still show:
+
+“Could not duplicate, please try again”
+
+“Could not delete, please try again”
+
+Likely cause
+
+The success/failure decision uses waitFor(() => …) predicates that read products captured at the time of the click. Because of React’s async state, that closed-over array never updates inside the predicate → it never “sees” the new remove/add → we fall into the error toast path.
+
+Minimal, targeted fix (no UI changes)
+
+Track the latest products in a ref and keep it in sync on every render:
+
+const productsRef = useRef<Product[]>([]);
+useEffect(() => {
+  productsRef.current = products;
+}, [products]);
+
+
+Use the ref in the waitFor checks (and for wasPresent / beforeIds):
+
+// DELETE
+const wasPresent = productsRef.current.some(p => p.id === product.id);
+const removed = await waitFor(
+  () => !productsRef.current.some(p => p.id === product.id),
+  3000
+);
+
+// DUPLICATE
+const beforeIds = new Set(productsRef.current.map(p => p.id));
+const added = await waitFor(
+  () => productsRef.current.some(p => !beforeIds.has(p.id)),
+  3000
+);
+
+
+This changes only the success-detection logic. No styling, layout, or data-write behavior should be touched.
+
+(Nice-to-have, unrelated to toasts)
+
+The RTDB unsubscribe is off by signature. Consider either of these patterns:
+
+// option A
+const unsubscribe = onValue(productsRef, callback);
+return () => unsubscribe();
+
+// option B
+const cb = (snapshot) => { … };
+onValue(productsRef, cb);
+return () => off(productsRef, 'value', cb);
+
+
+Acceptance criteria
+
+Duplicating shows “Product duplicated …” (no error toast) and the copy appears.
+
+Deleting shows “Product deleted …” (no error toast) and the item disappears.
+
+Messages update within ~3s (current waitFor timeout).
+
+No UI/UX changes elsewhere (colors, spacing, typography, headers, etc. must remain exactly as-is).
+
+No console errors or unhandled promise rejections.
+
+Scope guard
+
+Please do not refactor other logic, styles, or components. Only apply the ref-based predicate fix (and optionally the unsubscribe clean-up).

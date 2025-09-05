@@ -47,6 +47,7 @@ export default function Products() {
   });
   const [filtersScrolled, setFiltersScrolled] = useState(false);
   const filtersRef = useRef<HTMLDivElement>(null);
+  const productsRef = useRef<Product[]>([]);
 
   // Load products from Firebase
   useEffect(() => {
@@ -78,8 +79,13 @@ export default function Products() {
       }
     });
 
-    return () => off(productsRef, 'value', unsubscribe);
+    return () => unsubscribe();
   }, [user, toast]);
+
+  // Keep productsRef in sync with products state
+  useEffect(() => {
+    productsRef.current = products;
+  }, [products]);
 
   // Scroll effect for sticky filters
   useEffect(() => {
@@ -133,7 +139,7 @@ export default function Products() {
 
     if (!user) return;
 
-    const wasPresent = products.some(p => p.id === product.id);
+    const wasPresent = productsRef.current.some(p => p.id === product.id);
 
     try {
       // Delete from seller's products in RTDB
@@ -149,8 +155,8 @@ export default function Products() {
 
     const removed = await waitFor(
       () => {
-        const stillExists = products.some(p => p.id === product.id);
-        console.log('[delete] checking:', { productId: product.id, stillExists, productCount: products.length });
+        const stillExists = productsRef.current.some(p => p.id === product.id);
+        console.log('[delete] checking:', { productId: product.id, stillExists, productCount: productsRef.current.length });
         return !stillExists;
       },
       3000
@@ -257,7 +263,7 @@ export default function Products() {
   const handleDuplicateProduct = async (product: Product) => {
     if (!user) return;
 
-    const beforeIds = new Set(products.map(p => p.id));
+    const beforeIds = new Set(productsRef.current.map(p => p.id));
 
     try {
       // Create duplicated product data
@@ -293,8 +299,8 @@ export default function Products() {
     // Decide the message purely by observed state:
     const added = await waitFor(
       () => {
-        const currentIds = products.map(p => p.id);
-        const hasNew = products.some(p => !beforeIds.has(p.id));
+        const currentIds = productsRef.current.map(p => p.id);
+        const hasNew = productsRef.current.some(p => !beforeIds.has(p.id));
         console.log('[duplicate] checking:', { beforeCount: beforeIds.size, currentCount: currentIds.length, hasNew });
         return hasNew;
       },
