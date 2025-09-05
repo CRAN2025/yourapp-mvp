@@ -1,7 +1,7 @@
 export async function waitFor(
   predicate: () => boolean,
-  timeoutMs = 1500,
-  intervalMs = 50,
+  timeoutMs = 3000,
+  intervalMs = 100,
 ): Promise<boolean> {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
