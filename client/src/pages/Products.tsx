@@ -19,6 +19,7 @@ import ProductModal from '@/components/ProductModal';
 import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
+import { waitFor } from '@/utils/waitFor';
 
 export default function Products() {
   const { user } = useAuthContext();
@@ -132,6 +133,8 @@ export default function Products() {
 
     if (!user) return;
 
+    const wasPresent = products.some(p => p.id === product.id);
+
     try {
       // Delete from seller's products in RTDB
       const productRef = ref(database, `sellers/${user.uid}/products/${product.id}`);
@@ -140,22 +143,25 @@ export default function Products() {
       // Remove from public store mirror
       const publicProductRef = ref(database, `publicStores/${user.uid}/products/${product.id}`);
       await remove(publicProductRef);
+    } catch (err) {
+      console.warn('[delete] non-blocking error:', err);
+    }
 
+    const removed = await waitFor(
+      () => products.every(p => p.id !== product.id),
+      1500
+    );
+
+    if (wasPresent && removed) {
       toast({
         title: 'Product deleted',
         description: 'The product was removed.',
       });
-      
-      // Optional analytics tracking
-      try {
-        // analytics.track('product_deleted', { productId: product.id });
-      } catch (e) { /* Ignore analytics errors */ }
-    } catch (error: any) {
-      console.error('Delete product error:', error);
+    } else {
       toast({
         variant: 'destructive',
         title: 'Could not delete',
-        description: error.message || 'Please try again.',
+        description: 'Please try again.',
       });
     }
   };
@@ -247,6 +253,8 @@ export default function Products() {
   const handleDuplicateProduct = async (product: Product) => {
     if (!user) return;
 
+    const beforeIds = new Set(products.map(p => p.id));
+
     try {
       // Create duplicated product data
       const duplicatedProductData = {
@@ -272,23 +280,28 @@ export default function Products() {
           const publicProductRef = ref(database, `publicStores/${user.uid}/products/${newProductId}`);
           await set(publicProductRef, { ...duplicatedProductData, sellerId: user.uid });
         }
-        
-        toast({
-          title: 'Product duplicated',
-          description: `Created copy of "${product.name}".`,
-        });
-        
-        // Optional analytics tracking
-        try {
-          // analytics.track('product_duplicated', { productId: product.id, newId: newProductId });
-        } catch (e) { /* Ignore analytics errors */ }
       }
-    } catch (error: any) {
-      console.error('Duplicate product error:', error);
+    } catch (err) {
+      // Ignore for now; we'll decide by observing list change
+      console.warn('[duplicate] non-blocking error:', err);
+    }
+
+    // Decide the message purely by observed state:
+    const added = await waitFor(
+      () => products.some(p => !beforeIds.has(p.id)),
+      1500
+    );
+
+    if (added) {
+      toast({
+        title: 'Product duplicated',
+        description: `Created copy of "${product.name}".`,
+      });
+    } else {
       toast({
         variant: 'destructive',
         title: 'Could not duplicate',
-        description: error.message || 'Please try again.',
+        description: 'Please try again.',
       });
     }
   };

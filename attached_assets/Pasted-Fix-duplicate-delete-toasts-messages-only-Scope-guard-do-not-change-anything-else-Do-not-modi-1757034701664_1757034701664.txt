@@ -1,0 +1,98 @@
+Fix duplicate/delete toasts (messages only)
+
+Scope guard (do not change anything else):
+
+Do not modify Firestore rules, product write logic, card layout, styles, colors, or any other components.
+
+Touch only the toast logic for Duplicate and Delete so that success is shown when the action actually succeeds (even if some non-critical step throws), and errors are shown only when the item truly didn’t change.
+
+Approach
+
+Because the underlying write can succeed while a secondary step fails (and throws), base the toast on the observed list change, not on the promise resolution alone.
+
+1) Add a tiny helper to wait for list change
+
+Put this in a local util near the product page/card (no global refactors):
+
+// utils/waitFor.ts
+export async function waitFor(
+  predicate: () => boolean,
+  timeoutMs = 1500,
+  intervalMs = 50,
+): Promise<boolean> {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (predicate()) return true;
+    await new Promise(r => setTimeout(r, intervalMs));
+  }
+  return false;
+}
+
+2) Duplicate handler (message-only change)
+
+Update the duplicate click handler (e.g., in ProductCard.tsx or wherever the menu actions live):
+
+import { waitFor } from '@/utils/waitFor';
+import { toast } from 'sonner'; // or your toast lib
+
+async function handleDuplicate(productId: string) {
+  const beforeIds = new Set(products.map(p => p.id));
+
+  try {
+    await duplicateProduct(productId);
+  } catch (err) {
+    // Ignore for now; we'll decide by observing list change
+    console.warn('[duplicate] non-blocking error:', err);
+  }
+
+  // Decide the message purely by observed state:
+  const added = await waitFor(
+    () => products.some(p => !beforeIds.has(p.id)),
+    1500
+  );
+
+  if (added) {
+    toast.success('Product duplicated');
+  } else {
+    toast.error('Could not duplicate. Please try again.');
+  }
+}
+
+3) Delete handler (message-only change)
+
+Same strategy: show success if the item is actually gone from the list after the action.
+
+async function handleDelete(productId: string) {
+  const wasPresent = products.some(p => p.id === productId);
+
+  try {
+    await deleteProduct(productId);
+  } catch (err) {
+    console.warn('[delete] non-blocking error:', err);
+  }
+
+  const removed = await waitFor(
+    () => products.every(p => p.id !== productId),
+    1500
+  );
+
+  if (wasPresent && removed) {
+    toast.success('Product deleted');
+  } else {
+    toast.error('Could not delete. Please try again.');
+  }
+}
+
+4) Do not alter anything else
+
+No changes to the product service, rules, or secondary writes.
+
+No UI/UX changes other than the toast selection logic above.
+
+Acceptance
+
+Duplicate creates a new card in the list and shows “Product duplicated” (no red error).
+
+Delete removes the card and shows “Product deleted” (no red error).
+
+If the list does not change within ~1.5s, show the existing error messages.
