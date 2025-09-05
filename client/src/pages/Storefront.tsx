@@ -231,9 +231,6 @@ export default function Storefront() {
   useEffect(() => {
     if (!user?.uid) return;
 
-    const toArray = (obj: any) =>
-      obj ? Object.entries(obj).map(([id, v]) => ({ id, ...(v as object) })) : [];
-
     (async () => {
       setLoadingMeta(true);
 
@@ -242,11 +239,25 @@ export default function Storefront() {
         get(ref(database, `sellers/${user.uid}/deliveryOptions`)),
       ]);
 
-      const pm = toArray(pmSnap.val()).filter((m: any) => m.enabled !== false);
-      const del = toArray(delSnap.val()).filter((d: any) => d.enabled !== false);
+      // paymentMethods and deliveryOptions are stored as arrays of strings
+      const pm = pmSnap.val() || [];
+      const del = delSnap.val() || [];
 
-      setPublicPaymentMethods(pm);
-      setPublicDeliveryOptions(del);
+      // Convert strings to objects for consistent modal display
+      const paymentList = Array.isArray(pm) ? pm.map((method: string, index: number) => ({
+        id: `pm-${index}`,
+        type: method.toLowerCase().replace(/\s+/g, '_'),
+        label: method
+      })) : [];
+
+      const deliveryList = Array.isArray(del) ? del.map((option: string, index: number) => ({
+        id: `del-${index}`,
+        type: option.toLowerCase().replace(/\s+/g, '_'),
+        label: option
+      })) : [];
+
+      setPublicPaymentMethods(paymentList);
+      setPublicDeliveryOptions(deliveryList);
       setLoadingMeta(false);
     })();
   }, [user?.uid]);
@@ -2606,13 +2617,7 @@ export default function Storefront() {
             <ul className="divide-y">
               {publicPaymentMethods.map(m => (
                 <li key={m.id} className="py-3">
-                  <div className="font-medium">
-                    {m.label || m.type}
-                    {m.handle && <span className="ml-2 text-sm text-muted-foreground">{m.handle}</span>}
-                  </div>
-                  {m.instructions && (
-                    <div className="text-sm text-muted-foreground mt-1">{m.instructions}</div>
-                  )}
+                  <div className="font-medium">{m.label}</div>
                 </li>
               ))}
             </ul>
@@ -2635,13 +2640,7 @@ export default function Storefront() {
             <ul className="divide-y">
               {publicDeliveryOptions.map(d => (
                 <li key={d.id} className="py-3">
-                  <div className="font-medium">{d.label || d.type}</div>
-                  <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
-                    {typeof d.fee === 'number' && <div>Fee: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.fee)}</div>}
-                    {d.minOrder && <div>Min Order: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.minOrder)}</div>}
-                    {d.regions?.length ? <div>Regions: {d.regions.join(', ')}</div> : null}
-                    {d.instructions && <div>{d.instructions}</div>}
-                  </div>
+                  <div className="font-medium">{d.label}</div>
                 </li>
               ))}
             </ul>
