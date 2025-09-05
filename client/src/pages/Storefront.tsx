@@ -238,8 +238,8 @@ export default function Storefront() {
       setLoadingMeta(true);
 
       const [pmSnap, delSnap] = await Promise.all([
-        get(ref(database, `publicStores/${user.uid}/paymentMethods`)),
-        get(ref(database, `publicStores/${user.uid}/deliveryOptions`)),
+        get(ref(database, `sellers/${user.uid}/paymentMethods`)),
+        get(ref(database, `sellers/${user.uid}/deliveryOptions`)),
       ]);
 
       const pm = toArray(pmSnap.val()).filter((m: any) => m.enabled !== false);
