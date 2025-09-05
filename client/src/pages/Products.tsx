@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ref, onValue, off, remove } from 'firebase/database';
+import { ref, onValue, off, remove, push, set, serverTimestamp } from 'firebase/database';
 import { Plus, Search, Heart, Edit, Trash2, Filter, ChevronDown, ChevronUp, ExternalLink, Eye, Copy, MoreHorizontal, Check } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
@@ -143,14 +143,19 @@ export default function Products() {
 
       toast({
         title: 'Product deleted',
-        description: `${product.name} has been deleted successfully.`,
+        description: 'The product was removed.',
       });
-    } catch (error) {
+      
+      // Optional analytics tracking
+      try {
+        // analytics.track('product_deleted', { productId: product.id });
+      } catch (e) { /* Ignore analytics errors */ }
+    } catch (error: any) {
       console.error('Delete product error:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete product.',
         variant: 'destructive',
+        title: 'Could not delete',
+        description: error.message || 'Please try again.',
       });
     }
   };
@@ -239,14 +244,53 @@ export default function Products() {
     }
   };
 
-  const handleDuplicateProduct = (product: Product) => {
-    const duplicatedProduct = {
-      ...product,
-      id: `temp-${Date.now()}`, // Temporary ID for editing
-      name: `${product.name} (Copy)`,
-    };
-    setEditingProduct(duplicatedProduct);
-    setShowModal(true);
+  const handleDuplicateProduct = async (product: Product) => {
+    if (!user) return;
+
+    try {
+      // Create duplicated product data
+      const duplicatedProductData = {
+        ...product,
+        name: `${product.name} (Copy)`,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        sellerId: user.uid,
+      };
+      
+      // Remove the original ID so Firebase generates a new one
+      delete (duplicatedProductData as any).id;
+
+      // Create new product in Firebase
+      const productsRef = ref(database, `sellers/${user.uid}/products`);
+      const newProductRef = push(productsRef, duplicatedProductData);
+      
+      const newProductId = newProductRef.key;
+      if (newProductId) {
+        // Mirror to public store if should be published
+        const shouldPublish = duplicatedProductData.quantity > 0 && duplicatedProductData.isActive;
+        if (shouldPublish) {
+          const publicProductRef = ref(database, `publicStores/${user.uid}/products/${newProductId}`);
+          await set(publicProductRef, { ...duplicatedProductData, sellerId: user.uid });
+        }
+        
+        toast({
+          title: 'Product duplicated',
+          description: `Created copy of "${product.name}".`,
+        });
+        
+        // Optional analytics tracking
+        try {
+          // analytics.track('product_duplicated', { productId: product.id, newId: newProductId });
+        } catch (e) { /* Ignore analytics errors */ }
+      }
+    } catch (error: any) {
+      console.error('Duplicate product error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Could not duplicate',
+        description: error.message || 'Please try again.',
+      });
+    }
   };
 
   const toggleBulkSelection = (productId: string) => {

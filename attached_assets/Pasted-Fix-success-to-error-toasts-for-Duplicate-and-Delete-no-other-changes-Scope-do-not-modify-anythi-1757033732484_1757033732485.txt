@@ -1,0 +1,127 @@
+Fix success-to-error toasts for Duplicate and Delete (no other changes)
+
+Scope (do not modify anything else):
+
+Touch only the product duplicate and delete API handlers + the client service functions that call them + the toasts around those two actions.
+
+Do not change product card UI, filters, colors, layout, headers, or unrelated endpoints.
+
+Problem
+
+Server often responds 201 or 204 with no body.
+
+Client always does await res.json(), which throws on empty body.
+
+Catch block shows destructive toast even though the action succeeded.
+
+Required fixes
+1) Server-side (preferred, small change)
+
+Return JSON on success for both endpoints.
+
+// /api/products/[id]/duplicate.ts
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).end();
+  try {
+    const newId = await duplicateProduct(/* … */);
+    return res.status(201).json({ ok: true, id: newId }); // ← JSON, not empty
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e?.message ?? 'duplicate_failed' });
+  }
+}
+
+// /api/products/[id]/index.ts  (DELETE)
+export default async function handler(req, res) {
+  if (req.method !== 'DELETE') return res.status(405).end();
+  try {
+    await deleteProduct(/* … */);
+    return res.status(200).json({ ok: true });           // ← JSON, not empty
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e?.message ?? 'delete_failed' });
+  }
+}
+
+2) Client-side (must do even if server already returns JSON)
+
+Make the client resilient to 204/empty and only parse JSON when present. Reuse the same helper for both actions.
+
+// api/http.ts (new or existing utility)
+export async function parseOkJson(res: Response) {
+  if (!res.ok) {
+    const msg = await safeText(res);
+    throw new Error(msg || `HTTP ${res.status}`);
+  }
+  const ct = res.headers.get('content-type') ?? '';
+  const hasBody = !(res.status === 204) && (ct.includes('application/json') || (res.headers.get('content-length') ?? '1') !== '0');
+  return hasBody ? await safeJson(res) : { ok: true };
+}
+
+async function safeJson(res: Response) { try { return await res.json(); } catch { return null; } }
+async function safeText(res: Response) { try { return await res.text(); } catch { return ''; } }
+
+
+Use it in product service:
+
+// productService.ts
+import { parseOkJson } from './api/http';
+
+export async function duplicateProduct(productId: string) {
+  const res = await fetch(`/api/products/${productId}/duplicate`, { method: 'POST' });
+  const data = await parseOkJson(res);        // works for 201/204/200
+  return data?.id;
+}
+
+export async function deleteProduct(productId: string) {
+  const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+  await parseOkJson(res);                      // no need to return anything
+}
+
+3) UI toasts (both actions)
+
+Show success toast when the promise resolves; show destructive toast only on real errors. Don’t let follow-up work flip the toast.
+
+// Duplicate
+async function onDuplicate(productId: string) {
+  setBusy(true);
+  try {
+    const newId = await duplicateProduct(productId);
+    queryClient?.invalidateQueries?.(['products', sellerId]);
+    toast({ title: 'Product duplicated', description: newId ? `Created copy (#${newId}).` : 'Copy created.' });
+    try { analytics.track('product_duplicated', { productId, newId }); } catch {}
+  } catch (e:any) {
+    toast({ variant: 'destructive', title: 'Could not duplicate', description: e.message || 'Please try again.' });
+  } finally { setBusy(false); }
+}
+
+// Delete
+async function onDelete(productId: string) {
+  setBusy(true);
+  try {
+    await deleteProduct(productId);
+    queryClient?.invalidateQueries?.(['products', sellerId]);
+    toast({ title: 'Product deleted', description: 'The product was removed.' });
+    try { analytics.track('product_deleted', { productId }); } catch {}
+  } catch (e:any) {
+    toast({ variant: 'destructive', title: 'Could not delete', description: e.message || 'Please try again.' });
+  } finally { setBusy(false); }
+}
+
+4) Acceptance criteria
+
+Duplicate: shows green success toast; no red error; new product appears in list.
+
+Delete: shows green success toast; product disappears from list.
+
+No console error like “Unexpected end of JSON input”.
+
+No visual regressions outside these flows (product cards, filters, colors, headers must remain unchanged).
+
+5) Tests (optional but recommended)
+
+Unit or e2e: mock duplicate returning 201 with empty body → success toast appears.
+
+Mock delete returning 204 → success toast appears.
+
+Mock 500 for both → destructive toast appears.
+
+Reminder: Do not change the product card layout/details, filters, or theme variables. Only touch the two API handlers, the product service methods for duplicate/delete, and the toasts around those two actions.
