@@ -285,19 +285,54 @@ export default function Settings() {
 
   const handlePaymentsDeliveryUpdate = async (data: PaymentsDeliveryForm) => {
     try {
-      await updateSellerProfile({
-        paymentMethods: data.paymentMethods,
-        deliveryOptions: data.deliveryOptions,
-      });
+      // Convert string arrays to proper payment/delivery objects
+      const { savePaymentAndDelivery } = await import('@/lib/paymentDelivery');
+      const { normalizeArrayToMap } = await import('@shared/paymentDelivery');
+      
+      // Convert arrays to object maps with proper structure
+      const payments = normalizeArrayToMap(
+        data.paymentMethods.map((label: string) => ({
+          type: label.toLowerCase().replace(/\s+/g, '') as any,
+          label,
+          enabled: true
+        }))
+      );
+      
+      const delivery = normalizeArrayToMap(
+        data.deliveryOptions.map((label: string) => ({
+          type: label.toLowerCase().replace(/\s+/g, '') as any,
+          label,
+          enabled: true
+        }))
+      );
+      
+      // Use the new atomic save function
+      await savePaymentAndDelivery(user!.uid, payments, delivery);
 
       toast({
         title: 'Payment & delivery updated',
         description: 'Your payment and delivery options have been updated successfully.',
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('[payments/save]', { 
+        code: error?.code, 
+        msg: error?.message, 
+        path: error?.path,
+        fullError: error 
+      });
+      
+      // Provide more specific error messages
+      let description = `${error?.code ?? 'UNKNOWN'}: ${error?.message ?? 'No details'}`;
+      
+      if (error?.code === 'PERMISSION_DENIED') {
+        description = "Your account can't write to this path. Check database rules.";
+      } else if (error?.code === 'INVALID_ARGUMENT' || error?.code === 'INVALID_DATA') {
+        description = "Data format issue. Please try again or contact support.";
+      }
+      
       toast({
-        title: 'Error',
-        description: 'Failed to update payment and delivery options.',
+        title: 'Save failed',
+        description,
         variant: 'destructive',
       });
     }

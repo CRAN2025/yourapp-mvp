@@ -1,0 +1,223 @@
+Instructions for the agent
+0) Reproduce + capture real error
+
+In the Payments/Delivery settings view, click Save and open DevTools → Console & Network.
+
+Log and surface the real error we’re swallowing:
+
+try {
+  await savePaymentAndDelivery(...);
+} catch (e:any) {
+  console.error('[payments/save]', { code: e?.code, msg: e?.message, path: e?.path });
+  toast({
+    variant: 'destructive',
+    title: 'Save failed',
+    description: `${e?.code ?? 'UNKNOWN'}: ${e?.message ?? 'No details'}`,
+  });
+}
+
+
+Note whether it’s PERMISSION_DENIED or a schema/path error (path not writable, invalid data).
+
+1) Canonicalize the new schema (single source of truth)
+
+Adopt this structure and stick to it:
+
+/sellers/{uid}/storeSettings
+  payments:        { [id]: PaymentMethod }
+  deliveryOptions: { [id]: DeliveryOption }
+
+# Public mirror used by the storefront (read-only)
+/publicStores/{uid}/meta
+  paymentMethods:  { [id]: PublicPaymentMethod }
+  deliveryOptions: { [id]: PublicDeliveryOption }
+  updatedAt: <serverTimestamp>
+
+Types (server/client shared)
+type PaymentMethodType =
+  | 'cash' | 'card' | 'paypal' | 'stripe' | 'applePay' | 'bankTransfer';
+
+type DeliveryOptionType =
+  | 'pickup' | 'localDelivery' | 'shipping';
+
+export interface PaymentMethod {
+  id: string;
+  type: PaymentMethodType;
+  label: string;
+  enabled: boolean;
+  // private/sensitive fields here (e.g., last4, merchant ids) – NEVER mirrored publicly
+}
+
+export interface DeliveryOption {
+  id: string;
+  type: DeliveryOptionType;
+  label: string;
+  enabled: boolean;
+  fee?: number;
+  minOrder?: number;
+  zones?: string[];
+  carrier?: 'ups' | 'usps' | 'dhl';
+}
+
+export type PublicPaymentMethod  = Pick<PaymentMethod,  'id'|'type'|'label'|'enabled'>;
+export type PublicDeliveryOption = Pick<DeliveryOption, 'id'|'type'|'label'|'enabled'|'fee'|'minOrder'>;
+
+2) Fix writes: atomically write seller settings + public mirror
+
+Write only safe, non-sensitive fields to /publicStores. Use a multi-path atomic update so we don’t end up half-saved.
+
+import { ref as dbRef, update, serverTimestamp } from 'firebase/database';
+import { database } from '@/lib/firebase';
+
+const toPublicPayments  = (p: Record<string, PaymentMethod>) =>
+  Object.fromEntries(Object.values(p).filter(x => x.enabled)
+    .map(x => [x.id, { id:x.id, type:x.type, label:x.label, enabled:x.enabled }]));
+
+const toPublicDelivery  = (d: Record<string, DeliveryOption>) =>
+  Object.fromEntries(Object.values(d).filter(x => x.enabled)
+    .map(x => [x.id, { id:x.id, type:x.type, label:x.label, enabled:x.enabled, fee:x.fee ?? 0, minOrder:x.minOrder ?? 0 }]));
+
+export async function savePaymentAndDelivery(uid: string, payments: Record<string,PaymentMethod>, delivery: Record<string,DeliveryOption>) {
+  const root = dbRef(database); // IMPORTANT: root ref for multi-path update
+  const updates: any = {};
+  updates[`sellers/${uid}/storeSettings/payments`]        = payments;
+  updates[`sellers/${uid}/storeSettings/deliveryOptions`] = delivery;
+  updates[`publicStores/${uid}/meta/paymentMethods`]       = toPublicPayments(payments);
+  updates[`publicStores/${uid}/meta/deliveryOptions`]      = toPublicDelivery(delivery);
+  updates[`publicStores/${uid}/meta/updatedAt`]            = serverTimestamp();
+  await update(root, updates);
+}
+
+
+If we previously wrote seller data from the client directly into /publicStores, this is likely where PERMISSION_DENIED came from if rules changed. The above keeps one atomic write while still separating public vs private fields.
+
+3) Back-compat & one-time migration
+
+If we had legacy arrays or an old path (e.g. /sellers/{uid}/store/paymentMethods):
+
+function normalizeArrayToMap<T extends {id?: string}>(arr: T[]) {
+  const id = () => (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2));
+  return Object.fromEntries(arr.map(x => {
+    const _id = x.id ?? id();
+    return [_id, { ...x, id: _id }];
+  }));
+}
+
+export async function migrateLegacyIfPresent(uid: string) {
+  const legacyPath = dbRef(database, `sellers/${uid}/store`);
+  onValue(legacyPath, async snap => {
+    const legacy = snap.val();
+    if (!legacy) return;
+    const updates:any = {};
+    if (Array.isArray(legacy.paymentMethods)) {
+      updates[`sellers/${uid}/storeSettings/payments`] =
+        normalizeArrayToMap<PaymentMethod>(legacy.paymentMethods);
+      updates[`sellers/${uid}/store/paymentMethods`] = null; // delete old
+    }
+    if (Array.isArray(legacy.deliveryOptions)) {
+      updates[`sellers/${uid}/storeSettings/deliveryOptions`] =
+        normalizeArrayToMap<DeliveryOption>(legacy.deliveryOptions);
+      updates[`sellers/${uid}/store/deliveryOptions`] = null;
+    }
+    if (Object.keys(updates).length) {
+      await update(dbRef(database), updates);
+    }
+  }, { onlyOnce: true });
+}
+
+
+Run once post-login for sellers; noop if already migrated.
+
+4) Firebase Realtime Database rules
+
+Make sure authenticated sellers can write their settings and the public mirror (or, if you prefer, make public mirror write-only via Cloud Functions—either is fine; pick one and be consistent).
+
+Option A – client writes both (fastest to ship):
+
+{
+  "rules": {
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "publicStores": {
+      "$uid": {
+        ".read": true,
+        // Allow the owner to update only meta/* (never products via this path)
+        "meta": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "products": { ".read": true, ".write": false }
+      }
+    }
+  }
+}
+
+
+Option B – client writes only /sellers, Cloud Function mirrors to /publicStores (most secure):
+
+Keep publicStores/* write-protected (.write: false).
+
+Add a CF onWrite(sellers/{uid}/storeSettings) that copies sanitized fields into publicStores/{uid}/meta.
+
+Either way, confirm rules match the code path you ship.
+
+5) Storefront read path + make the buttons do something
+
+On the public storefront (no auth), read from the public mirror:
+
+const metaRef = ref(database, `publicStores/${sellerId}/meta`);
+onValue(metaRef, snap => {
+  const { paymentMethods = {}, deliveryOptions = {} } = snap.val() ?? {};
+  setPaymentMethods(paymentMethods);
+  setDeliveryOptions(deliveryOptions);
+});
+
+
+Make the “Payment Methods” and “Delivery Options” chips clickable to open a modal/drawer:
+
+<Button variant="outline" onClick={() => setPaymentsOpen(true)} aria-label="View payment methods">
+  <CreditCardIcon className="mr-2 h-4 w-4" />
+  {Object.values(paymentMethods).length} Payment Methods
+</Button>
+
+<Button variant="outline" onClick={() => setDeliveryOpen(true)} aria-label="View delivery options">
+  <TruckIcon className="mr-2 h-4 w-4" />
+  {Object.values(deliveryOptions).length} Delivery Options
+</Button>
+
+
+Modal lists only enabled items. No editing on storefront, just view.
+
+6) Improve failure messaging
+
+Replace the generic toast (“Failed to update…”) with the actual code message, and give a hint for the common cases:
+
+PERMISSION_DENIED: “Your account can’t write to this path. Check RTDB rules for /sellers/{uid} and /publicStores/{uid}/meta.”
+
+INVALID_ARGUMENT / INVALID_DATA: “Payload shape doesn’t match the schema. Ensure object-keyed maps, not arrays.”
+
+7) QA checklist
+
+ Save with a mix of enabled/disabled items → confirm both seller and public paths are updated atomically.
+
+ Public storefront renders the updated lists within 1–2 seconds (RTDB stream).
+
+ Rules: a different logged-in user cannot write another seller’s settings.
+
+ No sensitive payment info appears under /publicStores.
+
+8) (Optional) One-click “Fix my data” for legacy sellers
+
+Add a small banner in the settings page if legacy arrays are detected: “We’ve updated our data format. Click Migrate to convert your settings.” Hook to migrateLegacyIfPresent(uid).
+
+Why this will fix it
+
+The write path now matches the new schema and uses a single atomic update across both private and public mirrors, eliminating partial writes.
+
+Rules are aligned with the code (the usual cause of PERMISSION_DENIED).
+
+The storefront reads from a public, sanitized location and the UI buttons become actionable.

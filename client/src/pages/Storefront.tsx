@@ -234,30 +234,38 @@ export default function Storefront() {
     (async () => {
       setLoadingMeta(true);
 
-      const [pmSnap, delSnap] = await Promise.all([
-        get(ref(database, `sellers/${user.uid}/paymentMethods`)),
-        get(ref(database, `sellers/${user.uid}/deliveryOptions`)),
-      ]);
+      try {
+        // Use the new public data path
+        const { loadPublicPaymentDelivery } = await import('@/lib/paymentDelivery');
+        const { paymentMethods, deliveryOptions } = await loadPublicPaymentDelivery(user.uid);
 
-      // paymentMethods and deliveryOptions are stored as arrays of strings
-      const pm = pmSnap.val() || [];
-      const del = delSnap.val() || [];
+        // Convert object maps to arrays for modal display
+        const paymentList = Object.values(paymentMethods || {}).filter((p: any) => p.enabled);
+        const deliveryList = Object.values(deliveryOptions || {}).filter((d: any) => d.enabled);
 
-      // Convert strings to objects for consistent modal display
-      const paymentList = Array.isArray(pm) ? pm.map((method: string, index: number) => ({
-        id: `pm-${index}`,
-        type: method.toLowerCase().replace(/\s+/g, '_'),
-        label: method
-      })) : [];
-
-      const deliveryList = Array.isArray(del) ? del.map((option: string, index: number) => ({
-        id: `del-${index}`,
-        type: option.toLowerCase().replace(/\s+/g, '_'),
-        label: option
-      })) : [];
-
-      setPublicPaymentMethods(paymentList);
-      setPublicDeliveryOptions(deliveryList);
+        setPublicPaymentMethods(paymentList);
+        setPublicDeliveryOptions(deliveryList);
+      } catch (error) {
+        console.error('Failed to load payment/delivery data:', error);
+        // Try legacy migration if new path fails
+        try {
+          const { migrateLegacyPaymentDelivery } = await import('@/lib/paymentDelivery');
+          const { migrated, payments, delivery } = await migrateLegacyPaymentDelivery(user.uid);
+          
+          if (migrated) {
+            console.log('✅ Legacy data migrated successfully');
+            const paymentList = Object.values(payments).filter((p: any) => p.enabled);
+            const deliveryList = Object.values(delivery).filter((d: any) => d.enabled);
+            setPublicPaymentMethods(paymentList);
+            setPublicDeliveryOptions(deliveryList);
+          }
+        } catch (migrationError) {
+          console.error('Migration also failed:', migrationError);
+          setPublicPaymentMethods([]);
+          setPublicDeliveryOptions([]);
+        }
+      }
+      
       setLoadingMeta(false);
     })();
   }, [user?.uid]);
