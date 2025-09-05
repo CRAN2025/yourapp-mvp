@@ -14,6 +14,8 @@ type Props = {
   facebookUrl?: string;
   onShare: () => void;      // opens WhatsApp share
   onContact?: () => void;   // optional WhatsApp contact CTA
+  onPaymentsClick?: () => void;  // show payment methods modal
+  onDeliveryClick?: () => void;  // show delivery options modal
 };
 
 export default function NewStoreHeader({
@@ -28,6 +30,8 @@ export default function NewStoreHeader({
   facebookUrl,
   onShare,
   onContact,
+  onPaymentsClick,
+  onDeliveryClick,
 }: Props) {
   const [stuck, setStuck] = useState(false);
   useEffect(() => {
@@ -84,9 +88,24 @@ export default function NewStoreHeader({
 
               {/* mid chips */}
               <div className="flex flex-wrap items-center gap-2">
-                <GlassChip icon={<Package className="h-4 w-4" />} label={`${productsCount} ${productsCount === 1 ? "Product" : "Products"}`} />
-                <GlassChip icon={<CreditCard className="h-4 w-4" />} label={`${paymentsCount} Payment Methods`} />
-                <GlassChip icon={<Truck className="h-4 w-4" />} label={`${deliveriesCount} Delivery Options`} />
+                <GlassChip 
+                  icon={<Package className="h-4 w-4" />} 
+                  label={`${productsCount} ${productsCount === 1 ? "Product" : "Products"}`} 
+                  disabled
+                  title="Products list is shown below"
+                />
+                <GlassChip 
+                  icon={<CreditCard className="h-4 w-4" />} 
+                  label={`${paymentsCount} Payment Methods`} 
+                  onClick={onPaymentsClick}
+                  data-testid="pill-payment-methods"
+                />
+                <GlassChip 
+                  icon={<Truck className="h-4 w-4" />} 
+                  label={`${deliveriesCount} Delivery Options`} 
+                  onClick={onDeliveryClick}
+                  data-testid="pill-delivery-options"
+                />
               </div>
 
               {/* right: socials (unchanged look) + CTAs */}
@@ -120,12 +139,42 @@ export default function NewStoreHeader({
 }
 
 /* — UI bits — */
-function GlassChip({ icon, label }: { icon: React.ReactNode; label: string }) {
+function GlassChip({ 
+  icon, 
+  label, 
+  onClick, 
+  disabled, 
+  title,
+  'data-testid': dataTestId 
+}: { 
+  icon: React.ReactNode; 
+  label: string; 
+  onClick?: () => void;
+  disabled?: boolean;
+  title?: string;
+  'data-testid'?: string;
+}) {
+  const Component = onClick && !disabled ? 'button' : 'div';
+  
   return (
-    <div className="inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3.5 py-2 text-sm font-medium text-slate-800 backdrop-blur-2xl shadow-sm">
+    <Component 
+      className={`inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/70 px-3.5 py-2 text-sm font-medium text-slate-800 backdrop-blur-2xl shadow-sm ${
+        onClick && !disabled 
+          ? 'hover:bg-white/90 hover:border-white/90 cursor-pointer transition-all duration-200 hover:scale-105' 
+          : disabled 
+          ? 'opacity-75 cursor-default' 
+          : ''
+      }`}
+      onClick={onClick && !disabled ? onClick : undefined}
+      disabled={disabled}
+      title={title}
+      aria-label={onClick && !disabled ? `View ${label}` : undefined}
+      aria-disabled={disabled}
+      data-testid={dataTestId}
+    >
       {icon}
       <span>{label}</span>
-    </div>
+    </Component>
   );
 }
 

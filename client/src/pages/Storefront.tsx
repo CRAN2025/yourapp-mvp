@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'wouter';
 import { ref, onValue, off, get } from 'firebase/database';
 import { ExternalLink, Eye, Search, Heart, RefreshCw, X, MessageCircle, ChevronDown, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook, ArrowUpRight, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import StoreHeader from '@/components/StoreHeader';
 import NewStoreHeader from '@/components/NewStoreHeader';
 import { database } from '@/lib/firebase';
@@ -123,6 +124,13 @@ export default function Storefront() {
   // Check if current user is the store owner
   const isOwner = user && seller && user.uid === seller.id;
   const { toast } = useToast();
+  
+  // Modal states for payment methods and delivery options
+  const [showPayments, setShowPayments] = useState(false);
+  const [showDelivery, setShowDelivery] = useState(false);
+  const [publicPaymentMethods, setPublicPaymentMethods] = useState<any[]>([]);
+  const [publicDeliveryOptions, setPublicDeliveryOptions] = useState<any[]>([]);
+  const [loadingMeta, setLoadingMeta] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -218,6 +226,30 @@ export default function Storefront() {
 
     return () => off(productsRef, 'value', unsubscribe);
   }, [user, toast]);
+
+  // Load payment methods and delivery options from public store
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const toArray = (obj: any) =>
+      obj ? Object.entries(obj).map(([id, v]) => ({ id, ...(v as object) })) : [];
+
+    (async () => {
+      setLoadingMeta(true);
+
+      const [pmSnap, delSnap] = await Promise.all([
+        get(ref(database, `publicStores/${user.uid}/paymentMethods`)),
+        get(ref(database, `publicStores/${user.uid}/deliveryOptions`)),
+      ]);
+
+      const pm = toArray(pmSnap.val()).filter((m: any) => m.enabled !== false);
+      const del = toArray(delSnap.val()).filter((d: any) => d.enabled !== false);
+
+      setPublicPaymentMethods(pm);
+      setPublicDeliveryOptions(del);
+      setLoadingMeta(false);
+    })();
+  }, [user?.uid]);
 
   // Enhanced filtering logic
   const filteredProducts = useMemo(() => {
@@ -1532,8 +1564,8 @@ export default function Storefront() {
             logoUrl={seller?.logoUrl || undefined}
             bannerUrl={seller?.bannerUrl || undefined}
             productsCount={products.length}
-            paymentsCount={paymentMethods.length}
-            deliveriesCount={deliveryOptions.length}
+            paymentsCount={publicPaymentMethods.length}
+            deliveriesCount={publicDeliveryOptions.length}
             instagramUrl={seller?.socialMedia?.instagram || undefined}
             facebookUrl={seller?.socialMedia?.facebook || undefined}
             onShare={() => {
@@ -1551,6 +1583,8 @@ export default function Storefront() {
                 openWhatsApp(seller.whatsappNumber, message);
               }
             }}
+            onPaymentsClick={() => setShowPayments(true)}
+            onDeliveryClick={() => setShowDelivery(true)}
           />
 
 
@@ -2558,6 +2592,64 @@ export default function Storefront() {
           )}
         </div>
       </DashboardLayout>
+
+      {/* Payments Modal */}
+      <Dialog open={showPayments} onOpenChange={setShowPayments}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Payment Methods</DialogTitle>
+          </DialogHeader>
+
+          {loadingMeta ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : publicPaymentMethods.length ? (
+            <ul className="divide-y">
+              {publicPaymentMethods.map(m => (
+                <li key={m.id} className="py-3">
+                  <div className="font-medium">
+                    {m.label || m.type}
+                    {m.handle && <span className="ml-2 text-sm text-muted-foreground">{m.handle}</span>}
+                  </div>
+                  {m.instructions && (
+                    <div className="text-sm text-muted-foreground mt-1">{m.instructions}</div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No payment methods available.</p>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delivery Modal */}
+      <Dialog open={showDelivery} onOpenChange={setShowDelivery}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Delivery Options</DialogTitle>
+          </DialogHeader>
+
+          {loadingMeta ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : publicDeliveryOptions.length ? (
+            <ul className="divide-y">
+              {publicDeliveryOptions.map(d => (
+                <li key={d.id} className="py-3">
+                  <div className="font-medium">{d.label || d.type}</div>
+                  <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
+                    {typeof d.fee === 'number' && <div>Fee: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.fee)}</div>}
+                    {d.minOrder && <div>Min Order: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.minOrder)}</div>}
+                    {d.regions?.length ? <div>Regions: {d.regions.join(', ')}</div> : null}
+                    {d.instructions && <div>{d.instructions}</div>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No delivery options available.</p>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
