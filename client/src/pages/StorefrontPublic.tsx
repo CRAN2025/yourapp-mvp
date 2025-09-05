@@ -3,6 +3,7 @@ import { useRoute, useLocation, Link } from 'wouter';
 import { ref, get } from 'firebase/database';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Truck, MapPin, Phone, Info, Star, Clock, Globe, CheckCircle, Sparkles, Award, Shield, Zap, Share2, UserPlus, Filter, Instagram, Facebook } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import StoreHeader from '@/components/StoreHeader';
 import { database, auth as primaryAuth } from '@/lib/firebase';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
@@ -134,6 +135,8 @@ export default function StorefrontPublic() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [publicPaymentMethods, setPublicPaymentMethods] = useState<any[]>([]);
+  const [publicDeliveryOptions, setPublicDeliveryOptions] = useState<any[]>([]);
   // Removed showChatFab state - floating FAB removed per v1.3.1_UI_UX_WHATSAPP_PER_CARD
   const [contactNotification, setContactNotification] = useState<{show: boolean, product: Product | null}>({show: false, product: null});
   const [lowResImages, setLowResImages] = useState<Record<string, boolean>>({});
@@ -358,6 +361,43 @@ export default function StorefrontPublic() {
         
 
         setSeller(sellerData ? normalizeSeller(sellerData) : null);
+
+        // Load payment methods and delivery options from public store
+        const paymentMethodsRef = ref(database, `publicStores/${sellerId}/paymentMethods`);
+        const deliveryOptionsRef = ref(database, `publicStores/${sellerId}/deliveryOptions`);
+        
+        const [paymentMethodsSnapshot, deliveryOptionsSnapshot] = await Promise.all([
+          Promise.race([
+            get(paymentMethodsRef),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Request timeout')), 10000)
+            )
+          ]) as any,
+          Promise.race([
+            get(deliveryOptionsRef),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Request timeout')), 10000)
+            )
+          ]) as any
+        ]);
+
+        // Process payment methods
+        if (paymentMethodsSnapshot.exists()) {
+          const paymentData = paymentMethodsSnapshot.val();
+          const paymentList = Object.entries(paymentData || {})
+            .map(([id, data]: [string, any]) => ({ id, ...data }))
+            .filter((method: any) => method.enabled !== false);
+          setPublicPaymentMethods(paymentList);
+        }
+
+        // Process delivery options
+        if (deliveryOptionsSnapshot.exists()) {
+          const deliveryData = deliveryOptionsSnapshot.val();
+          const deliveryList = Object.entries(deliveryData || {})
+            .map(([id, data]: [string, any]) => ({ id, ...data }))
+            .filter((option: any) => option.enabled !== false);
+          setPublicDeliveryOptions(deliveryList);
+        }
 
         // Load products from public store with enhanced filtering
         const productsRef = ref(database, `publicStores/${sellerId}/products`);
@@ -2310,7 +2350,7 @@ ${productUrl}`;
             {/* Primary WhatsApp CTA button */}
             {seller?.whatsappNumber && (
               <Button
-                onClick={() => openWhatsApp(seller.whatsappNumber, `Hi! I found your store on ShopLynk and I'm interested in your products.`)}
+                onClick={() => openWhatsApp(seller.whatsappNumber || '', `Hi! I found your store on ShopLynk and I'm interested in your products.`)}
                 className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-8 py-4 rounded-2xl text-lg shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
                 <MessageCircle className="w-6 h-6 mr-3" />
@@ -3444,6 +3484,88 @@ ${productUrl}`;
           </div>
         )}
       </div>
+
+      {/* Payment Methods Modal */}
+      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+        <DialogContent className="max-w-md mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-green-600" />
+              Payment Methods
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {publicPaymentMethods.length > 0 ? (
+              publicPaymentMethods.map((method) => (
+                <div key={method.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <CreditCard className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-900">
+                      {method.label || method.type.charAt(0).toUpperCase() + method.type.slice(1)}
+                    </div>
+                    {method.handle && (
+                      <div className="text-sm text-gray-600">{method.handle}</div>
+                    )}
+                    {method.instructions && (
+                      <div className="text-sm text-gray-500">{method.instructions}</div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                No payment methods configured yet.
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delivery Options Modal */}
+      <Dialog open={showDeliveryModal} onOpenChange={setShowDeliveryModal}>
+        <DialogContent className="max-w-md mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="w-5 h-5 text-blue-600" />
+              Delivery Options
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {publicDeliveryOptions.length > 0 ? (
+              publicDeliveryOptions.map((option) => (
+                <div key={option.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Truck className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-900">
+                      {option.label || option.type.charAt(0).toUpperCase() + option.type.slice(1)}
+                    </div>
+                    {option.fee && (
+                      <div className="text-sm text-gray-600">Fee: {formatPrice(option.fee)}</div>
+                    )}
+                    {option.minOrder && (
+                      <div className="text-sm text-gray-600">Min order: {formatPrice(option.minOrder)}</div>
+                    )}
+                    {option.regions && option.regions.length > 0 && (
+                      <div className="text-sm text-gray-500">Available in: {option.regions.join(', ')}</div>
+                    )}
+                    {option.instructions && (
+                      <div className="text-sm text-gray-500">{option.instructions}</div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                No delivery options configured yet.
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
