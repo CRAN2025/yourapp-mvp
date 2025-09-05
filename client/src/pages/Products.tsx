@@ -20,10 +20,12 @@ import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
 import { waitFor } from '@/utils/waitFor';
+import { useConfirmDialog } from '@/hooks/useConfirmDialog';
 
 export default function Products() {
   const { user } = useAuthContext();
   const { toast } = useToast();
+  const { confirm, dialog: confirmDialog } = useConfirmDialog();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -135,7 +137,13 @@ export default function Products() {
   };
 
   const handleDeleteProduct = async (product: Product) => {
-    if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) return;
+    const proceed = await confirm({
+      title: `Delete "${product.name}"?`,
+      description: "This action can't be undone. The product will be removed from your catalog and storefront.",
+      confirmText: "Delete",
+      cancelText: "Cancel",
+    });
+    if (!proceed) return;
 
     if (!user) return;
 
@@ -797,6 +805,7 @@ export default function Products() {
           // Products will be automatically updated via onValue listener
         }}
       />
+      {confirmDialog}
     </DashboardLayout>
   );
 }
