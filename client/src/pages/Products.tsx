@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ref, onValue, off, remove, push, set, serverTimestamp } from 'firebase/database';
+import { ref, onValue, off, remove, push, set, serverTimestamp, update } from 'firebase/database';
 import { Plus, Search, Heart, Edit, Trash2, Filter, ChevronDown, ChevronUp, ExternalLink, Eye, Copy, MoreHorizontal, Check } from 'lucide-react';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
@@ -185,7 +185,16 @@ export default function Products() {
   };
 
   // v1.7 Premium stock pill - smaller size for visual hierarchy
-  const getStockPill = (quantity: number) => {
+  const getStockPill = (product: Product) => {
+    if (product.isSold) {
+      return (
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-800 text-white">
+          SOLD
+        </span>
+      );
+    }
+    
+    const quantity = product.quantity;
     if (quantity === 0) {
       return (
         <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800">
@@ -253,16 +262,57 @@ export default function Products() {
   };
 
   const handleMarkAsSold = async (product: Product) => {
+    if (!user) return;
+
     try {
-      // TODO: Implement mark as sold functionality
+      await update(ref(database, `sellers/${user.uid}/products/${product.id}`), {
+        isSold: true,
+        isActive: false,
+        quantity: 0,
+        soldAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      // Hide from public store mirror
+      await remove(ref(database, `publicStores/${user.uid}/products/${product.id}`));
+
       toast({
         title: 'Marked as Sold',
-        description: `${product.name} has been marked as sold.`,
+        description: `${product.name} is now shown as SOLD and hidden from your store.`,
       });
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to mark as sold.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleMarkAsAvailable = async (product: Product) => {
+    if (!user) return;
+
+    try {
+      await update(ref(database, `sellers/${user.uid}/products/${product.id}`), {
+        isSold: false,
+        updatedAt: serverTimestamp(),
+      });
+
+      // Re-publish if should be public
+      const shouldPublish = (product.quantity ?? 0) > 0 && product.isActive !== false;
+      if (shouldPublish) {
+        const pubRef = ref(database, `publicStores/${user.uid}/products/${product.id}`);
+        await set(pubRef, { ...product, isSold: false, sellerId: user.uid });
+      }
+
+      toast({
+        title: 'Marked as Available',
+        description: `${product.name} is available again.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to mark as available.',
         variant: 'destructive',
       });
     }
@@ -457,13 +507,22 @@ export default function Products() {
                   <img
                     src={getProductImageUrl(product)}
                     alt={product.name}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] ${
+                      product.isSold ? 'grayscale opacity-70' : ''
+                    }`}
                     loading="lazy"
                     decoding="async"
                     sizes="(min-width:1024px) 33vw, 100vw"
                     width="640"
                     height="360"
                   />
+                  
+                  {/* SOLD ribbon */}
+                  {product.isSold && (
+                    <span className="absolute left-3 top-3 rounded-md bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-white z-10">
+                      SOLD
+                    </span>
+                  )}
                   
                   {/* v1.5 Bulk Mode Checkbox - Top Left Corner */}
                   {bulkMode && (
@@ -517,7 +576,7 @@ export default function Products() {
                           {formatPrice(product.price)}
                         </span>
                       </div>
-                      {getStockPill(product.quantity)}
+                      {getStockPill(product)}
                     </div>
                     
                     {/* Category & Subcategory */}
@@ -629,10 +688,17 @@ export default function Products() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleMarkAsSold(product)}>
-                            <Check className="w-4 h-4 mr-2" />
-                            Mark as Sold
-                          </DropdownMenuItem>
+                          {product.isSold ? (
+                            <DropdownMenuItem onClick={() => handleMarkAsAvailable(product)}>
+                              <Check className="w-4 h-4 mr-2" />
+                              Mark as Available
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem onClick={() => handleMarkAsSold(product)}>
+                              <Check className="w-4 h-4 mr-2" />
+                              Mark as Sold
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => handleDuplicateProduct(product)}>
                             <Copy className="w-4 h-4 mr-2" />
                             Duplicate
