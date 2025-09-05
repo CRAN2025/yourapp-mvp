@@ -1,0 +1,156 @@
+Please consider: show a visible SOLD state on product cards (and hide from storefront)
+
+Goal
+
+When a seller chooses Mark as Sold, the card should clearly show it’s sold (not just a toast).
+
+The item should be hidden from the public storefront (as if out-of-stock), but remain editable in the dashboard.
+
+Keep everything else exactly as-is.
+
+Minimal data change (backward-compatible)
+
+Add optional flags on the product:
+
+isSold?: boolean
+
+soldAt?: number (server timestamp)
+
+Continue to use existing quantity, isActive fields as you already do.
+
+Card UI tweaks (only when product.isSold === true)
+
+Image treatment: add grayscale opacity-70 to the main image.
+
+SOLD ribbon: top-left corner badge over the image:
+
+small rounded pill: SOLD (e.g., white text on slate/black background).
+
+Price/stock area:
+
+Keep price pill.
+
+Replace the stock pill with a SOLD pill (instead of IN STOCK / LOW STOCK).
+
+Actions:
+
+Keep Edit and Copy Link enabled.
+
+Preview: either disable or keep enabled (your call), but it’s fine to keep enabled since the item is hidden on public.
+
+In the “more” menu, swap “Mark as Sold” → Mark as Available when sold (to reverse).
+
+Implementation sketch
+
+Extend type (optional fields are safe):
+
+// shared Product type (add optional)
+isSold?: boolean;
+soldAt?: number;
+
+
+Update the handler (toggle only; everything else unchanged):
+
+import { update } from "firebase/database";
+
+const handleMarkAsSold = async (product: Product) => {
+  if (!user) return;
+
+  await update(ref(database, `sellers/${user.uid}/products/${product.id}`), {
+    isSold: true,
+    isActive: false,             // keep it off the store
+    quantity: 0,                 // keep consistent with stock logic
+    soldAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  // hide from public store mirror
+  await remove(ref(database, `publicStores/${user.uid}/products/${product.id}`));
+
+  toast({
+    title: "Marked as Sold",
+    description: `${product.name} is now shown as SOLD and hidden from your store.`,
+  });
+};
+
+const handleMarkAsAvailable = async (product: Product) => {
+  if (!user) return;
+
+  await update(ref(database, `sellers/${user.uid}/products/${product.id}`), {
+    isSold: false,
+    updatedAt: serverTimestamp(),
+  });
+
+  // re-publish if your existing rule says it should be public
+  // (same logic you already use after duplicate):
+  const shouldPublish = (product.quantity ?? 0) > 0 && product.isActive !== false;
+  if (shouldPublish) {
+    const pubRef = ref(database, `publicStores/${user.uid}/products/${product.id}`);
+    await set(pubRef, { ...product, isSold: false, sellerId: user.uid });
+  }
+
+  toast({
+    title: "Marked as Available",
+    description: `${product.name} is available again.`,
+  });
+};
+
+
+Card badge/ribbon (in the image container):
+
+<img
+  className={cn(
+    "h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]",
+    product.isSold && "grayscale opacity-70"
+  )}
+  /* ... */
+ />
+
+{product.isSold && (
+  <span className="absolute left-3 top-3 rounded-md bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-white">
+    SOLD
+  </span>
+)}
+
+
+Stock pill logic (keep your existing function, add a top check):
+
+const getStockPill = (p: Product) => {
+  if (p.isSold) {
+    return (
+      <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-800 text-white">
+        SOLD
+      </span>
+    );
+  }
+  // then your current quantity-based logic...
+};
+
+
+Call with the product instead of just quantity:
+
+{getStockPill(product)}
+
+
+“More” menu toggle:
+
+{product.isSold ? (
+  <DropdownMenuItem onClick={() => handleMarkAsAvailable(product)}>
+    <Check className="w-4 h-4 mr-2" />
+    Mark as Available
+  </DropdownMenuItem>
+) : (
+  <DropdownMenuItem onClick={() => handleMarkAsSold(product)}>
+    <Check className="w-4 h-4 mr-2" />
+    Mark as Sold
+  </DropdownMenuItem>
+)}
+
+
+Acceptance criteria
+
+Mark as Sold → card shows SOLD ribbon + SOLD pill, image is desaturated. The item disappears from the public store. Toast text remains as-is.
+
+Mark as Available → SOLD visuals disappear. If quantity>0 && isActive, the item reappears on the public store.
+
+No other screens or behaviors change.

@@ -88,6 +88,8 @@ export const productSchema = z.object({
   features: z.array(z.string()).default([]), // "Adjustable, Waterproof, Hypoallergenic"
   sustainability: z.string().optional(), // Eco-friendly aspects
   warranty: z.string().optional(), // Quality guarantee info
+  isSold: z.boolean().optional(), // Marked as sold
+  soldAt: z.number().optional(), // Timestamp when marked as sold
   isActive: z.boolean().default(true),
   createdAt: z.number(),
   updatedAt: z.number(),
