@@ -248,8 +248,9 @@ export default function Storefront() {
           console.log('📊 Storefront: Loaded public payment/delivery data:', { paymentMethods, deliveryOptions });
           
           // Convert object maps to arrays for modal display
-          const paymentList = Object.values(paymentMethods).filter((p: any) => p.enabled);
-          const deliveryList = Object.values(deliveryOptions).filter((d: any) => d.enabled);
+          // Note: Data is already filtered to enabled-only when saved to public mirror
+          const paymentList = Object.values(paymentMethods);
+          const deliveryList = Object.values(deliveryOptions);
 
           setPublicPaymentMethods(paymentList);
           setPublicDeliveryOptions(deliveryList);
@@ -264,7 +265,7 @@ export default function Storefront() {
             const settings = settingsSnap.val() || {};
             const { payments = {}, deliveryOptions = {} } = settings;
             
-            // Convert private data to public format
+            // Convert private data to public format (filter for enabled items in fallback)
             const paymentList = Object.values(payments).filter((p: any) => p.enabled);
             const deliveryList = Object.values(deliveryOptions).filter((d: any) => d.enabled);
             
