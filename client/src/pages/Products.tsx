@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ref, onValue, off, remove } from 'firebase/database';
 import { Plus, Search, Heart, Edit, Trash2, Filter, ChevronDown, ChevronUp, ExternalLink, Eye, Copy, MoreHorizontal, Check } from 'lucide-react';
 import { database } from '@/lib/firebase';
@@ -44,6 +44,8 @@ export default function Products() {
     const counts: Record<string, number> = {};
     return counts;
   });
+  const [filtersScrolled, setFiltersScrolled] = useState(false);
+  const filtersRef = useRef<HTMLDivElement>(null);
 
   // Load products from Firebase
   useEffect(() => {
@@ -77,6 +79,21 @@ export default function Products() {
 
     return () => off(productsRef, 'value', unsubscribe);
   }, [user, toast]);
+
+  // Scroll effect for sticky filters
+  useEffect(() => {
+    const handleScroll = () => {
+      if (filtersRef.current) {
+        const filtersRect = filtersRef.current.getBoundingClientRect();
+        const isStuck = filtersRect.top <= 64; // h-16 = 64px
+        setFiltersScrolled(isStuck);
+        filtersRef.current.setAttribute('data-scrolled', isStuck.toString());
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Filter products
   const filteredProducts = products.filter((product) => {
@@ -142,13 +159,13 @@ export default function Products() {
   const getStockPill = (quantity: number) => {
     if (quantity === 0) {
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-700">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800">
           OUT OF STOCK
         </span>
       );
     } else if (quantity === 1) {
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-50 text-red-700">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-800">
           LAST ONE!
         </span>
       );
@@ -160,7 +177,7 @@ export default function Products() {
       );
     } else {
       return (
-        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
           IN STOCK
         </span>
       );
@@ -267,12 +284,12 @@ export default function Products() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
             <h1 className="sl-h1 mb-2">Products</h1>
-            <p className="text-muted-foreground">Manage your product catalog</p>
+            <p className="text-muted-foreground mt-1">Manage your product catalog</p>
           </div>
           <button 
             onClick={handleAddProduct}
             data-testid="button-add-product"
-            className="inline-flex items-center rounded-xl bg-gradient-to-r from-brand-600 to-accent-500 px-4 py-2 text-white shadow-soft hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+            className="inline-flex items-center rounded-xl bg-gradient-to-r from-brand-600 to-accent-500 px-4 py-2 text-white shadow-soft hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Product
@@ -280,7 +297,7 @@ export default function Products() {
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border border-slate-200 shadow-sm rounded-2xl p-4 md:p-5 mb-8">
+        <div ref={filtersRef} className="sticky top-16 z-30 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border border-slate-200 shadow-sm data-[scrolled=true]:shadow-md rounded-2xl p-4 md:p-5 mb-8" data-scrolled={filtersScrolled.toString()}>
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex-1 relative">
               <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
@@ -290,7 +307,7 @@ export default function Products() {
                 aria-label="Search products"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-14 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="pl-12 h-14 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                 data-testid="input-search"
               />
             </div>
@@ -301,14 +318,14 @@ export default function Products() {
                 id="bulk-mode"
                 checked={bulkMode}
                 onCheckedChange={(checked) => setBulkMode(checked === true)}
-                className="h-4 w-4 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                className="h-4 w-4 opacity-60 hover:opacity-100 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
               />
               <span className="text-sm text-slate-600">
                 Bulk select
               </span>
             </label>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-48 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400" data-testid="select-category-filter">
+              <SelectTrigger className="w-full md:w-48 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400" data-testid="select-category-filter">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -326,7 +343,7 @@ export default function Products() {
               variant={showFavorites ? 'default' : 'outline'}
               onClick={() => setShowFavorites(!showFavorites)}
               data-testid="button-favorites-filter"
-              className={`rounded-lg h-10 px-4 ${showFavorites ? 'bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              className={`rounded-lg h-10 px-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${showFavorites ? 'bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
             >
               <Heart className="w-4 h-4 mr-2" />
               Favorites
@@ -350,9 +367,10 @@ export default function Products() {
             }}
           />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="pt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 overflow-hidden">
+              <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 overflow-hidden">
                 
                 {/* TOP SECTION - Always Visible */}
                 <div className="aspect-[16/9] overflow-hidden rounded-t-2xl bg-slate-100">
@@ -362,6 +380,7 @@ export default function Products() {
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     loading="lazy"
                     decoding="async"
+                    sizes="(min-width:1024px) 33vw, 100vw"
                     width="640"
                     height="360"
                   />
@@ -381,7 +400,7 @@ export default function Products() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
+                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 ${
                       favorites.has(product.id) ? 'text-red-500' : 'text-slate-400'
                     }`}
                     onClick={() => toggleFavorite(product.id)}
@@ -691,6 +710,7 @@ export default function Products() {
                 <p className="text-sky-600 font-medium">Add New Product</p>
               </div>
             </div>
+          </div>
           </div>
         )}
       </div>

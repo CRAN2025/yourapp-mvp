@@ -58,7 +58,7 @@ export default function DashboardLayout({ children, hideTopNav = false }: Dashbo
           <div className="mx-auto max-w-7xl px-4 md:px-6 flex items-center justify-between h-full">
             <Link href="/">
               <a className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-lg" aria-label="ShopLynk">
-                <span className="font-black tracking-tight text-[28px] leading-none text-slate-900">
+                <span className="font-black tracking-tight text-[24px] md:text-[28px] lg:text-[30px] leading-none text-slate-900">
                   Shop<span className="bg-gradient-to-r from-sky-500 to-violet-500 bg-clip-text text-transparent">Lynk</span>
                 </span>
               </a>
