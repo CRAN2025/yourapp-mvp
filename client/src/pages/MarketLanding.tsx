@@ -374,24 +374,25 @@ export default function MarketLanding() {
           <div style={winDot('#ffbd2e')} />
           <div style={winDot('#28c840')} />
         </div>
-        <div className="glass card" style={{ padding: 16, marginBottom: 12 }}>
-          <div style={{ fontWeight: 800, letterSpacing: '-0.01em', fontSize: 16 }}>Demo Store</div>
-          <div style={{ fontSize: 14, opacity: 0.8, color: '#374151' }}>whatsapp orders • no code</div>
+        <div className="px-5 py-4 border-b">
+          <h3 className="text-[15px] font-semibold">Demo Stores</h3>
+          <p className="text-[13px] text-gray-500">WhatsApp-ready examples • No code</p>
         </div>
-        <div className="demo-store-grid grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-6 mt-4">
-          {externalDemoStores.slice(0, 4).map((store) => (
-            <DemoStoreTile
-              key={store.slug}
-              slug={store.slug}
-              storeName={store.storeName}
-              ownerName={store.fullName}
-              category={store.category}
-              country={store.country}
-              description={store.description}
-              productCount={store.products.length}
-              className="scale-[0.65] origin-top-left transform-gpu"
-            />
-          ))}
+        <div className="p-5">
+          <div className="grid grid-cols-2 gap-5">
+            {externalDemoStores.slice(0, 4).map((store) => (
+              <DemoStoreTile
+                key={store.slug}
+                slug={store.slug}
+                storeName={store.storeName}
+                ownerName={store.fullName}
+                category={store.category}
+                country={store.country}
+                description={store.description}
+                productCount={store.products.length}
+                className="h-[228px]"
+              />
+            ))}
         </div>
       </div>
     );

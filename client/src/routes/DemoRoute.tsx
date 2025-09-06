@@ -15,6 +15,9 @@ const DEMO_TARGETS = {
   // DEMO 2 → link exactly to the seller storefront on the host Senait provided
   "coastal-treasures":
     "https://e5bc3ac1-f41b-4b3a-a672-3e8cd165ff35-00-1ppiewcg3zuzb.picard.replit.dev/storefront",
+  // Grow Up demo mapping
+  "grow-up": 
+    "https://e5bc3ac1-f41b-4b3a-a672-3e8cd165ff35-00-1ppiewcg3zuzb.picard.replit.dev/storefront",
   // Leave other demos unmapped for now; they'll 404 until we add them.
 };
 

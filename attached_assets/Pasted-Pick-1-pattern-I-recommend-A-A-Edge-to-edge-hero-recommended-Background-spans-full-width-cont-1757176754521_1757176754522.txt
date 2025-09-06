@@ -1,0 +1,73 @@
+Pick 1 pattern (I recommend A)
+A) Edge-to-edge hero (recommended)
+
+Background spans full width; content stays in a comfortable container.
+
+The mock “browser” overshoots the container on the right for drama.
+
+<section className="relative overflow-hidden">
+  {/* full-bleed background */}
+  <div className="absolute inset-0 bg-gradient-to-b from-white to-[#F8FAFF]" />
+
+  {/* content container */}
+  <div className="relative mx-auto max-w-[1280px] 2xl:max-w-[1440px] px-6 lg:px-10">
+    <div className="grid grid-cols-12 gap-8 items-center min-h-[72vh]">
+      {/* Left: copy */}
+      <div className="col-span-12 lg:col-span-6 xl:col-span-5">
+        {/* h1, body, CTA… keep max-w around 560–620px */}
+      </div>
+
+      {/* Right: mock window (edge-to-edge effect) */}
+      <div className="col-span-12 lg:col-span-6 xl:col-span-7 relative">
+        <div
+          className="relative lg:absolute lg:right-[-72px] xl:right-[-96px] 2xl:right-[-120px]
+                     lg:top-1/2 lg:-translate-y-1/2 w-[680px] xl:w-[760px] 2xl:w-[840px]
+                     rounded-3xl bg-white shadow-[0_12px_40px_rgba(15,23,42,0.12)]"
+        >
+          {/* header */}
+          <div className="px-5 py-4 border-b">
+            <h3 className="text-[15px] font-semibold">Demo Stores</h3>
+            <p className="text-[13px] text-gray-500">WhatsApp-ready examples • No code</p>
+          </div>
+          {/* tiles */}
+          <div className="p-5">
+            <div className="grid grid-cols-2 gap-5">
+              {/* Each tile height matched */}
+              <DemoStoreTile className="h-[228px]" … />
+              <DemoStoreTile className="h-[228px]" … />
+              <DemoStoreTile className="h-[228px]" … />
+              <DemoStoreTile className="h-[228px]" … />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+B) Constrained hero (lighter change)
+
+Keep container, just widen it and scale the mock to 720–840px; add mr-[-72px] on xl to “kiss” the right edge.
+
+Exact acceptance criteria
+
+1440×900 viewport: left copy width 560–620px; mock width 760–840px; mock overhangs 72–120px.
+
+CTA above the fold, first row of trust badges peeking.
+
+Tiles aligned: 2×2 grid, gap-5 (20px), each tile h-[228px], text clamped (line-clamp-2) so bottoms line up.
+
+Header reads “Demo Stores”; subtitle “WhatsApp-ready examples • No code”.
+
+Keep these two functional changes (from earlier)
+
+Open demos in a new tab
+Wrap each tile with <a target="_blank" rel="noopener noreferrer">…</a> and keep UTM params.
+
+Link a demo to “Grow Up”
+Use slug grow-up and map it to the public storefront (not Settings):
+
+const DEMO_TARGETS = {
+  "grow-up": "https://e5bc3ac1-f41b-4b3a-a672-3e8cd165ff35-00-1ppiewcg3zuzb.picard.replit.dev/storefront",
+  // others...
+};

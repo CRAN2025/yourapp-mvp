@@ -109,8 +109,10 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
   return (
     <a
       href={`/demo/${slug}?utm_source=landing&utm_medium=demo_tile&utm_campaign=explore_store`}
+      target="_blank"
+      rel="noopener noreferrer"
       className={cn(
-        "group block cursor-pointer transition-all duration-300 ease-out",
+        "group block cursor-pointer transition-all duration-300 ease-out h-[228px]",
         "hover:scale-[1.01] motion-reduce:hover:scale-100",
         "hover:shadow-lg motion-reduce:hover:shadow-[0_2px_10px_rgba(0,0,0,0.08)]",
         "focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
