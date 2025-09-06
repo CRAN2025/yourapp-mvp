@@ -1,13 +1,27 @@
 import { useEffect } from 'react';
 import { Link } from 'wouter';
-import { trackInteraction } from '@/lib/utils/analytics';
+// Analytics tracking
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
 
 export default function DemoNotReady() {
   useEffect(() => {
     document.title = 'Demo Not Ready - ShopLynk';
     
     // Track analytics event
-    trackInteraction('demo_not_ready_viewed');
+    try {
+      if (window.gtag) {
+        window.gtag('event', 'demo_not_ready_viewed', {
+          event_category: 'demo',
+          event_label: 'not_ready_page'
+        });
+      }
+    } catch (e) {
+      // Analytics failure shouldn't break the experience
+    }
   }, []);
 
   return (

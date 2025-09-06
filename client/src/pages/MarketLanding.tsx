@@ -14,16 +14,20 @@ Changes & Rationale:
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
-import DemoStoreTile from '@/components/ui/DemoStoreTile';
-import { demoStores as externalDemoStores } from '@/data/demoStores';
+import { AppNavBar } from '@/components/seller/AppNavBar';
+import { DEMOS, getDemoHref } from '@/data/demos';
 import { auth } from '@/lib/firebase';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
-import { trackInteraction } from '@/lib/utils/analytics';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useAuth } from '@/hooks/use-auth';
 import { useOnboardingProgress } from '@/hooks/useOnboardingProgress';
-import { useRouteDecision } from '@/hooks/useRouteDecision';
-import logoUrl from '@/assets/logo.png';
+
+// Analytics tracking
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
 
 export default function MarketLanding() {
   const [location, navigate] = useLocation();
@@ -149,11 +153,13 @@ export default function MarketLanding() {
     const trackMarketingView = async () => {
       try {
         await ensureAnonymousEventsAuth();
-        await trackInteraction({
-          type: 'store_view',
-          sellerId: 'marketing',
-          metadata: { source: 'marketing_landing', page: 'home' },
-        });
+        // Track with gtag instead
+        if (window.gtag) {
+          window.gtag('event', 'page_view', {
+            page_location: window.location.href,
+            page_title: 'ShopLynk Marketing Landing'
+          });
+        }
       } catch (error) {
         console.warn('Failed to track marketing view:', error);
       }
@@ -205,11 +211,13 @@ export default function MarketLanding() {
     
     // Track CTA click
     try {
-      await trackInteraction({
-        type: 'store_view',
-        sellerId: 'marketing',
-        metadata: { source: 'cta_click', action: 'signup' },
-      });
+      // Track CTA click with gtag
+      if (window.gtag) {
+        window.gtag('event', 'cta_create_store_clicked', {
+          event_category: 'engagement',
+          event_label: 'hero_cta'
+        });
+      }
     } catch (error) {
       console.warn('Failed to track CTA click:', error);
     }
@@ -249,11 +257,13 @@ export default function MarketLanding() {
     
     // Track login click
     try {
-      await trackInteraction({
-        type: 'store_view',
-        sellerId: 'marketing',
-        metadata: { source: 'cta_click', action: 'login' },
-      });
+      // Track login click with gtag
+      if (window.gtag) {
+        window.gtag('event', 'login_attempt', {
+          event_category: 'engagement',
+          event_label: 'header_login'
+        });
+      }
     } catch (error) {
       console.warn('Failed to track login click:', error);
     }
@@ -365,35 +375,66 @@ export default function MarketLanding() {
     background: color
   });
 
-  // PreviewDevice component with demo products - production ready
-  function PreviewDevice() {
+  // Demo Tray Component with new design
+  function DemoTray() {
+    const handleDemoClick = (demo: any) => {
+      try {
+        if (window.gtag) {
+          window.gtag('event', 'demo_tile_clicked', {
+            key: demo.key,
+            name: demo.name,
+            href: getDemoHref(demo)
+          });
+        }
+      } catch (e) {
+        // Analytics failure shouldn't break the experience
+      }
+    };
+
     return (
-      <div className="glass heroGlass" style={{ padding: 16, boxShadow: 'var(--shadow-strong)' }}>
-        <div style={{ height: 18, display: 'flex', gap: 6, marginBottom: 12 }}>
-          <div style={winDot('#ff5f57')} />
-          <div style={winDot('#ffbd2e')} />
-          <div style={winDot('#28c840')} />
+      <div className="rounded-2xl shadow-lg/10 bg-white p-5 md:p-6">
+        {/* Header */}
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Demo Stores</h3>
+          <p className="text-sm text-gray-500">WhatsApp-ready examples • No code</p>
         </div>
-        <div className="px-5 py-4 border-b">
-          <h3 className="text-[15px] font-semibold">Demo Stores</h3>
-          <p className="text-[13px] text-gray-500">WhatsApp-ready examples • No code</p>
-        </div>
-        <div className="p-5">
-          <div className="grid grid-cols-2 gap-5">
-            {externalDemoStores.slice(0, 4).map((store) => (
-              <DemoStoreTile
-                key={store.slug}
-                slug={store.slug}
-                storeName={store.storeName}
-                ownerName={store.fullName}
-                category={store.category}
-                country={store.country}
-                description={store.description}
-                productCount={store.products.length}
-                className="h-[228px]"
-              />
-            ))}
-          </div>
+
+        {/* Cards Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {DEMOS.map((demo) => (
+            <div
+              key={demo.key}
+              className="relative aspect-[4/3] rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-300"
+            >
+              {/* Demo Badge */}
+              <span className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full bg-white/80 backdrop-blur font-medium text-gray-600">
+                Demo
+              </span>
+
+              {/* Store Key/Icon */}
+              <div className="absolute top-3 left-3 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center">
+                <span className="text-sm font-bold text-blue-600">{demo.key}</span>
+              </div>
+
+              {/* Bottom Content */}
+              <div className="absolute inset-0 flex items-end p-3">
+                <div className="w-full">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">{demo.name}</h4>
+                  <a
+                    href={getDemoHref(demo)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => handleDemoClick(demo)}
+                    aria-label={`Explore ${demo.name} demo store`}
+                    className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md px-2 py-1 -mx-2 -my-1"
+                    data-testid={`demo-tile-${demo.key.toLowerCase()}`}
+                  >
+                    Explore Store →
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -756,137 +797,78 @@ export default function MarketLanding() {
         zIndex: -1
       }} />
 
-      {/* Header - Full Bleed */}
-      <header 
-        data-header
-        style={{ 
-          width: '100vw',
-          position: 'relative',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          padding: '24px 0',
-          zIndex: 2,
-          backdropFilter: 'blur(12px)',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
-        }}
-      >
-        <div className="mx-auto" style={_headerRow}>
-          {/* BRAND (left) */}
-          <Link 
-            to="/" 
-            aria-label="ShopLynk home" 
-            style={_brand.link}
-          >
-            <span className='brandText' style={_brand.text}>ShopLynk</span>
-          </Link>
-          
-          {/* RIGHT CLUSTER (FAQ + CTA) */}
-          <nav aria-label="Primary" style={_right}>
-            <a 
-              href="#faq" 
-              className="mobile-hidden" 
-              style={{ 
-                fontWeight: 600, 
-                color: 'var(--ink)', 
-                opacity: 0.8, 
-                cursor: 'pointer',
-                textDecoration: 'none'
-              }} 
-              onClick={(e) => { 
-                e.preventDefault(); 
-                document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); 
-              }}
-            >
-              FAQ
-            </a>
-            <button 
-              onClick={goCreate} 
-              className="cta-pulse" 
-              data-testid="header-create-store"
-              disabled={isLoading}
-              aria-label="Create your free store"
-              style={{ ..._ui.ctaPrimary, boxShadow: '0 6px 14px rgba(15,23,42,0.06)' }}
-            >
-              {isLoading ? <div className="loading-spinner"></div> : 'Create Store'}
-            </button>
-          </nav>
-        </div>
-      </header>
+      {/* Header - Using consistent AppNavBar */}
+      <AppNavBar />
 
-      {/* Hero - Edge-to-Edge */}
+      {/* Hero - New Layout & Spacing */}
       <section 
         id="signup" 
-        className="relative overflow-hidden"
-        style={{ marginTop: 28 }}
+        className="max-w-[1280px] xl:max-w-[1440px] mx-auto px-6 md:px-10 xl:px-12 pt-10 md:pt-14 pb-8 md:pb-12"
       >
-        {/* Full-bleed background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white to-[#F8FAFF]" />
+        <div className="grid grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Left: copy/CTA */}
+          <div className="col-span-12 lg:col-span-6 order-1">
+            <h1 className="text-4xl md:text-6xl/[1.05] font-extrabold tracking-tight text-gray-900 mb-6">
+              Launch a WhatsApp-ready storefront in minutes
+            </h1>
+            
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-xl">
+              Add products, share a single link, and start getting orders via WhatsApp.
+              <span className="font-semibold text-gray-900"> Free during beta.</span>
+            </p>
 
-        {/* Content container */}
-        <div className="relative mx-auto max-w-[1280px] 2xl:max-w-[1440px] px-6 lg:px-10">
-          <div className="grid grid-cols-12 gap-8 items-center min-h-[72vh]">
-            {/* Left: copy */}
-            <div className="col-span-12 lg:col-span-6 xl:col-span-5" style={{ maxWidth: '620px' }}>
-              <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 16px', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
-                Launch a WhatsApp-ready storefront in minutes
-              </h1>
-              <p style={{ color: 'var(--ink-light)', fontSize: 18, lineHeight: 1.65, margin: '0 0 24px', fontWeight: 500 }}>
-                Add products, share a single link, and start getting orders via WhatsApp.<strong style={{ color: 'var(--ink)' }}> Free during beta.</strong>
-              </p>
-
-              {/* Primary CTA only (demo button removed) */}
-              <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginBottom: 12 }}>
-                <button 
-                  onClick={goCreate} 
-                  className="btn btnPrimary cta-pulse" 
-                  data-testid="hero-create-store"
-                  disabled={isLoading}
-                  aria-label="Create your free store - Start your free trial"
-                >
-                  {isLoading ? <div className="loading-spinner" aria-label="Loading"></div> : 'Create your free store'}
-                </button>
-              </div>
-              
-              {/* Urgency messaging */}
-              <div style={{ marginTop: 8, padding: '8px 12px', background: 'linear-gradient(90deg, rgba(255,107,107,0.1), rgba(78,205,196,0.1))', borderRadius: 8, fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
-                🔥 Limited Beta Access • <span style={{ color: '#dc2626' }}>200+ spots remaining</span>
-              </div>
-
-              {/* Sign-in hint for scrollers */}
-              <div style={{ marginTop: 12, fontSize: 14, color: 'var(--ink-light)' }}>
-                Already have a store?{' '}
-                <button 
-                  onClick={goLogin} 
-                  style={{ color: '#5a6bff', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, textDecoration: 'underline' }}
-                  aria-label="Sign in to existing store"
-                >
-                  Sign in
-                </button>
-              </div>
-
-              {/* Enhanced Social proof */}
-              <div style={{ marginTop: 12, fontSize: 14, color: 'var(--ink-light)' }}>
-                ⭐ Trusted by 200+ sellers • 🌍 8 countries • 💰 $50K+ in sales this month
-              </div>
-
-              {/* Badges */}
-              <div style={{ display:'flex', gap:12, flexWrap:'wrap', marginTop:16 }}>
-                <span className="badge">⭐ 4.8/5 from early sellers</span>
-                <span className="badge">🧰 No code required</span>
-                <span className="badge">🔒 Backed by Firebase</span>
-                <span className="badge">⏱️ Set up in ~5 minutes</span>
-              </div>
+            {/* Primary CTA */}
+            <div className="mb-6">
+              <button 
+                onClick={goCreate} 
+                className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                data-testid="hero-create-store"
+                disabled={isLoading}
+                aria-label="Create your free store - Start your free trial"
+              >
+                {isLoading ? <div className="loading-spinner" aria-label="Loading"></div> : 'Create your free store'}
+              </button>
+            </div>
+            
+            {/* Urgency messaging */}
+            <div className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-red-50 to-green-50 rounded-lg text-sm font-medium text-gray-900 mb-4">
+              🔥 Limited Beta Access • <span className="text-red-600">200+ spots remaining</span>
             </div>
 
-            {/* Right: mock window (edge-to-edge effect) */}
-            <div className="col-span-12 lg:col-span-6 xl:col-span-7 relative">
-              <div className="relative lg:absolute lg:right-[-72px] xl:right-[-96px] 2xl:right-[-120px] lg:top-1/2 lg:-translate-y-1/2 w-[680px] xl:w-[760px] 2xl:w-[840px] rounded-3xl bg-white shadow-[0_12px_40px_rgba(15,23,42,0.12)]">
-                <PreviewDevice />
-              </div>
+            {/* Sign-in hint */}
+            <div className="text-sm text-gray-600 mb-6">
+              Already have a store?{' '}
+              <button 
+                onClick={goLogin} 
+                className="text-blue-600 font-medium hover:text-blue-700 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+                aria-label="Sign in to existing store"
+              >
+                Sign in
+              </button>
             </div>
+
+            {/* Social proof */}
+            <div className="text-sm text-gray-500 mb-6">
+              ⭐ Trusted by 200+ sellers • 🌍 8 countries • 💰 $50K+ in sales this month
+            </div>
+
+            {/* Trust badges */}
+            <div className="flex flex-wrap gap-3">
+              <span className="inline-flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700">
+                ⭐ 4.8/5 from early sellers
+              </span>
+              <span className="inline-flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700">
+                🧰 No code required
+              </span>
+              <span className="inline-flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700">
+                ⏱️ Set up in ~5 minutes
+              </span>
+            </div>
+          </div>
+
+          {/* Right: demo tray */}
+          <div className="col-span-12 lg:col-span-6 order-2 lg:order-none">
+            <DemoTray />
           </div>
         </div>
       </section>
