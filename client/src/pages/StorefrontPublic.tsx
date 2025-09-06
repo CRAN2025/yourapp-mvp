@@ -365,9 +365,9 @@ export default function StorefrontPublic() {
 
         setSeller(sellerData ? normalizeSeller(sellerData) : null);
 
-        // Load payment methods and delivery options from public store
-        const paymentMethodsRef = ref(database, `publicStores/${sellerId}/paymentMethods`);
-        const deliveryOptionsRef = ref(database, `publicStores/${sellerId}/deliveryOptions`);
+        // Load payment methods and delivery options from public store meta
+        const paymentMethodsRef = ref(database, `publicStores/${sellerId}/meta/paymentMethods`);
+        const deliveryOptionsRef = ref(database, `publicStores/${sellerId}/meta/deliveryOptions`);
         
         const [paymentMethodsSnapshot, deliveryOptionsSnapshot] = await Promise.all([
           Promise.race([
