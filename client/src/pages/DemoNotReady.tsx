@@ -11,6 +11,12 @@ export default function DemoNotReady() {
   useEffect(() => {
     document.title = 'Demo Not Ready - ShopLynk';
     
+    // Add noindex meta tag
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex';
+    document.head.appendChild(meta);
+    
     // Track analytics event
     try {
       if (window.gtag) {
@@ -22,6 +28,11 @@ export default function DemoNotReady() {
     } catch (e) {
       // Analytics failure shouldn't break the experience
     }
+    
+    // Cleanup
+    return () => {
+      document.head.removeChild(meta);
+    };
   }, []);
 
   return (
@@ -48,36 +59,33 @@ export default function DemoNotReady() {
         </div>
 
         {/* Content */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Demo Coming Soon!
+        <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">
+          This demo is coming soon
         </h1>
         
         <p className="text-gray-600 mb-8 leading-relaxed">
-          We're putting the finishing touches on this demo store. 
-          In the meantime, why not create your own store and start selling?
+          We'll publish the live example before go-live.
         </p>
 
         {/* Actions */}
-        <div className="space-y-3">
-          <Link href="/app">
-            <a 
-              className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
-              data-testid="create-store-cta"
-              aria-label="Create your store - Start building your online presence"
-            >
-              Create Your Store
-            </a>
-          </Link>
+        <div className="flex gap-3 justify-center flex-col sm:flex-row">
+          <a 
+            href="/#demos"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+            data-testid="see-other-demos"
+            aria-label="See other demos"
+          >
+            See other demos
+          </a>
           
-          <Link href="/">
-            <a 
-              className="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
-              data-testid="back-home"
-              aria-label="Back to homepage"
-            >
-              Back to Homepage
-            </a>
-          </Link>
+          <a 
+            href="/#pricing"
+            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+            data-testid="create-your-store"
+            aria-label="Create your store"
+          >
+            Create your store
+          </a>
         </div>
       </div>
     </div>

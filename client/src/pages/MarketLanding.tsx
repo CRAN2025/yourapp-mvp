@@ -399,12 +399,12 @@ export default function MarketLanding() {
           <p className="text-sm text-gray-500">WhatsApp-ready examples • No code</p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Cards Grid - Mobile responsive: single column to 2-up */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
           {DEMOS.map((demo) => (
             <div
               key={demo.key}
-              className="relative aspect-[4/3] rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-300"
+              className="relative aspect-[16/11] rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all duration-300 min-h-[120px]"
             >
               {/* Demo Badge */}
               <span className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full bg-white/80 backdrop-blur font-medium text-gray-600">

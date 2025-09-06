@@ -1,0 +1,142 @@
+Ticket: Landing hero layout + Demo tray wiring
+Goals
+
+Copy/CTA left, Demo tray right (desktop).
+
+Landing header matches brand used across seller UIs.
+
+Demo tiles open in new tab, include UTM, and one tile links to Grow Up.
+
+Sensible fallback for unlinked demos.
+
+No wasted whitespace on large screens; clean mobile stack.
+
+1) Header (landing page only)
+
+Use the same Logo component as seller views (blue “ShopLynk”).
+
+Navigation on landing: FAQ and Create Store only (hide seller nav: Products/Storefront/Orders/Analytics/Settings).
+
+Keep CTA style identical to seller UI button tokens.
+
+Acceptance: Landing header matches seller brand styling; only marketing links are visible.
+
+2) Container + grid (hero section)
+
+Wrap the hero in a centered container and two-column grid.
+
+// pages/index.tsx (or landing component)
+<section className="max-w-[1280px] xl:max-w-[1440px] mx-auto px-6 md:px-10 xl:px-12">
+  <div className="grid grid-cols-12 gap-8 lg:gap-12 items-center">
+    {/* Copy/CTA */}
+    <div className="col-span-12 lg:col-span-6 lg:order-1">
+      {/* h1, subcopy, primary CTA, trust chips — unchanged content */}
+    </div>
+
+    {/* Demo tray */}
+    <div className="col-span-12 lg:col-span-6 lg:order-2">
+      <DemoStoresTray />
+    </div>
+  </div>
+</section>
+
+
+Acceptance: At ≥1280px copy is on the left, demos on the right; gutters look balanced; no excessive empty space.
+
+3) Demo tray component
+
+Title & subtitle
+
+Title: Demo Stores
+
+Subtitle: WhatsApp-ready examples • No code
+
+Card grid & sizing
+
+2×2 grid inside the browser-frame mockup:
+
+Wrapper: grid grid-cols-2 gap-4 md:gap-5
+
+Card keeps aspect ratio to fill frame neatly: aspect-[16/11] (or use a fixed min-height)
+
+Consistent radius/shadow with design tokens used on product cards.
+
+Links / behavior
+
+All demo links:
+
+target="_blank" rel="noopener noreferrer"
+
+Append UTM: ?utm_source=landing&utm_medium=demo_tile&utm_campaign=explore_store&tile=<A|C|P|V>
+
+Map “Grow Up” (tile A) to the live seller URL (temporary until public storefront exists):
+
+// DemoStoresTray.tsx
+const demos = [
+  {
+    key: 'A',
+    label: 'Grow Up',
+    href: 'https://e5bc3ac1-f41b-4b3a-a672-3e8cd165ff35-00-1ppiewcg3zuzb.picard.replit.dev/settings',
+  },
+  { key: 'C', href: '/demo/not-ready' },
+  { key: 'P', href: '/demo/not-ready' },
+  { key: 'V', href: '/demo/not-ready' },
+];
+
+
+Each tile’s CTA: visible text Explore Store → (anchor, not button).
+
+Add aria-label on anchors: aria-label="Explore demo store <key/label>".
+
+Acceptance: Clicking any tile opens a new tab; tile A goes to Grow Up URL; others go to fallback page; UTM present and correct.
+
+4) Fallback route for unlinked demos
+
+Create a friendly, noindex page.
+
+// pages/demo/not-ready.tsx
+export default function DemoNotReady() {
+  return (
+    <main className="max-w-xl mx-auto px-6 py-16 text-center">
+      <h1 className="text-2xl md:text-3xl font-semibold">This demo is coming soon</h1>
+      <p className="mt-3 text-muted-foreground">We’ll publish the live example before go-live.</p>
+      <div className="mt-6 flex gap-3 justify-center">
+        <a className="btn-primary" href="/#demos">See other demos</a>
+        <a className="btn-ghost" href="/#pricing">Create your store</a>
+      </div>
+    </main>
+  );
+}
+// Add <meta name="robots" content="noindex"> in Head
+
+
+Acceptance: Unwired tiles don’t throw errors; they show the friendly page with navigation back.
+
+5) Mobile behavior (≤ lg)
+
+Stack hero vertically: Demo tray below copy.
+
+Ensure the 2×2 demo grid becomes a single column or 2-up as space allows:
+grid-cols-1 sm:grid-cols-2.
+
+Acceptance: At 375–430px widths the layout reads cleanly; no overflow; tap targets ≥44px height.
+
+6) QA checklist
+
+✅ Copy left / demos right on desktop.
+
+✅ Header matches brand; only marketing links.
+
+✅ Demo tiles open in new tab with UTM.
+
+✅ Tile A → Grow Up link works; others → friendly fallback (no runtime overlay).
+
+✅ No excessive whitespace at 1440–1600px; container widths respected.
+
+✅ Lighthouse a11y > 95; contrast remains compliant.
+
+Notes
+
+Keep existing tokens (radius/shadow, button gradient) for visual consistency with seller views.
+
+No placeholder business names/products should be added beyond the required “Demo Stores” label.
