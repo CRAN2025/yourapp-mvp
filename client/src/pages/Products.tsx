@@ -21,6 +21,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
 import { waitFor } from '@/utils/waitFor';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
+import { ProductCard, PillFilter, CategoryPill } from '@/components/seller';
 
 export default function Products() {
   const { user } = useAuthContext();
@@ -505,345 +506,30 @@ export default function Products() {
           <div className="pt-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 overflow-hidden">
-                
-                {/* TOP SECTION - Always Visible */}
-                <div className="aspect-[16/9] overflow-hidden rounded-t-2xl bg-slate-100">
-                  <img
-                    src={getProductImageUrl(product)}
-                    alt={product.name}
-                    className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] ${
-                      product.quantity === 0 && product.isActive === false ? 'grayscale opacity-70' : ''
-                    }`}
-                    loading="lazy"
-                    decoding="async"
-                    sizes="(min-width:1024px) 33vw, 100vw"
-                    width="640"
-                    height="360"
-                  />
-                  
-                  {/* SOLD ribbon */}
-                  {product.quantity === 0 && product.isActive === false && (
-                    <span className="absolute left-3 top-3 rounded-md bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-white z-10">
-                      SOLD
-                    </span>
-                  )}
-                  
-                  {/* v1.5 Bulk Mode Checkbox - Top Left Corner */}
-                  {bulkMode && (
-                    <div className="absolute top-2 left-2 z-10">
-                      <Checkbox
-                        checked={selectedProducts.has(product.id)}
-                        onCheckedChange={() => toggleBulkSelection(product.id)}
-                        className="bg-white/90 backdrop-blur-sm shadow-lg border-2"
-                        data-testid={`checkbox-bulk-${product.id}`}
-                      />
-                    </div>
-                  )}
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 ${
-                      favorites.has(product.id) ? 'text-red-500' : 'text-slate-400'
-                    }`}
-                    onClick={() => toggleFavorite(product.id)}
-                    data-testid={`button-favorite-${product.id}`}
-                    title={`${favorites.has(product.id) ? 'Remove from' : 'Add to'} favorites`}
-                    aria-label={`${favorites.has(product.id) ? 'Remove from' : 'Add to'} favorites`}
-                  >
-                    <Heart className="w-4 h-4" fill={favorites.has(product.id) ? 'currentColor' : 'none'} />
-                  </Button>
-                  
-                  {/* v1.6 Removed floating stock badge - now integrated in price section only */}
-                </div>
-                <div className="p-5 flex flex-col h-full">
-                  
-                  {/* v1.6 ALWAYS VISIBLE TOP SECTION - Normalized Spacing */}
-                  <div className="space-y-3">
-                    
-                    {/* v1.6 Enhanced Product Title & Brand */}
-                    <div className="space-y-3">
-                      <h3 className="line-clamp-2 text-[20px] font-semibold leading-tight text-gray-900" data-testid={`product-name-${product.id}`}>
-                        {product.name}
-                      </h3>
-                      {product.brand && (
-                        <div className="text-sm text-slate-500">
-                          {product.brand}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* v1.7 Premium Price & Stock Pills - Price Dominance */}
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="inline-flex h-9 items-center rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 px-3.5 text-white font-semibold">
-                        <span data-testid={`product-price-${product.id}`}>
-                          {formatPrice(product.price)}
-                        </span>
-                      </div>
-                      {getStockPill(product)}
-                    </div>
-                    
-                    {/* Category & Subcategory */}
-                    <div className="flex items-center gap-2">
-                      <div className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold"
-                           style={{ backgroundColor: '#2C3E50', color: 'white' }}>
-                        <span className="mr-2">📦</span>
-                        {product.category}
-                      </div>
-                      {product.subcategory && (
-                        <div className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium"
-                             style={{ backgroundColor: '#6C757D', color: 'white' }}>
-                          {product.subcategory}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* v1.7 Premium Feature Pills - Enhanced Readability */}
-                    {(product.isHandmade || product.isCustomizable || product.giftWrapping || product.sustainability) && (
-                      <div className="flex flex-wrap gap-2 mb-1">
-                        {product.sustainability && (
-                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#D1FAE5', color: '#047857' }}>
-                            <span className="mr-1">🌱</span>
-                            Eco-friendly
-                          </div>
-                        )}
-                        {product.isHandmade && (
-                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#FFEFD5', color: '#C2410C' }}>
-                            <span className="mr-1">🎨</span>
-                            Handmade
-                          </div>
-                        )}
-                        {product.giftWrapping && (
-                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#F5E8FF', color: '#9333EA' }}>
-                            <span className="mr-1">🎁</span>
-                            Gift Wrap
-                          </div>
-                        )}
-                        {product.isCustomizable && (
-                          <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium"
-                               style={{ backgroundColor: '#E0F2FF', color: '#2563EB' }}>
-                            <span className="mr-1">⚙️</span>
-                            Customizable
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    <div className="min-h-[64px] md:min-h-[56px]" />
-                    
-                    {/* v1.7 Enhanced View/Sold Counter - Better Typography */}
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
-                      <span>{new Intl.NumberFormat().format(getViewCount(product.id))} views</span>
-                      <span>·</span>
-                      <span>{getSoldCount(product.id) === 0 ? '—' : new Intl.NumberFormat().format(getSoldCount(product.id))} sold</span>
-                    </div>
-                    
-                    {/* v1.7 Premium Action Buttons - Enhanced Styling */}
-                    <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200 min-h-[44px]">
-                      <Button
-                        size="sm"
-                        className="bg-gradient-to-r from-sky-500 to-violet-500 text-white hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 rounded-lg flex-1 min-w-[80px] font-medium"
-                        onClick={() => handleEditProduct(product)}
-                        data-testid={`button-edit-${product.id}`}
-                        title="Edit product"
-                        aria-label="Edit product"
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="px-3 border-slate-200 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2"
-                        onClick={() => handlePreviewProduct(product)}
-                        title="Preview product"
-                        aria-label="Preview product"
-                        data-testid={`button-preview-${product.id}`}
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        Preview
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="px-3 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
-                        onClick={() => handleCopyLink(product)}
-                        data-testid={`button-copy-link-${product.id}`}
-                        aria-label="Copy product link"
-                        title="Copy product link"
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy Link
-                      </Button>
-                      
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="px-3 bg-white border-gray-200 text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
-                            data-testid={`button-more-${product.id}`}
-                          >
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {product.quantity === 0 && product.isActive === false ? (
-                            <DropdownMenuItem onClick={() => handleMarkAsAvailable(product)}>
-                              <Check className="w-4 h-4 mr-2" />
-                              Mark as Available
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem onClick={() => handleMarkAsSold(product)}>
-                              <Check className="w-4 h-4 mr-2" />
-                              Mark as Sold
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onClick={() => handleDuplicateProduct(product)}>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteProduct(product)}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                  
-                  {/* v1.7 Enhanced Show Details Toggle */}
-                  <div className="border-t border-gray-200 pt-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full flex items-center justify-between p-3 hover:bg-brand-50 rounded-lg transition-all duration-200"
-                      onClick={() => toggleCardExpansion(product.id)}
-                      data-testid={`button-expand-${product.id}`}
-                    >
-                      <span className="text-sm font-semibold text-brand-700">
-                        {expandedCards.has(product.id) ? 'Hide Details' : 'Show Details'}
-                      </span>
-                      {expandedCards.has(product.id) ? (
-                        <ChevronUp className="w-4 h-4 text-brand-700" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-brand-700" />
-                      )}
-                    </Button>
-                    
-                    {expandedCards.has(product.id) && (
-                      <div className="mt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                        
-                        {/* Attributes Section */}
-                        {(product.size || product.color || product.material || product.condition) && (
-                          <div className="p-4 bg-gray-50 rounded-lg">
-                            <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                              <span>🏷️</span>
-                              Attributes
-                            </h4>
-                            <div className="grid grid-cols-2 gap-2">
-                              {product.size && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-gray-600">Size:</span>
-                                  <span className="ml-2 text-gray-800">{product.size}</span>
-                                </div>
-                              )}
-                              {product.color && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-gray-600">Color:</span>
-                                  <span className="ml-2 text-gray-800">{product.color}</span>
-                                </div>
-                              )}
-                              {product.material && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-gray-600">Material:</span>
-                                  <span className="ml-2 text-gray-800">{product.material}</span>
-                                </div>
-                              )}
-                              {product.condition && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-gray-600">Condition:</span>
-                                  <span className="ml-2 text-gray-800 capitalize">{product.condition}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Customer Info Section */}
-                        {(product.targetAgeGroup || product.personalizationOptions || product.careInstructions) && (
-                          <div className="p-4 bg-blue-50 rounded-lg">
-                            <h4 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
-                              <span>👥</span>
-                              Customer Info
-                            </h4>
-                            <div className="space-y-2">
-                              {product.targetAgeGroup && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-blue-700">Age Group:</span>
-                                  <span className="ml-2 text-blue-800">{product.targetAgeGroup}</span>
-                                </div>
-                              )}
-                              {product.personalizationOptions && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-blue-700">Personalization:</span>
-                                  <p className="mt-1 text-blue-800">{product.personalizationOptions}</p>
-                                </div>
-                              )}
-                              {product.careInstructions && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-blue-700">Care Instructions:</span>
-                                  <p className="mt-1 text-blue-800">{product.careInstructions}</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Shipping & Returns */}
-                        {(product.shipsFrom || product.returnPolicy || product.warranty) && (
-                          <div className="p-4 bg-brand-50 rounded-lg">
-                            <h4 className="text-sm font-semibold text-brand-800 mb-3 flex items-center gap-2">
-                              <span>📦</span>
-                              Shipping & Returns
-                            </h4>
-                            <div className="space-y-2">
-                              {product.shipsFrom && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-brand-700">Ships From:</span>
-                                  <span className="ml-2 text-brand-800">{product.shipsFrom}</span>
-                                </div>
-                              )}
-                              {product.returnPolicy && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-brand-700">Returns:</span>
-                                  <span className="ml-2 text-brand-800">{product.returnPolicy}</span>
-                                </div>
-                              )}
-                              {product.warranty && (
-                                <div className="text-xs">
-                                  <span className="font-medium text-brand-700">Warranty:</span>
-                                  <span className="ml-2 text-brand-800">{product.warranty}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        
-                      </div>
-                    )}
-                  </div>
-                  
-                </div>
-              </div>
+              <ProductCard
+                key={product.id}
+                product={{
+                  id: product.id,
+                  name: product.name,
+                  price: product.price,
+                  imageUrl: getProductImageUrl(product),
+                  category: product.category,
+                  subcategory: product.subcategory,
+                  brand: product.brand,
+                  quantity: product.quantity,
+                  isActive: product.isActive,
+                  isHandmade: product.isHandmade,
+                  isCustomizable: product.isCustomizable,
+                  giftWrapping: product.giftWrapping,
+                  sustainability: product.sustainability,
+                }}
+                context="seller"
+                onEdit={() => handleEditProduct(product)}
+                onDelete={() => handleDeleteProduct(product)}
+                onPreview={() => handlePreviewProduct(product)}
+                onFavorite={toggleFavorite}
+                isFavorited={favorites.has(product.id)}
+              />
             ))}
 
             {/* Add Product Card */}
