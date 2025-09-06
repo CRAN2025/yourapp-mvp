@@ -247,12 +247,23 @@ export default function Storefront() {
           
           console.log('📊 Storefront: Loaded public payment/delivery data:', { paymentMethods, deliveryOptions });
           
-          // Convert object maps to arrays and filter for clean display
-          // Only show items with proper label formatting (has emoji and readable text)
+          // Convert object maps to arrays and filter for ONLY clean display
+          // Strict filtering: must have emoji AND proper structure
           const paymentList = Object.values(paymentMethods)
-            .filter((p: any) => p && p.label && p.label.length > 3 && /[🏦💵💳🅿️💠₿📱]/.test(p.label));
+            .filter((p: any) => {
+              // Must have label with emoji prefix and not be a raw field name
+              return p && p.label && 
+                     typeof p.label === 'string' &&
+                     p.label.includes('💵') || p.label.includes('💳') || p.label.includes('🏦') || 
+                     p.label.includes('🅿️') || p.label.includes('💠') || p.label.includes('₿') || p.label.includes('📱');
+            });
           const deliveryList = Object.values(deliveryOptions)
-            .filter((d: any) => d && d.label && d.label.length > 3 && /[🚶🚚📦✈️]/.test(d.label));
+            .filter((d: any) => {
+              // Must have label with emoji prefix and not be a raw field name
+              return d && d.label && 
+                     typeof d.label === 'string' &&
+                     (d.label.includes('🚶') || d.label.includes('🚚') || d.label.includes('📦') || d.label.includes('✈️'));
+            });
 
           setPublicPaymentMethods(paymentList);
           setPublicDeliveryOptions(deliveryList);
