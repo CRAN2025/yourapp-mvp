@@ -1,0 +1,103 @@
+Demo Routes – Final Implementation Instructions
+1) Routing
+
+Create a public route: /demo/:slug (React Router).
+
+Component: src/routes/DemoRoute.jsx
+
+Behavior: On load, look up :slug in a strict map and redirect to the target URL. If the slug isn’t in the map, render the global 404.
+
+// src/routes/DemoRoute.jsx
+import { useEffect } from "react";
+import { useParams, Navigate } from "react-router-dom";
+
+const DEMO_TARGETS = {
+  // DEMO 2 → link exactly to the seller storefront on the host Senait provided
+  "coastal-treasures":
+    "https://e5bc3ac1-f41b-4b3a-a672-3e8cd165ff35-00-1ppiewcg3zuzb.picard.replit.dev/storefront",
+  // Leave other demos unmapped for now; they’ll 404 until we add them.
+};
+
+export default function DemoRoute() {
+  const { slug } = useParams();
+  const target = DEMO_TARGETS[slug];
+
+  // a11y/SEO: prevent indexing of the demo route shell
+  useEffect(() => {
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex,follow";
+    document.head.appendChild(meta);
+    return () => document.head.removeChild(meta);
+  }, []);
+
+  if (!target) return <Navigate to="/404" replace />;
+
+  // Preserve UTM params
+  const search = window.location.search || "";
+  window.location.replace(`${target}${search}`);
+  return null;
+}
+
+
+Notes
+
+We redirect immediately (no layout/UI) to keep the marketing page fast.
+
+Unknown slugs (like /demo/artisan-ceramics today) → send to /404.
+
+2) Landing tiles → route links
+
+Make each Demo tile a single <a> pointing to /demo/{slug}.
+
+For Demo 2 tile, use href="/demo/coastal-treasures?utm_source=landing&utm_medium=demo_tile&utm_campaign=explore_store".
+
+Accessibility: aria-label="Explore Coastal Treasures demo store".
+
+Keep the “Explore Store” button inside the tile but ensure the whole card is the link (use a as wrapper).
+
+3) Analytics events (safe guards)
+
+Fire events before redirect only if the analytics object exists (to prevent the dev overlay error you saw).
+
+try {
+  // gtag example
+  if (window.gtag) {
+    window.gtag("event", "demo_store_click", { slug });
+  }
+  // rudder/segment example
+  if (window.rudderanalytics?.track) {
+    window.rudderanalytics.track("demo_store_click", { slug });
+  }
+} catch (e) {
+  // no-op: never let analytics break navigation
+}
+
+
+The overlay error Cannot read properties of undefined (reading 'add') often comes from calling an analytics SDK or router helper before it’s initialized. The guards above eliminate that.
+
+4) 404 handling
+
+Ensure /404 route exists (or create NotFound.jsx) and is used by your catch-all.
+
+Keep it public and indexable (normal marketing 404).
+
+5) Security & SEO hygiene
+
+Demo route (/demo/:slug) injects noindex,follow.
+
+Targets are absolute URLs; do not depend on current origin.
+
+Preserve UTM query string through the redirect.
+
+6) QA checklist (acceptance)
+
+/demo/coastal-treasures → redirects to the seller storefront at the exact URL above, with UTM params intact.
+
+/demo/{unknown} → shows the site’s 404.
+
+Clicking the Demo 2 tile on the landing page triggers the redirect and does not throw any runtime overlay errors.
+
+Focus-visible ring appears on the entire tile; keyboard Enter activates the link.
+
+Lighthouse: no CLS from the hero/tiles; demo route itself not indexed.
