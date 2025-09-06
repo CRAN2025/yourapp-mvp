@@ -1030,9 +1030,9 @@ export default function MarketLanding() {
               <div key={plan.name} className="glass card" style={{ 
                 padding: 24, 
                 position: 'relative',
-                background: var(--surface),
-                borderRadius: var(--radius-card),
-                boxShadow: plan.highlight ? var(--shadow-strong) : var(--shadow),
+                background: 'var(--surface)',
+                borderRadius: 'var(--radius-card)',
+                boxShadow: plan.highlight ? 'var(--shadow-strong)' : 'var(--shadow)',
                 border: plan.highlight ? '2px solid #3B82F6' : '1px solid var(--border)',
                 transform: plan.highlight ? 'scale(1.03)' : 'scale(1)',
                 transition: 'all 0.2s ease'
@@ -1049,7 +1049,7 @@ export default function MarketLanding() {
                     borderRadius: 20, 
                     fontSize: 12, 
                     fontWeight: 500,
-                    boxShadow: var(--shadow-button)
+                    boxShadow: 'var(--shadow-button)'
                   }}>
                     {plan.badge}
                   </div>
