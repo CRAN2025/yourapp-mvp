@@ -1,0 +1,190 @@
+your Settings list (with emoji + nice labels) and the Storefront modals aren’t aligned. The Storefront is showing raw names (and sometimes all options), while the counts in the Storefront header should reflect only the seller’s enabled choices. Here’s exactly what to ask the agent to do.
+
+1) Use ONE canonical source of truth for options
+
+Create a single constants file and drive both Settings and Storefront from it.
+
+// src/constants/commerce.ts
+export type OptionId =
+  | 'cash' | 'bank-transfer' | 'card' | 'mobilemoney' | 'paypal' | 'stripe' | 'crypto'
+  | 'pickup' | 'home' | 'courier' | 'shipping' | 'local' | 'national' | 'international';
+
+export const PAYMENT_OPTIONS: { id: OptionId; label: string; emoji: string; group: 'payment'; order: number }[] = [
+  { id: 'cash',          label: 'Cash',             emoji: '💵', group: 'payment', order: 10 },
+  { id: 'bank-transfer', label: 'Bank Transfer',    emoji: '🏦', group: 'payment', order: 20 },
+  { id: 'card',          label: 'Card Payment',     emoji: '💳', group: 'payment', order: 30 },
+  { id: 'mobilemoney',   label: 'Mobile Money',     emoji: '📱', group: 'payment', order: 40 },
+  { id: 'paypal',        label: 'PayPal',           emoji: '🅿️', group: 'payment', order: 50 },
+  { id: 'stripe',        label: 'Stripe',           emoji: '⚡️', group: 'payment', order: 60 },
+  { id: 'crypto',        label: 'Cryptocurrency',   emoji: 'Ƀ',  group: 'payment', order: 70 },
+];
+
+export const DELIVERY_OPTIONS: { id: OptionId; label: string; emoji: string; group: 'delivery'; order: number }[] = [
+  { id: 'pickup',        label: 'Customer Pickup',  emoji: '🧍‍♂️', group: 'delivery', order: 10 },
+  { id: 'home',          label: 'Home Delivery',    emoji: '🏠',   group: 'delivery', order: 20 },
+  { id: 'courier',       label: 'Courier Service',  emoji: '📦',   group: 'delivery', order: 30 },
+  { id: 'shipping',      label: 'Shipping',         emoji: '✈️',   group: 'delivery', order: 40 },
+  { id: 'local',         label: 'Local Delivery',   emoji: '🛵',   group: 'delivery', order: 50 },
+  { id: 'national',      label: 'National Courier', emoji: '🚚',   group: 'delivery', order: 60 },
+  { id: 'international', label: 'International',    emoji: '🌍',   group: 'delivery', order: 70 },
+];
+
+export const OPTION_INDEX = [...PAYMENT_OPTIONS, ...DELIVERY_OPTIONS]
+  .reduce<Record<OptionId, {label:string; emoji:string; order:number; group:'payment'|'delivery'}>>((acc, o) => {
+    acc[o.id] = { label: o.label, emoji: o.emoji, order: o.order, group: o.group };
+    return acc;
+  }, {});
+
+Normalizer for legacy values
+
+(Your DB has variants like banktransfer, localdelivery.) Normalize before writing and when reading.
+
+// src/utils/normalizeOptionId.ts
+const ALIASES: Record<string, OptionId> = {
+  banktransfer: 'bank-transfer',
+  'card-payment': 'card', cardpayment: 'card',
+  mobile: 'mobilemoney', mobilemoney: 'mobilemoney',
+  cryptocurrency: 'crypto', cryptocurrencies: 'crypto',
+
+  'customer-pickup': 'pickup', customerpickup: 'pickup',
+  homedelivery: 'home', localdelivery: 'local',
+  nationalcourier: 'national', internationaldelivery: 'international',
+};
+
+export function normalizeOptionId(x: string): OptionId | null {
+  const key = x.trim().toLowerCase().replace(/\s+/g,'-');
+  return (ALIASES[key] ?? (key as OptionId)) in OPTION_INDEX ? (ALIASES[key] ?? (key as OptionId)) : null;
+}
+
+2) Persist the seller’s choices in both private and public nodes
+
+When the seller saves Settings, store only normalized IDs and mirror to the public profile used by Storefront.
+
+// on Save in Settings
+const paymentIds: OptionId[]   = selectedPayments.map(normalizeOptionId).filter(Boolean) as OptionId[];
+const deliveryIds: OptionId[]  = selectedDeliveries.map(normalizeOptionId).filter(Boolean) as OptionId[];
+const now = Date.now();
+
+await update(ref(db, `sellers/${uid}/settings`), {
+  paymentMethods: paymentIds,
+  deliveryOptions: deliveryIds,
+  updatedAt: now,
+  v: 1,
+});
+
+await update(ref(db, `public/${uid}`), {
+  paymentMethods: paymentIds,
+  deliveryOptions: deliveryIds,
+  updatedAt: now,
+  v: 1,
+});
+
+Rules (seller-managed; no admin needed)
+
+You already moved to seller-managed writes — keep:
+
+{
+  "rules": {
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('sellers').child(auth.uid).child('isAdmin').val() == true)",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "public": {
+      "$sellerId": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $sellerId"
+      }
+    },
+    "products": { "$uid": { ".read": "auth != null && auth.uid == $uid", "$pid": { ".write": "auth != null && auth.uid == $uid" } } },
+    "events": {
+      "marketing": { ".read": false, ".write": "auth != null" },
+      "$uid": { ".read": "auth != null && (auth.uid == $uid || root.child('sellers').child(auth.uid).child('isAdmin').val() == true)", "$eid": { ".write": "auth != null && auth.uid == $uid" } }
+    }
+  }
+}
+
+3) Storefront header counts + modal: read from public and render from constants
+
+Don’t hard-code strings. Filter canonical lists by the public arrays and keep their order.
+
+// src/storefront/useSellerProfile.ts
+import { onValue, ref } from 'firebase/database';
+export function useSellerPublicProfile(sellerId: string) {
+  const [data, setData] = useState<{paymentMethods: OptionId[]; deliveryOptions: OptionId[]}>();
+  useEffect(() => {
+    const unsub = onValue(ref(db, `public/${sellerId}`), snap => setData(snap.val() ?? {paymentMethods:[], deliveryOptions:[]}));
+    return () => unsub();
+  }, [sellerId]);
+  return data;
+}
+
+// Header counts
+const profile = useSellerPublicProfile(sellerId);
+const paymentCount  = profile?.paymentMethods?.length ?? 0;
+const deliveryCount = profile?.deliveryOptions?.length ?? 0;
+
+// Payment Methods modal (Storefront)
+const selected = new Set(profile?.paymentMethods ?? []);
+const list = PAYMENT_OPTIONS
+  .filter(o => selected.has(o.id))
+  .sort((a,b) => a.order - b.order);
+
+return (
+  <Modal title="Payment Methods">
+    <ul className="space-y-2">
+      {list.map(o => (
+        <li key={o.id} className="flex items-center gap-3">
+          <span aria-hidden>{o.emoji}</span>
+          <span>{o.label}</span>
+        </li>
+      ))}
+    </ul>
+  </Modal>
+);
+
+
+…and the same for Delivery Options using DELIVERY_OPTIONS.
+
+This ensures the Storefront shows only the seller’s enabled options, in the same order/labels/emojis as Settings. The top badges (e.g., “7 Payment Methods”, “6 Delivery Options”) will now match.
+
+4) Backfill/migrate existing sellers (one-time)
+
+Some rows have old strings (e.g., banktransfer, localdelivery). Run a small script once (in an admin tool or a Cloud Function) to normalize:
+
+// Pseudocode
+for each seller in sellers:
+  read sellers/{uid}/settings
+  let pm = (settings.paymentMethods || []).map(normalizeOptionId).filter(Boolean)
+  let dv = (settings.deliveryOptions || []).map(normalizeOptionId).filter(Boolean)
+  write sellers/{uid}/settings.paymentMethods = pm
+  write sellers/{uid}/settings.deliveryOptions = dv
+  write public/{uid}.paymentMethods = pm
+  write public/{uid}.deliveryOptions = dv
+
+5) UI polish for brand consistency
+
+Reuse the same ListItem component in Settings and Storefront modals (typography, spacing, emoji size).
+
+Ensure capitalization from constants (never from DB).
+
+Keep the constants’ ordering (no accidental alphabetical sort).
+
+If you want greyed-out “not enabled” rows in Storefront, pass a prop, but by default only show enabled.
+
+TL;DR instructions to the agent
+
+Add constants/commerce.ts (canonical options with ids, labels, emoji, order).
+
+Add normalizeOptionId(...) and use it on every save & read.
+
+On Settings save, write normalized arrays to sellers/{uid}/settings and mirror to public/{uid}.
+
+In Storefront, read public/{sellerId}; compute counts from those arrays; render modals by filtering the canonical lists by the selected ids and preserving order; show emoji+labels.
+
+Run a one-time migration to normalize old values.
+
+Reuse the same item component/styles for consistent, enterprise-grade look.
+
+That will make your Storefront modals look exactly like the Settings screenshot and keep the counts correct.

@@ -3486,14 +3486,8 @@ ${productUrl}`;
           ) : publicPaymentMethods.length ? (
             <ul className="divide-y">
               {publicPaymentMethods.map(m => (
-                <li key={m.id} className="py-3">
-                  <div className="font-medium">
-                    {m.label || m.type}
-                    {m.handle && <span className="ml-2 text-sm text-muted-foreground">{m.handle}</span>}
-                  </div>
-                  {m.instructions && (
-                    <div className="text-sm text-muted-foreground mt-1">{m.instructions}</div>
-                  )}
+                <li key={m.slug} className="py-3">
+                  <div className="font-medium">{m.icon} {m.label}</div>
                 </li>
               ))}
             </ul>
@@ -3515,14 +3509,8 @@ ${productUrl}`;
           ) : publicDeliveryOptions.length ? (
             <ul className="divide-y">
               {publicDeliveryOptions.map(d => (
-                <li key={d.id} className="py-3">
-                  <div className="font-medium">{d.label || d.type}</div>
-                  <div className="text-sm text-muted-foreground mt-1 space-y-0.5">
-                    {typeof d.fee === 'number' && <div>Fee: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.fee)}</div>}
-                    {d.minOrder && <div>Min Order: {new Intl.NumberFormat(undefined, {style:'currency', currency:'USD'}).format(d.minOrder)}</div>}
-                    {d.regions?.length ? <div>Regions: {d.regions.join(', ')}</div> : null}
-                    {d.instructions && <div>{d.instructions}</div>}
-                  </div>
+                <li key={d.slug} className="py-3">
+                  <div className="font-medium">{d.icon} {d.label}</div>
                 </li>
               ))}
             </ul>

@@ -2627,8 +2627,8 @@ export default function Storefront() {
           ) : publicPaymentMethods.length ? (
             <ul className="divide-y">
               {publicPaymentMethods.map(m => (
-                <li key={m.id} className="py-3">
-                  <div className="font-medium">{m.label}</div>
+                <li key={m.slug} className="py-3">
+                  <div className="font-medium">{m.icon} {m.label}</div>
                 </li>
               ))}
             </ul>
@@ -2650,8 +2650,8 @@ export default function Storefront() {
           ) : publicDeliveryOptions.length ? (
             <ul className="divide-y">
               {publicDeliveryOptions.map(d => (
-                <li key={d.id} className="py-3">
-                  <div className="font-medium">{d.label}</div>
+                <li key={d.slug} className="py-3">
+                  <div className="font-medium">{d.icon} {d.label}</div>
                 </li>
               ))}
             </ul>
