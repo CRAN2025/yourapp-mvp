@@ -378,12 +378,7 @@ export default function MarketLanding() {
           <div style={{ fontWeight: 800, letterSpacing: '-0.01em', fontSize: 16 }}>Demo Store</div>
           <div style={{ fontSize: 14, opacity: 0.8, color: '#374151' }}>whatsapp orders • no code</div>
         </div>
-        <div className="demo-store-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '8px',
-          marginTop: '12px'
-        }}>
+        <div className="demo-store-grid grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-3 mt-3">
           {externalDemoStores.slice(0, 4).map((store) => (
             <DemoStoreTile
               key={store.slug}

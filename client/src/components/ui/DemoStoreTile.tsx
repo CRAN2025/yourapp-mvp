@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Users, MapPin, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ interface DemoStoreTileProps {
   imageUrl?: string;
   className?: string;
   onClick?: () => void;
+  isLoading?: boolean;
 }
 
 const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
@@ -26,12 +27,16 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
   productCount,
   imageUrl,
   className,
-  onClick
+  onClick,
+  isLoading = false
 }) => {
-  const handleClick = () => {
+  const [isPrefetched, setIsPrefetched] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
     // Fire telemetry event
     try {
-      // TODO: Add analytics tracking for demo_store_click
       console.log('Demo store tile click:', { slug });
     } catch (error) {
       console.warn('Analytics tracking failed:', error);
@@ -40,33 +45,84 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
     if (onClick) {
       onClick();
     } else {
-      window.location.href = `/demo/${slug}`;
+      // Add UTM params for tracking
+      const url = new URL(`/demo/${slug}`, window.location.origin);
+      url.searchParams.set('utm_source', 'landing');
+      url.searchParams.set('utm_medium', 'demo_tile');
+      url.searchParams.set('utm_campaign', 'explore_store');
+      
+      window.location.href = url.toString();
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleClick();
+  const handleMouseEnter = () => {
+    // Prefetch demo route on hover
+    if (!isPrefetched) {
+      try {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = `/demo/${slug}`;
+        document.head.appendChild(link);
+        setIsPrefetched(true);
+      } catch (error) {
+        console.warn('Prefetch failed:', error);
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.08)]",
+          "overflow-hidden border border-gray-100 animate-pulse",
+          className
+        )}
+      >
+        {/* Skeleton Image */}
+        <div className="aspect-[4/3] w-full bg-gray-200" />
+        
+        {/* Skeleton Content */}
+        <div className="p-5 space-y-3">
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded w-3/4" />
+            <div className="h-3 bg-gray-200 rounded w-full" />
+            <div className="h-3 bg-gray-200 rounded w-2/3" />
+          </div>
+          
+          <div className="space-y-2">
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="flex justify-between">
+              <div className="h-3 bg-gray-200 rounded w-1/3" />
+              <div className="h-3 bg-gray-200 rounded w-1/4" />
+            </div>
+          </div>
+          
+          <div className="pt-2 border-t border-gray-100">
+            <div className="h-6 bg-gray-200 rounded-md w-20" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div
+    <a
+      href={`/demo/${slug}`}
       className={cn(
-        "group cursor-pointer transition-all duration-300 ease-out",
-        "hover:scale-[1.02] hover:-translate-y-1",
+        "group block cursor-pointer transition-all duration-300 ease-out",
+        "hover:scale-[1.01] motion-reduce:hover:scale-100",
+        "hover:-translate-y-0.5 motion-reduce:hover:translate-y-0",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
         "rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.08)]",
-        "hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)]",
+        "hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] motion-reduce:hover:shadow-[0_2px_10px_rgba(0,0,0,0.08)]",
         "overflow-hidden border border-gray-100",
+        "focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
         className
       )}
       onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-      role="button"
-      aria-label={`Visit ${storeName} demo store`}
+      onMouseEnter={handleMouseEnter}
+      aria-label={`Explore ${storeName} demo store`}
       data-testid={`demo-store-tile-${slug}`}
     >
       {/* Store Image/Banner */}
@@ -142,7 +198,7 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </a>
   );
 };
 
