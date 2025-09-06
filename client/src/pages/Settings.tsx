@@ -195,16 +195,16 @@ export default function Settings() {
             const { loadSellerPaymentDelivery } = await import('@/lib/paymentDelivery');
             const { payments, delivery } = await loadSellerPaymentDelivery(user.uid);
             
-            // Convert object maps back to string arrays for form
-            const paymentLabels = Object.values(payments).map((p: any) => p.label);
-            const deliveryLabels = Object.values(delivery).map((d: any) => d.label);
+            // Convert object maps back to ID arrays for form
+            const paymentIds = Object.values(payments).map((p: any) => p.type);
+            const deliveryIds = Object.values(delivery).map((d: any) => d.type);
             
             paymentsDeliveryForm.reset({
-              paymentMethods: paymentLabels,
-              deliveryOptions: deliveryLabels,
+              paymentMethods: paymentIds,
+              deliveryOptions: deliveryIds,
             });
             
-            console.log('📋 Settings: Loaded payment/delivery data:', { paymentLabels, deliveryLabels });
+            console.log('📋 Settings: Loaded payment/delivery data:', { paymentIds, deliveryIds });
           } catch (error) {
             console.error('Failed to load payment/delivery settings:', error);
             // Fallback to empty arrays
@@ -322,25 +322,49 @@ export default function Settings() {
       const { runPathProbes } = await import('@/lib/probeDatabase');
       const { sellersOk, publicOk } = await runPathProbes(user.uid);
       
-      // Convert string arrays to proper payment/delivery objects
+      // Convert form ID arrays to proper payment/delivery objects
       const { normalizeArrayToMap } = await import('@shared/paymentDelivery');
       
-      // Convert arrays to object maps with proper structure
+      // Convert form IDs to structured objects
       const payments = normalizeArrayToMap(
-        data.paymentMethods.map((label: string) => ({
-          type: label.toLowerCase().replace(/\s+/g, '') as any,
-          label,
+        data.paymentMethods.map((id: string) => ({
+          type: id as any,
+          label: getOptionLabel(id, 'payment'),
           enabled: true
         }))
       );
       
       const delivery = normalizeArrayToMap(
-        data.deliveryOptions.map((label: string) => ({
-          type: label.toLowerCase().replace(/\s+/g, '') as any,
-          label,
+        data.deliveryOptions.map((id: string) => ({
+          type: id as any,
+          label: getOptionLabel(id, 'delivery'),
           enabled: true
         }))
       );
+      
+      // Helper to get label from ID
+      function getOptionLabel(id: string, type: 'payment' | 'delivery'): string {
+        if (type === 'payment') {
+          const paymentMap: Record<string, string> = {
+            'cash': '💵 Cash',
+            'mobile_money': '📱 Mobile Money',
+            'bank_transfer': '🏦 Bank Transfer',
+            'card': '💳 Card Payment',
+            'paypal': '🅿️ PayPal',
+            'stripe': '💠 Stripe',
+            'crypto': '₿ Cryptocurrency',
+          };
+          return paymentMap[id] || id;
+        } else {
+          const deliveryMap: Record<string, string> = {
+            'pickup': '🚶 Customer Pickup',
+            'delivery': '🚚 Home Delivery',
+            'courier': '📦 Courier Service',
+            'shipping': '✈️ Shipping',
+          };
+          return deliveryMap[id] || id;
+        }
+      }
       
       // Use split save approach to handle permission issues
       if (!publicOk) {
@@ -919,12 +943,13 @@ export default function Settings() {
                           <FormLabel className="text-lg font-medium">Payment Methods</FormLabel>
                           <div className="space-y-2">
                             {[
-                              { id: 'mobile-money', label: 'Mobile Money (M-Pesa, Airtel Money, MTN MoMo)' },
-                              { id: 'bank-transfer', label: 'Bank Transfer' },
-                              { id: 'cash-on-delivery', label: 'Cash on Delivery (COD)' },
-                              { id: 'card-payments', label: 'Card Payments' },
-                              { id: 'paypal', label: 'PayPal' },
-                              { id: 'other-wallets', label: 'Other Local Wallets' },
+                              { id: 'cash', label: '💵 Cash' },
+                              { id: 'mobile_money', label: '📱 Mobile Money' },
+                              { id: 'bank_transfer', label: '🏦 Bank Transfer' },
+                              { id: 'card', label: '💳 Card Payment' },
+                              { id: 'paypal', label: '🅿️ PayPal' },
+                              { id: 'stripe', label: '💠 Stripe' },
+                              { id: 'crypto', label: '₿ Cryptocurrency' },
                             ].map((option) => (
                               <FormField
                                 key={option.id}
@@ -966,10 +991,10 @@ export default function Settings() {
                           <FormLabel className="text-lg font-medium">Delivery Options</FormLabel>
                           <div className="space-y-2">
                             {[
-                              { id: 'pickup', label: 'In-Store Pickup' },
-                              { id: 'local-delivery', label: 'Local Delivery' },
-                              { id: 'national-courier', label: 'National Courier Service' },
-                              { id: 'international', label: 'International Shipping' },
+                              { id: 'pickup', label: '🚶 Customer Pickup' },
+                              { id: 'delivery', label: '🚚 Home Delivery' },
+                              { id: 'courier', label: '📦 Courier Service' },
+                              { id: 'shipping', label: '✈️ Shipping' },
                             ].map((option) => (
                               <FormField
                                 key={option.id}
