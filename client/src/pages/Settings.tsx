@@ -323,24 +323,26 @@ export default function Settings() {
       const { sellersOk, publicOk } = await runPathProbes(user.uid);
       
       // Convert form ID arrays to proper payment/delivery objects
-      const { normalizeArrayToMap } = await import('@shared/paymentDelivery');
+      const payments: Record<string, any> = {};
+      const delivery: Record<string, any> = {};
       
-      // Convert form IDs to structured objects
-      const payments = normalizeArrayToMap(
-        data.paymentMethods.map((id: string) => ({
-          type: id as any,
+      // Build payment methods object
+      data.paymentMethods.forEach((id: string) => {
+        payments[id] = {
+          type: id,
           label: getOptionLabel(id, 'payment'),
           enabled: true
-        }))
-      );
+        };
+      });
       
-      const delivery = normalizeArrayToMap(
-        data.deliveryOptions.map((id: string) => ({
-          type: id as any,
+      // Build delivery options object  
+      data.deliveryOptions.forEach((id: string) => {
+        delivery[id] = {
+          type: id,
           label: getOptionLabel(id, 'delivery'),
           enabled: true
-        }))
-      );
+        };
+      });
       
       // Helper to get label from ID
       function getOptionLabel(id: string, type: 'payment' | 'delivery'): string {
