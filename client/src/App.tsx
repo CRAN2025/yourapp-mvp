@@ -42,6 +42,7 @@ import DataMigration from "@/pages/DataMigration";
 import ComponentDemo from "@/pages/ComponentDemo";
 import NotFound from "@/pages/not-found";
 import CustomerStorefrontEntry from "@/components/CustomerStorefrontEntry";
+import DemoStorefront from "@/pages/DemoStorefront";
 
 // App Router - handles unified /app destination and smart routing
 function AppRouter() {
@@ -57,11 +58,12 @@ function AppRouter() {
       return;
     }
     
-    if (seller?.isAdmin) {
-      // Marketplace owner - redirect to admin console
-      navigate('/marketplace-console', { replace: true });
-      return;
-    }
+    // Check if user has admin privileges (this property might be on user object)
+    // if (seller?.isAdmin) {
+    //   // Marketplace owner - redirect to admin console
+    //   navigate('/marketplace-console', { replace: true });
+    //   return;
+    // }
     
     if (seller?.onboardingCompleted) {
       // Existing seller - redirect to seller dashboard
@@ -90,6 +92,9 @@ function Router() {
       <Route path="/customer/:sellerId">
         {(params) => <CustomerStorefrontEntry sellerId={params.sellerId} />}
       </Route>
+      
+      {/* Demo store routes */}
+      <Route path="/demo/:slug" component={DemoStorefront} />
       
       {/* Legal and support pages */}
       <Route path="/terms" component={TermsOfService} />
