@@ -14,7 +14,6 @@ Changes & Rationale:
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
-import { AppNavBar } from '@/components/seller/AppNavBar';
 import { DEMOS, getDemoHref } from '@/data/demos';
 import { auth } from '@/lib/firebase';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
@@ -792,8 +791,48 @@ export default function MarketLanding() {
         zIndex: -1
       }} />
 
-      {/* Header - Using consistent AppNavBar */}
-      <AppNavBar />
+      {/* Header - Marketing Only */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Logo */}
+            <Link href="/">
+              <a className="flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1 -m-1">
+                <span className="font-bold text-2xl text-gray-900">
+                  Shop<span className="bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">Lynk</span>
+                </span>
+              </a>
+            </Link>
+
+            {/* Right: Marketing Navigation */}
+            <nav className="flex items-center gap-6">
+              <a 
+                href="#faq" 
+                className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md px-2 py-1"
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); 
+                }}
+              >
+                FAQ
+              </a>
+              <button 
+                onClick={goCreate} 
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm"
+                data-testid="header-create-store"
+                disabled={isLoading}
+                aria-label="Create your free store"
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  'Create Store'
+                )}
+              </button>
+            </nav>
+          </div>
+        </div>
+      </header>
 
       {/* Hero - New Layout & Spacing */}
       <section 
