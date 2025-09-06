@@ -365,35 +365,24 @@ export default function StorefrontPublic() {
 
         setSeller(sellerData ? normalizeSeller(sellerData) : null);
 
-        // Load payment methods and delivery options from public store meta
-        const paymentMethodsRef = ref(database, `publicStores/${sellerId}/meta/paymentMethods`);
-        const deliveryOptionsRef = ref(database, `publicStores/${sellerId}/meta/deliveryOptions`);
+        // Use real-time listeners for immediate updates (like Storefront.tsx)
+        const { onValue } = await import('firebase/database');
+        const metaRef = ref(database, `publicStores/${sellerId}/meta`);
         
-        const [paymentMethodsSnapshot, deliveryOptionsSnapshot] = await Promise.all([
-          Promise.race([
-            get(paymentMethodsRef),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Request timeout')), 10000)
-            )
-          ]) as any,
-          Promise.race([
-            get(deliveryOptionsRef),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Request timeout')), 10000)
-            )
-          ]) as any
-        ]);
+        onValue(metaRef, (snap) => {
+          const meta = snap.val() || {};
+          const { paymentMethods = {}, deliveryOptions = {} } = meta;
+          
+          // Convert object maps to arrays for display
+          const paymentList = Object.values(paymentMethods);
+          const deliveryList = Object.values(deliveryOptions);
 
-        // Process payment methods and delivery options using the exact pattern from spec
-        const toArray = (obj: any) =>
-          obj ? Object.entries(obj).map(([id, v]) => ({ id, ...(v as object) })) : [];
-
-        const pm = toArray(paymentMethodsSnapshot.val()).filter((m: any) => m.enabled !== false);
-        const del = toArray(deliveryOptionsSnapshot.val()).filter((d: any) => d.enabled !== false);
-
-        setPublicPaymentMethods(pm);
-        setPublicDeliveryOptions(del);
-        setLoadingMeta(false);
+          setPublicPaymentMethods(paymentList);
+          setPublicDeliveryOptions(deliveryList);
+          setLoadingMeta(false);
+          
+          console.log('📊 Public Storefront: Loaded real-time payment/delivery data:', { paymentMethods, deliveryOptions });
+        });
 
         // Load products from public store with enhanced filtering
         const productsRef = ref(database, `publicStores/${sellerId}/products`);
