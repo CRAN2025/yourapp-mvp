@@ -247,10 +247,12 @@ export default function Storefront() {
           
           console.log('📊 Storefront: Loaded public payment/delivery data:', { paymentMethods, deliveryOptions });
           
-          // Convert object maps to arrays for modal display
-          // Note: Data is already filtered to enabled-only when saved to public mirror
-          const paymentList = Object.values(paymentMethods);
-          const deliveryList = Object.values(deliveryOptions);
+          // Convert object maps to arrays and filter for clean display
+          // Only show items with proper label formatting (has emoji and readable text)
+          const paymentList = Object.values(paymentMethods)
+            .filter((p: any) => p && p.label && p.label.length > 3 && /[🏦💵💳🅿️💠₿📱]/.test(p.label));
+          const deliveryList = Object.values(deliveryOptions)
+            .filter((d: any) => d && d.label && d.label.length > 3 && /[🚶🚚📦✈️]/.test(d.label));
 
           setPublicPaymentMethods(paymentList);
           setPublicDeliveryOptions(deliveryList);

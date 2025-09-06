@@ -373,15 +373,21 @@ export default function StorefrontPublic() {
           const meta = snap.val() || {};
           const { paymentMethods = {}, deliveryOptions = {} } = meta;
           
-          // Convert object maps to arrays for display
-          const paymentList = Object.values(paymentMethods);
-          const deliveryList = Object.values(deliveryOptions);
+          // Convert object maps to arrays and filter for clean display
+          // Only show items with proper label formatting (has emoji and readable text)
+          const paymentList = Object.values(paymentMethods)
+            .filter((p: any) => p && p.label && p.label.length > 3 && /[🏦💵💳🅿️💠₿📱]/.test(p.label));
+          const deliveryList = Object.values(deliveryOptions)
+            .filter((d: any) => d && d.label && d.label.length > 3 && /[🚶🚚📦✈️]/.test(d.label));
 
           setPublicPaymentMethods(paymentList);
           setPublicDeliveryOptions(deliveryList);
           setLoadingMeta(false);
           
-          console.log('📊 Public Storefront: Loaded real-time payment/delivery data:', { paymentMethods, deliveryOptions });
+          console.log('📊 Public Storefront: Filtered payment/delivery data:', { 
+            original: { paymentMethods, deliveryOptions },
+            filtered: { paymentList, deliveryList }
+          });
         });
 
         // Load products from public store with enhanced filtering
