@@ -86,6 +86,7 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState('store');
   const [logoFiles, setLogoFiles] = useState<File[]>([]);
   const [bannerFiles, setBannerFiles] = useState<File[]>([]);
+  const [paymentDeliveryLoading, setPaymentDeliveryLoading] = useState(false);
 
   // Debug logging for Settings page
   useEffect(() => {
@@ -353,7 +354,7 @@ export default function Settings() {
     }
 
     try {
-      setLoading(true);
+      setPaymentDeliveryLoading(true);
       
       // Use canonical multi-path save function
       await saveSellerCheckoutSettings(
@@ -375,7 +376,7 @@ export default function Settings() {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setPaymentDeliveryLoading(false);
     }
   };
 
@@ -981,10 +982,10 @@ export default function Settings() {
 
                     <Button
                       type="submit"
-                      disabled={loading}
+                      disabled={paymentDeliveryLoading}
                       data-testid="button-save-payments-delivery"
                     >
-                      {loading ? <LoadingSpinner size="sm" /> : 'Save Payment & Delivery Settings'}
+                      {paymentDeliveryLoading ? <LoadingSpinner size="sm" /> : 'Save Payment & Delivery Settings'}
                     </Button>
                   </form>
                 </Form>
