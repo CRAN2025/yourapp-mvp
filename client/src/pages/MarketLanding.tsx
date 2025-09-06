@@ -415,22 +415,35 @@ export default function MarketLanding() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-        /* Design tokens */
+        /* ShopLynk Design System Integration */
         :root{
+          /* Typography */
           --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          --ink: #111827;
-          --ink-light: #374151;
-          --surface: rgba(255,255,255,.75);
-          --surface-strong: rgba(255,255,255,.85);
-          --border: rgba(255,255,255,.4);
-          --shadow: 0 10px 30px rgba(15, 23, 42, .08);
-          --shadow-strong: 0 30px 80px rgba(15,23,42,.18);
-          --grad: linear-gradient(135deg,#5a6bff 0%, #67d1ff 100%);
-          --radius-card: 16px;
-          --radius-hero: 24px;
-          --radius-button: 16px;
-          --radius-image: 12px;
-          --focus-ring: 2px solid #5a6bff;
+          
+          /* Colors - Using ShopLynk palette */
+          --ink: #1F2937;
+          --ink-light: #6B7280;
+          --surface: #FFFFFF;
+          --surface-strong: #F8FAFC;
+          --border: #E5E7EB;
+          
+          /* Shadows - ShopLynk standardized */
+          --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+          --shadow-strong: 0 10px 40px rgba(0, 0, 0, 0.15);
+          --shadow-button: 0 1px 3px rgba(0, 0, 0, 0.1);
+          --shadow-hover: 0 4px 15px rgba(0, 0, 0, 0.12);
+          
+          /* ShopLynk brand gradient */
+          --grad: linear-gradient(135deg, #3B82F6 0%, #9333EA 100%);
+          
+          /* Radius - consistent with design system */
+          --radius-card: 12px;
+          --radius-hero: 16px;
+          --radius-button: 12px;
+          --radius-image: 8px;
+          
+          /* Focus states */
+          --focus-ring: 2px solid #3B82F6;
           --focus-offset: 2px;
         }
 
@@ -488,50 +501,48 @@ export default function MarketLanding() {
         .card { border-radius: var(--radius-card); }
         .heroGlass { border-radius: var(--radius-hero); }
 
-        /* Button system - unified heights and styles */
+        /* ShopLynk Button System */
         .btn { 
           border: none; 
           cursor: pointer; 
-          font-weight: 700; 
+          font-weight: 500; 
           font-size: 16px;
-          height: 52px;
+          height: 44px;
           padding: 0 24px;
           border-radius: var(--radius-button);
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          transition: transform .15s ease, box-shadow .15s ease, background-position .2s ease; 
-          will-change: transform;
+          transition: all .2s ease; 
+          will-change: transform, box-shadow;
           box-sizing: border-box;
         }
+        
         .btn:active { transform: translateY(1px); }
         .btn:focus-visible { 
           outline: var(--focus-ring); 
           outline-offset: var(--focus-offset);
         }
 
-        .btnNav { /* Legacy class for existing buttons */ }
-
         .btnPrimary { 
-          color: #fff; 
+          color: white; 
           background: var(--grad); 
-          background-size: 180% 100%; 
-          background-position: 0% 50%; 
-          box-shadow: 0 12px 30px rgba(90,107,255,.28); 
+          box-shadow: var(--shadow-button); 
         }
         .btnPrimary:hover { 
-          background-position: 100% 50%; 
-          box-shadow: 0 16px 40px rgba(90,107,255,.35); 
+          box-shadow: var(--shadow-hover); 
+          transform: translateY(-1px);
         }
 
         .btnSecondary { 
           background: transparent; 
-          border: 1.5px solid rgba(17,24,39,.15); 
-          color: var(--ink);
+          border: 2px solid #3B82F6; 
+          color: #3B82F6;
+          font-weight: 500;
         }
         .btnSecondary:hover {
-          background: rgba(90,107,255,.05);
-          border-color: rgba(90,107,255,.2);
+          background: #3B82F6;
+          color: white;
         }
 
         /* Demo product grid - responsive and accessible */
@@ -548,14 +559,21 @@ export default function MarketLanding() {
         }
 
         .demo-product-card {
-          padding: 12px;
+          padding: 16px;
           border-radius: var(--radius-card);
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+          background: var(--surface);
+          box-shadow: var(--shadow);
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           height: 200px;
           position: relative;
+          transition: all 0.2s ease;
+        }
+        
+        .demo-product-card:hover {
+          box-shadow: var(--shadow-hover);
+          transform: translateY(-2px);
         }
 
         .demo-product-image {
@@ -607,12 +625,18 @@ export default function MarketLanding() {
           display: inline-flex; 
           align-items: center; 
           gap: 6px; 
-          padding: 8px 12px; 
-          border-radius: 999px; 
-          background: rgba(17,24,39,.08); 
-          font-weight: 600; 
+          padding: 6px 12px; 
+          border-radius: 20px; 
+          background: #F1F5F9; 
+          border: 1px solid #E2E8F0;
+          font-weight: 500; 
           font-size: 13px; 
-          color: var(--ink-light);
+          color: #475569;
+          transition: all 0.2s ease;
+        }
+        
+        .badge:hover {
+          background: #E2E8F0;
         }
         
         .logoDot { 
@@ -898,24 +922,38 @@ export default function MarketLanding() {
           <div style={{ textAlign: 'center', marginBottom: 16 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: 'var(--ink-light)' }}>Trusted by sellers worldwide</h3>
           </div>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:16, flexWrap:'wrap' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
             {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="logoDot" style={{ 
+              <div key={i} style={{ 
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: '#F1F5F9',
+                border: '1px solid #E2E8F0',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 fontSize: 12, 
-                fontWeight: 700, 
-                color: '#5a6bff'
+                fontWeight: 600, 
+                color: '#3B82F6'
               }}>
                 {String.fromCharCode(65 + i)}
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 16, fontSize: 13, opacity: 0.7 }}>
-            <div><strong>95%</strong> satisfaction</div>
-            <div><strong>$2M+</strong> in sales</div>
-            <div><strong>24/7</strong> support</div>
+          <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 16, fontSize: 13, color: 'var(--ink-light)' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontWeight: 700, color: 'var(--ink)' }}>95%</div>
+              <div>satisfaction</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontWeight: 700, color: 'var(--ink)' }}>$2M+</div>
+              <div>in sales</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontWeight: 700, color: 'var(--ink)' }}>24/7</div>
+              <div>support</div>
+            </div>
           </div>
         </div>
       </section>
@@ -992,8 +1030,12 @@ export default function MarketLanding() {
               <div key={plan.name} className="glass card" style={{ 
                 padding: 24, 
                 position: 'relative',
-                border: plan.highlight ? '2px solid #5a6bff' : '1px solid var(--border)',
-                transform: plan.highlight ? 'scale(1.05)' : 'scale(1)'
+                background: var(--surface),
+                borderRadius: var(--radius-card),
+                boxShadow: plan.highlight ? var(--shadow-strong) : var(--shadow),
+                border: plan.highlight ? '2px solid #3B82F6' : '1px solid var(--border)',
+                transform: plan.highlight ? 'scale(1.03)' : 'scale(1)',
+                transition: 'all 0.2s ease'
               }}>
                 {plan.badge && (
                   <div style={{ 
@@ -1001,24 +1043,25 @@ export default function MarketLanding() {
                     top: -12, 
                     left: '50%', 
                     transform: 'translateX(-50%)', 
-                    background: plan.highlight ? '#5a6bff' : '#666', 
+                    background: plan.highlight ? '#3B82F6' : '#6B7280', 
                     color: 'white', 
-                    padding: '4px 12px', 
-                    borderRadius: 12, 
+                    padding: '6px 12px', 
+                    borderRadius: 20, 
                     fontSize: 12, 
-                    fontWeight: 600 
+                    fontWeight: 500,
+                    boxShadow: var(--shadow-button)
                   }}>
                     {plan.badge}
                   </div>
                 )}
-                <h4 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{plan.name}</h4>
-                <div style={{ fontSize: 32, fontWeight: 900, marginBottom: 16 }}>
-                  {plan.price}<span style={{ fontSize: 16, opacity: 0.7 }}>{plan.period}</span>
+                <h4 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8, color: 'var(--ink)' }}>{plan.name}</h4>
+                <div style={{ fontSize: 32, fontWeight: 800, marginBottom: 16, color: 'var(--ink)' }}>
+                  {plan.price}<span style={{ fontSize: 16, opacity: 0.6, color: 'var(--ink-light)' }}>{plan.period}</span>
                 </div>
                 <ul style={{ listStyle: 'none', padding: 0, marginBottom: 24 }}>
                   {plan.features.map((feature, j) => (
-                    <li key={j} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                      <span style={{ color: '#4ade80', marginRight: 8 }}>✓</span>
+                    <li key={j} style={{ display: 'flex', alignItems: 'center', marginBottom: 8, color: 'var(--ink-light)' }}>
+                      <span style={{ color: '#10B981', marginRight: 8, fontWeight: 600 }}>✓</span>
                       {feature}
                     </li>
                   ))}
@@ -1028,8 +1071,6 @@ export default function MarketLanding() {
                   className="btn btnPrimary" 
                   style={{ 
                     width: '100%', 
-                    padding: '12px', 
-                    borderRadius: 12, 
                     opacity: i === 0 ? 1 : 0.6,
                     cursor: i === 0 ? 'pointer' : 'not-allowed'
                   }}
