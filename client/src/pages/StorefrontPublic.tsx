@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import ProductCard from '@/components/ui/ProductCard';
 import PublicLayout from '@/components/Layout/PublicLayout';
 import EmptyState from '@/components/EmptyState';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -2578,268 +2579,33 @@ ${productUrl}`;
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {filteredProducts.map((product) => (
-                <Card
+                <ProductCard
                   key={product.id}
-                  className="product-card-v11 group cursor-pointer border-0 overflow-hidden"
-                  onClick={() => handleProductView(product)}
-                  data-testid={`card-product-${product.id}`}
-                >
-                  <div className="product-image-container">
-                    {/* Product image */}
-                    <div className="product-image-wrapper">
-                      <img
-                        src={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
-                        alt={product.name}
-                        className="product-image"
-                        onLoad={(e) => handleImageLoad(product.id, e)}
-                        onError={handleImageError}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      
-                      {/* Favorite button - top right */}
-                      {!isOwner && (
-                        <button
-                          className="product-favorite-btn"
-                          onClick={(e) => toggleFavorite(product.id, e)}
-                          aria-pressed={favorites.has(product.id)}
-                          data-testid={`button-favorite-${product.id}`}
-                        >
-                          <Heart
-                            className={`h-4 w-4 ${
-                              favorites.has(product.id)
-                                ? 'product-favorite-active'
-                                : 'product-favorite-idle'
-                            }`}
-                          />
-                        </button>
-                      )}
-
-                      {/* v1.1 Product badges - top left overlay */}
-                      <div className="product-badges-overlay">
-                        {(Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 && (
-                          <span className="product-badge-new">
-                            New
-                          </span>
-                        )}
-                        {product.quantity < 5 && (
-                          <span className="product-badge-limited">
-                            Limited Stock
-                          </span>
-                        )}
-                        {product.features?.includes('featured') && (
-                          <span className="product-badge-featured">
-                            Featured
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* v1.1 Product info with token-driven layout */}
-                    <CardContent className="product-card-content">
-                      {/* Product title & brand */}
-                      <div className="product-title-section">
-                        <h3 className="product-title">
-                          {product.name}
-                        </h3>
-                        {product.brand && (
-                          <p className="product-brand">
-                            {product.brand}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Price row */}
-                      <div className="product-price-section">
-                        <span className="product-price">
-                          {formatPrice(product.price)}
-                        </span>
-                        {(product as any).compareAtPrice && (product as any).compareAtPrice > product.price && (
-                          <>
-                            <span className="product-compare-price">
-                              {formatPrice((product as any).compareAtPrice)}
-                            </span>
-                            <span className="product-discount-badge">
-                              -{Math.round((((product as any).compareAtPrice - product.price) / (product as any).compareAtPrice) * 100)}%
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Category pills row - reuse global tokens */}
-                      <div className="product-category-section">
-                        <span className="product-category-pill">
-                          📦 {product.category}
-                        </span>
-                        {product.subcategory && (
-                          <span className="product-category-pill">
-                            {product.subcategory}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* v1.1 CTAs - Token-driven buttons */}
-                      <div className="product-cta-section">
-                        {/* Primary CTA - Contact Seller */}
-                        {seller?.whatsappNumber ? (
-                          <button
-                            className="product-cta-primary"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleContactProduct(product);
-                            }}
-                            aria-label={`Contact seller about ${product.name} on WhatsApp`}
-                            data-testid={`button-whatsapp-${product.id}`}
-                          >
-                            <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                            Contact Seller
-                          </button>
-                        ) : isOwner ? (
-                          // Seller console preview - disabled button with tooltip
-                          <div className="relative group">
-                            <Button
-                              disabled
-                              className="w-full font-medium opacity-60 cursor-not-allowed"
-                              size="sm"
-                              style={{
-                                backgroundColor: '#25D366',
-                                borderRadius: '10px',
-                                color: 'white'
-                              }}
-                              data-testid={`button-whatsapp-disabled-${product.id}`}
-                            >
-                              <MessageCircle className="h-4 w-4 mr-2" aria-hidden="true" />
-                              Contact Seller
-                            </Button>
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                              <div className="bg-black text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                                Add a WhatsApp number in Settings to enable this
-                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-black"></div>
-                              </div>
-                            </div>
-                          </div>
-                        ) : null}
-                        
-                        {/* Out of stock caption */}
-                        {seller?.whatsappNumber && product.quantity <= 0 && (
-                          <p className="text-xs text-gray-500 text-center">
-                            Currently out of stock — message seller for availability
-                          </p>
-                        )}
-                        
-                        {/* View Details Button */}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleProductView(product);
-                          }}
-                          className="w-full bg-white hover:bg-gray-50 transition-all duration-200 font-medium hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
-                          style={{
-                            border: '1px solid #E0E0E0',
-                            borderRadius: '10px',
-                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = '#2C3E50';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = '';
-                          }}
-                          data-testid={`button-view-${product.id}`}
-                        >
-                          View Details
-                        </Button>
-                      </div>
-
-                      {/* Premium stock warning - #E63946 background, white bold text, ALL CAPS */}
-                      {product.quantity <= 10 && (
-                        <div className="pt-3 border-t border-slate-100">
-                          <div className="inline-flex items-center rounded-md text-xs font-bold tracking-wide" 
-                               style={{ 
-                                 backgroundColor: '#E63946', 
-                                 color: 'white',
-                                 padding: '8px 12px'
-                               }}>
-                            <span className="mr-2 text-sm flex items-center">⚠️</span>
-                            LIMITED STOCK — ONLY {product.quantity} LEFT
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Premium refined badge system - max 4 badges per card */}
-                      {(() => {
-                        const badges = [];
-                        const maxBadges = 4;
-                        
-                        // Priority 1: Physical attributes (light gray #F1F3F5 background, #333333 text)
-                        if (product.color && badges.length < maxBadges) {
-                          badges.push(
-                            <div key="color" className="inline-flex items-center rounded-md text-xs font-medium" 
-                                 style={{ 
-                                   backgroundColor: '#F1F3F5', 
-                                   color: '#333333',
-                                   padding: '6px 12px'
-                                 }}>
-                              <span className="mr-1.5 text-sm flex items-center">🎨</span>
-                              {product.color}
-                            </div>
-                          );
-                        }
-                        if (product.size && badges.length < maxBadges) {
-                          badges.push(
-                            <div key="size" className="inline-flex items-center rounded-md text-xs font-medium" 
-                                 style={{ 
-                                   backgroundColor: '#F1F3F5', 
-                                   color: '#333333',
-                                   padding: '6px 12px'
-                                 }}>
-                              <span className="mr-1.5 text-sm flex items-center">📏</span>
-                              {product.size}
-                            </div>
-                          );
-                        }
-                        if (product.material && badges.length < maxBadges) {
-                          badges.push(
-                            <div key="material" className="inline-flex items-center rounded-md text-xs font-medium" 
-                                 style={{ 
-                                   backgroundColor: '#F1F3F5', 
-                                   color: '#333333',
-                                   padding: '6px 12px'
-                                 }}>
-                              <span className="mr-1.5 text-sm flex items-center">🧵</span>
-                              {product.material}
-                            </div>
-                          );
-                        }
-                        
-                        // Priority 2: Sustainability (soft green #DFF6E3 background, #1E7D3D text)
-                        if (product.sustainability && badges.length < maxBadges) {
-                          badges.push(
-                            <div key="sustainability" className="inline-flex items-center rounded-md text-xs font-medium" 
-                                 style={{ 
-                                   backgroundColor: '#DFF6E3', 
-                                   color: '#1E7D3D',
-                                   padding: '6px 12px'
-                                 }}>
-                              <span className="mr-1.5 text-sm flex items-center">🌱</span>
-                              Eco-friendly
-                            </div>
-                          );
-                        }
-                        
-                        // Note: Handmade, Customizable, Gift Wrap moved to details view per specs
-                        
-                        return badges.length > 0 && (
-                          <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-100">
-                            {badges}
-                          </div>
-                        );
-                      })()}
-                    </CardContent>
-                  </div>
-                </Card>
+                  id={product.id}
+                  title={product.name}
+                  brand={product.brand}
+                  price={product.price}
+                  imageUrl={getProductImageUrl(product) || PLACEHOLDER_IMAGE}
+                  badges={[
+                    ...((Date.now() - (product.createdAt || 0)) < 7 * 24 * 60 * 60 * 1000 ? ['New'] : []),
+                    ...(product.quantity < 5 ? ['Limited Stock'] : []),
+                    ...(product.features?.includes('featured') ? ['Featured'] : [])
+                  ]}
+                  tags={[
+                    product.category,
+                    ...(product.subcategory ? [product.subcategory] : []),
+                    ...(product.color ? [product.color] : []),
+                    ...(product.size ? [product.size] : []),
+                    ...(product.material ? [product.material] : []),
+                    ...(product.sustainability ? ['Eco-friendly'] : [])
+                  ]}
+                  status={product.quantity <= 0 ? 'OUT OF STOCK' : 
+                         product.quantity <= 10 ? `ONLY ${product.quantity} LEFT` : null}
+                  variant="public"
+                  onContact={() => handleContactProduct(product)}
+                  onPreview={() => handleProductView(product)}
+                  className="cursor-pointer"
+                />
               ))}
             </div>
           )}

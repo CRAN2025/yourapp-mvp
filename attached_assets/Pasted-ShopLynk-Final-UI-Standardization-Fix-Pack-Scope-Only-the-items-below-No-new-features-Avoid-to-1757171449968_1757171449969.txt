@@ -1,0 +1,189 @@
+ShopLynk – Final UI Standardization Fix Pack
+
+Scope: Only the items below. No new features. Avoid touching routes/state.
+Order of work: 1 → 5 exactly. Submit screenshots for each step before proceeding.
+
+1) ProductCard.jsx — Single Source of Truth
+
+Goal: The exact same card used in Products, Storefront, and Analytics (Top Products list).
+
+Create/Refactor
+
+src/components/ui/ProductCard.jsx
+
+Props:
+id, title, brand, price, imageUrl, badges=[], tags=[], status, onEdit, onPreview, onDelete, onContact, variant="owner|public"
+
+Layout/Style (Tailwind):
+
+Wrapper: rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.08)] overflow-hidden
+
+Image: aspect-[4/3] w-full object-cover
+
+Title row: text-[17px] font-semibold leading-tight
+
+Price: right-aligned text-[18px] font-semibold text-emerald-600
+
+Tag row: use Pill component (see #2)
+
+CTAs:
+
+variant="owner" → row with Edit | Preview | Delete (use Button size="sm" with gap-3)
+
+variant="public" → stacked Contact Seller (solid success), View Details (outline)
+
+Replace everywhere
+
+Products grid → map to <ProductCard variant="owner" ... />
+
+Storefront grid → map to <ProductCard variant="public" ... />
+
+Analytics “Top Performing Products” list → show mini version: same component with className="max-w-[420px]" (no bespoke markup).
+
+Acceptance
+
+All three pages show identical padding, shadows, font sizes, image ratio.
+
+No local CSS overrides of the card allowed.
+
+2) Pill components — One style for tags & filters
+
+Create
+
+src/components/ui/Pill.jsx for tags (e.g., “Eco-friendly”)
+
+src/components/ui/PillFilter.jsx for filters (e.g., “Jewelry & Accessories”)
+
+Style
+
+rounded-full px-3 py-1 text-[13px] leading-none
+
+Neutral: bg-gray-100 text-gray-700
+
+Selected: bg-primary/10 text-primary border border-primary/30
+
+Icon (optional): w-14 h-14? No. Lock to w-4 h-4 mr-1
+
+Replace
+
+All product tags on Products & Storefront → Pill
+
+Smart Filters on Storefront → PillFilter (selected state as above)
+
+Remove any ad-hoc pill CSS.
+
+Acceptance
+
+All pills have identical height, radius, font size, and hover across the app.
+
+3) Shadows, icons, and tokens — Global enforcement
+
+Shadows
+
+Replace any custom shadows with: shadow-[0_2px_10px_rgba(0,0,0,0.08)]
+Files: Product cards, pricing cards, analytics tiles, settings upload cards.
+
+Icons
+
+Use lucide-react for all UI icons except official social logos.
+
+Default size: 24x24. In pills or small chips: 16x16.
+
+Normalize device icons in Lead Log to w-5 h-5.
+
+Color tokens
+
+Ensure green statuses (e.g., “In Stock”, price) use the same class: text-emerald-600 / bg-emerald-100 text-emerald-700.
+
+Acceptance
+
+Visual elevation looks uniform on all cards/tiles.
+
+No mixed filled/outline icon sets except social brands.
+
+4) Page-specific alignments
+4a) Storefront top bar
+
+Container: flex items-center justify-between gap-4
+
+Left cluster: Store avatar (40px), name (semibold 18px), verified badge (lucide CheckCircle text-primary)
+
+Right cluster: social icons (Instagram, Facebook), Share, Contact — all 24x24, equal spacing gap-2.
+
+4b) Products page actions row
+
+Under each owner card: flex items-center gap-3 for Edit | Preview | Delete
+
+Uniform button size size="sm", same vertical spacing across all cards.
+
+4c) Analytics tiles
+
+Wrap each KPI tile in Card (rounded-2xl bg-white shadow-[...] p-5).
+
+Ensure identical inner spacing & typography for the four KPIs.
+
+“Top Performing Products”: reuse ProductCard (mini) or a simplified row that still uses the same image container ratio.
+
+4d) Settings upload boxes
+
+Logo and Banner dropzones have equal heights (e.g., h-40) and same inner padding.
+
+“Save Store Profile” uses global <Button variant="primary" /> with gradient hover.
+
+Acceptance
+
+All alignment issues in screenshots (misaligned icons, uneven paddings) are resolved.
+
+5) Data cleanup (staging only)
+
+Remove duplicate demo items: keep a single “Product 2”.
+
+Ensure statuses are correct and consistent (e.g., “In Stock”).
+
+Remove “New” badge unless there’s explicit logic to set it.
+
+Acceptance
+
+Storefront grid shows unique products; Analytics reflects the cleaned set.
+
+Do / Don’t
+
+Do: modify only UI and styling; reuse shared components.
+
+Don’t: change routes, business logic, or firestore/database code.
+
+Do: keep all new components under src/components/ui/.
+
+Don’t: add CSS files; use Tailwind utilities only.
+
+QA Checklist (to attach with PR)
+
+Tick all before submit:
+
+ Products, Storefront, and Analytics use the exact same ProductCard (compare paddings & image ratio).
+
+ All pills (tags & filters) share the same height, radius, and hover.
+
+ KPI/Analytics tiles have uniform padding and shadow.
+
+ Storefront top bar clusters are vertically centered; icons = 24px.
+
+ Settings upload zones equal height; primary CTAs match global Button.
+
+ No duplicate products in the grid; “New” only when logic sets it.
+
+ No inline style overrides for shadows/colors; tokens only.
+
+Hand-off artifacts to include in PR
+
+src/components/ui/ProductCard.jsx
+
+src/components/ui/Pill.jsx
+
+src/components/ui/PillFilter.jsx
+
+(If missing) src/components/ui/Button.jsx, Card.jsx
+
+Replacements in: Products page, Storefront page, Analytics, Settings
+
+Before/After screenshots for the 6 pages

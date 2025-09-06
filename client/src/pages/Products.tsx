@@ -21,7 +21,8 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
 import { waitFor } from '@/utils/waitFor';
 import { useConfirmDialog } from '@/hooks/useConfirmDialog';
-import { ProductCard, PillFilter, CategoryPill } from '@/components/seller';
+import ProductCard from '@/components/ui/ProductCard';
+import { PillFilter, CategoryPill } from '@/components/seller';
 
 export default function Products() {
   const { user } = useAuthContext();
@@ -508,27 +509,27 @@ export default function Products() {
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  price: product.price,
-                  imageUrl: getProductImageUrl(product),
-                  category: product.category,
-                  subcategory: product.subcategory,
-                  brand: product.brand,
-                  quantity: product.quantity,
-                  isActive: product.isActive,
-                  isHandmade: product.isHandmade,
-                  isCustomizable: product.isCustomizable,
-                  giftWrapping: product.giftWrapping,
-                  sustainability: product.sustainability,
-                }}
-                context="seller"
+                id={product.id}
+                title={product.name}
+                brand={product.brand}
+                price={product.price}
+                imageUrl={getProductImageUrl(product)}
+                badges={[]}
+                tags={[
+                  product.category,
+                  ...(product.subcategory ? [product.subcategory] : []),
+                  ...(product.isHandmade ? ['Handmade'] : []),
+                  ...(product.isCustomizable ? ['Custom'] : []),
+                  ...(product.giftWrapping ? ['Gift Wrap'] : []),
+                  ...(product.sustainability ? ['Eco-friendly'] : [])
+                ]}
+                status={product.quantity === 0 && !product.isActive ? 'SOLD' : 
+                       product.quantity <= 5 && product.quantity > 0 ? `${product.quantity} left` : 
+                       product.quantity > 5 ? 'In Stock' : null}
+                variant="owner"
                 onEdit={() => handleEditProduct(product)}
                 onDelete={() => handleDeleteProduct(product)}
                 onPreview={() => handlePreviewProduct(product)}
-                onFavorite={toggleFavorite}
-                isFavorited={favorites.has(product.id)}
               />
             ))}
 
