@@ -39,6 +39,7 @@ import Features from "@/pages/Features";
 import Pricing from "@/pages/Pricing";
 import ContactSupport from "@/pages/ContactSupport";
 import DataMigration from "@/pages/DataMigration";
+import ComponentDemo from "@/pages/ComponentDemo";
 import NotFound from "@/pages/not-found";
 import CustomerStorefrontEntry from "@/components/CustomerStorefrontEntry";
 
@@ -183,6 +184,11 @@ function Router() {
         <AppGuard>
           <DataMigration />
         </AppGuard>
+      </Route>
+
+      {/* Component Demo - For development testing */}
+      <Route path="/demo">
+        <ComponentDemo />
       </Route>
 
       {/* Fallback to 404 */}

@@ -10,6 +10,11 @@ export { AppNavBar } from './AppNavBar'
 // Re-export enhanced Button component
 export { Button, buttonVariants } from '@/components/ui/button'
 
+// Re-export for convenience
+import { ProductCard } from './ProductCard'
+import { PillFilter, CategoryPill, FeaturePill, StatusPill } from './PillFilter'
+import { AppNavBar } from './AppNavBar'
+
 // Usage examples and component combinations
 export const SellerComponents = {
   ProductCard,
