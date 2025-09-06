@@ -393,6 +393,7 @@ export default function MarketLanding() {
                 className="h-[228px]"
               />
             ))}
+          </div>
         </div>
       </div>
     );
@@ -815,33 +816,20 @@ export default function MarketLanding() {
         </div>
       </header>
 
-      {/* Hero - Full Bleed */}
+      {/* Hero - Edge-to-Edge */}
       <section 
         id="signup" 
-        className="reveal-on-scroll is-visible"
-        style={{ 
-          width: '100vw',
-          position: 'relative',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          marginTop: 28
-        }}
+        className="relative overflow-hidden"
+        style={{ marginTop: 28 }}
       >
-        <div className="glass heroGlass" style={{ paddingTop: 28, paddingBottom: 28 }}>
-          <div 
-            className="mx-auto"
-            style={{
-              maxWidth: '1200px',
-              paddingInline: 'clamp(16px, 4vw, 28px)',
-              paddingLeft: 'max(28px, env(safe-area-inset-left))',
-              paddingRight: 'max(28px, env(safe-area-inset-right))'
-            }}
-          >
-            <div className="hero-grid" style={{ display:'grid', gridTemplateColumns: '1.05fr .95fr', gap: 28, alignItems:'center' }}>
-            {/* Left copy */}
-            <div className="hero-text">
+        {/* Full-bleed background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white to-[#F8FAFF]" />
+
+        {/* Content container */}
+        <div className="relative mx-auto max-w-[1280px] 2xl:max-w-[1440px] px-6 lg:px-10">
+          <div className="grid grid-cols-12 gap-8 items-center min-h-[72vh]">
+            {/* Left: copy */}
+            <div className="col-span-12 lg:col-span-6 xl:col-span-5" style={{ maxWidth: '620px' }}>
               <h1 style={{ fontSize: 'clamp(40px, 7vw, 64px)', lineHeight: 1.06, margin: '0 0 16px', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
                 Launch a WhatsApp-ready storefront in minutes
               </h1>
@@ -893,10 +881,11 @@ export default function MarketLanding() {
               </div>
             </div>
 
-            {/* Right: Preview Device with demo products */}
-            <div className="reveal-on-scroll hero-demo">
-              <PreviewDevice />
-            </div>
+            {/* Right: mock window (edge-to-edge effect) */}
+            <div className="col-span-12 lg:col-span-6 xl:col-span-7 relative">
+              <div className="relative lg:absolute lg:right-[-72px] xl:right-[-96px] 2xl:right-[-120px] lg:top-1/2 lg:-translate-y-1/2 w-[680px] xl:w-[760px] 2xl:w-[840px] rounded-3xl bg-white shadow-[0_12px_40px_rgba(15,23,42,0.12)]">
+                <PreviewDevice />
+              </div>
             </div>
           </div>
         </div>
