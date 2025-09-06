@@ -112,12 +112,10 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
       className={cn(
         "group block cursor-pointer transition-all duration-300 ease-out",
         "hover:scale-[1.01] motion-reduce:hover:scale-100",
-        "hover:-translate-y-0.5 motion-reduce:hover:translate-y-0",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
+        "hover:shadow-lg motion-reduce:hover:shadow-[0_2px_10px_rgba(0,0,0,0.08)]",
+        "focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none",
         "rounded-2xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.08)]",
-        "hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] motion-reduce:hover:shadow-[0_2px_10px_rgba(0,0,0,0.08)]",
         "overflow-hidden border border-gray-100",
-        "focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
         className
       )}
       onClick={handleClick}
@@ -151,7 +149,7 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
       </div>
 
       {/* Store Info */}
-      <div className="p-5 space-y-3">
+      <div className="p-5 space-y-3 flex flex-col h-full">
         {/* Store Name */}
         <div className="space-y-1">
           <h3 className="text-[17px] font-semibold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
@@ -190,7 +188,7 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
         </div>
 
         {/* Call to Action */}
-        <div className="pt-2">
+        <div className="pt-2 mt-auto">
           <div className="text-center">
             <span className="text-sm font-medium text-blue-600 group-hover:text-blue-700 transition-colors">
               Explore Store →
