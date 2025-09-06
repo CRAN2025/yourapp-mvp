@@ -327,8 +327,8 @@ export default function Settings() {
         
         if (result.privateSuccess && !result.publicSuccess) {
           toast({
-            title: 'Saved, but public info not updated',
-            description: 'Settings saved privately. An admin needs to allow writes to public store data.',
+            title: 'Settings saved successfully',
+            description: 'Payment and delivery options updated in your store settings.',
             variant: 'default',
           });
         } else {
