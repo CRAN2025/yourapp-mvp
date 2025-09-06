@@ -802,7 +802,7 @@ export default function MarketLanding() {
       >
         <div className="grid grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left: copy/CTA */}
-          <div className="col-span-12 lg:col-span-6 order-1">
+          <div className="col-span-12 lg:col-span-6 lg:order-1">
             <h1 className="text-4xl md:text-6xl/[1.05] font-extrabold tracking-tight text-gray-900 mb-6">
               Launch a WhatsApp-ready storefront in minutes
             </h1>
@@ -862,7 +862,7 @@ export default function MarketLanding() {
           </div>
 
           {/* Right: demo tray */}
-          <div className="col-span-12 lg:col-span-6 order-2 lg:order-none">
+          <div className="col-span-12 lg:col-span-6 lg:order-2">
             <DemoTray />
           </div>
         </div>
