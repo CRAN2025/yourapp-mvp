@@ -40,9 +40,9 @@ import Pricing from "@/pages/Pricing";
 import ContactSupport from "@/pages/ContactSupport";
 import DataMigration from "@/pages/DataMigration";
 import ComponentDemo from "@/pages/ComponentDemo";
-import NotFound from "@/pages/not-found";
+import NotFound from "@/pages/NotFound";
 import CustomerStorefrontEntry from "@/components/CustomerStorefrontEntry";
-import DemoStorefront from "@/pages/DemoStorefront";
+import DemoRoute from "@/routes/DemoRoute";
 
 // App Router - handles unified /app destination and smart routing
 function AppRouter() {
@@ -93,8 +93,8 @@ function Router() {
         {(params) => <CustomerStorefrontEntry sellerId={params.sellerId} />}
       </Route>
       
-      {/* Demo store routes */}
-      <Route path="/demo/:slug" component={DemoStorefront} />
+      {/* Demo store routes - redirect to external storefronts */}
+      <Route path="/demo/:slug" component={DemoRoute} />
       
       {/* Legal and support pages */}
       <Route path="/terms" component={TermsOfService} />
@@ -192,9 +192,12 @@ function Router() {
       </Route>
 
       {/* Component Demo - For development testing */}
-      <Route path="/demo">
+      <Route path="/component-demo">
         <ComponentDemo />
       </Route>
+      
+      {/* 404 Error Page */}
+      <Route path="/404" component={NotFound} />
 
       {/* Fallback to 404 */}
       <Route component={NotFound} />

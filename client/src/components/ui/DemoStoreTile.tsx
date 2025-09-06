@@ -108,7 +108,7 @@ const DemoStoreTile: React.FC<DemoStoreTileProps> = ({
 
   return (
     <a
-      href={`/demo/${slug}`}
+      href={`/demo/${slug}?utm_source=landing&utm_medium=demo_tile&utm_campaign=explore_store`}
       className={cn(
         "group block cursor-pointer transition-all duration-300 ease-out",
         "hover:scale-[1.01] motion-reduce:hover:scale-100",
