@@ -7,6 +7,8 @@ import StoreHeader from '@/components/StoreHeader';
 import NewStoreHeader from '@/components/NewStoreHeader';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
+import { CANONICAL_PAYMENT_METHODS, CANONICAL_DELIVERY_OPTIONS, type PaymentMethodSlug, type DeliveryOptionSlug } from '@shared/canonicalOptions';
+import { loadPublicStorefront } from '@/lib/canonicalSync';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { mirrorAllSellerData } from '@/lib/utils/dataMirror';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -235,67 +237,35 @@ export default function Storefront() {
       setLoadingMeta(true);
 
       try {
-        // Read directly from publicStores meta path (storefront should ONLY read public data)
-        const { get, ref, onValue } = await import('firebase/database');
+        // Load from canonical public storefront structure
+        const publicData = await loadPublicStorefront(user.uid);
         
-        // Use onValue for real-time updates to storefront data
-        const metaRef = ref(database, `publicStores/${user.uid}/meta`);
+        console.log('📊 Storefront: Loaded canonical public data:', publicData);
         
-        onValue(metaRef, (snap) => {
-          const meta = snap.val() || {};
-          const { paymentMethods = {}, deliveryOptions = {} } = meta;
+        // Join enabled slugs with canonical definitions
+        const enabledPayments = publicData.paymentMethods
+          .map((slug: PaymentMethodSlug) => {
+            const config = CANONICAL_PAYMENT_METHODS[slug];
+            return config ? { slug, ...config } : null;
+          })
+          .filter(Boolean)
+          .sort((a: any, b: any) => a.order - b.order);
           
-          console.log('📊 Storefront: Loaded public payment/delivery data:', { paymentMethods, deliveryOptions });
-          
-          // Convert object maps to arrays and filter for ONLY clean display
-          // Strict filtering: must have emoji AND proper structure
-          const paymentList = Object.values(paymentMethods)
-            .filter((p: any) => {
-              // Must have label with emoji prefix and not be a raw field name
-              return p && p.label && 
-                     typeof p.label === 'string' &&
-                     p.label.includes('💵') || p.label.includes('💳') || p.label.includes('🏦') || 
-                     p.label.includes('🅿️') || p.label.includes('💠') || p.label.includes('₿') || p.label.includes('📱');
-            });
-          const deliveryList = Object.values(deliveryOptions)
-            .filter((d: any) => {
-              // Must have label with emoji prefix and not be a raw field name
-              return d && d.label && 
-                     typeof d.label === 'string' &&
-                     (d.label.includes('🚶') || d.label.includes('🚚') || d.label.includes('📦') || d.label.includes('✈️'));
-            });
-
-          setPublicPaymentMethods(paymentList);
-          setPublicDeliveryOptions(deliveryList);
-          setLoadingMeta(false);
-        }, (error) => {
-          console.error('❌ Failed to load public storefront data:', error);
-          
-          // Fallback: try to load from private settings if public mirror doesn't exist
-          console.log('🔄 Falling back to private settings data...');
-          
-          get(ref(database, `sellers/${user.uid}/storeSettings`)).then((settingsSnap) => {
-            const settings = settingsSnap.val() || {};
-            const { payments = {}, deliveryOptions = {} } = settings;
-            
-            // Convert private data to public format (filter for enabled items in fallback)
-            const paymentList = Object.values(payments).filter((p: any) => p.enabled);
-            const deliveryList = Object.values(deliveryOptions).filter((d: any) => d.enabled);
-            
-            setPublicPaymentMethods(paymentList);
-            setPublicDeliveryOptions(deliveryList);
-            setLoadingMeta(false);
-            
-            console.log('📊 Storefront: Using fallback private data');
-          }).catch((fallbackError) => {
-            console.error('❌ Fallback also failed:', fallbackError);
-            setPublicPaymentMethods([]);
-            setPublicDeliveryOptions([]);
-            setLoadingMeta(false);
-          });
-        });
+        const enabledDelivery = publicData.deliveryOptions
+          .map((slug: DeliveryOptionSlug) => {
+            const config = CANONICAL_DELIVERY_OPTIONS[slug];
+            return config ? { slug, ...config } : null;
+          })
+          .filter(Boolean)
+          .sort((a: any, b: any) => a.order - b.order);
+        
+        setPublicPaymentMethods(enabledPayments);
+        setPublicDeliveryOptions(enabledDelivery);
+        setLoadingMeta(false);
+        
+        console.log('📊 Storefront: Canonical options ready:', { enabledPayments, enabledDelivery });
       } catch (error) {
-        console.error('Failed to set up payment/delivery data listener:', error);
+        console.error('Failed to load canonical storefront data:', error);
         setPublicPaymentMethods([]);
         setPublicDeliveryOptions([]);
         setLoadingMeta(false);

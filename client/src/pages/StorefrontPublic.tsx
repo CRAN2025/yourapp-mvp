@@ -6,6 +6,8 @@ import { Search, Heart, MessageCircle, ChevronDown, X, ArrowLeft, CreditCard, Tr
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import StoreHeader from '@/components/StoreHeader';
 import { database, auth as primaryAuth } from '@/lib/firebase';
+import { CANONICAL_PAYMENT_METHODS, CANONICAL_DELIVERY_OPTIONS, type PaymentMethodSlug, type DeliveryOptionSlug } from '@shared/canonicalOptions';
+import { loadPublicStorefront } from '@/lib/canonicalSync';
 import { formatPrice, getProductImageUrl } from '@/lib/utils/formatting';
 import { normalizeSeller, type SellerV2 } from '@shared/sellerV2';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -365,41 +367,33 @@ export default function StorefrontPublic() {
 
         setSeller(sellerData ? normalizeSeller(sellerData) : null);
 
-        // Use real-time listeners for immediate updates (like Storefront.tsx)
-        const { onValue } = await import('firebase/database');
-        const metaRef = ref(database, `publicStores/${sellerId}/meta`);
+        // Load from canonical public storefront structure
+        const publicData = await loadPublicStorefront(sellerId);
         
-        onValue(metaRef, (snap) => {
-          const meta = snap.val() || {};
-          const { paymentMethods = {}, deliveryOptions = {} } = meta;
+        console.log('📊 Public Storefront: Loaded canonical data:', publicData);
+        
+        // Join enabled slugs with canonical definitions
+        const enabledPayments = publicData.paymentMethods
+          .map((slug: PaymentMethodSlug) => {
+            const config = CANONICAL_PAYMENT_METHODS[slug];
+            return config ? { slug, ...config } : null;
+          })
+          .filter(Boolean)
+          .sort((a: any, b: any) => a.order - b.order);
           
-          // Convert object maps to arrays and filter for ONLY clean display
-          // Strict filtering: must have emoji AND proper structure
-          const paymentList = Object.values(paymentMethods)
-            .filter((p: any) => {
-              // Must have label with emoji prefix and not be a raw field name
-              return p && p.label && 
-                     typeof p.label === 'string' &&
-                     (p.label.includes('💵') || p.label.includes('💳') || p.label.includes('🏦') || 
-                      p.label.includes('🅿️') || p.label.includes('💠') || p.label.includes('₿') || p.label.includes('📱'));
-            });
-          const deliveryList = Object.values(deliveryOptions)
-            .filter((d: any) => {
-              // Must have label with emoji prefix and not be a raw field name
-              return d && d.label && 
-                     typeof d.label === 'string' &&
-                     (d.label.includes('🚶') || d.label.includes('🚚') || d.label.includes('📦') || d.label.includes('✈️'));
-            });
-
-          setPublicPaymentMethods(paymentList);
-          setPublicDeliveryOptions(deliveryList);
-          setLoadingMeta(false);
-          
-          console.log('📊 Public Storefront: Filtered payment/delivery data:', { 
-            original: { paymentMethods, deliveryOptions },
-            filtered: { paymentList, deliveryList }
-          });
-        });
+        const enabledDelivery = publicData.deliveryOptions
+          .map((slug: DeliveryOptionSlug) => {
+            const config = CANONICAL_DELIVERY_OPTIONS[slug];
+            return config ? { slug, ...config } : null;
+          })
+          .filter(Boolean)
+          .sort((a: any, b: any) => a.order - b.order);
+        
+        setPublicPaymentMethods(enabledPayments);
+        setPublicDeliveryOptions(enabledDelivery);
+        setLoadingMeta(false);
+        
+        console.log('📊 Public Storefront: Canonical options ready:', { enabledPayments, enabledDelivery });
 
         // Load products from public store with enhanced filtering
         const productsRef = ref(database, `publicStores/${sellerId}/products`);
