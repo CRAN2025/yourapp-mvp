@@ -1,0 +1,184 @@
+Implementation Ticket — Landing Page (Marketing) Demo Area & Header
+A) Routing & Links (JS/TS + Router)
+
+Fix “Grow Up” demo link
+
+Resolve the public storefront URL for store “Grow Up.”
+
+Look up by name in the stores table/collection.
+
+const growUp = await stores.findByName('Grow Up');
+const publicUrl =
+  growUp?.publicUrl ??
+  (growUp?.slug ? `/storefront/${growUp.slug}` : `/storefront/${growUp?.id}`);
+
+
+DO NOT link to /settings (or any seller dashboard route).
+
+If the store cannot be found, fallback to the generic demo placeholder (see section A.3).
+
+Bind this URL to Demo 2 (or whichever demo card is currently labeled for “Grow Up”).
+
+Open in a new tab with no opener:
+
+<a href={publicUrl} target="_blank" rel="noopener">
+  Explore Store →
+</a>
+
+
+All demo tiles open in a new tab
+
+Every demo tile CTA (e.g., Explore Store →) must use target="_blank" rel="noopener".
+
+Safe fallback for unlinked demos (pre–go-live)
+
+For demo tiles that don’t have a live target yet, route to a branded 404/Coming Soon page:
+
+Use a temporary route like /demo-coming-soon (returns HTTP 404) with a friendly message + “Back to Home” button.
+
+Implementation:
+
+const href = demo.publicUrl ?? '/demo-coming-soon';
+<a href={href} target="_blank" rel="noopener">Explore Store →</a>
+
+
+Acceptance
+
+Clicking “Grow Up” opens its public storefront in a new tab.
+
+Unwired demos open /demo-coming-soon in a new tab.
+
+No demo ever opens /settings or any seller route.
+
+B) Marketing vs. Seller Navigation (Layout/Routes)
+
+Landing page must use the Marketing header, not Seller nav
+
+On / (public marketing page), render the MarketingHeader only:
+
+Left: brand “ShopLynk”
+
+Right: FAQ and Create Store (primary CTA)
+
+Remove seller menus here (Products, Storefront, Orders, Analytics, Settings).
+
+Ensure the app uses route-scoped layouts:
+
+MarketingLayout for /, /pricing, /faq, etc.
+
+SellerLayout for /products, /storefront, /orders, /analytics, /settings, etc.
+
+Visual consistency: same “ShopLynk” brandmark (weight/color) across pages.
+
+Acceptance
+
+Visiting / shows only FAQ | Create Store (no seller items).
+
+Visiting any seller route shows seller nav (never on /).
+
+C) Hero Layout & Demo Frame Placement (CSS/React)
+
+Place the demo frame on the RIGHT (desktop)
+
+Use a 12-col grid on desktop:
+
+Left (hero copy/CTA): col-span-6
+
+Right (demo frame): col-span-6
+
+On mobile/tablet, stack vertically (copy first, demos after).
+
+The demo frame should visually align with the hero block height (not cramped). Use consistent internal padding and max-w to avoid micro-cards.
+
+Acceptance
+
+Desktop: hero copy left, demo frame right.
+
+Mobile: stacked; spacing is even and readable.
+
+D) Demo Frame Content Rules (React + CSS)
+
+Container header/subcopy
+
+Title: Demo Stores
+
+Subcopy: WhatsApp-ready examples
+
+Remove the “• No code” suffix here (it’s redundant/confusing in this context).
+
+Each demo card content
+
+KEEP:
+
+Demo name (e.g., Grow Up, Coastal Treasures, etc.)
+
+Small “Demo” badge (top-right of the card)
+
+CTA: Explore Store → (opens in new tab)
+
+REMOVE:
+
+Large single letter (“A”, “C”, “P”, “V”)
+
+Do not repeat meta (categories, products count) unless you will keep it consistently filled for all demos.
+
+Card sizing & alignment
+
+Cards should be balanced inside the device/frame mockup:
+
+Use equal width/height (e.g., aspect-[4/3] or aspect-video)
+
+Maintain consistent gap and padding between the 2×2 grid items.
+
+Do not allow the cards to look “mini” relative to the frame; scale to be legible.
+
+Acceptance
+
+Header reads “Demo Stores” with subcopy “WhatsApp-ready examples”.
+
+Each card shows: “Demo” badge, Demo name, Explore Store → CTA.
+
+No big placeholder letters.
+
+Cards are visually sized/aligned evenly (no mismatched proportions).
+
+E) Edge Cases & QA
+
+Link integrity
+
+Run a smoke test to ensure no demo link 404s unintentionally (except the deliberate /demo-coming-soon pages).
+
+Validate the “Grow Up” link points to a public route (never a private/seller route).
+
+Accessibility
+
+Each CTA is an anchor (not a button) with descriptive aria-label, e.g.
+"Explore the Grow Up demo store (opens in a new tab)".
+
+F) Suggested File Touchpoints (adjust to your codebase)
+
+app/routes/index.(tsx|jsx) → ensure MarketingLayout + hero grid + demo frame right
+
+components/marketing/MarketingHeader.(tsx|jsx) → correct nav items
+
+components/marketing/DemoStores.(tsx|jsx) → header/subcopy & card schema
+
+lib/stores.ts or similar → findByName('Grow Up') + publicUrl resolver
+
+app/routes/demo-coming-soon.(tsx|jsx) → branded 404
+
+Quick Sanity Checklist (PO can verify quickly)
+
+ Landing header shows only FAQ | Create Store.
+
+ “Demo Stores” box on the right (desktop) with 2×2 consistent cards.
+
+ Cards: Demo badge + Demo name + Explore Store → only (no large letters).
+
+ All demo links open in a new tab.
+
+ “Grow Up” opens its public storefront (not /settings).
+
+ Unwired demos go to /demo-coming-soon in a new tab.
+
+ Brand “ShopLynk” looks identical on landing and seller pages.

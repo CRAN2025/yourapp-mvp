@@ -44,6 +44,7 @@ import NotFound from "@/pages/NotFound";
 import CustomerStorefrontEntry from "@/components/CustomerStorefrontEntry";
 import DemoRoute from "@/routes/DemoRoute";
 import DemoNotReady from "@/pages/DemoNotReady";
+import DemoComingSoon from "@/pages/DemoComingSoon";
 
 // App Router - handles unified /app destination and smart routing
 function AppRouter() {
@@ -97,6 +98,7 @@ function Router() {
       {/* Demo store routes - redirect to external storefronts */}
       <Route path="/demo/:slug" component={DemoRoute} />
       <Route path="/demo/not-ready" component={DemoNotReady} />
+      <Route path="/demo-coming-soon" component={DemoComingSoon} />
       
       {/* Legal and support pages */}
       <Route path="/terms" component={TermsOfService} />

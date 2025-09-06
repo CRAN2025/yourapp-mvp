@@ -10,7 +10,9 @@ export const DEMOS: Demo[] = [
   {
     key: 'A',
     name: 'Grow Up',
-    url: 'https://e5bc3ac1-f41b-4b3a-a672-3e8cd165ff35-00-1ppiewcg3zuzb.picard.replit.dev/settings',
+    // TODO: Replace with actual public storefront URL when available
+    // For now, using placeholder - should be /store/{actualSellerId}
+    url: '/store/grow-up-placeholder',
   },
   { key: 'C', name: 'Coastal Treasures' }, // no url yet
   { key: 'P', name: 'Peak Performance' }, // no url yet  
@@ -21,6 +23,6 @@ export const DEMOS: Demo[] = [
 export const withUTM = (url: string, tileKey: string): string =>
   `${url}${url.includes('?') ? '&' : '?'}utm_source=landing&utm_medium=demo_tile&utm_campaign=explore_store&tile=${tileKey}`;
 
-// Safe href for missing URLs
+// Safe href for missing URLs - updated to use new coming soon page
 export const getDemoHref = (demo: Demo): string => 
-  demo.url ? withUTM(demo.url, demo.key) : '/demo/not-ready';
+  demo.url ? withUTM(demo.url, demo.key) : '/demo-coming-soon';

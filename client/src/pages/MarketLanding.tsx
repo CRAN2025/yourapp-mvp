@@ -396,7 +396,7 @@ export default function MarketLanding() {
         {/* Header */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-1">Demo Stores</h3>
-          <p className="text-sm text-gray-500">WhatsApp-ready examples • No code</p>
+          <p className="text-sm text-gray-500">WhatsApp-ready examples</p>
         </div>
 
         {/* Cards Grid - Mobile responsive: single column to 2-up */}
@@ -411,11 +411,6 @@ export default function MarketLanding() {
                 Demo
               </span>
 
-              {/* Store Key/Icon */}
-              <div className="absolute top-3 left-3 w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-blue-600">{demo.key}</span>
-              </div>
-
               {/* Bottom Content */}
               <div className="absolute inset-0 flex items-end p-3">
                 <div className="w-full">
@@ -425,7 +420,7 @@ export default function MarketLanding() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => handleDemoClick(demo)}
-                    aria-label={`Explore ${demo.name} demo store`}
+                    aria-label={`Explore the ${demo.name} demo store (opens in a new tab)`}
                     className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md px-2 py-1 -mx-2 -my-1"
                     data-testid={`demo-tile-${demo.key.toLowerCase()}`}
                   >
