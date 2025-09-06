@@ -15,7 +15,7 @@ Changes & Rationale:
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import DemoStoreTile from '@/components/ui/DemoStoreTile';
-import { demoStores } from '@/data/demoStores';
+import { demoStores as externalDemoStores } from '@/data/demoStores';
 import { auth } from '@/lib/firebase';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -384,7 +384,7 @@ export default function MarketLanding() {
           gap: '8px',
           marginTop: '12px'
         }}>
-          {demoStores.slice(0, 4).map((store) => (
+          {externalDemoStores.slice(0, 4).map((store) => (
             <DemoStoreTile
               key={store.slug}
               slug={store.slug}
