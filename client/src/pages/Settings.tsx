@@ -23,6 +23,8 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 import ImageUpload from '@/components/ImageUpload';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
+import { CANONICAL_PAYMENT_METHODS, CANONICAL_DELIVERY_OPTIONS, getPaymentMethodsArray, getDeliveryOptionsArray, normalizePaymentKey, normalizeDeliveryKey, type PaymentMethodSlug, type DeliveryOptionSlug } from '@shared/canonicalOptions';
+import { saveSellerCheckoutSettings, loadSellerSettings } from '@/lib/canonicalSync';
 
 const storeProfileSchema = z.object({
   storeName: z.string().min(3, 'Store name must be at least 3 characters'),
@@ -61,8 +63,8 @@ const contactVisibilitySchema = z.object({
 });
 
 const paymentsDeliverySchema = z.object({
-  paymentMethods: z.array(z.string()).default([]),
-  deliveryOptions: z.array(z.string()).default([]),
+  paymentMethods: z.record(z.boolean()).default({}),
+  deliveryOptions: z.record(z.boolean()).default({}),
 });
 
 const accountSecuritySchema = z.object({
@@ -146,8 +148,8 @@ export default function Settings() {
   const paymentsDeliveryForm = useForm<PaymentsDeliveryForm>({
     resolver: zodResolver(paymentsDeliverySchema),
     defaultValues: {
-      paymentMethods: [],
-      deliveryOptions: [],
+      paymentMethods: {},
+      deliveryOptions: {},
     },
   });
 
@@ -188,29 +190,63 @@ export default function Settings() {
         preferredLanguage: seller.preferredLanguage || '',
       });
 
-      // Load payment/delivery data from new storage location
+      // Load payment/delivery data using canonical approach
       (async () => {
         if (user?.uid) {
           try {
-            const { loadSellerPaymentDelivery } = await import('@/lib/paymentDelivery');
-            const { payments, delivery } = await loadSellerPaymentDelivery(user.uid);
+            const settings = await loadSellerSettings(user.uid);
             
-            // Convert object maps back to ID arrays for form
-            const paymentIds = Object.values(payments).map((p: any) => p.type);
-            const deliveryIds = Object.values(delivery).map((d: any) => d.type);
+            console.log('📋 Settings: Loaded canonical settings:', settings);
             
-            paymentsDeliveryForm.reset({
-              paymentMethods: paymentIds,
-              deliveryOptions: deliveryIds,
+            // Normalize any legacy keys and convert to boolean flags
+            const normalizedPayments: Record<PaymentMethodSlug, boolean> = {};
+            const normalizedDelivery: Record<DeliveryOptionSlug, boolean> = {};
+            
+            // Initialize all canonical options as false
+            Object.keys(CANONICAL_PAYMENT_METHODS).forEach(key => {
+              normalizedPayments[key as PaymentMethodSlug] = false;
+            });
+            Object.keys(CANONICAL_DELIVERY_OPTIONS).forEach(key => {
+              normalizedDelivery[key as DeliveryOptionSlug] = false;
             });
             
-            console.log('📋 Settings: Loaded payment/delivery data:', { paymentIds, deliveryIds });
+            // Apply loaded settings (with key normalization)
+            Object.entries(settings.paymentMethods).forEach(([key, enabled]) => {
+              const normalizedKey = normalizePaymentKey(key);
+              if (normalizedKey in CANONICAL_PAYMENT_METHODS) {
+                normalizedPayments[normalizedKey] = Boolean(enabled);
+              }
+            });
+            
+            Object.entries(settings.deliveryOptions).forEach(([key, enabled]) => {
+              const normalizedKey = normalizeDeliveryKey(key);
+              if (normalizedKey in CANONICAL_DELIVERY_OPTIONS) {
+                normalizedDelivery[normalizedKey] = Boolean(enabled);
+              }
+            });
+            
+            paymentsDeliveryForm.reset({
+              paymentMethods: normalizedPayments,
+              deliveryOptions: normalizedDelivery,
+            });
+            
+            console.log('📋 Settings: Normalized settings loaded:', { normalizedPayments, normalizedDelivery });
           } catch (error) {
             console.error('Failed to load payment/delivery settings:', error);
-            // Fallback to empty arrays
+            // Fallback to all false
+            const emptyPayments: Record<PaymentMethodSlug, boolean> = {};
+            const emptyDelivery: Record<DeliveryOptionSlug, boolean> = {};
+            
+            Object.keys(CANONICAL_PAYMENT_METHODS).forEach(key => {
+              emptyPayments[key as PaymentMethodSlug] = false;
+            });
+            Object.keys(CANONICAL_DELIVERY_OPTIONS).forEach(key => {
+              emptyDelivery[key as DeliveryOptionSlug] = false;
+            });
+            
             paymentsDeliveryForm.reset({
-              paymentMethods: [],
-              deliveryOptions: [],
+              paymentMethods: emptyPayments,
+              deliveryOptions: emptyDelivery,
             });
           }
         }
@@ -307,118 +343,39 @@ export default function Settings() {
   };
 
   const handlePaymentsDeliveryUpdate = async (data: PaymentsDeliveryForm) => {
-    // Ensure we have authentication before proceeding
-    if (loading || !user?.uid) {
+    if (!user?.uid) {
       toast({
         title: 'Authentication required',
-        description: 'Please wait for authentication to complete.',
+        description: 'You must be logged in to update payment and delivery settings.',
         variant: 'destructive',
       });
       return;
     }
 
     try {
-      // Run probe tests first to identify permission issues
-      const { runPathProbes } = await import('@/lib/probeDatabase');
-      const { sellersOk, publicOk } = await runPathProbes(user.uid);
+      setLoading(true);
       
-      // Convert form ID arrays to proper payment/delivery objects
-      const payments: Record<string, any> = {};
-      const delivery: Record<string, any> = {};
+      // Use canonical multi-path save function
+      await saveSellerCheckoutSettings(
+        user.uid, 
+        data.paymentMethods as Record<PaymentMethodSlug, boolean>, 
+        data.deliveryOptions as Record<DeliveryOptionSlug, boolean>
+      );
       
-      // Build payment methods object
-      data.paymentMethods.forEach((id: string) => {
-        payments[id] = {
-          type: id,
-          label: getOptionLabel(id, 'payment'),
-          enabled: true
-        };
+      toast({
+        title: 'Payment & delivery updated',
+        description: 'Your settings have been saved and are now live on your storefront.',
       });
-      
-      // Build delivery options object  
-      data.deliveryOptions.forEach((id: string) => {
-        delivery[id] = {
-          type: id,
-          label: getOptionLabel(id, 'delivery'),
-          enabled: true
-        };
-      });
-      
-      // Helper to get label from ID
-      function getOptionLabel(id: string, type: 'payment' | 'delivery'): string {
-        if (type === 'payment') {
-          const paymentMap: Record<string, string> = {
-            'cash': '💵 Cash',
-            'mobile_money': '📱 Mobile Money',
-            'bank_transfer': '🏦 Bank Transfer',
-            'card': '💳 Card Payment',
-            'paypal': '🅿️ PayPal',
-            'stripe': '💠 Stripe',
-            'crypto': '₿ Cryptocurrency',
-          };
-          return paymentMap[id] || id;
-        } else {
-          const deliveryMap: Record<string, string> = {
-            'pickup': '🚶 Customer Pickup',
-            'delivery': '🚚 Home Delivery',
-            'courier': '📦 Courier Service',
-            'shipping': '✈️ Shipping',
-          };
-          return deliveryMap[id] || id;
-        }
-      }
-      
-      // Use split save approach to handle permission issues
-      if (!publicOk) {
-        console.log('🔄 Using split save approach due to public path permissions');
-        const { savePaymentAndDeliverySplit } = await import('@/lib/paymentDeliverySplit');
-        const result = await savePaymentAndDeliverySplit(user.uid, payments, delivery);
-        
-        if (result.privateSuccess && !result.publicSuccess) {
-          toast({
-            title: 'Settings saved successfully',
-            description: 'Payment and delivery options updated in your store settings.',
-            variant: 'default',
-          });
-        } else {
-          toast({
-            title: 'Payment & delivery updated',
-            description: 'Your payment and delivery options have been updated successfully.',
-          });
-        }
-      } else {
-        // Use atomic save if both paths are available
-        const { savePaymentAndDelivery } = await import('@/lib/paymentDelivery');
-        await savePaymentAndDelivery(user.uid, payments, delivery);
-        
-        toast({
-          title: 'Payment & delivery updated',
-          description: 'Your payment and delivery options have been updated successfully.',
-        });
-      }
     } catch (error: any) {
-      console.error('[payments/save]', {
-        code: error?.code,
-        msg: error?.message,
-        name: error?.name,
-        path: error?.path,
-        fullError: error 
-      });
-      
-      // Provide more specific error messages
-      let description = `${error?.code ?? 'UNKNOWN'}: ${error?.message ?? 'No details'}`;
-      
-      if (error?.code === 'PERMISSION_DENIED') {
-        description = "Your account can't write to this path. Check database rules for /sellers/{uid} and /publicStores/{uid}/meta.";
-      } else if (error?.code === 'INVALID_ARGUMENT' || error?.code === 'INVALID_DATA') {
-        description = "Payload shape doesn't match the schema. Ensure object-keyed maps, not arrays.";
-      }
+      console.error('Failed to save payment/delivery settings:', error);
       
       toast({
         title: 'Save failed',
-        description,
+        description: error?.message || 'An error occurred while saving your settings.',
         variant: 'destructive',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -944,35 +901,27 @@ export default function Settings() {
                         <FormItem>
                           <FormLabel className="text-lg font-medium">Payment Methods</FormLabel>
                           <div className="space-y-2">
-                            {[
-                              { id: 'cash', label: '💵 Cash' },
-                              { id: 'mobile_money', label: '📱 Mobile Money' },
-                              { id: 'bank_transfer', label: '🏦 Bank Transfer' },
-                              { id: 'card', label: '💳 Card Payment' },
-                              { id: 'paypal', label: '🅿️ PayPal' },
-                              { id: 'stripe', label: '💠 Stripe' },
-                              { id: 'crypto', label: '₿ Cryptocurrency' },
-                            ].map((option) => (
+                            {getPaymentMethodsArray().map((option) => (
                               <FormField
-                                key={option.id}
+                                key={option.slug}
                                 control={paymentsDeliveryForm.control}
                                 name="paymentMethods"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(option.id)}
+                                        checked={field.value?.[option.slug] || false}
                                         onCheckedChange={(checked) => {
-                                          const updatedValue = checked
-                                            ? [...(field.value || []), option.id]
-                                            : (field.value || []).filter((value) => value !== option.id);
-                                          field.onChange(updatedValue);
+                                          field.onChange({
+                                            ...field.value,
+                                            [option.slug]: checked
+                                          });
                                         }}
-                                        data-testid={`payment-${option.id}`}
+                                        data-testid={`payment-${option.slug}`}
                                       />
                                     </FormControl>
                                     <FormLabel className="font-normal cursor-pointer">
-                                      {option.label}
+                                      {option.icon} {option.label}
                                     </FormLabel>
                                   </FormItem>
                                 )}
@@ -992,32 +941,27 @@ export default function Settings() {
                         <FormItem>
                           <FormLabel className="text-lg font-medium">Delivery Options</FormLabel>
                           <div className="space-y-2">
-                            {[
-                              { id: 'pickup', label: '🚶 Customer Pickup' },
-                              { id: 'delivery', label: '🚚 Home Delivery' },
-                              { id: 'courier', label: '📦 Courier Service' },
-                              { id: 'shipping', label: '✈️ Shipping' },
-                            ].map((option) => (
+                            {getDeliveryOptionsArray().map((option) => (
                               <FormField
-                                key={option.id}
+                                key={option.slug}
                                 control={paymentsDeliveryForm.control}
                                 name="deliveryOptions"
                                 render={({ field }) => (
                                   <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(option.id)}
+                                        checked={field.value?.[option.slug] || false}
                                         onCheckedChange={(checked) => {
-                                          const updatedValue = checked
-                                            ? [...(field.value || []), option.id]
-                                            : (field.value || []).filter((value) => value !== option.id);
-                                          field.onChange(updatedValue);
+                                          field.onChange({
+                                            ...field.value,
+                                            [option.slug]: checked
+                                          });
                                         }}
-                                        data-testid={`delivery-${option.id}`}
+                                        data-testid={`delivery-${option.slug}`}
                                       />
                                     </FormControl>
                                     <FormLabel className="font-normal cursor-pointer">
-                                      {option.label}
+                                      {option.icon} {option.label}
                                     </FormLabel>
                                   </FormItem>
                                 )}
