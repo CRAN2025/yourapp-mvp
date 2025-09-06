@@ -6,6 +6,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import { formatRelativeTime } from '@/lib/utils/formatting';
 import type { Event, Product } from '@shared/schema';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ProductCard from '@/components/ui/ProductCard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -315,27 +316,20 @@ export default function Analytics() {
                   description="Product performance data will appear here once customers start viewing your products."
                 />
               ) : (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {topProducts.map((item) => (
-                    <div key={item.product.id} className="flex items-center space-x-4 p-3 hover:bg-muted/50 rounded-lg transition-colors">
-                      <img
-                        src={item.product.images[0] || '/placeholder-product.png'}
-                        alt={item.product.name}
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-foreground">{item.product.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {item.views} views • {item.clicks} clicks
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-sm font-medium text-success">
-                          {item.ctr.toFixed(1)}%
-                        </span>
-                        <p className="text-xs text-muted-foreground">CTR</p>
-                      </div>
-                    </div>
+                    <ProductCard
+                      key={item.product.id}
+                      id={item.product.id}
+                      title={item.product.name}
+                      brand={item.product.brand}
+                      price={item.product.price}
+                      imageUrl={item.product.images?.[0] || '/api/placeholder/400/300'}
+                      badges={[`${item.ctr.toFixed(1)}% CTR`]}
+                      tags={[`${item.views} views`, `${item.clicks} clicks`]}
+                      variant="owner"
+                      className="max-w-[420px] shadow-[0_2px_10px_rgba(0,0,0,0.08)]"
+                    />
                   ))}
                 </div>
               )}
