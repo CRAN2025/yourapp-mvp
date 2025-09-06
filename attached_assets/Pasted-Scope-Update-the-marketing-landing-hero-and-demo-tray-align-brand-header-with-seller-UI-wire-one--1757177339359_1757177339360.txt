@@ -1,0 +1,232 @@
+Scope
+
+Update the marketing landing hero and demo tray; align brand header with seller UI; wire one demo link; add safe fallbacks; ensure responsive polish.
+
+1) Header / Brand Consistency (shared across all pages)
+
+Goal: Landing page header matches the seller UI header (logo weight/size/colors, CTA style).
+
+Replace the landing header with the same <SiteHeader /> used on Products/Orders pages.
+
+Ensure <Logo /> is identical (same SVG, color, font-weight).
+
+Keep the “Create Store” CTA identical (same gradient, radius, padding, hover/focus).
+
+Acceptance
+
+Visual parity of header/brand between landing and seller pages.
+
+Lighthouse a11y: logo and CTA have accessible names.
+
+2) Hero Layout & Spacing (reduce wasted whitespace)
+
+Goal: Use the viewport more efficiently while keeping a premium look.
+
+Wrap hero in:
+
+<section className="max-w-[1280px] xl:max-w-[1440px] mx-auto px-6 md:px-10 xl:px-12 pt-10 md:pt-14 pb-8 md:pb-12">
+
+
+Grid:
+
+<div className="grid grid-cols-12 gap-8 lg:gap-12 items-center">
+  <div className="col-span-12 lg:col-span-6"> {/* copy/CTA */}</div>
+  <div className="col-span-12 lg:col-span-6"> {/* demo tray */}</div>
+</div>
+
+
+H1 sizing:
+
+<h1 className="text-4xl md:text-6xl/[1.05] font-extrabold tracking-tight">
+
+
+Limit max line-length (~9–11 words per line) and ensure consistent line-height.
+
+Acceptance
+
+At 1440–1600px width, the hero visually “fills” without awkward empty gutter.
+
+No content wraps to odd 5th line between 1280–1536px.
+
+3) Demo Tray (visual & interaction)
+
+Goal: Balanced proportions/alignment, pluralized copy, hover states.
+
+Tray container:
+
+<div className="rounded-2xl shadow-lg/10 bg-white p-5 md:p-6">
+
+
+Tray header copy:
+
+Title: Demo Stores
+
+Subhead: WhatsApp-ready examples • No code
+
+Cards layout:
+
+<div className="grid grid-cols-2 gap-4">
+  {/* four cards */}
+</div>
+
+
+Card:
+
+<div className="relative aspect-[4/3] rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 shadow-sm overflow-hidden
+                hover:-translate-y-0.5 hover:shadow-md transition">
+  <span className="absolute top-2 right-2 text-xs px-2 py-1 rounded-full bg-white/80 backdrop-blur">Demo</span>
+  <div className="absolute inset-0 flex items-end p-3">
+    <a href={url}
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label={`Explore ${storeName} demo store`}
+       className="inline-flex items-center text-sm font-medium">
+       Explore Store →
+    </a>
+  </div>
+</div>
+
+
+Acceptance
+
+Cards visually align with the tray edge; ratio is consistent (no “stretched” tiles).
+
+Hover raises card subtly; “Demo” pill is in top-right on all tiles.
+
+4) Links: new tab, tracking, and fallback
+
+Goal: Every demo opens in a new tab; missing demos go to a friendly marketing 404.
+
+Data map:
+
+const DEMOS = [
+  {
+    key: 'A',
+    name: 'Grow Up',
+    // Per request: link to settings (admin route). Keep as-is for now.
+    url: 'https://e5bc3ac1-f41b-4b3a-a672-3e8cd165ff35-00-1ppiewcg3zuzb.picard.replit.dev/settings',
+  },
+  { key: 'C', name: 'Demo 2' }, // no url yet
+  { key: 'P', name: 'Demo 3' }, // no url yet
+  { key: 'V', name: 'Demo 4' }, // no url yet
+];
+
+
+UTM tagging utility (attached when url exists):
+
+const withUTM = (url: string) =>
+  `${url}${url.includes('?') ? '&' : '?'}utm_source=landing&utm_medium=demo_tile&utm_campaign=explore_store`;
+
+
+Safe href for missing URLs:
+
+const href = demo.url ? withUTM(demo.url) : '/demo/not-ready';
+
+
+All <a> have target="_blank" and rel="noopener noreferrer".
+
+Acceptance
+
+Clicking any demo opens in a new tab.
+
+Demos without a URL route to /demo/not-ready.
+
+5) “Not Ready” marketing 404
+
+Goal: Friendly page, never show a raw runtime overlay in prod.
+
+Route: /demo/not-ready
+
+Content: short note + two CTAs
+
+Primary: “Create your store” → /create (or existing flow)
+
+Secondary: “Back to homepage” → /
+
+Tracking event: demo_not_ready_viewed.
+
+Acceptance
+
+No Vite/runtime overlay is ever visible in production.
+
+Page meets a11y (focus order, headings, button labels).
+
+6) Mobile behavior (your mobile screenshot)
+
+Goal: Logical stacking; good tap targets; optional horizontal snapping.
+
+Order:
+
+Copy/CTA: order-1
+
+Demo tray: order-2 on mobile (lg:order-none on desktop)
+
+Grid on small screens:
+
+Option A (stacked): grid-cols-1 gap-4 (largest cards)
+
+Option B (two-up): grid-cols-2 gap-3 (more density)
+
+Optional horizontal snap if space is tight:
+
+<div className="flex gap-3 overflow-x-auto snap-x snap-mandatory [-webkit-overflow-scrolling:touch]">
+  <div className="min-w-[220px] snap-start">…card…</div>
+  …
+</div>
+
+
+Hit areas: buttons/links min height h-11 (44px).
+
+Acceptance
+
+No horizontal scroll on body; only the card rail (if enabled) scrolls.
+
+All interactive elements pass 44px touch target.
+
+7) Copy tweaks (final)
+
+Tray title: Demo Stores
+
+Tray subhead: WhatsApp-ready examples • No code
+
+Keep headline/subheadline elsewhere as is.
+
+Acceptance
+
+No single instance of “Demo Store” (singular) remains in the tray header.
+
+8) Analytics (basic)
+
+Fire these client events:
+
+demo_tile_clicked with { key, name, href }
+
+demo_not_ready_viewed (on fallback page)
+
+cta_create_store_clicked (existing if present)
+
+Acceptance
+
+Events appear in the console/network during QA and in the analytics sink in staging.
+
+9) QA Checklist
+
+Header parity with seller pages on desktop & mobile.
+
+Hero spacing looks balanced at 1280, 1440, 1536.
+
+All 4 tiles: hover lift, focus ring, open in new tab.
+
+Grow Up tile links to provided settings URL (with UTM), opens new tab.
+
+No-console errors in production build; 404 never shows Vite overlay.
+
+Mobile: content order (copy first), readable, tappable.
+
+A11y: visible focus outlines; aria-labels set on demo links.
+
+10) Notes / Future-proofing
+
+The Grow Up URL is an admin route (/settings). For public marketing, consider swapping to the storefront/preview URL later; keep the code flexible so we only change the URL in DEMOS.
+
+When real demo URLs are ready, just add them to DEMOS; no code changes elsewhere.
