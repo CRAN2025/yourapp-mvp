@@ -14,6 +14,8 @@ Changes & Rationale:
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, Link } from 'wouter';
+import DemoStoreTile from '@/components/ui/DemoStoreTile';
+import { demoStores } from '@/data/demoStores';
 import { auth } from '@/lib/firebase';
 import { ensureAnonymousEventsAuth } from '@/lib/firebaseEvents';
 import { trackInteraction } from '@/lib/utils/analytics';
@@ -376,34 +378,24 @@ export default function MarketLanding() {
           <div style={{ fontWeight: 800, letterSpacing: '-0.01em', fontSize: 16 }}>Demo Store</div>
           <div style={{ fontSize: 14, opacity: 0.8, color: '#374151' }}>whatsapp orders • no code</div>
         </div>
-        <div className="demo-product-grid">
-          {[
-            ['Sunset Earrings', 'GHS 120'],
-            ['Handwoven Basket', 'GHS 240'],
-            ['Shea Body Butter', 'GHS 85'],
-            ['Tie-Dye Tee', 'GHS 150'],
-          ].map(([name, price], i) => (
-            <div
-              key={i}
-              className="glass card demo-product-card"
-              role="article"
-              aria-label={`Product: ${name}, Price: ${price}`}
-            >
-              <div className="demo-product-image" />
-              <div className="demo-product-content">
-                <div className="demo-product-name" title={name}>
-                  {name}
-                </div>
-                <div className="demo-product-price">{price}</div>
-              </div>
-              <button
-                className="btn btnPrimary demo-contact-button"
-                aria-label={`Contact seller about ${name} via WhatsApp`}
-                tabIndex={-1}
-              >
-                Contact on WhatsApp
-              </button>
-            </div>
+        <div className="demo-store-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '8px',
+          marginTop: '12px'
+        }}>
+          {demoStores.slice(0, 4).map((store) => (
+            <DemoStoreTile
+              key={store.slug}
+              slug={store.slug}
+              storeName={store.storeName}
+              ownerName={store.fullName}
+              category={store.category}
+              country={store.country}
+              description={store.description}
+              productCount={store.products.length}
+              className="scale-[0.65] origin-top-left transform-gpu"
+            />
           ))}
         </div>
       </div>
