@@ -1,0 +1,178 @@
+1) Align the list (single source of truth + consistent keys)
+A. Create a canonical dictionary in the DB
+
+Add one canonical list for each category so both Settings and Storefront read the same thing.
+
+/meta/paymentMethods
+  cash             { label: "Cash",             icon: "🪙", order: 10 }
+  bank_transfer    { label: "Bank Transfer",    icon: "🏦", order: 20 }
+  card             { label: "Card Payment",     icon: "💳", order: 30 }
+  mobile_money     { label: "Mobile Money",     icon: "📱", order: 40 }
+  paypal           { label: "PayPal",           icon: "🅿️", order: 50 }
+  stripe           { label: "Stripe",           icon: "⚡", order: 60 }
+  crypto           { label: "Cryptocurrency",   icon: "₿", order: 70 }
+
+/meta/deliveryOptions
+  pickup           { label: "Customer Pickup",  icon: "🚶", order: 10 }
+  home_delivery    { label: "Home Delivery",    icon: "🏠", order: 20 }
+  courier          { label: "Courier Service",  icon: "📦", order: 30 }
+  shipping         { label: "Shipping",         icon: "✈️", order: 40 }
+  local_delivery   { label: "Local Delivery",   icon: "🛵", order: 50 }
+  national_courier { label: "National Courier", icon: "🚚", order: 60 }
+  international    { label: "International",    icon: "🌍", order: 70 }
+
+
+These “slugs” (e.g., bank_transfer, mobile_money) are the only keys you should use everywhere. This kills duplicates like banktransfer, mobilemoney, cash-on-delivery, etc.
+
+B. Store only enabled flags per seller
+
+In the seller’s private settings, store a simple boolean map keyed by the same slugs:
+
+/sellers/{uid}/settings/paymentMethods
+  cash: true
+  bank_transfer: true
+  card: true
+  mobile_money: false
+  ...
+
+/sellers/{uid}/settings/deliveryOptions
+  pickup: true
+  home_delivery: true
+  courier: false
+  shipping: true
+  ...
+
+C. Migrate any old/duplicate keys
+
+Add a tiny migration map and normalize once at sign-in or on save:
+
+const normalizeKey = (k:string) => ({
+  banktransfer: 'bank_transfer',
+  mobilemoney: 'mobile_money',
+  'cash-on-delivery': 'cash',
+  'local-delivery': 'local_delivery',
+  'national-courier': 'national_courier'
+}[k] ?? k);
+
+
+Run through any existing arrays/objects, remap to canonical slugs, and write back.
+
+2) Update flow (write once, mirror to public, keep counts in sync)
+A. When the seller saves in Settings
+
+Read the canonical /meta/* to render the toggle list.
+
+On save, compute the selected lists and counts from the boolean maps.
+
+Write both the private settings and the public storefront snapshot in a single multi-path update so the storefront and the pill counts stay in sync.
+
+Realtime DB multi-path update example:
+
+import { ref, update } from "firebase/database";
+
+async function saveSellerCheckoutSettings(uid: string, pmFlags: Record<string, boolean>, doFlags: Record<string, boolean>) {
+  const selectedPm = Object.entries(pmFlags).filter(([, on]) => on).map(([k]) => k);
+  const selectedDo = Object.entries(doFlags).filter(([, on]) => on).map(([k]) => k);
+
+  const updates: any = {};
+
+  // 1) Private (authoritative) seller settings
+  updates[`/sellers/${uid}/settings/paymentMethods`]  = pmFlags;
+  updates[`/sellers/${uid}/settings/deliveryOptions`] = doFlags;
+
+  // 2) Public storefront snapshot
+  updates[`/public/${uid}/storefront/paymentMethods`]  = selectedPm; // array of slugs
+  updates[`/public/${uid}/storefront/deliveryOptions`] = selectedDo; // array of slugs
+  updates[`/public/${uid}/summary/paymentCount`]       = selectedPm.length;
+  updates[`/public/${uid}/summary/deliveryCount`]      = selectedDo.length;
+
+  await update(ref(db), updates);
+}
+
+
+This mirrors the seller’s choices into a public area that the Storefront reads (no private fields exposed), and also writes the counts the top pills need.
+
+B. Storefront reading logic
+
+The Storefront page must read from:
+/public/{sellerId}/storefront/paymentMethods
+/public/{sellerId}/storefront/deliveryOptions
+and /meta/* to resolve labels/icons and show the modal list.
+
+The pill counts read /public/{sellerId}/summary/paymentCount and deliveryCount.
+(Optionally compute counts client-side from the arrays if you prefer, but saving them avoids a second fetch.)
+
+Join meta + selected for the modal:
+
+const metaPm = await get(`/meta/paymentMethods`);
+const selectedPm = await get(`/public/${sellerId}/storefront/paymentMethods`); // array of slugs
+
+const paymentList = Object
+  .entries(metaPm.val() ?? {})
+  .sort((a,b) => a[1].order - b[1].order)
+  .map(([slug, cfg]) => ({ slug, ...cfg, enabled: selectedPm.val()?.includes(slug) }));
+
+
+Render that list. Do the same for delivery.
+
+C. Make the two pills open the same component as Settings
+
+Reuse the same React component for the lists (toggle UI + modal) in both Settings and Storefront; pass:
+
+mode="settings": toggles enabled, calls saveSellerCheckoutSettings.
+
+mode="storefront": read-only; just shows the currently enabled items (no toggles, no save button).
+
+That guarantees visual parity and eliminates drift.
+
+3) Rules (keeps seller fully in control)
+
+Your rules already allow sellers to update their own public node (great). Keep them as:
+
+{
+  "rules": {
+    "sellers": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('sellers').child(auth.uid).child('isAdmin').val() == true)",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "public": {
+      "$sellerId": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $sellerId"
+      }
+    }
+  }
+}
+
+
+This removes the “admin must approve” friction and fixes “Saved, but public info not updated.”
+
+4) Quick checklist for the agent
+
+Add /meta/paymentMethods and /meta/deliveryOptions with canonical slugs + labels/icons/order.
+
+Normalize any legacy keys in existing seller data using the remap above.
+
+Update Settings page to:
+
+Read /meta/* + /sellers/{uid}/settings/*
+
+Toggle booleans
+
+On save, call saveSellerCheckoutSettings (multi-path update).
+
+Update Storefront page to:
+
+Read /public/{sellerId}/storefront/* and /public/{sellerId}/summary/* for counts
+
+Join with /meta/* for labels/icons
+
+Reuse the same modal component in read-only mode
+
+Remove any hardcoded or duplicated lists in Storefront. Everything comes from /meta/*.
+
+Test: Toggle a few methods/options in Settings → Save → Storefront pills update counts → Clicking pills shows the exact same items (labels/icons/order) as in Settings.
+
+This will make the Storefront list match Seller Settings exactly, and the counts will always reflect the seller’s selections.
