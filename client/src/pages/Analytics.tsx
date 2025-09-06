@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue, off } from 'firebase/database';
 import { BarChart3, TrendingUp, Eye, MessageCircle, Users, ExternalLink } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { database } from '@/lib/firebase';
 import { useAuthContext } from '@/context/AuthContext';
 import { formatRelativeTime } from '@/lib/utils/formatting';
@@ -159,6 +160,34 @@ export default function Analytics() {
     return getFilteredEvents()
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 10);
+  };
+
+  // Generate chart data based on date range
+  const getChartData = () => {
+    const days = parseInt(dateRange);
+    const data = [];
+    const now = new Date();
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      
+      // Filter events for this day
+      const dayEvents = events.filter(event => {
+        const eventDate = new Date(event.timestamp);
+        return eventDate.toDateString() === date.toDateString();
+      });
+      
+      const views = dayEvents.filter(e => e.type === 'store_view' || e.type === 'product_view').length;
+      
+      data.push({
+        day: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        views: views,
+        date: date.toISOString().split('T')[0]
+      });
+    }
+    
+    return data;
   };
 
   const analyticsData = getAnalyticsData();
@@ -342,16 +371,42 @@ export default function Analytics() {
               <CardTitle>Traffic Trend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64 bg-muted/20 rounded-xl flex items-center justify-center">
-                <div className="text-center">
-                  <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    Interactive chart showing daily traffic trends
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Chart implementation: Use Chart.js or Recharts
-                  </p>
-                </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={getChartData()}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground) / 0.2)" />
+                    <XAxis 
+                      dataKey="day" 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                      }}
+                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="views" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2 }}
+                      activeDot={{ r: 4, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
