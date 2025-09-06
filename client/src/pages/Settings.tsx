@@ -146,8 +146,8 @@ export default function Settings() {
   const paymentsDeliveryForm = useForm<PaymentsDeliveryForm>({
     resolver: zodResolver(paymentsDeliverySchema),
     defaultValues: {
-      paymentMethods: seller?.paymentMethods || [],
-      deliveryOptions: seller?.deliveryOptions || [],
+      paymentMethods: [],
+      deliveryOptions: [],
     },
   });
 
@@ -188,10 +188,33 @@ export default function Settings() {
         preferredLanguage: seller.preferredLanguage || '',
       });
 
-      paymentsDeliveryForm.reset({
-        paymentMethods: seller.paymentMethods || [],
-        deliveryOptions: seller.deliveryOptions || [],
-      });
+      // Load payment/delivery data from new storage location
+      (async () => {
+        if (user?.uid) {
+          try {
+            const { loadSellerPaymentDelivery } = await import('@/lib/paymentDelivery');
+            const { payments, delivery } = await loadSellerPaymentDelivery(user.uid);
+            
+            // Convert object maps back to string arrays for form
+            const paymentLabels = Object.values(payments).map((p: any) => p.label);
+            const deliveryLabels = Object.values(delivery).map((d: any) => d.label);
+            
+            paymentsDeliveryForm.reset({
+              paymentMethods: paymentLabels,
+              deliveryOptions: deliveryLabels,
+            });
+            
+            console.log('📋 Settings: Loaded payment/delivery data:', { paymentLabels, deliveryLabels });
+          } catch (error) {
+            console.error('Failed to load payment/delivery settings:', error);
+            // Fallback to empty arrays
+            paymentsDeliveryForm.reset({
+              paymentMethods: [],
+              deliveryOptions: [],
+            });
+          }
+        }
+      })();
 
       accountSecurityForm.reset({
         subscriptionPlan: seller.subscriptionPlan || 'beta-free',
