@@ -1,0 +1,40 @@
+import { test, expect } from '@playwright/test';
+
+const BASE = process.env.BASE_URL || 'http://127.0.0.1:5173';
+
+test.describe('ShopLynk public landing – visual + smoke', () => {
+  test('desktop top fold matches', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(BASE + '/');
+    await page.waitForLoadState('networkidle');
+    await page.addStyleTag({ content: '* { caret-color: transparent !important; }' });
+    await expect(page).toHaveScreenshot('landing-desktop.png', {
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.03
+    });
+  });
+
+  test('mobile top fold matches', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(BASE + '/');
+    await page.waitForLoadState('networkidle');
+    await page.addStyleTag({ content: '* { caret-color: transparent !important; }' });
+    await expect(page).toHaveScreenshot('landing-mobile.png', {
+      animations: 'disabled',
+      maxDiffPixelRatio: 0.04
+    });
+  });
+
+  test('basic content sanity', async ({ page }) => {
+    await page.goto(BASE + '/');
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.locator('#root')).toBeVisible();
+    await expect(page.locator('header, [role="banner"], nav, [role="navigation"]')).toBeVisible();
+    await expect(page.getByRole('heading').first()).toBeVisible();
+
+    const buttons = await page.getByRole('button').count();
+    const links = await page.getByRole('link').count();
+    expect(buttons + links).toBeGreaterThan(0);
+  });
+});

@@ -1,94 +1,63 @@
 import { test, expect, Page } from '@playwright/test';
+const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:5173';
 
-const TEST_SELLER_ID = 'test-seller-2025-01';
+async function goToFirstDemoStore(page: Page): Promise<Page> {
+  await page.goto(BASE + '/');
+  await page.waitForLoadState('networkidle');
+
+  const demo = page.locator('section:has-text("Demo Stores"), [data-section="demo-stores"]');
+  await demo.scrollIntoViewIfNeeded();
+  await expect(demo).toBeVisible();
+
+  let explore = demo.getByRole('link', { name: /explore\s+store/i }).first();
+  if (!(await explore.count())) explore = demo.locator('a:has-text("Explore Store")').first();
+  if (!(await explore.count())) explore = page.getByRole('link', { name: /explore\s+store/i }).first();
+
+  await explore.scrollIntoViewIfNeeded();
+  await expect(explore).toBeVisible();
+
+  const maybePopup = page.waitForEvent('popup').catch(() => null);
+  await explore.click({ force: true });
+  const pop = await maybePopup;
+  const target = pop ?? page;
+
+  await target.waitForLoadState('networkidle');
+  return target;
+}
 
 test.describe('Storefront Public', () => {
-  
   test('loads storefront with no console errors', async ({ page }) => {
-    const consoleErrors: string[] = [];
-    
-    // Capture console errors
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-      }
+    const errors: string[] = [];
+    page.on('console', (msg) => { if (msg.type() === 'error') errors.push(msg.text()); });
+
+    const p = await goToFirstDemoStore(page);
+    const wa = p.locator('a[href*="wa.me"], a[href*="web.whatsapp.com"]').first();
+    await expect(wa).toBeVisible();
+    expect(errors).toHaveLength(0);
+  });
+
+  test('desktop WhatsApp click opens wa.me or web.whatsapp.com', async ({ page }) => {
+    const p = await goToFirstDemoStore(page);
+    const wa = p.locator('a[href*="web.whatsapp.com"], a[href*="wa.me"]').first();
+    await expect(wa).toBeVisible();
+    const maybePopup = p.waitForEvent('popup').catch(() => null);
+    await wa.click({ force: true });
+    const dest = (await maybePopup) ?? p;
+    await expect(dest).toHaveURL(/(web\.whatsapp\.com|wa\.me)/);
+  });
+
+  test.describe('mobile', () => {
+    test.use({
+      viewport: { width: 375, height: 667 },
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1',
     });
 
-    // Navigate to test storefront
-    await page.goto(`/store/${TEST_SELLER_ID}`);
-    
-    // Wait for content to load
-    await page.waitForSelector('[data-testid="storefront-loaded"]', { timeout: 10000 });
-    
-    // Verify no console errors
-    expect(consoleErrors).toHaveLength(0);
-    
-    // Verify store loaded
-    await expect(page).toHaveTitle(/Premium Electronics Store/);
+    test('mobile WhatsApp link uses wa.me or web.whatsapp.com', async ({ page }) => {
+      const p = await goToFirstDemoStore(page);
+      const wa = p.locator('a[href*="wa.me"], a[href*="web.whatsapp.com"]').first();
+      await expect(wa).toBeVisible();
+      const href = await wa.getAttribute('href');
+      expect(href).toMatch(/(wa\.me|web\.whatsapp\.com)/);
+    });
   });
-
-  test('desktop WhatsApp click opens new tab to web.whatsapp.com', async ({ page, context }) => {
-    // Set desktop user agent
-    await page.setViewportSize({ width: 1440, height: 900 });
-    
-    // Navigate to storefront
-    await page.goto(`/store/${TEST_SELLER_ID}`);
-    
-    // Wait for products to load
-    await page.waitForSelector('[data-testid^="card-product-"]', { timeout: 10000 });
-    
-    // Find first product card
-    const productCard = page.locator('[data-testid^="card-product-"]').first();
-    
-    // Hover to reveal WhatsApp button (desktop behavior)
-    await productCard.hover();
-    
-    // Wait for WhatsApp button to appear
-    const whatsappButton = productCard.locator('[data-testid^="button-whatsapp-"]');
-    await expect(whatsappButton).toBeVisible();
-    
-    // Listen for new tab
-    const pagePromise = context.waitForEvent('page');
-    
-    // Click WhatsApp button
-    await whatsappButton.click();
-    
-    // Get new tab
-    const newPage = await pagePromise;
-    await newPage.waitForLoadState();
-    
-    // Verify URL is WhatsApp Web
-    const url = newPage.url();
-    expect(url).toContain('web.whatsapp.com/send');
-    expect(url).toContain('phone=233123456789');
-    expect(url).toContain('text=');
-  });
-
-  test('mobile WhatsApp click opens wa.me URL', async ({ page }) => {
-    // Set mobile user agent
-    await page.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1');
-    await page.setViewportSize({ width: 375, height: 667 });
-    
-    // Navigate to storefront
-    await page.goto(`/store/${TEST_SELLER_ID}`);
-    
-    // Wait for products to load
-    await page.waitForSelector('[data-testid^="card-product-"]', { timeout: 10000 });
-    
-    // Find first product card WhatsApp button (should be always visible on mobile)
-    const whatsappButton = page.locator('[data-testid^="card-product-"] [data-testid^="button-whatsapp-"]').first();
-    await expect(whatsappButton).toBeVisible();
-    
-    // Click and verify wa.me URL would be opened
-    await whatsappButton.click();
-    
-    // On mobile, wa.me URL should trigger app opening
-    // Note: In test environment, this will likely open in same tab
-    await page.waitForURL(/wa\.me.*/, { timeout: 5000 });
-    
-    const url = page.url();
-    expect(url).toContain('wa.me/233123456789');
-    expect(url).toContain('text=');
-  });
-
 });

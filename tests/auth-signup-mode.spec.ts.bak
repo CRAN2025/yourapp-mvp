@@ -1,0 +1,86 @@
+import { test, expect, Page, Frame, Locator } from '@playwright/test';
+
+const BASE = process.env.BASE_URL ?? 'http://127.0.0.1:5173';
+
+/** Make sure each test starts unauthenticated */
+test.beforeEach(async ({ context, page }) => {
+  await context.clearCookies();
+  await page.addInitScript(() => { try { localStorage.clear(); sessionStorage.clear(); } catch {} });
+});
+
+function framesAndPage(p: Page): Array<Page|Frame> {
+  const set = new Set<Frame>(p.frames());
+  set.add(p.mainFrame());
+  return [p, ...set];
+}
+
+async function clickMayOpenPopup(page: Page, locator: Locator): Promise<Page> {
+  const [popup] = await Promise.all([
+    page.waitForEvent('popup').catch(() => null),
+    locator.click({ timeout: 10000 })
+  ]);
+  return popup ?? page;
+}
+
+/** Wait until we settle on either /auth or /onboarding */
+async function waitForAuthOrOnboarding(p: Page): Promise<'auth'|'onboarding'> {
+  let final: 'auth'|'onboarding'|'unknown' = 'unknown';
+
+  await expect.poll(async () => {
+    const url = p.url();
+    if (/\/auth(\b|\/|\?)/i.test(url)) final = 'auth';
+    else if (/\/onboarding(\/|$)/i.test(url)) final = 'onboarding';
+    return final;
+  }, { timeout: 15000, intervals: [200, 300, 500, 800, 1000] }).not.toBe('unknown');
+
+  // tiny settle to avoid flicker
+  await p.waitForLoadState('networkidle').catch(() => {});
+  return final as 'auth'|'onboarding';
+}
+
+async function assertAuthUI(p: Page) {
+  for (const ctx of framesAndPage(p)) {
+    const h1 = ctx.getByRole('heading', { name: /create your account/i }).first();
+    if (await h1.count()) { await expect(h1).toBeVisible(); return; }
+    const any = ctx.getByText(/sign\s*(up|in)|email|password|continue with/i).first();
+    if (await any.count()) { await expect(any).toBeVisible(); return; }
+  }
+  // fallback: URL is enough
+  await expect(p).toHaveURL(/\/auth(\b|\/|\?)/i);
+}
+
+async function assertOnboardingUI(p: Page) {
+  for (const ctx of framesAndPage(p)) {
+    const any = ctx.getByText(/create (your )?store|onboarding|store name|get started/i).first();
+    if (await any.count()) { await expect(any).toBeVisible(); return; }
+  }
+  await expect(p).toHaveURL(/\/onboarding(\/|$)/i);
+}
+
+test.describe('Auth redirects (public landing)', () => {
+  test('header CTA → signup or create', async ({ page }) => {
+    await page.goto(BASE + '/');
+    await page.waitForLoadState('networkidle');
+
+    // header "Create Store" can be a button or link
+    let headerCta = page.getByRole('button', { name: /^create store$/i }).first();
+    if (!(await headerCta.count())) headerCta = page.getByRole('link', { name: /^create store$/i }).first();
+    await expect(headerCta).toBeVisible();
+
+    const target = await clickMayOpenPopup(page, headerCta);
+    const dest = await waitForAuthOrOnboarding(target);
+    if (dest === 'auth') await assertAuthUI(target); else await assertOnboardingUI(target);
+  });
+
+  test('hero CTA → signup or create', async ({ page }) => {
+    await page.goto(BASE + '/');
+    await page.waitForLoadState('networkidle');
+
+    const hero = page.getByRole('button', { name: /create your free store/i }).first();
+    await expect(hero).toBeVisible();
+
+    const target = await clickMayOpenPopup(page, hero);
+    const dest = await waitForAuthOrOnboarding(target);
+    if (dest === 'auth') await assertAuthUI(target); else await assertOnboardingUI(target);
+  });
+});
