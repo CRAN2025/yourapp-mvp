@@ -1,5 +1,5 @@
 // src/SellerOnboardingView.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { validatePhoneNumber, getPhoneHint, formatPhoneForDisplay } from './sharedUtils';
 
@@ -32,11 +32,22 @@ const paymentMethodsMaster = [
   { id: 'card',          label: '💳 Card Payment',   desc: 'Credit/Debit cards' }
 ];
 
+/**
+ * Props:
+ * - authMethod: 'email' | 'phone' (default 'email')
+ * - requirePhoneVerification: boolean (default false) – if true & authMethod===phone, show code UI and require verification to proceed
+ * - onSendPhoneCode?: (e164Phone) => Promise<boolean>
+ * - onVerifyPhoneCode?: (code) => Promise<boolean>
+ */
 export default function SellerOnboardingView({
   user = null,
   userProfile = null, // reserved for future
   onSignOut = null,
-  onComplete = null
+  onComplete = null,
+  authMethod = 'email',
+  requirePhoneVerification = false,
+  onSendPhoneCode,
+  onVerifyPhoneCode
 }) {
   const navigate = useNavigate();
   const { step: stepParam } = useParams();
@@ -47,6 +58,12 @@ export default function SellerOnboardingView({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // --- phone verification state (kept separate from phone to avoid bleed) ---
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationSending, setVerificationSending] = useState(false);
+  const [verificationChecking, setVerificationChecking] = useState(false);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
 
   const [formData, setFormData] = useState({
     storeName: '',
@@ -71,7 +88,13 @@ export default function SellerOnboardingView({
       return;
     }
     if (currentStep !== n) setCurrentStep(n);
-  }, [stepParam]); // navigate called inside
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepParam, navigate]);
+
+  // Recompute phone validation preview cheaply
+  const phoneValidation = useMemo(() => {
+    return validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
+  }, [formData.whatsappNumber, formData.countryCode]);
 
   // ---------- Validation ----------
   const validateStep = (step) => {
@@ -88,9 +111,20 @@ export default function SellerOnboardingView({
     }
 
     if (step === 2) {
-      const v = validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
+      const v = phoneValidation;
       if (!v.isValid) newErrors.whatsappNumber = v.error || 'Enter a valid phone number';
       if (!formData.city.trim()) newErrors.city = 'City is required';
+
+      // Only require verification code if you explicitly want it
+      if (authMethod === 'phone' && requirePhoneVerification) {
+        if (!isPhoneVerified) {
+          if (!verificationCode.trim()) {
+            newErrors.verificationCode = 'Enter the code we sent to your phone';
+          } else if (verificationCode.trim().length < 4) {
+            newErrors.verificationCode = 'Code seems too short';
+          }
+        }
+      }
     }
 
     if (step === 3) {
@@ -128,9 +162,61 @@ export default function SellerOnboardingView({
     if (errors.whatsappNumber) setErrors((prev) => ({ ...prev, whatsappNumber: null }));
   };
 
+  // ---------- Phone code flow (optional) ----------
+  const sendCode = async () => {
+    // Require a valid phone to send code
+    const v = validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
+    if (!v.isValid || !v.normalized) {
+      setErrors((prev) => ({ ...prev, whatsappNumber: v.error || 'Enter a valid phone number before sending code' }));
+      return;
+    }
+    setVerificationSending(true);
+    try {
+      if (onSendPhoneCode) {
+        const ok = await onSendPhoneCode(v.normalized);
+        if (!ok) throw new Error('Failed to send verification code');
+      }
+      setVerificationCode(''); // clear any old value
+      setIsPhoneVerified(false);
+    } catch (e) {
+      setErrors((prev) => ({ ...prev, verificationCode: 'Could not send code. Please try again.' }));
+    } finally {
+      setVerificationSending(false);
+    }
+  };
+
+  const verifyCode = async () => {
+    setVerificationChecking(true);
+    try {
+      let ok = true;
+      if (onVerifyPhoneCode) {
+        ok = await onVerifyPhoneCode(verificationCode.trim());
+      } else {
+        // fallback: naive local rule for MVP if no backend provided
+        ok = verificationCode.trim().length >= 4;
+      }
+      if (!ok) throw new Error('Invalid code');
+      setIsPhoneVerified(true);
+      setErrors((prev) => ({ ...prev, verificationCode: null }));
+    } catch (e) {
+      setIsPhoneVerified(false);
+      setErrors((prev) => ({ ...prev, verificationCode: 'Invalid or expired code' }));
+    } finally {
+      setVerificationChecking(false);
+    }
+  };
+
   // ---------- Step navigation (state + URL) ----------
   const nextStep = () => {
     if (!validateStep(currentStep)) return;
+
+    // If we’re on step 2 and phone verification is required for phone-auth users,
+    // block advancing until verified.
+    if (currentStep === 2 && authMethod === 'phone' && requirePhoneVerification && !isPhoneVerified) {
+      setErrors((prev) => ({ ...prev, verificationCode: prev.verificationCode || 'Please verify your phone to continue' }));
+      return;
+    }
+
     const next = currentStep + 1;
     setCurrentStep(next);
     navigate(`/onboarding/${next}`);
@@ -439,19 +525,65 @@ export default function SellerOnboardingView({
                   className={errors.whatsappNumber ? 'error' : ''}
                   aria-invalid={!!errors.whatsappNumber}
                   aria-describedby={errors.whatsappNumber ? 'err-whatsapp' : 'hint-whatsapp'}
+                  autoComplete="tel"
+                  inputMode="tel"
                 />
                 <div id="hint-whatsapp" className="phone-hint">
                   {getPhoneHint(formData.countryCode)}
                 </div>
-                {formData.whatsappNumber && !errors.whatsappNumber && (() => {
-                  const v = validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
-                  return v.isValid && v.normalized
-                    ? <div className="phone-preview">✓ Will be saved as: {formatPhoneForDisplay(v.normalized)}</div>
-                    : null;
-                })()}
+                {formData.whatsappNumber && !errors.whatsappNumber && phoneValidation.isValid && phoneValidation.normalized && (
+                  <div className="phone-preview">✓ Will be saved as: {formatPhoneForDisplay(phoneValidation.normalized)}</div>
+                )}
                 <small style={{ opacity:.6, display:'block', marginTop:4 }}>This is where customers will contact you for orders</small>
                 {errors.whatsappNumber && <div id="err-whatsapp" className="error-text">⚠️ {errors.whatsappNumber}</div>}
               </div>
+
+              {/* Optional phone verification UX (no bleed with phone field) */}
+              {authMethod === 'phone' && requirePhoneVerification && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="verificationCode">
+                      Verification Code {isPhoneVerified ? '✓ (verified)' : '*'}
+                    </label>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:8 }}>
+                      <input
+                        id="verificationCode"
+                        type="text"
+                        placeholder="Enter the code"
+                        value={verificationCode}           // <-- separate from phone
+                        onChange={(e)=>{ setVerificationCode(e.target.value); if (errors.verificationCode) setErrors(prev=>({...prev, verificationCode: null})); }}
+                        className={errors.verificationCode ? 'error' : ''}
+                        aria-invalid={!!errors.verificationCode}
+                        aria-describedby={errors.verificationCode ? 'err-code' : undefined}
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                      />
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={sendCode}
+                        disabled={verificationSending || !phoneValidation.isValid}
+                        aria-busy={verificationSending}
+                        title={!phoneValidation.isValid ? 'Enter a valid phone first' : 'Send code'}
+                      >
+                        {verificationSending ? 'Sending…' : 'Send code'}
+                      </button>
+                    </div>
+                    {errors.verificationCode && <div id="err-code" className="error-text">⚠️ {errors.verificationCode}</div>}
+                    <div style={{ marginTop:8 }}>
+                      <button
+                        type="button"
+                        className="btn-primary"
+                        onClick={verifyCode}
+                        disabled={verificationChecking || verificationCode.trim().length < 4}
+                        aria-busy={verificationChecking}
+                      >
+                        {verificationChecking ? 'Verifying…' : 'Verify code'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="form-group">
                 <label htmlFor="businessEmail">Business Email</label>
@@ -461,6 +593,7 @@ export default function SellerOnboardingView({
                   placeholder="Enter your business email"
                   value={formData.businessEmail}
                   onChange={(e)=>handleInputChange('businessEmail', e.target.value)}
+                  autoComplete="email"
                 />
                 <small style={{ opacity:.6, display:'block', marginTop:4 }}>This email will be used for business communications</small>
               </div>
@@ -500,7 +633,7 @@ export default function SellerOnboardingView({
           {currentStep === 3 && (
             <div className="onboarding-step">
               <div style={{ textAlign:'center', marginBottom:32 }}>
-                <div style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:80, height:80, background:'linear-gradient(135deg, rgba(168,85,247,.1), rgba(139,92,246,.1))', borderRadius:'50%', marginBottom:16, fontSize:36 }} aria-hidden>⚙️</div>
+                <div style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', width:80, height:80, background:'linear-gradient(135deg, rgba(168,85,247,.1), rgba(139,92,246,.1))', borderRadius: '50%', marginBottom:16, fontSize:36 }} aria-hidden>⚙️</div>
                 <h2 style={{ fontSize:28, fontWeight:800, background:'linear-gradient(135deg, #a855f7, #8b5cf6)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', margin:'0 0 8px 0' }}>Store Settings</h2>
                 <p style={{ opacity:.7, margin:0 }}>Configure how you'll handle orders and payments</p>
               </div>
