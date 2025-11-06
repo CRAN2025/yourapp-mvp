@@ -1,14 +1,15 @@
+// src/ProductCatalogueView.jsx
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Search, Plus, Wifi, WifiOff, MoreVertical, Edit, Trash2, Package, User,
   Settings, BarChart3, ShoppingBag, ExternalLink, Eye, MessageCircle, Star, Filter, Archive
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
-import { auth, db } from './firebase';
+import { auth, db } from './lib/firebase';
 import { ref, get, remove, onValue, set } from 'firebase/database';
 import AddProductModal from './AddProductModal';
 import ProductSelectionModal from './ProductSelectionModal';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   getProductImageUrl,
   formatProductForDisplay,
@@ -63,34 +64,24 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
 
   // Data normalization function to handle different formats
   const normalizeProductData = useCallback((product) => {
-    // Handle different image formats
     let normalizedImages;
     if (Array.isArray(product.images)) {
-      // Seed format: ["url1", "url2"]
       normalizedImages = {
         primary: product.images[0] || '',
         gallery: product.images.slice(1) || []
       };
     } else if (product.images && typeof product.images === 'object') {
-      // Already in correct format
       normalizedImages = product.images;
     } else if (typeof product.images === 'string') {
-      // Single image as string
-      normalizedImages = {
-        primary: product.images,
-        gallery: []
-      };
+      normalizedImages = { primary: product.images, gallery: [] };
     } else {
-      // Fallback
       normalizedImages = { primary: '', gallery: [] };
     }
 
     return {
       ...product,
       images: normalizedImages,
-      // Ensure imageUrl is set for backward compatibility
       imageUrl: normalizedImages.primary,
-      // Ensure other fields are consistent
       description: typeof product.description === 'string'
         ? product.description
         : product.description?.full || product.shortDescription || '',
@@ -98,15 +89,11 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
         (typeof product.description === 'string'
           ? (product.description.length > 100 ? `${product.description.substring(0, 100)}...` : product.description)
           : product.description?.short || ''),
-      // Ensure numeric fields
       price: Number(product.price || 0),
       quantity: Number(product.quantity || 0),
-      // Ensure timestamps
       createdAt: product.createdAt || Date.now(),
       updatedAt: product.updatedAt || Date.now(),
-      // Ensure analytics object
       analytics: product.analytics || { views: 0, contacts: 0, orders: 0 },
-      // Ensure status
       status: product.status || 'active'
     };
   }, []);
@@ -133,7 +120,6 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
 
     const productsRef = ref(db, `users/${user.uid}/products`);
 
-    // Use the unsubscribe that onValue returns
     const unsubscribe = onValue(
       productsRef,
       (snapshot) => {
@@ -144,7 +130,6 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
               productId: id,
               ...formatProductForDisplay(normalizeProductData(data)),
             }));
-
             const sorted = [...productsArray].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             setProducts(sorted);
           } else {
@@ -208,14 +193,12 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
   useEffect(() => {
     let filtered = [...products];
 
-    // Filter by status
     if (filterBy !== 'archived') {
       filtered = filtered.filter((p) => p.status !== 'deleted');
     } else {
       filtered = filtered.filter((p) => p.status === 'deleted');
     }
 
-    // Search filter
     if (searchTerm) {
       const query = searchTerm.toLowerCase();
       filtered = filtered.filter((p) =>
@@ -226,12 +209,10 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
       );
     }
 
-    // Category filter
     if (selectedCategory !== 'all') {
       filtered = filtered.filter((p) => p.category === selectedCategory);
     }
 
-    // Additional filters
     if (filterBy !== 'all' && filterBy !== 'archived') {
       filtered = filtered.filter((p) => {
         const qty = p.quantity || 0;
@@ -245,7 +226,6 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
       });
     }
 
-    // Sort
     const sorted = [...filtered];
     switch (sortBy) {
       case 'newest': sorted.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); break;
@@ -261,7 +241,8 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
     setFilteredProducts(sorted);
   }, [products, searchTerm, selectedCategory, filterBy, sortBy]);
 
-  // Action handlers
+  // ---------- Action handlers (ALL inside the component) ----------
+
   const handleSync = async () => {
     if (!user?.uid) return;
     setSyncStatus('syncing');
@@ -374,46 +355,48 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
     setShowProductMenu(null);
   };
 
-  // Product card handlers with analytics tracking
+  // Product card handlers with non-blocking analytics tracking
   const handleProductView = useCallback(async (product) => {
-    if (user?.uid && product.productId) {
-      await trackInteraction(user.uid, product.productId, 'view');
+    try {
+      if (user?.uid && product.productId) {
+        await trackInteraction(user.uid, product.productId, 'view');
+      }
+    } catch (e) {
+      console.warn('trackInteraction(view) failed (ignored):', e);
     }
     setSelectedProduct(product);
     setShowProductModal(true);
   }, [user?.uid]);
 
   const handleContactSeller = useCallback(async (product) => {
-    if (user?.uid && product.productId) {
-      await trackInteraction(user.uid, product.productId, 'contact');
+    try {
+      if (user?.uid && product.productId) {
+        await trackInteraction(user.uid, product.productId, 'contact');
+      }
+    } catch (e) {
+      console.warn('trackInteraction(contact) failed (ignored):', e);
     }
     setSelectedProduct(product);
     setShowProductModal(true);
   }, [user?.uid]);
 
+  // Favorites toggle (persists per-user to localStorage)
   const handleToggleFavorite = useCallback((productId, e) => {
     e?.stopPropagation?.();
-    const newFavorites = new Set(favorites);
-
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-
-    setFavorites(newFavorites);
-
+    const next = new Set(favorites);
+    if (next.has(productId)) next.delete(productId);
+    else next.add(productId);
+    setFavorites(next);
     try {
-      localStorage.setItem(`favorites_${user?.uid}`, JSON.stringify([...newFavorites]));
-    } catch (error) {
-      console.warn('Failed to save favorites:', error);
+      localStorage.setItem(`favorites_${user?.uid}`, JSON.stringify([...next]));
+    } catch (err) {
+      console.warn('Failed to save favorites:', err);
     }
   }, [favorites, user?.uid]);
 
+  // AddProduct modal helpers
   const handleProductAdded = () => {
     if (editingProduct) setEditingProduct(null);
-
-    // Real-time listener will update automatically; force a tiny tick to show progress
     setTimeout(() => {
       setLoading(true);
       setTimeout(() => setLoading(false), 100);
@@ -425,6 +408,7 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
     setEditingProduct(null);
   };
 
+  // User/session helpers
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -441,9 +425,7 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
     setSortBy('newest');
   };
 
-  // ---- Helper functions ----
-
-  // Style helpers
+  // ---- Helper functions for badges & images ----
   const getBadgeStyle = (q, featured = false, status) => {
     if (status === 'deleted')
       return { padding: '4px 8px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: 'rgba(107,114,128,.12)', color: '#6b7280' };
@@ -463,7 +445,7 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
     return qty === 0 ? 'Out of Stock' : qty <= 5 ? `${qty} left` : `${qty} in stock`;
   };
 
-  // Image URL with cache-busting that DOES NOT trigger CORS (no crossOrigin needed)
+  // Image URL with cache-busting
   const buildImgSrc = (prod) => {
     const base = getProductImageUrl(prod) || '';
     if (!base) return '';
@@ -472,7 +454,7 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
     return `${base}${sep}v=${version}`;
   };
 
-  // Derived stats
+  // Derived stats (from current list, excluding archived unless viewing archived)
   const visibleProducts = products.filter((p) => p.status !== 'deleted');
   const archivedCount = products.filter((p) => p.status === 'deleted').length;
   const totalProducts = visibleProducts.length;
@@ -619,26 +601,26 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
 
             <div style={styles.headerRight}>
               <nav style={styles.nav}>
-                <button onClick={() => navigate('/catalog')} style={{ ...styles.navButton, ...styles.navButtonActive }}>
+                <Link to="/app/catalog" style={{ ...styles.navButton, ...styles.navButtonActive }} className="btn-hover">
                   <Package size={16} />
                   Catalog
-                </button>
-                <button onClick={() => navigate('/storefront')} style={styles.navButton} className="btn-hover">
+                </Link>
+                <Link to="/app/storefront" style={styles.navButton} className="btn-hover">
                   <ExternalLink size={16} />
                   Storefront
-                </button>
-                <button onClick={() => navigate('/orders')} style={styles.navButton} className="btn-hover">
+                </Link>
+                <Link to="/app/orders" style={styles.navButton} className="btn-hover">
                   <ShoppingBag size={16} />
                   Orders
-                </button>
-                <button onClick={() => navigate('/analytics')} style={styles.navButton} className="btn-hover">
+                </Link>
+                <Link to="/app/analytics" style={styles.navButton} className="btn-hover">
                   <BarChart3 size={16} />
                   Analytics
-                </button>
-                <button onClick={() => navigate('/settings')} style={styles.navButton} className="btn-hover">
+                </Link>
+                <Link to="/app/settings" style={styles.navButton} className="btn-hover">
                   <Settings size={16} />
                   Settings
-                </button>
+                </Link>
               </nav>
 
               <button style={styles.syncButton} onClick={() => setShowSyncModal(true)}>
@@ -646,21 +628,25 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
                 {syncStatus === 'syncing' ? 'Syncing…' : isOffline ? 'Offline' : 'Synced'}
               </button>
 
-              <div className="user-button" style={styles.userButton} onClick={(e) => { e.stopPropagation(); setShowUserMenu(!showUserMenu); }}>
+              <div
+                className="user-button"
+                style={styles.userButton}
+                onClick={(e) => { e.stopPropagation(); setShowUserMenu(!showUserMenu); }}
+              >
                 <User size={16} />
                 <span>{user?.email?.split('@')[0] || 'User'}</span>
                 {showUserMenu && (
                   <div className="user-menu" style={styles.userMenu}>
-                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/storefront')}>
+                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/app/storefront')}>
                       <ExternalLink size={14} /> My Storefront
                     </button>
-                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/orders')}>
+                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/app/orders')}>
                       <ShoppingBag size={14} /> Orders
                     </button>
-                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/analytics')}>
+                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/app/analytics')}>
                       <BarChart3 size={14} /> Analytics
                     </button>
-                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/settings')}>
+                    <button style={styles.userMenuItem} className="user-menu-item" onClick={() => navigate('/app/settings')}>
                       <Settings size={14} /> Settings
                     </button>
                     <hr style={{ margin: '6px 0', border: 'none', borderTop: '1px solid #eee' }} />
@@ -731,27 +717,6 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
                 Reset
               </button>
             </div>
-
-            {showFilters && (
-              <div style={styles.filterTabs}>
-                {[
-                  { key: 'all', label: 'All Products' },
-                  { key: 'in-stock', label: 'In Stock' },
-                  { key: 'low-stock', label: 'Low Stock' },
-                  { key: 'out-of-stock', label: 'Out of Stock' },
-                  { key: 'featured', label: '⭐ Featured' },
-                  { key: 'archived', label: '🗄 Archived' },
-                ].map((f) => (
-                  <button
-                    key={f.key}
-                    onClick={() => setFilterBy(f.key)}
-                    style={{ ...styles.filterTab, ...(filterBy === f.key ? styles.filterTabActive : {}) }}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Stats */}
@@ -1081,7 +1046,6 @@ const ProductCatalogueView = ({ user = null, userProfile = null }) => {
           }}
           onOrderSubmit={(orderDetails) => {
             console.log('Order submitted:', orderDetails);
-            // Handle order submission if needed
             setShowProductModal(false);
             setSelectedProduct(null);
           }}

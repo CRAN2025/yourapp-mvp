@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { ref, get, set, update } from 'firebase/database';
-import { auth, db } from './firebase';
+import { auth, db } from "./lib/firebase";
 import './App.css';
 
 import AuthComponent from './AuthComponent';
@@ -16,12 +16,24 @@ import StorefrontPublicView from './StorefrontPublicView';
 import SettingsView from './SettingsView';
 import UpgradeView from './UpgradeView';
 import AdminLite from './AdminLite';
+// NOTE: ensure the case matches your real filename (macOS can be lenient, CI won’t)
+// If your file is src/pages/sellerDashboard.tsx, change the import to './pages/sellerDashboard'
+import SellerDashboard from './SellerDashboard';
+
+// If your project does NOT have the "@" alias, change these two lines to:
+// import StorefrontByUid from './pages/StorefrontByUid';
+// import Logout from './pages/Logout';
+import StorefrontByUid from './pages/StorefrontByUid';
+import Logout from '@/pages/Logout';
 
 // Admin
 import AdminDashboard from './AdminDashboard';
 
 // Public marketing/landing
 import MarketLanding from './MarketLanding';
+
+// 🔧 Dev utilities (for one-time data cleanup)
+import DevCleanupPanel from './DevCleanupPanel';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -135,65 +147,97 @@ export default function App() {
 
   return (
     <Routes>
-      {/* PUBLIC ROUTES */}
+      {/* ---------- PUBLIC ROUTES (buyer/marketing) ---------- */}
       <Route
         path="/"
-        element={user ? <Navigate to="/catalog" replace /> : <MarketLanding />}
+        element={user ? <Navigate to="/app/dashboard" replace /> : <MarketLanding />}
       />
+      {/* Always-open marketing route (no redirect even when signed-in) */}
+      <Route path="/get-started" element={<MarketLanding />} />
       <Route
         path="/login"
-        element={user ? <Navigate to="/catalog" replace /> : <AuthComponent />}
+        element={user ? <Navigate to="/app/dashboard" replace /> : <AuthComponent />}
       />
+
+      {/* Public storefront (guest/buyer view only) */}
       <Route path="/store/:sellerId" element={<StorefrontPublicView />} />
 
-      {/* Utility pages */}
+      {/* NEW: legacy UID → seller redirect */}
+      <Route path="/store-by-uid/:uid" element={<StorefrontByUid />} />
+
+      {/* NEW: sign-out endpoint */}
+      <Route path="/logout" element={<Logout />} />
+
+      {/* 🔧 Dev cleanup route (visit /__dev_cleanup) */}
+      <Route path="/__dev_cleanup" element={<DevCleanupPanel />} />
+
+      {/* Utility pages (public) */}
       <Route path="/upgrade" element={<UpgradeView />} />
+
+      {/* Admin Lite (public path, role-gated) */}
       <Route
         path="/admin-lite"
         element={
-          userProfile?.role === 'admin' ? (
-            <AdminLite />
-          ) : (
-            <Navigate to="/catalog" replace />
-          )
+          user
+            ? userProfile?.role === 'admin'
+              ? <AdminLite />
+              : <Navigate to="/app/dashboard" replace />
+            : <Navigate to="/" replace />
         }
       />
 
-      {/* AUTHENTICATED ROUTES */}
+      {/* ---------- BACKWARD-COMPAT REDIRECTS (old seller paths) ---------- */}
+      <Route path="/catalog" element={<Navigate to="/app/catalog" replace />} />
+      <Route path="/storefront" element={<Navigate to="/app/storefront" replace />} />
+      <Route path="/orders" element={<Navigate to="/app/orders" replace />} />
+      <Route path="/analytics" element={<Navigate to="/app/analytics" replace />} />
+      <Route path="/settings" element={<Navigate to="/app/settings" replace />} />
+      <Route path="/admin" element={<Navigate to="/app/admin" replace />} />
+
+      {/* Convenience redirect for bare /app */}
+      <Route path="/app" element={<Navigate to="/app/dashboard" replace />} />
+
+      {/* ---------- AUTHENTICATED SELLER APP (under /app/*) ---------- */}
       {user ? (
         userProfile ? (
           userProfile.onboardingCompleted ? (
             <>
+              {/* Seller Dashboard (default home) */}
+              <Route
+                path="/app/dashboard"
+                element={<SellerDashboard user={user} userProfile={userProfile} />}
+              />
+
               {/* Admin (guarded) */}
               <Route
-                path="/admin"
+                path="/app/admin"
                 element={
                   userProfile?.role === 'admin' ? (
                     <AdminDashboard />
                   ) : (
-                    <Navigate to="/catalog" replace />
+                    <Navigate to="/app/dashboard" replace />
                   )
                 }
               />
 
               <Route
-                path="/catalog"
+                path="/app/catalog"
                 element={<ProductCatalogueView user={user} userProfile={userProfile} />}
               />
               <Route
-                path="/storefront"
+                path="/app/storefront"
                 element={<StorefrontView user={user} userProfile={userProfile} />}
               />
               <Route
-                path="/orders"
+                path="/app/orders"
                 element={<OrdersView user={user} userProfile={userProfile} />}
               />
               <Route
-                path="/analytics"
+                path="/app/analytics"
                 element={<AnalyticsView user={user} userProfile={userProfile} />}
               />
               <Route
-                path="/settings"
+                path="/app/settings"
                 element={
                   <SettingsView
                     user={user}
@@ -203,13 +247,13 @@ export default function App() {
                 }
               />
 
-              {/* Unknown authed route → catalog */}
-              <Route path="*" element={<Navigate to="/catalog" replace />} />
+              {/* Unknown authed /app route → dashboard */}
+              <Route path="/app/*" element={<Navigate to="/app/dashboard" replace />} />
             </>
           ) : (
-            // Force onboarding flow if not completed
+            // Force onboarding flow for any /app/* if not completed
             <Route
-              path="*"
+              path="/app/*"
               element={
                 <SellerOnboardingView
                   user={user}
@@ -221,9 +265,9 @@ export default function App() {
             />
           )
         ) : (
-          // Brief "loading profile..." screen while userProfile fetches
+          // Brief "loading profile..." screen while userProfile fetches (for /app/* only)
           <Route
-            path="*"
+            path="/app/*"
             element={
               <div className="screen">
                 <div className="bgGradient" />
@@ -235,10 +279,16 @@ export default function App() {
             }
           />
         )
-      ) : (
-        // Unknown public route → landing
-        <Route path="*" element={<Navigate to="/" replace />} />
-      )}
+      ) : null}
+
+      {/* ---------- FALLBACKS ---------- */}
+      {/* If signed-in and hits unknown route → seller dashboard; else → marketing */}
+      <Route
+        path="*"
+        element={
+          user ? <Navigate to="/app/dashboard" replace /> : <Navigate to="/" replace />
+        }
+      />
     </Routes>
   );
 }

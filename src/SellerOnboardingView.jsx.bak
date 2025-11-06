@@ -1,7 +1,10 @@
-// src/SellerOnboardingView.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { validatePhoneNumber, getPhoneHint, formatPhoneForDisplay } from './sharedUtils';
+import {
+  validatePhoneNumber,
+  getPhoneHint,
+  formatPhoneForDisplay,
+} from './sharedUtils';
 
 const categories = [
   '👗 Fashion & Clothing','📱 Electronics','🍔 Food & Beverages','💄 Beauty & Cosmetics',
@@ -34,26 +37,26 @@ const paymentMethodsMaster = [
 
 export default function SellerOnboardingView({
   user = null,
-  userProfile = null, // reserved for future
+  userProfile = null, // unused but kept for API parity
   onSignOut = null,
   onComplete = null
 }) {
   const navigate = useNavigate();
   const { step: stepParam } = useParams();
 
-  const defaultCountry = countries[0];
-
-  const [currentStep, setCurrentStep] = useState(1); // 1 | 2 | 3
+  const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const defaultCountry = countries[0];
 
   const [formData, setFormData] = useState({
     storeName: '',
     storeDescription: '',
     category: '',
     whatsappNumber: '',
-    businessEmail: user?.email || '',
+    businessEmail: (user && user.email) || '',
     countryCode: defaultCountry.code,
     countryName: defaultCountry.name,
     currency: defaultCountry.currency,
@@ -63,17 +66,19 @@ export default function SellerOnboardingView({
     paymentMethods: []
   });
 
-  // Keep URL and local step state in sync; guard invalid step values
+  // --- Sync component step with URL param and guard invalid values ---
   useEffect(() => {
     const n = Number(stepParam);
-    if (![1, 2, 3].includes(n)) {
+    if (n !== 1 && n !== 2 && n !== 3) {
       navigate('/onboarding/1', { replace: true });
       return;
     }
-    if (currentStep !== n) setCurrentStep(n);
-  }, [stepParam]); // navigate called inside
+    if (currentStep !== n) {
+      setCurrentStep(n);
+    }
+  }, [stepParam, navigate, currentStep]);
 
-  // ---------- Validation ----------
+  // ---- Validation per step ----
   const validateStep = (step) => {
     const newErrors = {};
 
@@ -88,8 +93,10 @@ export default function SellerOnboardingView({
     }
 
     if (step === 2) {
-      const v = validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
-      if (!v.isValid) newErrors.whatsappNumber = v.error || 'Enter a valid phone number';
+      const phoneValidation = validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
+      if (!phoneValidation.isValid) {
+        newErrors.whatsappNumber = phoneValidation.error || 'Enter a valid phone number';
+      }
       if (!formData.city.trim()) newErrors.city = 'City is required';
     }
 
@@ -102,35 +109,38 @@ export default function SellerOnboardingView({
     return Object.keys(newErrors).length === 0;
   };
 
-  // ---------- Handlers ----------
+  // ---- State helpers ----
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: null }));
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
   const handleArrayToggle = (field, value) => {
-    setFormData((prev) => {
+    setFormData(prev => {
       const exists = prev[field].includes(value);
-      const next = exists ? prev[field].filter((v) => v !== value) : [...prev[field], value];
+      const next = exists ? prev[field].filter(v => v !== value) : [...prev[field], value];
       return { ...prev, [field]: next };
     });
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: null }));
+    if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
   };
 
   const handleCountryChange = (code) => {
-    const c = countries.find((x) => x.code === code) || defaultCountry;
-    setFormData((prev) => ({
+    const c = countries.find(x => x.code === code) || defaultCountry;
+    setFormData(prev => ({
       ...prev,
       countryCode: c.code,
       countryName: c.name,
       currency: c.currency
     }));
-    if (errors.whatsappNumber) setErrors((prev) => ({ ...prev, whatsappNumber: null }));
+    if (errors.whatsappNumber) {
+      setErrors(prev => ({ ...prev, whatsappNumber: null }));
+    }
   };
 
-  // ---------- Step navigation (state + URL) ----------
+  // ---- Navigation between steps (state + URL) ----
   const nextStep = () => {
-    if (!validateStep(currentStep)) return;
+    const ok = validateStep(currentStep);
+    if (!ok) return;
     const next = currentStep + 1;
     setCurrentStep(next);
     navigate(`/onboarding/${next}`);
@@ -142,23 +152,24 @@ export default function SellerOnboardingView({
     navigate(`/onboarding/${prev}`);
   };
 
-  // ---------- Complete ----------
+  // ---- Complete ----
   const handleComplete = async () => {
     if (!validateStep(3)) return;
     setLoading(true);
     try {
-      const v = validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
-      if (!v.isValid || !v.normalized) {
-        setErrors({ whatsappNumber: v.error || 'Invalid phone number' });
+      const phoneValidation = validatePhoneNumber(formData.whatsappNumber, formData.countryCode);
+      if (!phoneValidation.isValid || !phoneValidation.normalized) {
+        setErrors({ whatsappNumber: phoneValidation.error || 'Invalid phone number' });
         setLoading(false);
         return;
       }
+      const whatsappE164 = phoneValidation.normalized;
 
       const payload = {
         storeName: formData.storeName.trim(),
         storeDescription: formData.storeDescription.trim(),
         category: formData.category,
-        whatsappE164: v.normalized,
+        whatsappE164,
         businessEmail: formData.businessEmail.trim(),
         countryCode: formData.countryCode,
         countryName: formData.countryName,
@@ -181,83 +192,66 @@ export default function SellerOnboardingView({
         setShowSuccess(false);
         navigate('/catalog');
       }, 800);
-    } catch (e) {
-      console.error('Onboarding completion error:', e);
+    } catch (err) {
+      console.error('Onboarding completion error:', err);
       setErrors({ general: 'Failed to complete setup. Please try again.' });
     } finally {
       setLoading(false);
     }
   };
 
-  // ---------- UI ----------
+  const handleSignOut = () => onSignOut && onSignOut();
+
+  // ---- UI ----
   return (
     <div className="seller-onboarding">
       <style>{`
-        /* --- Animations --- */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        /* --- Scoped wrapper to prevent bleed onto other pages --- */
-        .seller-onboarding { position: relative; min-height: 100vh; width: 100vw; display: grid; place-items: center; overflow: hidden; isolation: isolate; }
-        .seller-onboarding .bgGradient { position: absolute; inset: 0; background: radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,0.18), transparent 50%), linear-gradient(135deg, #6a5cff 0%, #7aa0ff 40%, #67d1ff 100%); opacity: .8; z-index: 0; }
-
-        .seller-onboarding .onb-toolbar,
-        .seller-onboarding .onboarding-container,
-        .seller-onboarding .success-toast { z-index: 1; position: relative; }
-
-        .seller-onboarding .onb-toolbar { position: absolute; top: 18px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; }
-        .seller-onboarding .brandLeft { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; cursor: pointer; }
-        .seller-onboarding .brandLeft:hover { background: rgba(255,255,255,0.4); }
-        .seller-onboarding .brandMark { font-size: 20px; }
-        .seller-onboarding .brandWord { font-weight: 800; font-size: 18px; letter-spacing: -0.2px; }
-        .seller-onboarding .toolbarRight { display: flex; align-items: center; gap: 10px; }
-        .seller-onboarding .userChip { padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.55); backdrop-filter: blur(6px); border: 1px solid rgba(0,0,0,0.06); font-size: 12px; }
-
-        .seller-onboarding .onboarding-container { width: min(1000px, calc(100vw - 48px)); margin: 84px auto 32px; border-radius: 20px; padding: 22px; background: rgba(255,255,255,0.86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 30px 80px rgba(22,25,45,0.25); }
-        .seller-onboarding .onboarding-header h1 { margin: 0 0 6px; letter-spacing: -0.4px; font-size: 32px; background: linear-gradient(135deg, #5a6bff, #67d1ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .seller-onboarding .onboarding-header p { margin: 0 0 14px; opacity: .75; }
-
-        .seller-onboarding .progress-container { margin: 10px 0 18px; }
-        .seller-onboarding .progress-bar { height: 8px; border-radius: 999px; background: #eef1ff; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
-        .seller-onboarding .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #5a6bff, #67d1ff); transition: width .25s ease; }
-        .seller-onboarding .progress-steps { display: flex; gap: 10px; justify-content: space-between; font-size: 12px; margin-top: 8px; opacity: .7; }
-        .seller-onboarding .progress-steps .active { font-weight: 700; opacity: 1; }
-
-        .seller-onboarding .onboarding-content { margin-top: 10px; border-radius: 16px; padding: 16px; border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.55); animation: fadeIn 0.6s ease-out; }
-        .seller-onboarding .form-group { margin: 12px 0; }
-        .seller-onboarding .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .seller-onboarding label { font-size: 13px; opacity: .8; display: block; margin-bottom: 6px; }
-        .seller-onboarding input, .seller-onboarding select, .seller-onboarding textarea { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #e6e6e6; background: #f9fafb; outline: none; transition: all 0.3s ease; }
-        .seller-onboarding textarea { resize: vertical; }
-        .seller-onboarding input:focus, .seller-onboarding select:focus, .seller-onboarding textarea:focus { border-color: #b7c5ff; box-shadow: 0 0 0 3px rgba(50,100,255,.15); }
-        .seller-onboarding .error { border-color: #ff7a7a !important; background: #fff6f6; }
-        .seller-onboarding .error-text { color: #b00020; font-size: 12px; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; }
-        .seller-onboarding .phone-hint { color: #6b7280; font-size: 11px; margin-top: 4px; font-style: italic; }
-        .seller-onboarding .phone-preview { color: #059669; font-size: 11px; margin-top: 4px; font-weight: 500; }
-
-        .seller-onboarding .radio-group { display: flex; gap: 14px; }
-        .seller-onboarding .radio-option { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); cursor: pointer; transition: all 0.3s ease; }
-
-        .seller-onboarding .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
-        .seller-onboarding .checkbox-option { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; padding: 10px; border-radius: 12px; border: 1px solid rgba(0,0,0,.06); background: rgba(255,255,255,.75); cursor: pointer; transition: all 0.3s ease; }
-        .seller-onboarding .option-label { font-weight: 600; }
-        .seller-onboarding .option-desc { opacity: .7; }
-
-        .seller-onboarding .currency-display { display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; border-radius: 999px; background: #eef1ff; font-weight: 700; }
-
-        .seller-onboarding .onboarding-navigation { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; }
-        .seller-onboarding .btn-primary, .seller-onboarding .btn-secondary, .seller-onboarding .btn-success { height: 44px; padding: 0 16px; border-radius: 12px; border: none; cursor: pointer; font-weight: 800; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; }
-        .seller-onboarding .btn-primary { background: linear-gradient(135deg, #5a6bff, #67d1ff); color: #fff; box-shadow: 0 6px 20px rgba(90,107,255,0.3); }
-        .seller-onboarding .btn-secondary { background: #eef1ff; }
-        .seller-onboarding .btn-success { background: linear-gradient(180deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 6px 14px rgba(22,163,74,.35); }
-        .seller-onboarding .spinner { width: 16px; height: 16px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-
-        .seller-onboarding .success-toast { position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3); display: flex; align-items: center; gap: 8px; font-weight: 600; }
-
-        @media (max-width: 720px) {
-          .seller-onboarding .form-row { grid-template-columns: 1fr; }
-          .seller-onboarding .radio-group { flex-direction: column; }
-        }
+        .seller-onboarding { position: relative; min-height: 100vh; width: 100vw; display: grid; place-items: center; overflow: hidden; }
+        .bgGradient { position: absolute; inset: 0; background: radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,0.18), transparent 50%), linear-gradient(135deg, #6a5cff 0%, #7aa0ff 40%, #67d1ff 100%); opacity: .8; }
+        .onb-toolbar { position: absolute; top: 18px; left: 24px; right: 24px; display: flex; align-items: center; justify-content: space-between; z-index: 2; }
+        .brandLeft { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; cursor: pointer; }
+        .brandLeft:hover { background: rgba(255,255,255,0.4); }
+        .brandMark { font-size: 20px; }
+        .brandWord { font-weight: 800; font-size: 18px; letter-spacing: -0.2px; }
+        .toolbarRight { display: flex; align-items: center; gap: 10px; }
+        .userChip { padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.55); backdrop-filter: blur(6px); border: 1px solid rgba(0,0,0,0.06); font-size: 12px; }
+        .onboarding-container { position: relative; width: min(1000px, calc(100vw - 48px)); margin: 84px auto 32px; border-radius: 20px; padding: 22px; z-index: 1; }
+        .glass { background: rgba(255,255,255,0.86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 30px 80px rgba(22,25,45,0.25); }
+        .onboarding-header h1 { margin: 0 0 6px; letter-spacing: -0.4px; font-size: 32px; background: linear-gradient(135deg, #5a6bff, #67d1ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .onboarding-header p { margin: 0 0 14px; opacity: .75; }
+        .progress-container { margin: 10px 0 18px; }
+        .progress-bar { height: 8px; border-radius: 999px; background: #eef1ff; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+        .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #5a6bff, #67d1ff); transition: width .25s ease; }
+        .progress-steps { display: flex; gap: 10px; justify-content: space-between; font-size: 12px; margin-top: 8px; opacity: .7; }
+        .progress-steps .active { font-weight: 700; opacity: 1; }
+        .onboarding-content { margin-top: 10px; border-radius: 16px; padding: 16px; border: 1px solid rgba(0,0,0,0.06); background: rgba(255,255,255,0.55); animation: fadeIn 0.6s ease-out; }
+        .form-group { margin: 12px 0; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        label { font-size: 13px; opacity: .8; display: block; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #e6e6e6; background: #f9fafb; outline: none; transition: all 0.3s ease; }
+        textarea { resize: vertical; }
+        input:focus, select:focus, textarea:focus { border-color: #b7c5ff; box-shadow: 0 0 0 3px rgba(50,100,255,.15); }
+        .error { border-color: #ff7a7a !important; background: #fff6f6; }
+        .error-text { color: #b00020; font-size: 12px; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; }
+        .phone-hint { color: #6b7280; font-size: 11px; margin-top: 4px; font-style: italic; }
+        .phone-preview { color: #059669; font-size: 11px; margin-top: 4px; font-weight: 500; }
+        .radio-group { display: flex; gap: 14px; }
+        .radio-option { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); cursor: pointer; transition: all 0.3s ease; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+        .checkbox-option { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; padding: 10px; border-radius: 12px; border: 1px solid rgba(0,0,0,.06); background: rgba(255,255,255,.75); cursor: pointer; transition: all 0.3s ease; }
+        .option-label { font-weight: 600; }
+        .option-desc { opacity: .7; }
+        .currency-display { display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; border-radius: 999px; background: #eef1ff; font-weight: 700; }
+        .onboarding-navigation { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; }
+        .btn-primary, .btn-secondary, .btn-success { height: 44px; padding: 0 16px; border-radius: 12px; border: none; cursor: pointer; font-weight: 800; display: flex; align-items: center; gap: 6px; transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #5a6bff, #67d1ff); color: #fff; box-shadow: 0 6px 20px rgba(90, 107, 255, 0.3); }
+        .btn-secondary { background: #eef1ff; }
+        .btn-success { background: linear-gradient(180deg, #22c55e, #16a34a); color: #fff; box-shadow: 0 6px 14px rgba(22,163,74,.35); }
+        .spinner { width: 16px; height: 16px; border: 2px solid white; border-top: 2px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .success-toast { position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3); z-index: 1000; animation: fadeIn 0.5s ease-out; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        @media (max-width: 720px) { .form-row { grid-template-columns: 1fr; } .radio-group { flex-direction: column; } }
       `}</style>
 
       <div className="bgGradient" />
@@ -276,7 +270,7 @@ export default function SellerOnboardingView({
         </div>
 
         <div className="toolbarRight">
-          <span className="userChip">{user?.email || 'user@example.com'}</span>
+          <span className="userChip">{(user && user.email) || 'user@example.com'}</span>
           <button
             onClick={onSignOut || undefined}
             style={{ background:'none', border:'none', cursor:'pointer', padding:'6px 12px', borderRadius:'8px', fontSize:'12px', opacity:.7 }}
@@ -289,7 +283,7 @@ export default function SellerOnboardingView({
         </div>
       </header>
 
-      <div className="onboarding-container" role="region" aria-label="Seller Onboarding">
+      <div className="onboarding-container glass" role="region" aria-label="Seller Onboarding">
         {showSuccess && <div className="success-toast" role="status">🎉 Setup completed successfully!</div>}
 
         <div className="onboarding-header">
@@ -364,7 +358,7 @@ export default function SellerOnboardingView({
                   aria-describedby={errors.category ? 'err-category' : undefined}
                 >
                   <option value="">Select your main category</option>
-                  {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+                  {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
                 {errors.category && <div id="err-category" className="error-text">⚠️ {errors.category}</div>}
               </div>
@@ -473,7 +467,7 @@ export default function SellerOnboardingView({
                     value={formData.countryCode}
                     onChange={(e)=>handleCountryChange(e.target.value)}
                   >
-                    {countries.map((c) => (
+                    {countries.map(c => (
                       <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
                     ))}
                   </select>
@@ -519,7 +513,7 @@ export default function SellerOnboardingView({
                   {errors.deliveryOptions && <span className="error-text"> ({errors.deliveryOptions})</span>}
                 </label>
                 <div className="checkbox-grid">
-                  {deliveryOptionsMaster.map((opt) => (
+                  {deliveryOptionsMaster.map(opt => (
                     <label
                       key={opt.id}
                       className="checkbox-option"
@@ -549,7 +543,7 @@ export default function SellerOnboardingView({
                   {errors.paymentMethods && <span className="error-text"> ({errors.paymentMethods})</span>}
                 </label>
                 <div className="checkbox-grid">
-                  {paymentMethodsMaster.map((m) => (
+                  {paymentMethodsMaster.map(m => (
                     <label
                       key={m.id}
                       className="checkbox-option"
@@ -592,3 +586,4 @@ export default function SellerOnboardingView({
     </div>
   );
 }
+

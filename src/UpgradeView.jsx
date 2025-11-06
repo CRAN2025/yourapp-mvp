@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { auth, db } from './firebase';
+import { auth, db } from './lib/firebase';
 import { ref as dbRef, set, serverTimestamp } from 'firebase/database';
 import { PATHS } from './constants';
 

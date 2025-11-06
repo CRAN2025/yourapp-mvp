@@ -3,7 +3,7 @@
 
 /* eslint-disable no-console */
 import { ref, get, update } from 'firebase/database';
-import { db } from './firebase';
+import { db } from './lib/firebase';
 
 /** Helpers */
 const isNonEmptyString = (v) => typeof v === 'string' && v.trim() !== '';

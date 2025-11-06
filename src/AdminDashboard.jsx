@@ -1,7 +1,7 @@
 // src/AdminDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { ref, get } from 'firebase/database';
-import { db } from './firebase';
+import { auth, db } from './lib/firebase';
 
 export default function AdminDashboard() {
   const [rows, setRows] = useState([]);

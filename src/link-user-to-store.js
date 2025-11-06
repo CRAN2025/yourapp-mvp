@@ -3,7 +3,7 @@
 // Nothing is deleted; canonical copy only happens if /stores/<uid> does not exist.
 
 import { ref as dbRef, get, set, update, serverTimestamp } from 'firebase/database';
-import { db } from './firebase';
+import { db } from './lib/firebase';
 
 /**
  * Link the user to their store and set activeStoreId/onboarding flags.
@@ -52,7 +52,7 @@ export async function linkUserToStore({
     // root user helpers
     [`users/${uid}/email`]: email ?? null,
     [`users/${uid}/activeStoreId`]: storeId,
-    [`users/${uid}/onboardingComplete`]: true, // keep for any old code
+    [`users/${uid}/onboardingCompleted`]: true, // Fixed to be consistent
 
     // what YOUR App.jsx checks (nested under profile):
     [`users/${uid}/profile/onboardingCompleted`]: true,

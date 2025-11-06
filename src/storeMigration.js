@@ -1,7 +1,7 @@
 // src/storeMigration.js
 /* eslint-disable no-console */
 import { ref as dbRef, get, set, update, serverTimestamp } from 'firebase/database';
-import { db } from './firebase';
+import { db } from './lib/firebase';
 
 // Read once
 async function read(path) {

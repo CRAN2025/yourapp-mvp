@@ -1,1244 +1,579 @@
-// src/StorefrontPublicView.jsx
-import React, { useEffect, useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { MessageCircle, ArrowLeft } from 'lucide-react';
-import { ref, get } from 'firebase/database';
-import { db } from './firebase';
-import ProductCard from './ProductCard';
+// src/StorefrontView.jsx - PART 1 of 3
+// Copy this first, then copy Parts 2 and 3 right after it
+import React, { useState, useEffect } from 'react';
 import {
-  // standardizeSellerData, // ❌ not needed anymore
+  Copy, Share2, Eye, ExternalLink, MessageCircle,
+  Package, BarChart3, Settings, ShoppingBag, Star, AlertCircle
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ref, onValue } from 'firebase/database';
+import { db } from './lib/firebase';
+import {
+  standardizeSellerData,
   getProductImageUrl,
   formatProductForDisplay,
   formatPrice,
-  trackInteraction,
-  createWhatsAppMessage,
-  generateWhatsAppUrl,
-  isMobileDevice,
+  formatPhoneForDisplay,
+  isValidPhoneE164,
+  phoneNeedsUpdate,
+  createWhatsAppMessage
 } from './sharedUtils';
+import { trackCatalogShared } from './track';
 
-// Marketing / signup URL (placeholder)
-const SHOPLINK_SIGNUP_URL = '/';
+const StorefrontView = ({ user, userProfile }) => {
+  const navigate = useNavigate();
 
-const StorefrontPublicView = () => {
-  const { sellerId } = useParams();
-
-  const [sellerData, setSellerData] = useState(null);
-  const [favorites, setFavorites] = useState(new Set());
+  // -------------------- state --------------------
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [sortBy, setSortBy] = useState('newest');
-
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showProductModal, setShowProductModal] = useState(false);
-
-  const [contactNotification, setContactNotification] = useState({
-    show: false,
-    product: null,
+  const [storefrontUrl, setStorefrontUrl] = useState('');
+  const [copied, setCopied] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [phoneWarning, setPhoneWarning] = useState(false);
+  const [sellerData, setSellerData] = useState(null);
+  const [analytics, setAnalytics] = useState({
+    totalViews: 0,
+    totalContacts: 0,
+    totalOrders: 0,
+    activeProducts: 0,
+    featuredProducts: 0,
+    topCategories: [],
+    recentActivity: []
   });
 
-  // Header detail popovers
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
-
-  // Image helpers (used in modal)
-  const [lowResImages, setLowResImages] = useState({});
-  const PLACEHOLDER =
-    'data:image/svg+xml;utf8,' +
-    encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
-         <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-           <stop offset="0" stop-color="#eef2ff"/><stop offset="1" stop-color="#e0f2fe"/></linearGradient></defs>
-         <rect width="100%" height="100%" fill="url(#g)"/>
-         <g fill="#64748b" font-family="Arial, Helvetica, sans-serif">
-           <text x="50%" y="46%" font-size="28" text-anchor="middle">No Image</text>
-           <text x="50%" y="56%" font-size="14" text-anchor="middle">Upload a clear 1200×900 image</text>
-         </g>
-       </svg>`
-    );
-  const MIN_W = 600, MIN_H = 600;
-
-  const handleImageLoad = (productId, e) => {
-    const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
-    if (w < MIN_W || h < MIN_H) {
-      setLowResImages((prev) => ({ ...prev, [productId]: true }));
+  // -------------------- effects --------------------
+  // Standardize seller data structure on load
+  useEffect(() => {
+    if (userProfile) {
+      const standardized = standardizeSellerData({ userProfile });
+      setSellerData(standardized);
     }
-  };
-  const handleImageError = (e) => {
-    e.currentTarget.src = PLACEHOLDER;
-  };
+  }, [userProfile]);
 
-  // Optional: floating chat FAB
-  const [showChatFab, setShowChatFab] = useState(false);
+  // Check phone number validity on profile load
   useEffect(() => {
-    const onScroll = () => {
-      if (window.innerWidth > 768) setShowChatFab(true);
-      else setShowChatFab(window.scrollY > 300);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll);
-    window.addEventListener('resize', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-    };
-  }, []);
+    if (sellerData?.whatsappNumber) {
+      const needsUpdate = phoneNeedsUpdate(sellerData.whatsappNumber);
+      setPhoneWarning(needsUpdate);
+    }
+  }, [sellerData]);
 
-  // Load seller profile (public) + products (public)
+  // Generate storefront URL
   useEffect(() => {
-    const loadStorefront = async () => {
-      if (!sellerId) return;
-      try {
-        // ✅ Read ONLY the public profile subpath
-        const profileRef = ref(db, `users/${sellerId}/profile`);
-        const profileSnap = await get(profileRef);
-        if (!profileSnap.exists()) {
-          setError('Store not found');
-          setLoading(false);
-          return;
-        }
+    if (user) {
+      const baseUrl = window.location.origin;
+      const url = `${baseUrl}/store/${user.uid}`;
+      setStorefrontUrl(url);
+    }
+  }, [user]);
 
-        const p = profileSnap.val() || {};
-        const normalizedProfile = {
-          storeName: p.storeName || 'Store',
-          location: [p.city, p.country].filter(Boolean).join(', ') || 'Online Store',
-          currency: p.currency || 'GHS',
-          storeDescription: p.storeDescription || p.description || '',
-          paymentMethods: p.paymentMethods || p.payments || p.paymentOptions || [],
-          deliveryOptions: p.deliveryOptions || p.shippingOptions || p.deliveryMethods || [],
-          whatsappNumber: p.whatsappNumber || '',
-          bannerUrl: p.bannerUrl || p.coverImageUrl || '',
-        };
-        setSellerData(normalizedProfile);
+  // Load products with real-time updates
+  useEffect(() => {
+    if (!user) return;
 
-        // ✅ Read ONLY the public products subpath
-        const productsRef = ref(db, `users/${sellerId}/products`);
-        const prodSnap = await get(productsRef);
-        if (prodSnap.exists()) {
-          const productsData = prodSnap.val();
+    setLoading(true);
+    const productsRef = ref(db, `users/${user.uid}/products`);
+
+    const unsubscribe = onValue(
+      productsRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const productsData = snapshot.val();
           const productsArray = Object.entries(productsData).map(([id, data]) => ({
             productId: id,
-            ...formatProductForDisplay(data),
+            ...formatProductForDisplay(data)
           }));
 
+          // Sort and filter
           const activeProducts = productsArray
-            .filter((pp) => pp.status === 'active' && pp.quantity > 0)
+            .filter(p => p.status === 'active' && (p.quantity ?? 0) > 0)
             .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-          const uniqueProducts = activeProducts.filter(
-            (p, i, self) => self.findIndex((pp) => pp.name === p.name) === i
-          );
+          setProducts(activeProducts);
 
-          setProducts(uniqueProducts);
-          setFilteredProducts(uniqueProducts);
+          // Analytics
+          const totalViews = productsArray.reduce((s, p) => s + (p.analytics?.views || 0), 0);
+          const totalContacts = productsArray.reduce((s, p) => s + (p.analytics?.contacts || 0), 0);
+          const totalOrders = productsArray.reduce((s, p) => s + (p.analytics?.orders || 0), 0);
+          const featuredProducts = productsArray.filter(p => p.featured).length;
+
+          // Top categories
+          const categoryCount = {};
+          activeProducts.forEach(p => {
+            if (p.category) categoryCount[p.category] = (categoryCount[p.category] || 0) + 1;
+          });
+          const topCategories = Object.entries(categoryCount)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 4)
+            .map(([category, count]) => ({ category, count }));
+
+          // Recent activity / "top performers"
+          const recentActivity = productsArray
+            .filter(p => (p.analytics?.views || 0) > 0 || (p.analytics?.contacts || 0) > 0 || (p.analytics?.orders || 0) > 0)
+            .sort((a, b) => {
+              const score = (p) =>
+                (p.analytics?.views || 0) +
+                2 * (p.analytics?.contacts || 0) +
+                3 * (p.analytics?.orders || 0);
+              return score(b) - score(a);
+            })
+            .slice(0, 5);
+
+          setAnalytics({
+            totalViews,
+            totalContacts,
+            totalOrders,
+            activeProducts: activeProducts.length,
+            featuredProducts,
+            topCategories,
+            recentActivity
+          });
+        } else {
+          setProducts([]);
+          setAnalytics({
+            totalViews: 0,
+            totalContacts: 0,
+            totalOrders: 0,
+            activeProducts: 0,
+            featuredProducts: 0,
+            topCategories: [],
+            recentActivity: []
+          });
         }
-      } catch (err) {
-        console.error('Error loading storefront:', err);
-        setError('Failed to load store');
-      } finally {
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error loading products:', error);
         setLoading(false);
       }
-    };
-    loadStorefront();
-  }, [sellerId]);
-
-  // Filters/sort
-  useEffect(() => {
-    let filtered = [...products];
-    const s = searchTerm.trim().toLowerCase();
-    if (s) {
-      filtered = filtered.filter(
-        (p) =>
-          p.name?.toLowerCase().includes(s) ||
-          p.description?.toLowerCase().includes(s) ||
-          p.category?.toLowerCase().includes(s)
-      );
-    }
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
-    }
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'name':
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'popular':
-        filtered.sort((a, b) => (b.analytics?.views || 0) - (a.analytics?.views || 0));
-        break;
-      case 'newest':
-      default:
-        filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-        break;
-    }
-    setFilteredProducts(filtered);
-  }, [products, searchTerm, selectedCategory, sortBy]);
-
-  // Favorites
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('favorites');
-      if (saved) setFavorites(new Set(JSON.parse(saved)));
-    } catch {}
-  }, []);
-
-  const paymentMethods = useMemo(() => {
-    const raw =
-      sellerData?.paymentMethods ||
-      sellerData?.payments ||
-      sellerData?.paymentOptions ||
-      [];
-    if (Array.isArray(raw)) return raw.filter(Boolean);
-    if (raw && typeof raw === 'object') {
-      return Object.entries(raw)
-        .filter(([, v]) => !!v)
-        .map(([k]) => k);
-    }
-    return [];
-  }, [sellerData]);
-
-  const deliveryOptions = useMemo(() => {
-    const raw =
-      sellerData?.deliveryOptions ||
-      sellerData?.shippingOptions ||
-      sellerData?.deliveryMethods ||
-      [];
-    if (Array.isArray(raw)) return raw.filter(Boolean);
-    if (raw && typeof raw === 'object') {
-      return Object.entries(raw)
-        .filter(([, v]) => !!v)
-        .map(([k]) => k);
-    }
-    return [];
-  }, [sellerData]);
-
-  // Actions
-  const handleContactSeller = async (product) => {
-    await trackInteraction(sellerId, product.productId, 'contact');
-    const productUrl = `${window.location.origin}/store/${sellerId}#${product.productId}`;
-    const message = createWhatsAppMessage.productInquiry(product, sellerData, productUrl);
-    const whatsappUrl = generateWhatsAppUrl(sellerData.whatsappNumber, message);
-    if (isMobileDevice()) {
-      window.location.href = whatsappUrl;
-      setTimeout(() => setContactNotification({ show: true, product }), 1000);
-    } else {
-      window.open(whatsappUrl, '_blank');
-    }
-  };
-
-  const handleFloatingChatClick = () => {
-    if (!sellerData?.whatsappNumber) return;
-    const storeUrl = `${window.location.origin}/store/${sellerId}`;
-    const msg = createWhatsAppMessage.storeShare(sellerData, storeUrl);
-    const url = generateWhatsAppUrl(sellerData.whatsappNumber, msg);
-    if (isMobileDevice()) window.location.href = url;
-    else window.open(url, '_blank');
-  };
-
-  const handleMarketingClick = () => {
-    try {
-      window.gtag?.('event', 'marketing_cta_click', { sellerId });
-    } catch {}
-  };
-
-  const handleToggleFavorite = (productId, e) => {
-    e.stopPropagation();
-    const s = new Set(favorites);
-    s.has(productId) ? s.delete(productId) : s.add(productId);
-    setFavorites(s);
-    try {
-      localStorage.setItem('favorites', JSON.stringify([...s]));
-    } catch {}
-    const btn = e.target?.closest?.('button');
-    if (btn) {
-      btn.style.animation = 'heartBeat 0.6s ease-in-out';
-      setTimeout(() => (btn.style.animation = ''), 600);
-    }
-  };
-
-  const handleProductView = async (product) => {
-    await trackInteraction(sellerId, product.productId, 'view');
-    setSelectedProduct(product);
-    setShowProductModal(true);
-  };
-
-  // Close modals on ESC
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') {
-        setShowPaymentModal(false);
-        setShowDeliveryModal(false);
-        setShowProductModal(false);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
-  // Loading / error UIs
-  if (loading) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'grid',
-          placeItems: 'center',
-          background: 'linear-gradient(180deg,#eef2ff 0%,#e0f2fe 50%,#e6fffb 100%)',
-        }}
-      >
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.9)',
-            padding: 40,
-            borderRadius: 16,
-            textAlign: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              border: '3px solid #eee',
-              borderTop: '3px solid #5a6bff',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 16px',
-            }}
-          />
-          <p className="typ-body">Loading store...</p>
-        </div>
-      </div>
     );
-  }
 
-  if (error) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'grid',
-          placeItems: 'center',
-          background: 'linear-gradient(180deg,#eef2ff 0%,#e0f2fe 50%,#e6fffb 100%)',
-        }}
-      >
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.9)',
-            padding: 40,
-            borderRadius: 16,
-            textAlign: 'center',
-          }}
-        >
-          <h2 style={{ color: '#dc2626', marginBottom: 16 }}>Store Not Found</h2>
-          <p className="typ-body" style={{ marginBottom: 24 }}>{error}</p>
-          <button
-            onClick={() => window.history.back()}
-            style={{
-              padding: '12px 24px',
-              background: '#5a6bff',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-            }}
-          >
-            <ArrowLeft size={16} /> Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
+    return () => {
+      try { unsubscribe(); } catch {}
+    };
+  }, [user]);
 
-  // Friendly label helpers for chip modals
-  const labelForPayment = (k) => {
-    const key = String(k || '').toLowerCase();
-    if (/momo|mobile/.test(key)) return 'Mobile Money';
-    if (/card/.test(key)) return 'Card';
-    if (/bank/.test(key)) return 'Bank Transfer';
-    if (/cash/.test(key)) return 'Cash';
-    if (/pos/.test(key)) return 'POS';
-    if (/paypal/.test(key)) return 'PayPal';
-    return k;
-  };
-  const iconForPayment = (k) => {
-    const key = String(k || '').toLowerCase();
-    if (/momo|mobile/.test(key)) return '📱';
-    if (/card/.test(key)) return '💳';
-    if (/bank/.test(key)) return '🏦';
-    if (/cash/.test(key)) return '💵';
-    if (/pos/.test(key)) return '🧾';
-    if (/paypal/.test(key)) return '🅿️';
-    return '💳';
-  };
-  const labelForDelivery = (k) => {
-    const key = String(k || '').toLowerCase();
-    if (/pickup|pick-up|self/.test(key)) return 'Pickup';
-    if (/local/.test(key)) return 'Local Delivery';
-    if (/courier|rider/.test(key)) return 'Courier';
-    if (/nation/.test(key)) return 'Nationwide';
-    if (/inter/.test(key)) return 'International';
-    return k;
-  };
-  const iconForDelivery = (k) => {
-    const key = String(k || '').toLowerCase();
-    if (/pickup|pick-up|self/.test(key)) return '🧍';
-    if (/local/.test(key)) return '🚲';
-    if (/courier|rider/.test(key)) return '🚚';
-    if (/nation/.test(key)) return '🛣️';
-    if (/inter/.test(key)) return '✈️';
-    return '🚚';
+  // -------------------- handlers --------------------
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(storefrontUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      try { await trackCatalogShared(user?.uid, 'copy'); } catch {}
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
+  const handleWhatsAppShare = async () => {
+    const message = createWhatsAppMessage.storeShare(sellerData, storefrontUrl);
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    try { await trackCatalogShared(user?.uid, 'whatsapp'); } catch {}
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleWhatsAppStatus = async () => {
+    const maker =
+      typeof createWhatsAppMessage.statusUpdate === 'function'
+        ? createWhatsAppMessage.statusUpdate
+        : createWhatsAppMessage.storeShare;
+
+    const message = maker(sellerData, storefrontUrl);
+    const statusUrl = `whatsapp://send?text=${encodeURIComponent(message)}`;
+    try { await trackCatalogShared(user?.uid, 'status'); } catch {}
+    window.open(statusUrl, '_blank');
+  };
+
+  // -------------------- derived --------------------
+  const getConversionRate = () => {
+    if (analytics.totalViews === 0) return 0;
+    return Math.round((analytics.totalContacts / analytics.totalViews) * 100);
+  };
+
+  const getOrderConversionRate = () => {
+    if (analytics.totalContacts === 0) return 0;
+    return Math.round((analytics.totalOrders / analytics.totalContacts) * 100);
+  };
+
+  // -------------------- styles --------------------
+  const styles = {
+    container: { position:'relative', minHeight:'100vh', width:'100vw', display:'flex', flexDirection:'column', overflow:'hidden' },
+    bgGradient: { position:'absolute', inset:0, background:'radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,0.18), transparent 50%), linear-gradient(135deg, #6a5cff 0%, #7aa0ff 40%, #67d1ff 100%)', opacity:.8 },
+    header: { position:'relative', zIndex:2, background:'rgba(255,255,255,0.86)', backdropFilter:'blur(10px)', borderBottom:'1px solid rgba(255,255,255,0.2)', padding:'16px 20px' },
+    headerContent: { display:'flex', alignItems:'center', justifyContent:'space-between', maxWidth:'1200px', margin:'0 auto' },
+    title: { fontSize:24, fontWeight:800, background:'linear-gradient(135deg, #5a6bff, #67d1ff)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', margin:0 },
+    nav: { display:'flex', gap:8 },
+    navButton: { display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:8, background:'rgba(255,255,255,0.7)', border:'1px solid rgba(255,255,255,0.3)', color:'#374151', fontSize:14, fontWeight:600, cursor:'pointer', transition:'all 0.2s', textDecoration:'none' },
+    navButtonActive: { background:'linear-gradient(135deg, #5a6bff, #67d1ff)', color:'white', border:'1px solid transparent' },
+    content: { position:'relative', zIndex:1, flex:1, maxWidth:'1200px', margin:'0 auto', padding:'20px', width:'100%' },
+    card: { background:'rgba(255,255,255,0.8)', backdropFilter:'blur(10px)', borderRadius:16, padding:24, marginBottom:20, border:'1px solid rgba(255,255,255,0.2)' },
+    urlSection: { background:'rgba(255,255,255,0.9)', borderRadius:12, padding:16, marginBottom:20, border:'1px solid rgba(0,0,0,0.1)' },
+    urlInput: { width:'100%', padding:'12px 16px', border:'1px solid rgba(0,0,0,0.1)', borderRadius:8, background:'#f8f9fa', fontSize:14, fontFamily:'monospace' },
+    buttonRow: { display:'flex', gap:12, marginTop:12, flexWrap:'wrap' },
+    button: { display:'flex', alignItems:'center', gap:8, padding:'10px 16px', borderRadius:8, border:'none', cursor:'pointer', fontSize:14, fontWeight:600, transition:'all 0.2s' },
+    primaryButton: { background:'linear-gradient(135deg, #5a6bff, #67d1ff)', color:'white' },
+    secondaryButton: { background:'rgba(0,0,0,0.05)', color:'#374151', border:'1px solid rgba(0,0,0,0.1)' },
+    whatsappButton: { background:'#25D366', color:'white' },
+    statsGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(150px, 1fr))', gap:16, marginBottom:24 },
+    statCard: { background:'rgba(255,255,255,0.9)', borderRadius:12, padding:16, textAlign:'center', border:'1px solid rgba(0,0,0,0.1)' },
+    statNumber: { fontSize:24, fontWeight:800, margin:'0 0 4px 0' },
+    statLabel: { fontSize:12, opacity:0.7, margin:0 },
+    previewSection: { marginTop:24 },
+    previewGrid: { display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(200px, 1fr))', gap:16, marginTop:16 },
+    productCard: { background:'rgba(255,255,255,0.9)', borderRadius:12, overflow:'hidden', border:'1px solid rgba(0,0,0,0.1)', transition:'transform 0.2s' },
+    productImage: { width:'100%', height:150, objectFit:'cover' },
+    productInfo: { padding:12 },
+    productName: { fontSize:14, fontWeight:600, margin:'0 0 4px 0' },
+    productPrice: { fontSize:16, fontWeight:700, color:'#059669', margin:0 },
+    emptyState: { textAlign:'center', padding:40, opacity:0.7 },
+    modal: { position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:1000, padding:20 },
+    modalContent: { background:'white', borderRadius:16, padding:24, maxWidth:400, width:'100%' },
+    analyticsCard: { background:'rgba(255,255,255,0.9)', borderRadius:12, padding:16, border:'1px solid rgba(0,0,0,0.1)' },
+    activityItem: { display:'flex', alignItems:'center', gap:12, padding:'8px 0', borderBottom:'1px solid rgba(0,0,0,0.05)' },
+    activityImage: { width:40, height:40, borderRadius:8, objectFit:'cover' },
+    activityInfo: { flex:1 },
+    activityStats: { display:'flex', gap:8, fontSize:12, opacity:0.7 },
+    warningBanner: { background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.2)', borderRadius:12, padding:16, marginBottom:20, display:'flex', alignItems:'center', gap:12 }
+  };
+
+// END OF PART 1 - Continue with Part 2
+// src/StorefrontView.jsx - PART 2 of 3
+// Copy this right after Part 1
+
+  // -------------------- render --------------------
   return (
     <>
-      <div
-        style={{
-          minHeight: '100vh',
-          background: 'linear-gradient(180deg,#eef2ff 0%,#e0f2fe 50%,#e6fffb 100%)',
-          padding: 20,
-        }}
-      >
-        <style>{`
-          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          @keyframes heartBeat { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-          @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1); } }
-          @keyframes pulse { 0% { opacity: 1; } 50% { opacity: .7; } 100% { opacity: 1; } }
-        `}</style>
+      <style>{`
+        .btn-hover:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .copy-success { background: #22c55e !important; }
+        .product-card:hover { transform: translateY(-2px); }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
 
-        <div style={{ maxWidth: 980, margin: '0 auto' }}>
-          {/* ===== Header / Banner ===== */}
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.95)',
-              borderRadius: 20,
-              padding: '0 0 24px',
-              marginBottom: 24,
-              boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
-            }}
-          >
-            <div
-              style={{
-                height: 160,
-                borderTopLeftRadius: 20,
-                borderTopRightRadius: 20,
-                background: sellerData?.bannerUrl
-                  ? `url(${sellerData.bannerUrl}) center/cover no-repeat`
-                  : 'linear-gradient(135deg,#c7d2fe 0%,#bae6fd 60%,#ccfbf1 100%)',
-              }}
-            />
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                padding: '0 24px',
-                marginTop: -30,
-              }}
-            >
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg,#5a6bff,#67d1ff)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 28,
-                  boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
-                  border: '3px solid #fff',
-                }}
-              >
-                🛍️
-              </div>
-              <div style={{ flex: 1 }}>
-                <h1 className="typ-title" style={{ fontSize: 28, margin: '0 0 4px' }}>
-                  {sellerData?.storeName || 'Store'}
-                </h1>
-                <p className="typ-meta" style={{ margin: 0 }}>
-                  {sellerData?.location || 'Online Store'}
-                </p>
-              </div>
-            </div>
+      <div style={styles.container}>
+        <div style={styles.bgGradient} />
 
-            {/* chips */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 12,
-                flexWrap: 'wrap',
-                padding: '12px 24px 0',
-              }}
-            >
-              {paymentMethods.length > 0 && (
-                <button
-                  onClick={() => setShowPaymentModal(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: '#eef2ff',
-                    color: '#374151',
-                    padding: '10px 14px',
-                    borderRadius: 999,
-                    fontWeight: 700,
-                    border: '1px solid #e5e7eb',
-                    cursor: 'pointer',
-                  }}
-                  title="View payment methods"
-                >
-                  💳 {paymentMethods.length} Payment Methods
-                </button>
-              )}
-              {deliveryOptions.length > 0 && (
-                <button
-                  onClick={() => setShowDeliveryModal(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: '#ecfeff',
-                    color: '#374151',
-                    padding: '10px 14px',
-                    borderRadius: 999,
-                    fontWeight: 700,
-                    border: '1px solid #e5e7eb',
-                    cursor: 'pointer',
-                  }}
-                  title="View delivery options"
-                >
-                  🚚 {deliveryOptions.length} Delivery Options
-                </button>
-              )}
-              {sellerData?.currency && (
-                <div
-                  className="typ-meta"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    background: '#f3f4f6',
-                    color: '#4b5563',
-                    padding: '10px 14px',
-                    borderRadius: 999,
-                    fontWeight: 700,
-                    border: '1px solid #e5e7eb',
-                  }}
-                >
-                  🌐 {sellerData.currency} Currency
-                </div>
-              )}
-            </div>
+        <header style={styles.header}>
+          <div style={styles.headerContent}>
+            <h1 style={styles.title}>🔗 My Storefront</h1>
 
-            {/* Store description */}
-            {(sellerData?.storeDescription) && (
-              <p
-                className="typ-body"
-                style={{
-                  margin: '8px 24px 0',
-                  color: '#374151',
-                  lineHeight: 1.5,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}
-              >
-                {sellerData.storeDescription}
-              </p>
-            )}
-
-            {/* Action pills */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 12,
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-                padding: '12px 24px',
-              }}
-            >
-              <button
-                onClick={handleFloatingChatClick}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: 'rgba(37,211,102,0.12)',
-                  color: '#25D366',
-                  padding: '8px 16px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  border: '1px solid rgba(37,211,102,0.25)',
-                  cursor: 'pointer',
-                }}
-              >
-                <MessageCircle size={16} /> Chat with seller on WhatsApp
+            <nav style={styles.nav}>
+              <button onClick={() => navigate('/app/catalog')} style={styles.navButton} className="btn-hover">
+                <Package size={16} /> Catalog
               </button>
-
-              <a
-                href={`${SHOPLINK_SIGNUP_URL}?utm_source=storefront&utm_medium=header_badge&utm_campaign=public_cta&seller=${sellerId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleMarketingClick}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: 'rgba(59,130,246,0.12)',
-                  color: '#3b82f6',
-                  padding: '8px 16px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 700,
-                  border: '1px solid rgba(59,130,246,0.25)',
-                  textDecoration: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                ✨ Create your free ShopLink store
-              </a>
-
-              <div
-                className="typ-meta"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: 'rgba(59,130,246,0.12)',
-                  color: '#3b82f6',
-                  padding: '8px 16px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  border: '1px solid rgba(59,130,246,0.25)',
-                }}
-              >
-                ⚡ Usually responds within 2 hours
-              </div>
-            </div>
+              <button onClick={() => navigate('/app/storefront')} style={{...styles.navButton, ...styles.navButtonActive}}>
+                <ExternalLink size={16} /> Storefront
+              </button>
+              <button onClick={() => navigate('/app/orders')} style={styles.navButton} className="btn-hover">
+                <ShoppingBag size={16} /> Orders
+              </button>
+              <button onClick={() => navigate('/app/analytics')} style={styles.navButton} className="btn-hover">
+                <BarChart3 size={16} /> Analytics
+              </button>
+              <button onClick={() => navigate('/app/settings')} style={styles.navButton} className="btn-hover">
+                <Settings size={16} /> Settings
+              </button>
+            </nav>
           </div>
+        </header>
 
-          {/* ===== Filters ===== */}
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.95)',
-              borderRadius: 16,
-              padding: 24,
-              marginBottom: 24,
-              boxShadow: '0 8px 22px rgba(0,0,0,0.05)',
-            }}
-          >
-            <div style={{ marginBottom: 20 }}>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+        <div style={styles.content}>
+          {phoneWarning && (
+            <div style={styles.warningBanner}>
+              <AlertCircle size={20} style={{ color:'#f59e0b', flexShrink:0 }} />
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:600, color:'#92400e', marginBottom:4 }}>
+                  WhatsApp Number Needs Updating
+                </div>
+                <div style={{ fontSize:14, color:'#a16207' }}>
+                  Your WhatsApp number isn't in the correct format. Customers may not be able to contact you.
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/app/settings')}
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: 12,
-                  fontSize: 16,
-                  outline: 'none',
-                  transition: 'border-color .2s',
+                  background: '#f59e0b', color: 'white', border: 'none', borderRadius: '8px',
+                  padding: '8px 16px', fontSize: '12px', fontWeight: '600', cursor: 'pointer'
                 }}
-                onFocus={(e) => (e.target.style.borderColor = '#5a6bff')}
-                onBlur={(e) => (e.target.style.borderColor = '#e5e7eb')}
-              />
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: 16,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span className="typ-meta" style={{ fontWeight: 600 }}>
-                  Categories:
-                </span>
-                {['All', ...new Set(products.map((p) => p.category).filter(Boolean))].map(
-                  (category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className="typ-meta"
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: 20,
-                        border: 'none',
-                        cursor: 'pointer',
-                        transition: 'all .2s',
-                        background: selectedCategory === category ? '#5a6bff' : '#f3f4f6',
-                        color: selectedCategory === category ? '#fff' : '#6b7280',
-                      }}
-                    >
-                      {category}{' '}
-                      {category !== 'All' &&
-                        `(${products.filter((p) => p.category === category).length})`}
-                    </button>
-                  )
-                )}
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="typ-meta" style={{ fontWeight: 600 }}>
-                  Sort by:
-                </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="typ-meta"
-                  style={{
-                    padding: '8px 12px',
-                    borderRadius: 8,
-                    border: '2px solid #e5e7eb',
-                    cursor: 'pointer',
-                    outline: 'none',
-                  }}
-                >
-                  <option value="newest">Newest</option>
-                  <option value="popular">Most Popular</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="name">Name A-Z</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="typ-meta" style={{ marginTop: 16 }}>
-              Showing {filteredProducts.length} of {products.length} products
-              {searchTerm && ` for "${searchTerm}"`}
-              {selectedCategory !== 'All' && ` in ${selectedCategory}`}
-            </div>
-          </div>
-
-          {/* ===== Products Grid ===== */}
-          {filteredProducts.length > 0 ? (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: 24,
-              }}
-            >
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.productId}
-                  product={product}
-                  sellerCurrency={sellerData?.currency}
-                  onContact={handleContactSeller}
-                  onView={handleProductView}
-                  onToggleFavorite={handleToggleFavorite}
-                  isFavorited={favorites.has(product.productId)}
-                  isLoading={false}
-                />
-              ))}
-            </div>
-          ) : (
-            <div
-              style={{
-                background: 'rgba(255,255,255,0.95)',
-                borderRadius: 16,
-                padding: 60,
-                textAlign: 'center',
-              }}
-            >
-              <h3 className="typ-title" style={{ opacity: 0.7, margin: '0 0 8px' }}>
-                {products.length === 0 ? 'No products available' : 'No products found'}
-              </h3>
-              <p className="typ-meta" style={{ margin: 0 }}>
-                {products.length === 0
-                  ? 'This store is being set up. Check back soon!'
-                  : 'Try adjusting your search or filters.'}
-              </p>
-              {(searchTerm || selectedCategory !== 'All') && (
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategory('All');
-                  }}
-                  style={{
-                    marginTop: 16,
-                    padding: '8px 16px',
-                    background: '#5a6bff',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Clear filters
-                </button>
-              )}
+                className="btn-hover"
+              >
+                Fix Now
+              </button>
             </div>
           )}
 
-          {/* Footer */}
-          <div style={{ textAlign: 'center', marginTop: 40, padding: 20, opacity: 0.6 }}>
-            <p className="typ-meta" style={{ margin: 0 }}>
-              Powered by 🛍️ ShopLink —{' '}
-              <a
-                href={`${SHOPLINK_SIGNUP_URL}?utm_source=storefront&utm_medium=footer&utm_campaign=public_cta&seller=${sellerId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleMarketingClick}
-                style={{ color: '#5a6bff', fontWeight: 700, textDecoration: 'none' }}
-              >
-                create your store
-              </a>
-            </p>
+          <div style={styles.card}>
+            <h2 style={{ margin:'0 0 16px', fontSize:20, fontWeight:700 }}>🛍️ Your Store Link</h2>
+            <p style={{ margin:'0 0 16px', opacity:0.7 }}>Share this link with customers to showcase your products</p>
+
+            <div style={styles.urlSection}>
+              <input type="text" value={storefrontUrl} readOnly style={styles.urlInput} />
+
+              <div style={styles.buttonRow}>
+                <button
+                  onClick={handleCopyLink}
+                  style={{ ...styles.button, ...(copied ? { background: '#22c55e', color: 'white' } : styles.secondaryButton) }}
+                  className="btn-hover"
+                >
+                  {copied ? '✅ Copied!' : (<><Copy size={16} /> Copy Link</>)}
+                </button>
+
+                <button onClick={() => window.open(storefrontUrl, '_blank')} style={{...styles.button, ...styles.primaryButton}} className="btn-hover">
+                  <Eye size={16} /> Preview Store
+                </button>
+
+                <button onClick={() => setShareModalOpen(true)} style={{...styles.button, ...styles.secondaryButton}} className="btn-hover">
+                  <Share2 size={16} /> Share Options
+                </button>
+              </div>
+            </div>
           </div>
+
+          <div style={styles.card}>
+            <h3 style={{ margin:'0 0 16px', fontSize:18, fontWeight:700 }}>📊 Store Performance</h3>
+
+            <div style={styles.statsGrid}>
+              <div style={styles.statCard}>
+                <div style={{...styles.statNumber, color:'#059669'}}>{analytics.activeProducts}</div>
+                <div style={styles.statLabel}>Active Products</div>
+              </div>
+              <div style={styles.statCard}>
+                <div style={{...styles.statNumber, color:'#f59e0b'}}>{analytics.featuredProducts}</div>
+                <div style={styles.statLabel}>Featured Products</div>
+              </div>
+              <div style={styles.statCard}>
+                <div style={{...styles.statNumber, color:'#6366f1'}}>{analytics.totalViews}</div>
+                <div style={styles.statLabel}>Total Views</div>
+              </div>
+              <div style={styles.statCard}>
+                <div style={{...styles.statNumber, color:'#ec4899'}}>{analytics.totalContacts}</div>
+                <div style={styles.statLabel}>WhatsApp Contacts</div>
+              </div>
+              <div style={styles.statCard}>
+                <div style={{...styles.statNumber, color:'#10b981'}}>{analytics.totalOrders}</div>
+                <div style={styles.statLabel}>Order Attempts</div>
+              </div>
+              <div style={styles.statCard}>
+                <div style={{...styles.statNumber, color:'#8b5cf6'}}>{getConversionRate()}%</div>
+                <div style={styles.statLabel}>View → Contact</div>
+              </div>
+              <div style={styles.statCard}>
+                <div style={{...styles.statNumber, color:'#f97316'}}>{getOrderConversionRate()}%</div>
+                <div style={styles.statLabel}>Contact → Order</div>
+              </div>
+            </div>
+
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginTop:20 }}>
+              <div style={styles.analyticsCard}>
+                <h4 style={{ margin:'0 0 12px', fontSize:16, fontWeight:600 }}>📈 Top Categories</h4>
+                {analytics.topCategories.length > 0 ? (
+                  <div>
+                    {analytics.topCategories.map(({ category, count }, i) => (
+                      <div key={`${category}-${i}`} style={{
+                        display:'flex', justifyContent:'space-between', alignItems:'center',
+                        padding:'8px 0', borderBottom: i < analytics.topCategories.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none'
+                      }}>
+                        <span style={{ fontSize:14 }}>{category}</span>
+                        <span style={{ fontSize:14, fontWeight:600, color:'#059669' }}>{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ margin:0, opacity:0.6, fontSize:14 }}>No categories yet</p>
+                )}
+              </div>
+
+              <div style={styles.analyticsCard}>
+                <h4 style={{ margin:'0 0 12px', fontSize:16, fontWeight:600 }}>🔥 Top Performing Products</h4>
+                {analytics.recentActivity.length > 0 ? (
+                  <div>
+                    {analytics.recentActivity.map(product => (
+                      <div key={product.productId} style={styles.activityItem}>
+                        <img src={getProductImageUrl(product)} alt={product.name} style={styles.activityImage} />
+                        <div style={styles.activityInfo}>
+                          <div style={{ fontSize:12, fontWeight:600, marginBottom:2 }}>
+                            {product.name.length > 20 ? product.name.substring(0, 20) + '...' : product.name}
+                          </div>
+                          <div style={styles.activityStats}>
+                            <span><Eye size={10} /> {product.analytics?.views || 0}</span>
+                            <span><MessageCircle size={10} /> {product.analytics?.contacts || 0}</span>
+                            {(product.analytics?.orders || 0) > 0 && (<span><ShoppingBag size={10} /> {product.analytics?.orders || 0}</span>)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ margin:0, opacity:0.6, fontSize:14 }}>No activity yet</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.card}>
+            <h3 style={{ margin:'0 0 8px', fontSize:18, fontWeight:700 }}>📱 Store Preview</h3>
+            <p style={{ margin:'0 0 16px', opacity:0.7, fontSize:14 }}>This is how customers will see your store</p>
+
+            {loading ? (
+              <div style={{ textAlign:'center', padding:40 }}>
+                <div style={{ width:32, height:32, border:'3px solid #eee', borderTop:'3px solid #5a6bff', borderRadius:'50%', animation:'spin 1s linear infinite', margin:'0 auto 16px' }} />
+                <p>Loading products...</p>
+              </div>
+            ) : products.length > 0 ? (
+              <>
+                <div style={{ background:'rgba(90,107,255,0.05)', borderRadius:12, padding:16, marginBottom:16 }}>
+                  <h4 style={{ margin:'0 0 4px', fontSize:16, fontWeight:700 }}>
+                    {sellerData?.storeName || 'My Store'}
+                  </h4>
+                  <p style={{ margin:0, fontSize:14, opacity:0.8 }}>
+                    {sellerData?.storeDescription || sellerData?.description || 'Welcome to my store!'}
+                  </p>
+                </div>
+
+                <div style={styles.previewGrid}>
+                  {products.slice(0, 6).map(product => (
+                    <div key={product.productId} style={styles.productCard} className="product-card">
+                      <div style={{ position: 'relative' }}>
+                        <img src={getProductImageUrl(product)} alt={product.name} style={styles.productImage} />
+                        {product.featured && (
+                          <div style={{
+                            position: 'absolute', top: '8px', left: '8px',
+                            background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white',
+                            padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '600',
+                            display: 'flex', alignItems: 'center', gap: '4px'
+                          }}>
+                            <Star size={8} /> Featured
+                          </div>
+                        )}
+                        {product.isLowStock && (
+                          <div style={{
+                            position: 'absolute', top: '8px', right: '8px',
+                            background: 'rgba(245, 158, 11, 0.9)', color: 'white',
+                            padding: '4px 8px', borderRadius: '8px', fontSize: '10px', fontWeight: '600'
+                          }}>
+                            Low Stock
+                          </div>
+                        )}
+                      </div>
+                      <div style={styles.productInfo}>
+                        <h5 style={styles.productName}>{product.name}</h5>
+                        <p style={styles.productPrice}>{formatPrice(product.price, sellerData?.currency)}</p>
+                        {product.analytics && (product.analytics.views > 0 || product.analytics.contacts > 0 || product.analytics.orders > 0) && (
+                          <div style={{ display: 'flex', gap: '8px', fontSize: '10px', opacity: 0.7, marginTop: '4px' }}>
+                            <span><Eye size={8} /> {product.analytics.views || 0}</span>
+                            <span><MessageCircle size={8} /> {product.analytics.contacts || 0}</span>
+                            {(product.analytics.orders || 0) > 0 && (<span><ShoppingBag size={8} /> {product.analytics.orders || 0}</span>)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {products.length > 6 && (
+                  <p style={{ textAlign:'center', marginTop:16, opacity:0.7, fontSize:14 }}>
+                    + {products.length - 6} more products in your store
+                  </p>
+                )}
+              </>
+            ) : (
+              <div style={styles.emptyState}>
+                <h4>No active products</h4>
+                <p>Add some products to your catalog to populate your storefront</p>
+                <button
+                  onClick={() => navigate('/app/catalog')}
+                  style={{
+                    marginTop: '12px', padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #5a6bff, #67d1ff)',
+                    color: 'white', border: 'none', borderRadius: '8px',
+                    cursor: 'pointer', fontSize: '14px', fontWeight: '600'
+                  }}
+                  className="btn-hover"
+                >
+                  Go to Catalog
+                </button>
+              </div>
+            )}
+          </div>
+
+// END OF PART 2 - Continue with Part 3
+// src/StorefrontView.jsx - PART 3 of 3 (Final)
+// Copy this right after Part 2
+
         </div>
       </div>
 
-      {/* Floating WhatsApp FAB */}
-      {showChatFab && (
-        <button
-          className="whatsapp-fab"
-          onClick={handleFloatingChatClick}
-          aria-label="Chat with seller on WhatsApp"
-          title="Chat with seller on WhatsApp"
-        >
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 22,
-              height: 22,
-              background: 'rgba(255,255,255,.22)',
-              borderRadius: '50%',
-              fontSize: 14,
-              lineHeight: 1,
-            }}
-          >
-            ✆
-          </span>
-          <span style={{ fontWeight: 800 }}>Chat</span>
-        </button>
-      )}
-
-      {/* Contact confirmation (mobile) */}
-      {contactNotification.show && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: 20,
-          }}
-        >
-          <div
-            style={{
-              background: 'white',
-              borderRadius: 20,
-              maxWidth: 400,
-              width: '100%',
-              padding: '32px 24px',
-              textAlign: 'center',
-            }}
-          >
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                margin: '0 auto 24px',
-                background: 'rgba(37,211,102,0.1)',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <MessageCircle size={32} style={{ color: '#25D366' }} />
-            </div>
-            <h2 className="typ-title" style={{ margin: '0 0 12px' }}>Welcome Back!</h2>
-            <p className="typ-body" style={{ margin: '0 0 32px' }}>
-              Your WhatsApp message has been sent. Continue browsing for more great products!
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+      {/* Share Modal */}
+      {shareModalOpen && (
+        <div style={styles.modal}>
+          <div style={styles.modalContent}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📤 Share Your Store</h3>
               <button
-                onClick={() => setContactNotification({ show: false, product: null })}
+                onClick={() => setShareModalOpen(false)}
                 style={{
-                  padding: '12px 32px',
-                  background: '#5a6bff',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 12,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Continue Browsing
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Methods modal */}
-      {showPaymentModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="payment-modal-title"
-          onClick={(e) => e.currentTarget === e.target && setShowPaymentModal(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1600,
-            padding: 20,
-          }}
-        >
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 16,
-              width: '100%',
-              maxWidth: 480,
-              boxShadow: '0 20px 60px rgba(0,0,0,.25)',
-            }}
-          >
-            <div
-              style={{
-                padding: 20,
-                borderBottom: '1px solid #e5e7eb',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <h3 id="payment-modal-title" className="typ-title" style={{ margin: 0 }}>
-                Accepted Payment Methods
-              </h3>
-              <button
-                onClick={() => setShowPaymentModal(false)}
-                aria-label="Close"
-                style={{
-                  background: '#f3f4f6',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: 36,
-                  height: 36,
-                  cursor: 'pointer',
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ padding: 20 }}>
-              {paymentMethods.map((m) => (
-                <div
-                  key={m}
-                  className="typ-body"
-                  style={{
-                    padding: '10px 12px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 12,
-                    marginBottom: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                  }}
-                >
-                  <span style={{ fontSize: 18 }}>{iconForPayment(m)}</span>
-                  <span style={{ fontWeight: 700 }}>{labelForPayment(m)}</span>
-                </div>
-              ))}
-              {paymentMethods.length === 0 && (
-                <p className="typ-meta" style={{ margin: 0 }}>
-                  The seller hasn’t listed payment methods. Please ask on WhatsApp.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delivery Options modal */}
-      {showDeliveryModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delivery-modal-title"
-          onClick={(e) => e.currentTarget === e.target && setShowDeliveryModal(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1600,
-            padding: 20,
-          }}
-        >
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 16,
-              width: '100%',
-              maxWidth: 480,
-              boxShadow: '0 20px 60px rgba(0,0,0,.25)',
-            }}
-          >
-            <div
-              style={{
-                padding: 20,
-                borderBottom: '1px solid #e5e7eb',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <h3 id="delivery-modal-title" className="typ-title" style={{ margin: 0 }}>
-                Delivery Options
-              </h3>
-              <button
-                onClick={() => setShowDeliveryModal(false)}
-                aria-label="Close"
-                style={{
-                  background: '#f3f4f6',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: 36,
-                  height: 36,
-                  cursor: 'pointer',
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ padding: 20 }}>
-              {deliveryOptions.map((d) => (
-                <div
-                  key={d}
-                  className="typ-body"
-                  style={{
-                    padding: '10px 12px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 12,
-                    marginBottom: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 10,
-                  }}
-                >
-                  <span style={{ fontSize: 18 }}>{iconForDelivery(d)}</span>
-                  <span style={{ fontWeight: 700 }}>{labelForDelivery(d)}</span>
-                </div>
-              ))}
-              {deliveryOptions.length === 0 && (
-                <p className="typ-meta" style={{ margin: 0 }}>
-                  The seller hasn’t listed delivery options. Please ask on WhatsApp.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Product detail modal */}
-      {showProductModal && selectedProduct && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: 20,
-          }}
-        >
-          <div
-            style={{
-              background: 'white',
-              borderRadius: 20,
-              maxWidth: 600,
-              width: '100%',
-              maxHeight: '90vh',
-              overflow: 'auto',
-            }}
-          >
-            <div
-              style={{
-                padding: 24,
-                borderBottom: '1px solid #e5e7eb',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: 16,
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <h2 className="typ-title" style={{ margin: '0 0 8px' }}>
-                  {selectedProduct.name}
-                </h2>
-                {selectedProduct.category && (
-                  <span
-                    className="typ-meta"
-                    style={{
-                      background: '#f3f4f6',
-                      color: '#6b7280',
-                      padding: '4px 12px',
-                      borderRadius: 20,
-                      fontWeight: 600,
-                    }}
-                  >
-                    📦 {selectedProduct.category}
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={() => setShowProductModal(false)}
-                style={{
-                  background: '#f3f4f6',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: 40,
-                  height: 40,
-                  fontSize: 20,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#6b7280',
+                  background: 'transparent', border: 'none', fontSize: 20,
+                  cursor: 'pointer', padding: '4px', borderRadius: '4px'
                 }}
               >
                 ×
               </button>
             </div>
 
-            <div style={{ padding: 24 }}>
-              <div
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button
+                onClick={handleWhatsAppShare}
                 style={{
-                  position: 'relative',
-                  marginBottom: 24,
-                  width: '100%',
-                  aspectRatio: '4 / 3',
-                  background: '#f8fafc',
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                  ...styles.button, ...styles.whatsappButton, width: '100%',
+                  justifyContent: 'center', padding: '12px 20px'
                 }}
+                className="btn-hover"
               >
-                <img
-                  src={getProductImageUrl(selectedProduct)}
-                  alt={selectedProduct.name}
-                  onLoad={(e) => handleImageLoad(selectedProduct.productId, e)}
-                  onError={handleImageError}
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                {lowResImages[selectedProduct.productId] && (
-                  <div
-                    className="typ-meta"
-                    style={{
-                      position: 'absolute',
-                      top: 16,
-                      right: 16,
-                      background: 'rgba(255,255,255,0.95)',
-                      color: '#dc2626',
-                      padding: '6px 12px',
-                      borderRadius: 999,
-                      fontWeight: 700,
-                    }}
-                  >
-                    Low-res image
-                  </div>
-                )}
-              </div>
+                <MessageCircle size={16} />
+                Share via WhatsApp Chat
+              </button>
 
-              <div
+              <button
+                onClick={handleWhatsAppStatus}
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 24,
-                  padding: 20,
-                  background: 'linear-gradient(135deg,#f0f9ff,#e0f2fe)',
-                  borderRadius: 16,
-                  border: '1px solid #e0f2fe',
+                  ...styles.button, ...styles.whatsappButton, width: '100%',
+                  justifyContent: 'center', padding: '12px 20px', opacity: 0.9
                 }}
+                className="btn-hover"
               >
-                <div>
-                  <div style={{ fontSize: 32, fontWeight: 800, color: '#059669', marginBottom: 4 }}>
-                    {formatPrice(selectedProduct.price, sellerData?.currency)}
-                  </div>
-                  <div className="typ-meta">Price per unit</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 700,
-                      color:
-                        selectedProduct.quantity > 10 ? '#059669' :
-                        selectedProduct.quantity > 0  ? '#f59e0b' : '#ef4444',
-                      marginBottom: 4,
-                    }}
-                  >
-                    {selectedProduct.quantity} {selectedProduct.quantity === 1 ? 'unit' : 'units'}
-                  </div>
-                  <div
-                    className="typ-meta"
-                    style={{
-                      padding: '4px 12px',
-                      borderRadius: 20,
-                      fontWeight: 600,
-                      display: 'inline-block',
-                      background:
-                        selectedProduct.quantity > 10 ? '#dcfce7' :
-                        selectedProduct.quantity > 0  ? '#fef3c7' : '#fee2e2',
-                      color:
-                        selectedProduct.quantity > 10 ? '#059669' :
-                        selectedProduct.quantity > 0  ? '#f59e0b' : '#ef4444',
-                    }}
-                  >
-                    {selectedProduct.quantity > 10
-                      ? '✅ In Stock'
-                      : selectedProduct.quantity > 0
-                      ? '⚠️ Low Stock'
-                      : '❌ Out of Stock'}
-                  </div>
-                </div>
-              </div>
+                📢 Post to WhatsApp Status
+              </button>
 
-              {selectedProduct.description && (
-                <div style={{ marginBottom: 24 }}>
-                  <h3 className="typ-title" style={{ margin: '0 0 12px' }}>📝 Description</h3>
-                  <p className="typ-body" style={{ margin: 0 }}>{selectedProduct.description}</p>
-                </div>
-              )}
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: `${sellerData?.storeName || 'My Store'} - Shop Online`,
+                      text: `Check out my store: ${sellerData?.storeName || 'My Store'}`,
+                      url: storefrontUrl
+                    }).catch(console.error);
+                  } else {
+                    handleCopyLink();
+                  }
+                  setShareModalOpen(false);
+                }}
+                style={{
+                  ...styles.button, ...styles.secondaryButton, width: '100%',
+                  justifyContent: 'center', padding: '12px 20px'
+                }}
+                className="btn-hover"
+              >
+                <Share2 size={16} />
+                {navigator.share ? 'Native Share' : 'Copy Link'}
+              </button>
+            </div>
+
+            <div style={{ 
+              marginTop: 20, padding: 16, background: 'rgba(0,0,0,0.02)', 
+              borderRadius: 8, fontSize: 12, opacity: 0.7 
+            }}>
+              💡 <strong>Tip:</strong> Share your store link in your WhatsApp bio, social media profiles, 
+              or anywhere customers can find you online.
             </div>
           </div>
         </div>
@@ -1247,4 +582,4 @@ const StorefrontPublicView = () => {
   );
 };
 
-export default StorefrontPublicView;
+export default StorefrontView;

@@ -1,0 +1,41 @@
+{
+  "functions": {
+    "source": "functions",
+    "predeploy": ["npm --prefix \"$RESOURCE_DIR\" ci"]
+  },
+  "hosting": {
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "/createCheckout", "function": "createCheckout" },
+      { "source": "/createPortal", "function": "createPortal" },
+      { "source": "**", "destination": "/index.html" }
+    ],
+    "headers": [
+      {
+        "source": "/index.html",
+        "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+      },
+      {
+        "source": "**/*.js",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      },
+      {
+        "source": "**/*.css",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      },
+      {
+        "source": "**/*.{png,jpg,jpeg,gif,webp,svg}",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      }
+    ],
+    "predeploy": ["npm run build"]
+  },
+  "storage": { "rules": "storage.rules" },
+  "database": { "rules": "database.rules.json" },
+  "emulators": {
+    "hosting": { "port": 5000 },
+    "functions": { "port": 5001 },
+    "ui": { "enabled": true }
+  }
+}

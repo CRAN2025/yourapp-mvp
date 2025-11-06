@@ -1,4 +1,4 @@
-// src/MarketLanding.jsx
+// src/MarketLanding.jsx - Complete File
 import React, { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -32,7 +32,8 @@ export default function MarketLanding() {
     const qp = new URLSearchParams(search);
     qp.set('from', 'landing_signup');
     try { window.gtag?.('event', 'begin_signup', { source: 'marketing_landing' }); } catch {}
-    navigate('/login');
+    // keep the "from" context when navigating to login
+    navigate(`/login?${qp.toString()}`);
   };
 
   const goLogin = () => {
@@ -125,7 +126,6 @@ export default function MarketLanding() {
             <div style={{ fontWeight: 900, fontSize: 20, letterSpacing: '-0.01em' }}>ShopLink</div>
           </div>
           <nav style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-            <button onClick={() => navigate('/pricing')} className="btn btnNav btnSecondary">Pricing</button>
             <button onClick={goCreate} className="btn btnNav btnPrimary">Create your free store</button>
           </nav>
         </div>

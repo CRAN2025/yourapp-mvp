@@ -1,0 +1,285 @@
+// Phone number validation and formatting utilities
+
+export const validatePhoneNumber = (phone, country = 'GH') => {
+  if (!phone) return { isValid: false, message: 'Phone number is required' };
+  
+  // Clean the phone number - remove spaces, dashes, parentheses
+  const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+  
+  // Ghana number validation
+  if (country.toUpperCase() === 'GH') {
+    // Check if it's already in E.164 format with +233
+    if (cleanPhone.startsWith('+233') && cleanPhone.length === 13) {
+      const digits = cleanPhone.slice(4);
+      if (/^[245]\d{8}$/.test(digits)) {
+        return { 
+          isValid: true, 
+          message: 'Valid Ghana number',
+          e164: cleanPhone
+        };
+      }
+    }
+    
+    // Check if it's a local format (starts with 0)
+    if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+      const digits = cleanPhone.slice(1);
+      if (/^[245]\d{8}$/.test(digits)) {
+        return { 
+          isValid: true, 
+          message: 'Valid Ghana number',
+          e164: `+233${digits}`
+        };
+      }
+    }
+    
+    // Check if it's without country code but valid
+    if (cleanPhone.length === 9 && /^[245]\d{8}$/.test(cleanPhone)) {
+      return { 
+        isValid: true, 
+        message: 'Valid Ghana number',
+        e164: `+233${cleanPhone}`
+      };
+    }
+    
+    return { 
+      isValid: false, 
+      message: 'Invalid Ghana number. Format: +233 XX XXX XXXX, 0XX XXX XXXX, or XXXXXXXXX (9 digits)'
+    };
+  }
+  
+  // Nigeria number validation
+  if (country.toUpperCase() === 'NG') {
+    if (cleanPhone.startsWith('+234') && cleanPhone.length === 14) {
+      const digits = cleanPhone.slice(4);
+      if (/^[789]\d{9}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Nigeria number', e164: cleanPhone };
+      }
+    }
+    
+    if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
+      const digits = cleanPhone.slice(1);
+      if (/^[789]\d{9}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Nigeria number', e164: `+234${digits}` };
+      }
+    }
+    
+    return { 
+      isValid: false, 
+      message: 'Invalid Nigeria number. Format: +234 XXX XXX XXXX or 0XXX XXX XXXX'
+    };
+  }
+  
+  // Kenya number validation
+  if (country.toUpperCase() === 'KE') {
+    if (cleanPhone.startsWith('+254') && cleanPhone.length === 13) {
+      const digits = cleanPhone.slice(4);
+      if (/^[17]\d{8}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Kenya number', e164: cleanPhone };
+      }
+    }
+    
+    if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+      const digits = cleanPhone.slice(1);
+      if (/^[17]\d{8}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Kenya number', e164: `+254${digits}` };
+      }
+    }
+    
+    return { 
+      isValid: false, 
+      message: 'Invalid Kenya number. Format: +254 XXX XXX XXX or 0XXX XXX XXX'
+    };
+  }
+  
+  // Generic international number validation (basic)
+  if (cleanPhone.startsWith('+') && cleanPhone.length >= 8 && cleanPhone.length <= 15) {
+    if (/^\+\d{7,14}$/.test(cleanPhone)) {
+      return { isValid: true, message: 'Valid international number', e164: cleanPhone };
+    }
+  }
+  
+  return { 
+    isValid: false, 
+    message: 'Invalid phone number format. Please include country code.'
+  };
+};
+
+export const formatPhoneForDisplay = (e164) => {
+  if (!e164) return '';
+  
+  // Format Ghana numbers nicely
+  if (e164.startsWith('+233') && e164.length === 13) {
+    return `+233 ${e164.slice(4, 6)} ${e164.slice(6, 9)} ${e164.slice(9)}`;
+  }
+  
+  // Format Nigeria numbers
+  if (e164.startsWith('+234') && e164.length === 14) {
+    return `+234 ${e164.slice(4, 7)} ${e164.slice(7, 10)} ${e164.slice(10)}`;
+  }
+  
+  // Format Kenya numbers  
+  if (e164.startsWith('+254') && e164.length === 13) {
+    return `+254 ${e164.slice(4, 7)} ${e164.slice(7, 10)} ${e164.slice(10)}`;
+  }
+  
+  // Fallback - return as is
+  return e164;
+};
+
+export const getPhoneHint = (country = 'GH') => {
+  const hints = {
+    GH: 'Include country code, e.g., +233 24 123 4567 or 0241234567',
+    NG: 'Include country code, e.g., +234 803 123 4567 or 08031234567',
+    KE: 'Include country code, e.g., +254 712 345 678 or 0712345678',
+    ZA: 'Include country code, e.g., +27 82 123 4567 or 0821234567',
+    US: 'Include country code, e.g., +1 555 123 4567',
+    GB: 'Include country code, e.g., +44 20 1234 5678',
+    CA: 'Include country code, e.g., +1 555 123 4567',
+    AU: 'Include country code, e.g., +61 2 1234 5678',
+    IN: 'Include country code, e.g., +91 98765 43210',
+  };
+  return hints[country.toUpperCase()] || hints.GH;
+};
+
+// Product-related utilities
+export const createEnhancedProduct = (productData, user) => {
+  const timestamp = new Date().toISOString();
+  
+  return {
+    ...productData,
+    // Ensure required fields
+    name: productData.name || '',
+    price: productData.price || 0,
+    category: productData.category || 'other',
+    condition: productData.condition || 'used',
+    description: productData.description || '',
+    images: productData.images || [],
+    
+    // Add metadata
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    createdBy: user?.uid || '',
+    createdByEmail: user?.email || '',
+    
+    // Add business fields
+    status: productData.status || 'active',
+    inventory: productData.inventory !== undefined ? productData.inventory : 1,
+    
+    // Add search optimization fields
+    searchKeywords: generateSearchKeywords(productData),
+    
+    // Add analytics fields
+    views: 0,
+    likes: 0,
+    shares: 0,
+  };
+};
+
+export const validateProductData = (productData) => {
+  const errors = [];
+  
+  if (!productData.name || productData.name.trim().length < 2) {
+    errors.push('Product name must be at least 2 characters long');
+  }
+  
+  if (!productData.price || productData.price < 0) {
+    errors.push('Price must be a positive number');
+  }
+  
+  if (!productData.category) {
+    errors.push('Category is required');
+  }
+  
+  if (!productData.condition) {
+    errors.push('Condition is required');
+  }
+  
+  if (!productData.description || productData.description.trim().length < 10) {
+    errors.push('Description must be at least 10 characters long');
+  }
+  
+  if (!productData.images || productData.images.length === 0) {
+    errors.push('At least one product image is required');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+export const getProductImageUrl = (imagePath, size = 'medium') => {
+  if (!imagePath) return '/placeholder-product.jpg';
+  
+  // Handle different image sizes
+  const sizes = {
+    small: '200x200',
+    medium: '400x400',
+    large: '800x800',
+    original: 'original'
+  };
+  
+  // If it's already a full URL, return as is
+  if (imagePath.startsWith('http')) {
+    return imagePath;
+  }
+  
+  // For Firebase Storage paths, you might want to add resize parameters
+  // This is a placeholder - adjust based on your image service
+  return imagePath;
+};
+
+export const formatPrice = (price, currency = 'GHS') => {
+  if (typeof price !== 'number') {
+    price = parseFloat(price) || 0;
+  }
+  
+  return new Intl.NumberFormat('en-GH', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price);
+};
+
+// Image constants
+export const MIN_IMG_W = 400;
+export const MIN_IMG_H = 400;
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+// Helper function for search keywords
+const generateSearchKeywords = (productData) => {
+  const keywords = new Set();
+  
+  // Add product name words
+  if (productData.name) {
+    productData.name.toLowerCase().split(/\s+/).forEach(word => {
+      if (word.length > 2) keywords.add(word);
+    });
+  }
+  
+  // Add category
+  if (productData.category) {
+    keywords.add(productData.category.toLowerCase());
+  }
+  
+  // Add brand if exists
+  if (productData.brand) {
+    keywords.add(productData.brand.toLowerCase());
+  }
+  
+  // Add condition
+  if (productData.condition) {
+    keywords.add(productData.condition.toLowerCase());
+  }
+  
+  // Add description keywords (first few words)
+  if (productData.description) {
+    productData.description.toLowerCase().split(/\s+/).slice(0, 10).forEach(word => {
+      if (word.length > 3) keywords.add(word);
+    });
+  }
+  
+  return Array.from(keywords);
+};

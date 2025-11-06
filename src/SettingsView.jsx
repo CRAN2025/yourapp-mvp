@@ -1,518 +1,431 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Save, User, Store, MapPin, Phone, Globe, Package, BarChart3, Settings,
-  ShoppingBag, ExternalLink, AlertCircle
-} from 'lucide-react';
+// src/SettingsView.jsx
+import React, { useEffect, useMemo, useState } from 'react';
+import { Save, ExternalLink, LogOut } from 'lucide-react';
+import { ref, get } from 'firebase/database';
+import { db } from './lib/firebase';
 import { useNavigate } from 'react-router-dom';
-import { ref, get, update } from 'firebase/database'; // get used in maintenance + safe merge
-import { db } from './firebase';
+
 import {
   validatePhoneNumber,
+  getPhoneHint,
   formatPhoneForDisplay,
-  phoneNeedsUpdate,
-  getPhoneHint
-} from './sharedUtils.js';
+} from './sharedUtils';
 
-const SettingsView = ({ user, userProfile, onProfileUpdate }) => {
+// 🔐 Unified save that also publishes /users/{uid}/publicProfile
+import { saveSellerProfile } from "./saveSellerProfile";
+
+export default function SettingsView({ user = null, userProfile = null, onSignOut = () => {} }) {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    storeName: '',
-    storeDescription: '',
-    whatsappNumber: '',
-    location: '',
-    businessCategory: '',
-    currency: 'GHS'
-  });
+  // Option lists (kept in sync with SellerOnboardingView)
+  const categories = [
+    '👗 Fashion & Clothing','📱 Electronics','🍔 Food & Beverages','💄 Beauty & Cosmetics',
+    '🏠 Home & Garden','📚 Books & Education','🎮 Sports & Gaming','👶 Baby & Kids',
+    '🚗 Automotive','🎨 Arts & Crafts','💊 Health & Wellness','🔧 Tools & Hardware',
+    '🎁 Gifts & Souvenirs','💍 Jewelry & Accessories','📦 Other'
+  ];
+  const countries = [
+    { code: 'GH', name: 'Ghana', currency: 'GHS', flag: '🇬🇭' },
+    { code: 'NG', name: 'Nigeria', currency: 'NGN', flag: '🇳🇬' },
+    { code: 'KE', name: 'Kenya', currency: 'KES', flag: '🇰🇪' },
+    { code: 'UG', name: 'Uganda', currency: 'UGX', flag: '🇺🇬' },
+    { code: 'TZ', name: 'Tanzania', currency: 'TZS', flag: '🇹🇿' }
+  ];
+  const deliveryOptionsList = [
+    { id: 'pickup',   label: '🚶 Customer Pickup', desc: 'Customers collect from your location' },
+    { id: 'delivery', label: '🚚 Home Delivery',   desc: 'You deliver to customers' },
+    { id: 'courier',  label: '📦 Courier Service', desc: 'Third-party delivery' },
+    { id: 'shipping', label: '✈️ Shipping',        desc: 'Postal/shipping services' }
+  ];
+  const paymentMethodsList = [
+    { id: 'cash',          label: '💵 Cash',          desc: 'Cash on delivery/pickup' },
+    { id: 'mobile_money',  label: '📱 Mobile Money',  desc: 'MTN, Vodafone, AirtelTigo' },
+    { id: 'bank_transfer', label: '🏦 Bank Transfer', desc: 'Direct bank deposits' },
+    { id: 'card',          label: '💳 Card Payment',  desc: 'Credit/Debit cards' }
+  ];
 
-  const [phoneValidation, setPhoneValidation] = useState({ isValid: true, error: '', normalized: '' });
-  const [phoneNeedsFixing, setPhoneNeedsFixing] = useState(false);
+  const initial = useMemo(() => ({
+    storeName:        userProfile?.storeName || '',
+    storeDescription: userProfile?.storeDescription || '',
+    category:         userProfile?.category || '',
+    whatsappNumber:   userProfile?.whatsappNumber || '',
+    businessEmail:    userProfile?.businessEmail || (user?.email || ''),
+    country:          userProfile?.country || 'Ghana',
+    city:             userProfile?.city || '',
+    businessType:     userProfile?.businessType || 'individual',
+    currency:         userProfile?.currency || 'GHS',
+    // optional banner support (won't break anything if unused)
+    bannerUrl:        userProfile?.bannerUrl || '',
+    deliveryOptions:  Array.isArray(userProfile?.deliveryOptions) ? userProfile.deliveryOptions : [],
+    paymentMethods:   Array.isArray(userProfile?.paymentMethods)  ? userProfile.paymentMethods  : [],
+  }), [userProfile, user?.email]);
+
+  const [form, setForm] = useState(initial);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [savedToast, setSavedToast] = useState(false);
 
-  // ─────────────────────────────────────────────
-  // One-time maintenance helper state
-  // ─────────────────────────────────────────────
-  const [normalizing, setNormalizing] = useState(false);
-
-  // Load user profile data
+  // Ensure we load latest profile if page is visited before profile is ready
   useEffect(() => {
-    if (userProfile) {
-      setFormData({
-        storeName: userProfile.storeName || '',
-        storeDescription: userProfile.storeDescription || '',
-        whatsappNumber: userProfile.whatsappNumber || '',
-        location: userProfile.location || '',
-        businessCategory: userProfile.businessCategory || '',
-        currency: userProfile.currency || 'GHS'
-      });
+    let mounted = true;
+    (async () => {
+      if (!user?.uid) return;
+      setLoading(true);
+      try {
+        const snap = await get(ref(db, `users/${user.uid}/profile`));
+        if (mounted && snap.exists()) {
+          const p = snap.val();
+          setForm({
+            storeName:        p.storeName || '',
+            storeDescription: p.storeDescription || '',
+            category:         p.category || '',
+            whatsappNumber:   p.whatsappNumber || '',
+            businessEmail:    p.businessEmail || (user?.email || ''),
+            country:          p.country || 'Ghana',
+            city:             p.city || '',
+            businessType:     p.businessType || 'individual',
+            currency:         p.currency || 'GHS',
+            bannerUrl:        p.bannerUrl || '',
+            deliveryOptions:  Array.isArray(p.deliveryOptions) ? p.deliveryOptions : [],
+            paymentMethods:   Array.isArray(p.paymentMethods)  ? p.paymentMethods  : [],
+          });
+        }
+      } catch (_) {}
+      setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, [user?.uid]);
 
-      // Check if existing phone number needs updating to E.164 format
-      if (userProfile.whatsappNumber && phoneNeedsUpdate(userProfile.whatsappNumber)) {
-        setPhoneNeedsFixing(true);
-      }
-    }
-  }, [userProfile]);
+  // helpers
+  const setField = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+  const toggleInArray = (k, v) =>
+    setForm(prev => ({
+      ...prev,
+      [k]: prev[k].includes(v) ? prev[k].filter(x => x !== v) : [...prev[k], v],
+    }));
 
-  // Validate phone number as user types
-  const handlePhoneChange = (value) => {
-    setFormData(prev => ({ ...prev, whatsappNumber: value }));
-
-    if (value.trim()) {
-      const validation = validatePhoneNumber(value, userProfile?.country || 'Ghana');
-      setPhoneValidation(validation);
-
-      // Clear the "needs fixing" flag when user starts typing
-      if (phoneNeedsFixing) {
-        setPhoneNeedsFixing(false);
-      }
-    } else {
-      setPhoneValidation({ isValid: true, error: '', normalized: '' });
-    }
+  const handleCountryChange = (code) => {
+    const c = countries.find(x => x.code === code);
+    if (!c) return;
+    setField('country', c.name);     // keep name as you already store
+    setField('currency', c.currency);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const validate = () => {
+    const n = {};
+    if (!form.storeName.trim())        n.storeName = 'Store name is required';
+    if (!form.category)                n.category = 'Select a category';
+    if (!form.storeDescription.trim()) n.storeDescription = 'Description is required';
+    if (!form.city.trim())             n.city = 'City is required';
+
+    const phone = validatePhoneNumber(form.whatsappNumber, form.country);
+    if (!phone.isValid) n.whatsappNumber = phone.error;
+
+    if (form.deliveryOptions.length === 0) n.deliveryOptions = 'Pick at least one option';
+    if (form.paymentMethods.length === 0)  n.paymentMethods = 'Pick at least one method';
+
+    setErrors(n);
+    return Object.keys(n).length === 0;
+  };
+
+  const handleSave = async () => {
     if (!user?.uid) return;
+    if (!validate()) return;
+
     setSaving(true);
-
     try {
-      // Final phone validation before save
-      let finalWhatsappNumber = formData.whatsappNumber;
-      if (formData.whatsappNumber.trim()) {
-        const validation = validatePhoneNumber(formData.whatsappNumber, userProfile?.country || 'Ghana');
-        if (!validation.isValid) {
-          setPhoneValidation(validation);
-          setSaving(false);
-          return;
-        }
-        finalWhatsappNumber = validation.normalized; // Store in E.164 format
-      }
+      const phone = validatePhoneNumber(form.whatsappNumber, form.country);
 
-      const profilePath = `users/${user.uid}/profile`;
-      const profileRef = ref(db, profilePath);
-
-      // ✅ Read current profile so we don't clobber other keys (paymentMethods, deliveryOptions, etc.)
-      const snap = await get(profileRef);
-      const current = snap.exists() ? (snap.val() || {}) : {};
-
-      // Merge only fields we edit here
-      const mergedProfile = {
-        ...current,
-        ...formData,
-        whatsappNumber: finalWhatsappNumber,
-        updatedAt: Date.now()
+      // Build payload to persist as *private* profile.
+      const payload = {
+        storeName:        form.storeName.trim(),
+        storeDescription: form.storeDescription.trim(),
+        category:         form.category,
+        businessEmail:    form.businessEmail?.trim() || '',
+        country:          form.country,
+        city:             form.city.trim(),
+        businessType:     form.businessType,
+        currency:         form.currency,
+        bannerUrl:        form.bannerUrl?.trim() || '',
+        whatsappNumber:   phone.normalized, // normalized E.164
+        // updatedAt is added in saveSellerProfile()
       };
 
-      // ✅ Write per-field under /profile (non-destructive)
-      const multi = {};
-      Object.entries(mergedProfile).forEach(([k, v]) => {
-        multi[`${profilePath}/${k}`] = v;
+      // 👇 Single call that saves private profile AND publishes /publicProfile
+      await saveSellerProfile(user, payload, {
+        paymentMethods: form.paymentMethods,
+        deliveryOptions: form.deliveryOptions,
       });
 
-      // (Optional) mirrors if any legacy code still reads from users/{uid}
-      multi[`users/${user.uid}/storeName`] = mergedProfile.storeName;
-      multi[`users/${user.uid}/storeDescription`] = mergedProfile.storeDescription;
-      multi[`users/${user.uid}/whatsappNumber`] = mergedProfile.whatsappNumber;
-      multi[`users/${user.uid}/location`] = mergedProfile.location;
-      multi[`users/${user.uid}/businessCategory`] = mergedProfile.businessCategory;
-      multi[`users/${user.uid}/currency`] = mergedProfile.currency;
-      multi[`users/${user.uid}/updatedAt`] = mergedProfile.updatedAt;
-
-      await update(ref(db), multi); // root-level multi-location update
-
-      // Update local state in parent if provided
-      if (typeof onProfileUpdate === 'function') {
-        onProfileUpdate(mergedProfile);
-      }
-
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-
-      // Clear phone needs fixing flag after successful save
-      setPhoneNeedsFixing(false);
-    } catch (error) {
-      console.error('Error updating profile:', error);
+      setSavedToast(true);
+      setTimeout(() => setSavedToast(false), 1600);
+    } catch (e) {
+      console.error(e);
+      setErrors(prev => ({ ...prev, general: 'Failed to save. Please try again.' }));
     } finally {
       setSaving(false);
     }
   };
 
-  // ─────────────────────────────────────────────
-  // One-time maintenance: normalize product images
-  // Run once, then you can remove this block + button.
-  // ─────────────────────────────────────────────
-  async function normalizeProductImages() {
-    if (!user?.uid) return alert('Sign in first');
-    setNormalizing(true);
-    try {
-      const productsRef = ref(db, `users/${user.uid}/products`);
-      const snap = await get(productsRef);
-      if (!snap.exists()) {
-        alert('No products found to normalize.');
-        return;
-      }
-
-      const updates = {};
-      snap.forEach((child) => {
-        const key = child.key;
-        const p = child.val() || {};
-        let urls = [];
-
-        if (typeof p.images === 'string') {
-          urls = [p.images];
-        } else if (Array.isArray(p.images)) {
-          urls = p.images.filter(Boolean);
-        } else if (p.images?.primary || (Array.isArray(p.images?.gallery) && p.images.gallery.length)) {
-          urls = [p.images.primary, ...(p.images.gallery || [])].filter(Boolean);
-        } else if (p.imageUrl) {
-          urls = [p.imageUrl];
-        }
-
-        if (!urls.length) return;
-
-        const primary = urls[0];
-        const gallery = urls.slice(1);
-
-        updates[`${key}/imageUrl`] = primary;
-        updates[`${key}/images`] = { primary, gallery };
-      });
-
-      if (Object.keys(updates).length) {
-        await update(productsRef, updates);
-        alert('Normalized product images ✅');
-      } else {
-        alert('Nothing to normalize.');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Failed to normalize: ' + err.message);
-    } finally {
-      setNormalizing(false);
-    }
-  }
-
-  const styles = {
-    container: { position: 'relative', minHeight: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-    bgGradient: { position: 'absolute', inset: 0, background: 'radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,0.18), transparent 50%), linear-gradient(135deg, #6a5cff 0%, #7aa0ff 40%, #67d1ff 100%)', opacity: .8 },
-    header: { position: 'relative', zIndex: 2, background: 'rgba(255,255,255,0.86)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.2)', padding: '16px 20px' },
-    headerContent: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto' },
-    title: { fontSize: 24, fontWeight: 800, background: 'linear-gradient(135deg, #5a6bff, #67d1ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 },
-    nav: { display: 'flex', gap: 8 },
-    navButton: { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.3)', color: '#374151', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', textDecoration: 'none' },
-    navButtonActive: { background: 'linear-gradient(135deg, #5a6bff, #67d1ff)', color: 'white', border: '1px solid transparent' },
-    content: { position: 'relative', zIndex: 1, flex: 1, maxWidth: '800px', margin: '0 auto', padding: '20px', width: '100%' },
-    card: { background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderRadius: 16, padding: 24, marginBottom: 20, border: '1px solid rgba(255,255,255,0.2)' },
-    formGroup: { marginBottom: 20 },
-    label: { display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 600, color: '#374151' },
-    input: { width: '100%', padding: '12px 16px', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8, fontSize: 14, background: 'white' },
-    inputError: { borderColor: '#dc2626', background: 'rgba(239,68,68,0.05)' },
-    inputValid: { borderColor: '#059669', background: 'rgba(5,150,105,0.05)' },
-    textarea: { width: '100%', padding: '12px 16px', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8, fontSize: 14, background: 'white', minHeight: 80, resize: 'vertical' },
-    select: { width: '100%', padding: '12px 16px', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8, fontSize: 14, background: 'white' },
-    button: { display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 600, transition: 'all 0.2s' },
-    primaryButton: { background: 'linear-gradient(135deg, #5a6bff, #67d1ff)', color: 'white' },
-    saveButton: { background: '#059669', color: 'white' },
-    errorText: { color: '#dc2626', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 },
-    hintText: { color: '#6b7280', fontSize: 12, marginTop: 4 },
-    validText: { color: '#059669', fontSize: 12, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 },
-    warningBanner: { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, padding: 16, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }
-  };
+  const storefrontUrl = user ? `${window.location.origin}/store/${user.uid}` : '#';
 
   return (
-    <>
-      <style>{`
-        .btn-hover:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .save-success { background: #22c55e !important; }
-      `}</style>
+    <div style={styles.screen}>
+      <div style={styles.bg} />
 
-      <div style={styles.container}>
-        <div style={styles.bgGradient} />
+      {savedToast && (
+        <div style={styles.toast}>✓ Settings saved</div>
+      )}
 
-        <header style={styles.header}>
-          <div style={styles.headerContent}>
-            <h1 style={styles.title}>⚙️ Settings</h1>
+      <header style={styles.header}>
+        <div style={styles.brand} onClick={() => navigate('/catalog')} role="button">🛍️ <b>ShopLink</b></div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <a href={storefrontUrl} target="_blank" rel="noreferrer" style={styles.linkBtn}>
+            <ExternalLink size={16} /> View Storefront
+          </a>
+          <button onClick={onSignOut} style={styles.linkBtn}>
+            <LogOut size={16} /> Sign out
+          </button>
+        </div>
+      </header>
 
-            {/* Navigation */}
-            <nav style={styles.nav}>
-              <button onClick={() => navigate('/catalog')} style={styles.navButton} className="btn-hover">
-                <Package size={16} />
-                Catalog
-              </button>
-              <button onClick={() => navigate('/storefront')} style={styles.navButton} className="btn-hover">
-                <ExternalLink size={16} />
-                Storefront
-              </button>
-              <button onClick={() => navigate('/orders')} style={styles.navButton} className="btn-hover">
-                <ShoppingBag size={16} />
-                Orders
-              </button>
-              <button onClick={() => navigate('/analytics')} style={styles.navButton} className="btn-hover">
-                <BarChart3 size={16} />
-                Analytics
-              </button>
-              <button onClick={() => navigate('/settings')} style={{ ...styles.navButton, ...styles.navButtonActive }}>
-                <Settings size={16} />
-                Settings
-              </button>
-            </nav>
-          </div>
-        </header>
+      <main style={styles.main}>
+        <div style={styles.card}>
 
-        <div style={styles.content}>
-          {/* Phone Number Needs Fixing Warning */}
-          {phoneNeedsFixing && (
-            <div style={styles.warningBanner}>
-              <AlertCircle size={20} style={{ color: '#f59e0b', flexShrink: 0 }} />
-              <div>
-                <div style={{ fontWeight: 600, color: '#92400e', marginBottom: 4 }}>
-                  WhatsApp Number Needs Updating
-                </div>
-                <div style={{ fontSize: 14, color: '#a16207' }}>
-                  Your WhatsApp number isn't in the correct international format. Please update it below to ensure customers can reach you properly.
-                </div>
-              </div>
-            </div>
+          <h2 style={styles.h2}>Store Info</h2>
+
+          {errors.general && (
+            <div style={styles.errorBox}>⚠️ {errors.general}</div>
           )}
 
-          {/* Store Information */}
-          <div style={styles.card}>
-            <h2 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Store size={20} />
-              Store Information
-            </h2>
+          <div style={styles.row2}>
+            <div style={styles.formGroup}>
+              <label>Store Name *</label>
+              <input
+                value={form.storeName}
+                onChange={e => setField('storeName', e.target.value)}
+                className={errors.storeName ? 'error' : ''}
+                style={inputStyle(errors.storeName)}
+                placeholder="e.g., Ama's Fashion Hub"
+              />
+              {errors.storeName && <small style={styles.fieldErr}>⚠️ {errors.storeName}</small>}
+            </div>
 
-            <form onSubmit={handleSubmit}>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>
-                  <User size={16} style={{ display: 'inline', marginRight: 8 }} />
-                  Store Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.storeName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, storeName: e.target.value }))}
-                  placeholder="Enter your store name"
-                  style={styles.input}
-                  required
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Store Description</label>
-                <textarea
-                  value={formData.storeDescription}
-                  onChange={(e) => setFormData(prev => ({ ...prev, storeDescription: e.target.value }))}
-                  placeholder="Describe what you sell..."
-                  style={styles.textarea}
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>
-                  <Phone size={16} style={{ display: 'inline', marginRight: 8 }} />
-                  WhatsApp Number
-                </label>
-                <input
-                  type="tel"
-                  value={formData.whatsappNumber}
-                  onChange={(e) => handlePhoneChange(e.target.value)}
-                  placeholder="Enter your WhatsApp number"
-                  style={{
-                    ...styles.input,
-                    ...(phoneValidation.isValid
-                      ? (formData.whatsappNumber && phoneValidation.normalized ? styles.inputValid : {})
-                      : styles.inputError)
-                  }}
-                  required
-                />
-
-                {/* Phone validation feedback */}
-                {!phoneValidation.isValid && phoneValidation.error && (
-                  <div style={styles.errorText}>
-                    <AlertCircle size={12} />
-                    {phoneValidation.error}
-                  </div>
-                )}
-
-                {phoneValidation.isValid && formData.whatsappNumber && phoneValidation.normalized && (
-                  <div style={styles.validText}>
-                    ✓ Will be saved as: {formatPhoneForDisplay(phoneValidation.normalized)}
-                  </div>
-                )}
-
-                {(!formData.whatsappNumber || !phoneValidation.normalized) && (
-                  <div style={styles.hintText}>
-                    {getPhoneHint(userProfile?.country || 'Ghana')}
-                  </div>
-                )}
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>
-                  <MapPin size={16} style={{ display: 'inline', marginRight: 8 }} />
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="City, Region"
-                  style={styles.input}
-                />
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Business Category</label>
-                <select
-                  value={formData.businessCategory}
-                  onChange={(e) => setFormData(prev => ({ ...prev, businessCategory: e.target.value }))}
-                  style={styles.select}
-                >
-                  <option value="">Select category</option>
-                  <option value="Fashion & Clothing">Fashion & Clothing</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Food & Beverages">Food & Beverages</option>
-                  <option value="Health & Beauty">Health & Beauty</option>
-                  <option value="Home & Garden">Home & Garden</option>
-                  <option value="Sports & Fitness">Sports & Fitness</option>
-                  <option value="Books & Education">Books & Education</option>
-                  <option value="Automotive">Automotive</option>
-                  <option value="Services">Services</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-
-              <div style={styles.formGroup}>
-                <label style={styles.label}>
-                  <Globe size={16} style={{ display: 'inline', marginRight: 8 }} />
-                  Currency
-                </label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
-                  style={styles.select}
-                >
-                  <option value="GHS">🇬🇭 Ghanaian Cedi (GHS)</option>
-                  <option value="NGN">🇳🇬 Nigerian Naira (NGN)</option>
-                  <option value="KES">🇰🇪 Kenyan Shilling (KES)</option>
-                  <option value="UGX">🇺🇬 Ugandan Shilling (UGX)</option>
-                  <option value="TZS">🇹🇿 Tanzanian Shilling (TZS)</option>
-                  <option value="USD">🇺🇸 US Dollar (USD)</option>
-                </select>
-              </div>
-
-              <button
-                type="submit"
-                disabled={saving || (!phoneValidation.isValid && formData.whatsappNumber.trim())}
-                style={{
-                  ...styles.button,
-                  ...(saveSuccess ? styles.saveButton : styles.primaryButton),
-                  opacity: (saving || (!phoneValidation.isValid && formData.whatsappNumber.trim())) ? 0.6 : 1,
-                  cursor: (saving || (!phoneValidation.isValid && formData.whatsappNumber.trim())) ? 'not-allowed' : 'pointer'
-                }}
-                className="btn-hover"
+            <div style={styles.formGroup}>
+              <label>Category *</label>
+              <select
+                value={form.category}
+                onChange={e => setField('category', e.target.value)}
+                className={errors.category ? 'error' : ''}
+                style={inputStyle(errors.category)}
               >
-                {saving ? (
-                  <>
-                    <div style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid white', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                    Saving...
-                  </>
-                ) : saveSuccess ? (
-                  <>✅ Saved Successfully!</>
-                ) : (
-                  <>
-                    <Save size={16} />
-                    Save Settings
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-
-          {/* 🛠 One-time Maintenance (you can remove after running) */}
-          <div style={styles.card}>
-            <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 700 }}>
-              🛠 Maintenance
-            </h3>
-            <p style={{ margin: '0 0 12px', fontSize: 14, opacity: .8 }}>
-              Run once to fix product image fields created by the bulk upload.
-            </p>
-            <button
-              onClick={normalizeProductImages}
-              disabled={normalizing}
-              className="btn-hover"
-              style={{ ...styles.button, ...styles.saveButton, opacity: normalizing ? .6 : 1 }}
-            >
-              {normalizing ? 'Normalizing…' : 'Normalize Product Images'}
-            </button>
-          </div>
-
-          {/* Account Information */}
-          <div style={styles.card}>
-            <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 700 }}>
-              👤 Account Information
-            </h3>
-            <div style={{ display: 'grid', gap: 12 }}>
-              <div>
-                <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>Email</div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>{user?.email}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>Account Created</div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>
-                  {userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString() : 'Recently'}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4 }}>Store URL</div>
-                <div style={{ fontSize: 14, fontWeight: 500, fontFamily: 'monospace', background: 'rgba(0,0,0,0.05)', padding: '4px 8px', borderRadius: 4 }}>
-                  {window.location.origin}/store/{user?.uid}
-                </div>
-              </div>
+                <option value="">Select your main category</option>
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              {errors.category && <small style={styles.fieldErr}>⚠️ {errors.category}</small>}
             </div>
           </div>
 
-          {/* Danger Zone */}
-          <div
-            style={{
-              ...styles.card,
-              borderColor: 'rgba(239,68,68,0.2)',
-              background: 'rgba(254,242,242,0.8)'
-            }}
-          >
-            <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 700, color: '#dc2626' }}>
-              ⚠️ Danger Zone
-            </h3>
-            <p style={{ margin: '0 0 16px', fontSize: 14, opacity: 0.8 }}>
-              These actions cannot be undone. Please be careful.
-            </p>
-            <button
-              style={{
-                ...styles.button,
-                background: 'rgba(239,68,68,0.1)',
-                color: '#dc2626',
-                border: '1px solid rgba(239,68,68,0.2)'
-              }}
-              className="btn-hover"
-              onClick={() => {
-                if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                  // Implement account deletion logic here
-                  console.log('Account deletion requested');
-                }
-              }}
-            >
-              Delete Account
+          <div style={styles.formGroup}>
+            <label>Store Description *</label>
+            <textarea
+              rows={3}
+              value={form.storeDescription}
+              onChange={e => setField('storeDescription', e.target.value)}
+              className={errors.storeDescription ? 'error' : ''}
+              style={{ ...inputStyle(errors.storeDescription), resize: 'vertical' }}
+              placeholder="Describe what you sell…"
+            />
+            {errors.storeDescription && <small style={styles.fieldErr}>⚠️ {errors.storeDescription}</small>}
+          </div>
+
+          {/* Optional banner URL (used by public storefront if present) */}
+          <div style={styles.formGroup}>
+            <label>Store Banner URL (optional)</label>
+            <input
+              value={form.bannerUrl}
+              onChange={e => setField('bannerUrl', e.target.value)}
+              style={inputStyle()}
+              placeholder="https://… (image URL for your store header)"
+            />
+            <small style={styles.hint}>Leave empty to use the default gradient header.</small>
+          </div>
+
+          <h2 style={{ ...styles.h2, marginTop: 24 }}>Contact & Location</h2>
+
+          <div style={styles.row2}>
+            <div style={styles.formGroup}>
+              <label>WhatsApp Number *</label>
+              <input
+                value={form.whatsappNumber}
+                onChange={e => setField('whatsappNumber', e.target.value)}
+                placeholder={getPhoneHint(form.country)}
+                className={errors.whatsappNumber ? 'error' : ''}
+                style={inputStyle(errors.whatsappNumber)}
+              />
+              <div style={styles.hint}>{getPhoneHint(form.country)}</div>
+              {form.whatsappNumber && !errors.whatsappNumber && (
+                <div style={styles.preview}>
+                  ✓ Will be saved as{' '}
+                  {(() => {
+                    const v = validatePhoneNumber(form.whatsappNumber, form.country);
+                    return v.isValid ? formatPhoneForDisplay(v.normalized) : 'Invalid format';
+                  })()}
+                </div>
+              )}
+              {errors.whatsappNumber && <small style={styles.fieldErr}>⚠️ {errors.whatsappNumber}</small>}
+            </div>
+
+            <div style={styles.formGroup}>
+              <label>Business Email</label>
+              <input
+                type="email"
+                value={form.businessEmail}
+                onChange={e => setField('businessEmail', e.target.value)}
+                style={inputStyle()}
+                placeholder="e.g. hello@yourshop.com"
+              />
+            </div>
+          </div>
+
+          <div style={styles.row2}>
+            <div style={styles.formGroup}>
+              <label>Country *</label>
+              <select
+                value={countries.find(c => c.name === form.country)?.code || 'GH'}
+                onChange={e => handleCountryChange(e.target.value)}
+                style={inputStyle()}
+              >
+                {countries.map(c => (
+                  <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                ))}
+              </select>
+              <small style={styles.hint}>Currency is set automatically from your country.</small>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label>City *</label>
+              <input
+                value={form.city}
+                onChange={e => setField('city', e.target.value)}
+                className={errors.city ? 'error' : ''}
+                style={inputStyle(errors.city)}
+                placeholder="e.g., Accra, Lagos, Nairobi"
+              />
+              {errors.city && <small style={styles.fieldErr}>⚠️ {errors.city}</small>}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 8 }}>
+            <span style={styles.chip}>💰 Currency: <b>{form.currency}</b></span>
+          </div>
+
+          <h2 style={{ ...styles.h2, marginTop: 24 }}>Store Preferences</h2>
+
+          <div style={styles.formGroup}>
+            <label>Delivery Options * {errors.deliveryOptions && <span style={styles.fieldErrInline}>({errors.deliveryOptions})</span>}</label>
+            <div style={styles.grid}>
+              {deliveryOptionsList.map(opt => (
+                <label key={opt.id} style={optionStyle(form.deliveryOptions.includes(opt.id), '#22c55e')}>
+                  <input
+                    type="checkbox"
+                    checked={form.deliveryOptions.includes(opt.id)}
+                    onChange={() => toggleInArray('deliveryOptions', opt.id)}
+                    style={{ accentColor: '#22c55e', transform: 'scale(1.15)' }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 700 }}>{opt.label}</div>
+                    <small style={{ opacity: .7 }}>{opt.desc}</small>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div style={styles.formGroup}>
+            <label>Payment Methods * {errors.paymentMethods && <span style={styles.fieldErrInline}>({errors.paymentMethods})</span>}</label>
+            <div style={styles.grid}>
+              {paymentMethodsList.map(m => (
+                <label key={m.id} style={optionStyle(form.paymentMethods.includes(m.id), '#a855f7')}>
+                  <input
+                    type="checkbox"
+                    checked={form.paymentMethods.includes(m.id)}
+                    onChange={() => toggleInArray('paymentMethods', m.id)}
+                    style={{ accentColor: '#a855f7', transform: 'scale(1.15)' }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 700 }}>{m.label}</div>
+                    <small style={{ opacity: .7 }}>{m.desc}</small>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16, gap: 8 }}>
+            <button onClick={() => navigate('/catalog')} style={styles.secondaryBtn}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} style={styles.primaryBtn}>
+              {saving ? (<><span className="spinner" style={styles.spin} /> Saving…</>) : (<><Save size={16}/> Save Changes</>)}
             </button>
           </div>
         </div>
-      </div>
-
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}</style>
-    </>
+      </main>
+    </div>
   );
+}
+
+// ---------- styles ----------
+const styles = {
+  screen: { position: 'relative', minHeight: '100vh', width: '100vw', overflowX: 'hidden' },
+  bg: { position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #6a5cff 0%, #7aa0ff 40%, #67d1ff 100%)', opacity: .2 },
+  header: {
+    position: 'sticky', top: 0, zIndex: 2,
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '14px 20px', background: 'rgba(255,255,255,0.86)', backdropFilter: 'blur(10px)',
+    borderBottom: '1px solid rgba(0,0,0,.06)'
+  },
+  brand: { display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, cursor: 'pointer' },
+  main: { maxWidth: 980, margin: '20px auto', padding: '0 16px' },
+  card: {
+    background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)',
+    borderRadius: 16, border: '1px solid rgba(0,0,0,.06)', padding: 20,
+    boxShadow: '0 18px 36px rgba(0,0,0,.06)'
+  },
+  h2: { margin: '0 0 10px', letterSpacing: '-0.2px' },
+  formGroup: { margin: '12px 0' },
+  row2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 },
+  hint: { color: '#6b7280', fontSize: 12, marginTop: 4 },
+  preview: { color: '#059669', fontSize: 12, marginTop: 4, fontWeight: 500 },
+  fieldErr: { color: '#b00020', fontSize: 12, marginTop: 4 },
+  fieldErrInline: { color: '#b00020', fontSize: 12, marginLeft: 6 },
+  chip: { display: 'inline-flex', gap: 6, alignItems: 'center', padding: '6px 10px', borderRadius: 999, background: '#eef1ff', fontWeight: 700 },
+  primaryBtn: { background: 'linear-gradient(135deg, #5a6bff, #67d1ff)', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 14px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 },
+  secondaryBtn: { background: '#eef1ff', color: '#111827', border: 'none', borderRadius: 10, padding: '10px 14px', fontWeight: 700, cursor: 'pointer' },
+  linkBtn: { background: 'rgba(255,255,255,.7)', border: '1px solid rgba(0,0,0,.08)', borderRadius: 10, padding: '8px 12px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none', color: '#111827', fontWeight: 700 },
+  toast: { position: 'fixed', top: 18, right: 18, background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: '#fff', borderRadius: 12, padding: '10px 14px', fontWeight: 800, boxShadow: '0 10px 26px rgba(22,163,74,.25)', zIndex: 50 },
+  spin: { width: 16, height: 16, border: '2px solid rgba(255,255,255,.6)', borderTop: '2px solid transparent', borderRadius: '50%' },
+  errorBox: { background:'#fff6f6', border:'1px solid #ffbaba', color:'#7f1d1d', padding:10, borderRadius:10, marginBottom:10 }
 };
 
-export default SettingsView;
+// small helpers for inline inputs
+function inputStyle(hasError = false) {
+  return {
+    width: '100%', padding: '10px 12px', borderRadius: 12,
+    border: `1px solid ${hasError ? '#ff7a7a' : 'rgba(0,0,0,.12)'}`,
+    background: hasError ? '#fff6f6' : '#f9fafb', outline: 'none'
+  };
+}
+function optionStyle(active, color) {
+  return {
+    display: 'grid',
+    gridTemplateColumns: '20px 1fr',
+    gap: 10,
+    alignItems: 'start',
+    padding: 10,
+    borderRadius: 12,
+    border: active ? `2px solid ${color}` : '1px solid rgba(0,0,0,.06)',
+    background: active ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,.85)',
+  };
+}

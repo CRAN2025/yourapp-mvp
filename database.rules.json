@@ -1,0 +1,30 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+
+        "products": {
+          ".read": true,
+          "$productId": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+
+        "publicProfile": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === $uid"
+        },
+
+        "interactions": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": true
+        }
+      }
+    }
+  }
+}

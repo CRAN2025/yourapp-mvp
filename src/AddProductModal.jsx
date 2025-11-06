@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { X, Upload, Camera, Link, Check, AlertCircle, Loader, Plus } from 'lucide-react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { ref as dbRef, push, set } from 'firebase/database';
-import { storage, db } from './firebase';
+import { storage, db } from './lib/firebase';
 import { 
   createEnhancedProduct, 
   validateProductData,

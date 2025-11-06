@@ -1,335 +1,330 @@
-// sharedUtils.js - unified utilities
-
-export const MIN_IMG_W = 300;
-export const MIN_IMG_H = 300;
-
-/* ----------------- Device ----------------- */
-export const isMobileDevice = () => {
-  if (typeof navigator === 'undefined') return false;
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
-};
-
-/* ----------------- UI helpers ----------------- */
-export const buildStoreDetailChips = (sellerData = {}) => {
-  const chips = [];
-  if (sellerData.businessType) {
-    chips.push({ label: `${sellerData.businessType[0].toUpperCase()}${sellerData.businessType.slice(1)} Business` });
-  }
-  if (Array.isArray(sellerData.paymentMethods) && sellerData.paymentMethods.length) {
-    chips.push({ label: `${sellerData.paymentMethods.length} Payment ${sellerData.paymentMethods.length === 1 ? 'Method' : 'Methods'}` });
-  }
-  if (Array.isArray(sellerData.deliveryOptions) && sellerData.deliveryOptions.length) {
-    chips.push({ label: `${sellerData.deliveryOptions.length} Delivery ${sellerData.deliveryOptions.length === 1 ? 'Option' : 'Options'}` });
-  }
-  if (sellerData.currency && sellerData.currency !== 'GHS') chips.push({ label: `${sellerData.currency} Currency` });
-  if (sellerData.businessHours && Object.keys(sellerData.businessHours).length) chips.push({ label: 'Business Hours Available' });
-  if (sellerData.website) chips.push({ label: 'Website Available' });
-  return chips;
-};
-
-/* ----------------- Phone ----------------- */
-export const normalizeToE164 = (rawNumber, defaultCountry = 'GH') => {
-  if (!rawNumber || typeof rawNumber !== 'string') return null;
-  let cleaned = rawNumber.replace(/[^\d+]/g, '');
-  if (cleaned.startsWith('+')) {
-    if (/^\+[1-9]\d{1,3}\d{4,14}$/.test(cleaned) && cleaned.length >= 8 && cleaned.length <= 18) return cleaned;
-    return null;
-  }
-  const rules = {
-    GH: { prefix: '+233', len: [9], norm: n => (n.startsWith('0') ? n.slice(1) : n) },
-    NG: { prefix: '+234', len: [10], norm: n => (n.startsWith('0') ? n.slice(1) : n) },
-    KE: { prefix: '+254', len: [9], norm: n => (n.startsWith('0') ? n.slice(1) : n) },
-    ZA: { prefix: '+27',  len: [9], norm: n => (n.startsWith('0') ? n.slice(1) : n) },
-    US: { prefix: '+1',   len: [10], norm: n => n },
-  };
-  const rule = rules[defaultCountry.toUpperCase()];
-  if (!rule) {
-    const local = cleaned.startsWith('0') ? cleaned.slice(1) : cleaned;
-    return local.length === 9 ? `+233${local}` : null;
-  }
-  const local = rule.norm(cleaned);
-  if (rule.len.includes(local.length)) return `${rule.prefix}${local}`;
-  if (cleaned.startsWith(rule.prefix.substring(1))) return `+${cleaned}`;
-  return null;
-};
-
-export const isValidPhoneE164 = (phone) =>
-  typeof phone === 'string' &&
-  /^\+[1-9]\d{1,3}\d{4,14}$/.test(phone) &&
-  phone.length >= 8 &&
-  phone.length <= 18;
+// Phone number validation and formatting utilities
 
 export const validatePhoneNumber = (phone, country = 'GH') => {
-  if (!phone || typeof phone !== 'string')
-    return { isValid: false, error: 'Phone number is required', normalized: null };
-  const normalized = normalizeToE164(phone, country);
-  if (!normalized) return { isValid: false, error: 'Please enter a valid phone number with country code', normalized: null };
-  if (!isValidPhoneE164(normalized)) return { isValid: false, error: 'Invalid phone number format', normalized: null };
-  return { isValid: true, error: null, normalized };
+  if (!phone) return { isValid: false, message: 'Phone number is required' };
+  
+  const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+  
+  if (country.toUpperCase() === 'GH') {
+    if (cleanPhone.startsWith('+233') && cleanPhone.length === 13) {
+      const digits = cleanPhone.slice(4);
+      if (/^[245]\d{8}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Ghana number', e164: cleanPhone };
+      }
+    }
+    
+    if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+      const digits = cleanPhone.slice(1);
+      if (/^[245]\d{8}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Ghana number', e164: `+233${digits}` };
+      }
+    }
+    
+    if (cleanPhone.length === 9 && /^[245]\d{8}$/.test(cleanPhone)) {
+      return { isValid: true, message: 'Valid Ghana number', e164: `+233${cleanPhone}` };
+    }
+    
+    return { isValid: false, message: 'Invalid Ghana number' };
+  }
+  
+  if (country.toUpperCase() === 'NG') {
+    if (cleanPhone.startsWith('+234') && cleanPhone.length === 14) {
+      const digits = cleanPhone.slice(4);
+      if (/^[789]\d{9}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Nigeria number', e164: cleanPhone };
+      }
+    }
+    
+    if (cleanPhone.startsWith('0') && cleanPhone.length === 11) {
+      const digits = cleanPhone.slice(1);
+      if (/^[789]\d{9}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Nigeria number', e164: `+234${digits}` };
+      }
+    }
+    
+    return { isValid: false, message: 'Invalid Nigeria number' };
+  }
+  
+  if (country.toUpperCase() === 'KE') {
+    if (cleanPhone.startsWith('+254') && cleanPhone.length === 13) {
+      const digits = cleanPhone.slice(4);
+      if (/^[17]\d{8}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Kenya number', e164: cleanPhone };
+      }
+    }
+    
+    if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+      const digits = cleanPhone.slice(1);
+      if (/^[17]\d{8}$/.test(digits)) {
+        return { isValid: true, message: 'Valid Kenya number', e164: `+254${digits}` };
+      }
+    }
+    
+    return { isValid: false, message: 'Invalid Kenya number' };
+  }
+  
+  if (cleanPhone.startsWith('+') && cleanPhone.length >= 8 && cleanPhone.length <= 15) {
+    if (/^\+\d{7,14}$/.test(cleanPhone)) {
+      return { isValid: true, message: 'Valid international number', e164: cleanPhone };
+    }
+  }
+  
+  return { isValid: false, message: 'Invalid phone number format' };
 };
 
-export const phoneNeedsUpdate = (phone) => !!phone && !isValidPhoneE164(phone);
+export const isValidPhoneE164 = (phone) => {
+  if (!phone || typeof phone !== 'string') return false;
+  const e164Regex = /^\+\d{1,15}$/;
+  if (e164Regex.test(phone)) {
+    if (phone.startsWith('+233')) return phone.length === 13;
+    if (phone.startsWith('+234')) return phone.length === 14;
+    if (phone.startsWith('+254')) return phone.length === 13;
+    return true;
+  }
+  return false;
+};
+
+export const formatPhoneForDisplay = (e164) => {
+  if (!e164 || typeof e164 !== 'string') return e164 || '';
+  
+  if (e164.startsWith('+233') && e164.length === 13) {
+    return `+233 ${e164.slice(4, 6)} ${e164.slice(6, 9)} ${e164.slice(9)}`;
+  } else if (e164.startsWith('+234') && e164.length === 14) {
+    return `+234 ${e164.slice(4, 7)} ${e164.slice(7, 10)} ${e164.slice(10)}`;
+  } else if (e164.startsWith('+254') && e164.length === 13) {
+    return `+254 ${e164.slice(4, 7)} ${e164.slice(7, 10)} ${e164.slice(10)}`;
+  }
+
+  return e164;
+};
 
 export const getPhoneHint = (country = 'GH') => {
   const hints = {
     GH: 'Include country code, e.g., +233 24 123 4567 or 0241234567',
     NG: 'Include country code, e.g., +234 803 123 4567 or 08031234567',
     KE: 'Include country code, e.g., +254 712 345 678 or 0712345678',
-    ZA: 'Include country code, e.g., +27 82 123 4567 or 0821234567',
-    US: 'Include country code, e.g., +1 555 123 4567',
   };
   return hints[country.toUpperCase()] || hints.GH;
 };
 
-export const formatPhoneForDisplay = (e164) => {
-  if (!isValidPhoneE164(e164)) return e164 || '';
-  if (e164.startsWith('+233')) {
-    const l = e164.slice(4); if (l.length === 9) return `+233 ${l.slice(0,2)} ${l.slice(2,5)} ${l.slice(5)}`;
-  } else if (e164.startsWith('+234')) {
-    const l = e164.slice(4); if (l.length === 10) return `+234 ${l.slice(0,3)} ${l.slice(3,6)} ${l.slice(6)}`;
-  } else if (e164.startsWith('+1')) {
-    const l = e164.slice(2); if (l.length === 10) return `+1 (${l.slice(0,3)}) ${l.slice(3,6)}-${l.slice(6)}`;
-  }
-  return e164;
+export const phoneNeedsUpdate = (phone) => {
+  if (!phone) return true;
+  return !phone.startsWith('+') || phone.length < 10;
 };
 
-export const generateWhatsAppURL = (phone, message = '') => {
-  const normalized = normalizeToE164(phone) || phone;
-  const onlyDigits = (normalized || '').replace('+', '');
-  return `https://wa.me/${onlyDigits}?text=${encodeURIComponent(message)}`;
-};
-export const generateWhatsAppUrl = generateWhatsAppURL;
-
-/* ----------------- Price ----------------- */
-export const formatPrice = (amount, currency = 'GHS') => {
-  if (amount == null || isNaN(amount)) return `${currency} 0.00`;
-  const n = Number(amount);
-  const symbols = { GHS: '₵', USD: '$', EUR: '€', GBP: '£', NGN: '₦' };
-  const s = symbols[currency] || currency;
-  if (n >= 1_000_000) return `${s} ${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${s} ${(n / 1_000).toFixed(1)}K`;
-  return `${s} ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-};
-
-/* ----------------- Images / descriptions ----------------- */
-const PLACEHOLDER = 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80';
-
-const extractUrl = (v) => (typeof v === 'string' ? v : (v?.url || v?.src || v?.preview || v?.path || '') || '');
-const isUrlLike = (u) => typeof u === 'string' && /^(https?:|blob:|data:)/i.test(u.trim());
-
-export const getProductImageUrl = (p = {}) => {
-  const candidates = [
-    p.images?.primary, p.image, p.imageUrl, p.coverImage, p.thumbnailUrl,
-    ...(Array.isArray(p.images) ? p.images : []),
-    ...(Array.isArray(p.images?.gallery) ? p.images.gallery : []),
-  ].map(extractUrl).filter(isUrlLike);
-  return candidates[0] || PLACEHOLDER;
-};
-
-export const getProductImages = (p = {}) => {
-  const primary = extractUrl(p.images?.primary);
-  const flat = [
-    ...(Array.isArray(p.images) ? p.images : []),
-    ...(Array.isArray(p.images?.gallery) ? p.images.gallery : []),
-  ].map(extractUrl).filter(isUrlLike);
-  const all = [primary, ...flat, extractUrl(p.imageUrl), extractUrl(p.coverImage), extractUrl(p.thumbnailUrl)].filter(isUrlLike);
-  return [...new Set(all)].length ? [...new Set(all)] : [PLACEHOLDER];
-};
-
-export const getProductDescription = (p = {}, type = 'full') => {
-  const full = typeof p.description === 'string' ? p.description : (p.description?.full || '');
-  const short = typeof p.description === 'string'
-    ? (p.description.length > 100 ? `${p.description.slice(0,100)}...` : p.description)
-    : (p.description?.short || (full.length > 100 ? `${full.slice(0,100)}...` : full));
-  return type === 'short' ? short : full;
-};
-
-export const isLowStock = (p = {}, threshold = 5) => {
-  const q = Number(p.quantity ?? 0);
-  return q > 0 && q <= threshold;
-};
-
-/* ----------------- Product shaping ----------------- */
-const generateSKU = (name) => `${(name || 'PRD').slice(0,3).toUpperCase()}${Math.floor(Math.random()*10000).toString().padStart(4,'0')}`;
-
-export const createEnhancedProduct = (b = {}) => ({
-  name: b.name || '',
-  price: Number(b.price || 0),
-  quantity: Number(b.quantity || 0),
-  category: b.category || '',
-  subcategory: b.subcategory || '',
-  description: typeof b.description === 'string'
-    ? { short: b.description.length > 100 ? `${b.description.slice(0,100)}...` : b.description, full: b.description }
-    : { short: b.description?.short || '', full: b.description?.full || '' },
-  images: {
-    primary: extractUrl(b.images?.primary) || extractUrl(b.image) || extractUrl(b.imageUrl) || '',
-    gallery: Array.isArray(b.images?.gallery) ? b.images.gallery.map(extractUrl).filter(Boolean)
-      : Array.isArray(b.images) ? b.images.map(extractUrl).filter(Boolean) : [],
-  },
-  specifications: b.specifications || { dimensions: '', weight: '', materials: '', care: '', condition: 'New', origin: '' },
-  features: b.features || [],
-  tags: b.tags || [],
-  seo: b.seo || { title: b.name || '', metaDescription: '' },
-  sku: b.sku || generateSKU(b.name),
-  status: b.status || 'active',
-  featured: !!b.featured,
-  createdAt: b.createdAt || Date.now(),
-  updatedAt: Date.now(),
-  analytics: b.analytics || { views: 0, contacts: 0, orders: 0, lastViewed: null },
-});
-
-export const formatProductForDisplay = (p = {}) => {
-  const price = Number(p.price ?? 0);
-  const quantity = Number(p.quantity ?? 0);
-  const images = getProductImages(p);
+// Product-related utilities
+export const createEnhancedProduct = (productData, user) => {
+  const timestamp = new Date().toISOString();
+  
   return {
-    ...p,
-    price,
-    quantity,
-    imageUrl: images[0] || PLACEHOLDER,
-    images,
-    description: getProductDescription(p, 'full'),
-    shortDescription: getProductDescription(p, 'short'),
-    isLowStock: isLowStock({ quantity }),
-    hasSpecs: Object.keys(p.specifications || {}).some(k => (p.specifications || {})[k]),
-    hasFeatures: (p.features || []).length > 0,
+    ...productData,
+    name: productData.name || '',
+    price: productData.price || 0,
+    category: productData.category || 'other',
+    condition: productData.condition || 'used',
+    description: productData.description || '',
+    images: productData.images || [],
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    createdBy: user?.uid || '',
+    createdByEmail: user?.email || '',
+    status: productData.status || 'active',
+    inventory: productData.inventory !== undefined ? productData.inventory : 1,
+    searchKeywords: generateSearchKeywords(productData),
+    views: 0,
+    likes: 0,
+    shares: 0,
   };
 };
 
-export const validateProductData = (p = {}) => {
+export const validateProductData = (productData) => {
   const errors = [];
-  if (!p.name?.trim()) errors.push('Product name is required');
-  if (!p.price || Number(p.price) <= 0) errors.push('Valid price is required');
-  if (p.quantity == null || Number(p.quantity) < 0) errors.push('Valid quantity is required');
-  if (!p.category?.trim()) errors.push('Category is required');
-  if (getProductImages(p).filter(isUrlLike).length === 0) errors.push('Product image is required');
+  
+  if (!productData.name || productData.name.trim().length < 2) {
+    errors.push('Product name must be at least 2 characters long');
+  }
+  
+  if (!productData.price || productData.price < 0) {
+    errors.push('Price must be a positive number');
+  }
+  
+  if (!productData.category) {
+    errors.push('Category is required');
+  }
+  
+  if (!productData.condition) {
+    errors.push('Condition is required');
+  }
+  
+  if (!productData.description || productData.description.trim().length < 10) {
+    errors.push('Description must be at least 10 characters long');
+  }
+  
+  if (!productData.images || productData.images.length === 0) {
+    errors.push('At least one product image is required');
+  }
+  
   return { isValid: errors.length === 0, errors };
 };
 
-export const trackInteraction = async (userId, productId, action, metadata = {}) => {
-  if (!userId || !productId || !action) { console.warn('trackInteraction: missing params'); return false; }
-  try {
-    console.log('Tracking interaction:', { userId, productId, action, metadata, timestamp: Date.now() });
-    await new Promise(r => setTimeout(r, 100));
-    return true;
-  } catch (e) { console.error('trackInteraction error:', e); return false; }
-};
-
-export const updateProductAnalytics = (p = {}, action) => {
-  const a = p.analytics || { views: 0, contacts: 0, orders: 0, lastViewed: null };
-  if (action === 'view') { a.views = (a.views || 0) + 1; a.lastViewed = Date.now(); }
-  if (action === 'contact') a.contacts = (a.contacts || 0) + 1;
-  if (action === 'order') a.orders = (a.orders || 0) + 1;
-  return { ...p, analytics: a, updatedAt: Date.now() };
-};
-
-/* ----------------- Seller data ----------------- */
-export const standardizeSellerData = (raw = {}) => {
-  const up = raw.userProfile || raw;
-
-  const normalized = normalizeToE164(up.whatsappNumber || up.phone || '');
-  const whatsappNumber = normalized || (up.whatsappNumber || up.phone || '');
-
-  const paymentMethods = Array.isArray(up.paymentMethods) && up.paymentMethods.length
-    ? up.paymentMethods
-    : ['Mobile Money', 'Bank Transfer', 'Cash on Delivery'];
-
-  const deliveryOptions = Array.isArray(up.deliveryOptions) && up.deliveryOptions.length
-    ? up.deliveryOptions
-    : ['Pickup', 'Delivery'];
-
+export const formatProductForDisplay = (product) => {
+  if (!product) return null;
+  
   return {
-    uid: raw.uid || up.uid || '',
-    storeName: up.storeName || up.businessName || up.name || 'Store',
-    storeDescription: up.storeDescription || up.description || '',
-    location: up.location || up.address || 'Location available on request',
-    whatsappNumber,
-    currency: up.currency || 'GHS',
-    businessType: up.businessType || 'retail',
-    businessCategory: up.businessCategory || up.category || '',
-    category: up.category || up.businessCategory || '',
-    email: up.email || '',
-    website: up.website || '',
-    socialMedia: up.socialMedia || {},
-    businessHours: up.businessHours || {},
-    paymentMethods,
-    deliveryOptions,
-    policies: up.policies || { returns: '', shipping: '', privacy: '' },
+    id: product.id || product.productId,
+    name: product.name || 'Unnamed Product',
+    price: product.price || 0,
+    originalPrice: product.originalPrice || product.price || 0,
+    category: product.category || 'Uncategorized',
+    condition: product.condition || 'New',
+    description: product.description || '',
+    shortDescription: product.shortDescription || product.description?.substring(0, 150) || '',
+    images: Array.isArray(product.images) ? product.images : [product.image].filter(Boolean),
+    inventory: product.inventory !== undefined ? product.inventory : product.quantity || 0,
+    status: product.status || 'active',
+    brand: product.brand || '',
+    features: Array.isArray(product.features) ? product.features : [],
+    tags: Array.isArray(product.tags) ? product.tags : [],
+    specifications: product.specifications || {},
+    analytics: product.analytics || { views: 0, likes: 0, shares: 0 },
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+    sellerId: product.sellerId || product.createdBy,
+    hasDiscount: product.originalPrice && product.originalPrice > product.price,
+    discountPercentage: product.originalPrice && product.price 
+      ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+      : 0,
+    isLowStock: (product.inventory !== undefined && product.inventory < 5) || 
+                (product.quantity !== undefined && product.quantity < 5),
+    isOutOfStock: (product.inventory !== undefined && product.inventory === 0) ||
+                  (product.quantity !== undefined && product.quantity === 0)
   };
 };
 
-/* ----------------- WhatsApp message builders ----------------- */
-export const createWhatsAppMessage = {
-  orderPlacement: (order, seller) => {
-    const s = standardizeSellerData(seller);
-    const { product, quantity, customerInfo, totalPrice, orderId } = order;
-    let msg = `🛒 *New Order for ${s.storeName}*\n\n`;
-    msg += `📦 *Product:* ${product.name}\n`;
-    msg += `🔢 *Quantity:* ${quantity}\n`;
-    msg += `💰 *Total:* ${formatPrice(totalPrice, s.currency)}\n`;
-    msg += `🆔 *Order ID:* #${orderId}\n\n`;
-    msg += `👤 *Customer*\n• ${customerInfo.name}\n• ${customerInfo.phone}\n`;
-    if (customerInfo.deliveryAddress) msg += `• ${customerInfo.deliveryAddress}\n`;
-    if (customerInfo.preferredPayment) msg += `• Payment: ${customerInfo.preferredPayment}\n`;
-    if (customerInfo.notes) msg += `• Notes: ${customerInfo.notes}\n`;
-    msg += `\nPlease confirm availability and discuss delivery/pickup.`;
-    return msg;
-  },
+export const getProductImageUrl = (imagePath, size = 'medium') => {
+  if (!imagePath) return '/placeholder-product.jpg';
+  if (imagePath.startsWith('http')) return imagePath;
+  return imagePath;
+};
 
-  productInquiry: (product, customerInfo, seller) => {
-    const s = standardizeSellerData(seller);
-    let msg = `👋 Hi! I'm interested in:\n\n`;
-    msg += `📦 *${product.name}*\n`;
-    msg += `💰 ${formatPrice(product.price, s.currency)}\n\n`;
-    if (customerInfo?.name) msg += `My name is ${customerInfo.name}.\n`;
-    msg += `Could you share availability, payment, and delivery options?\n\nThanks!`;
-    return msg;
-  },
+export const formatPrice = (price, currency = 'GHS') => {
+  if (typeof price !== 'number') price = parseFloat(price) || 0;
+  return new Intl.NumberFormat('en-GH', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price);
+};
 
-  storeShare: (seller, url) => {
-    const s = standardizeSellerData(seller);
-    let msg = `🛍️ *Check out ${s.storeName}!*`;
-    if (s.storeDescription) msg += `\n\n${s.storeDescription}`;
-    if (s.location) msg += `\n\n📍 ${s.location}`;
-    if (s.category) msg += `\n📦 Category: ${s.category}`;
-    msg += `\n\n🔗 ${url}\n\n💬 Chat with us for details!`;
-    return msg;
-  },
+// Image constants
+export const MIN_IMG_W = 400;
+export const MIN_IMG_H = 400;
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-  statusUpdate: (seller, url) => {
-    const s = standardizeSellerData(seller);
-    return `🛍️ ${s.storeName} — new items just added! ${url}`;
+// WhatsApp and messaging utilities
+export const createWhatsAppMessage = (products, customerName = '', storeInfo = {}) => {
+  if (!products || products.length === 0) return '';
+  
+  const storeName = storeInfo.storeName || 'our store';
+  const greeting = customerName ? `Hello ${customerName}!` : 'Hello!';
+  let message = `${greeting} Here are the products you selected from ${storeName}:\n\n`;
+  
+  products.forEach((product, index) => {
+    const price = product.price ? ` - ${formatPrice(product.price)}` : '';
+    message += `${index + 1}. ${product.name}${price}\n`;
+    
+    if (product.description) {
+      const desc = product.description.length > 100 
+        ? product.description.substring(0, 100) + '...' 
+        : product.description;
+      message += `   ${desc}\n`;
+    }
+    
+    message += '\n';
+  });
+
+  if (storeInfo.phone) {
+    const phone = storeInfo.phone.startsWith('+') ? storeInfo.phone : `+${storeInfo.phone}`;
+    message += `To place your order, contact ${storeName} at: ${phone}\n\n`;
   }
+  
+  message += 'Thank you for your interest!';
+  return encodeURIComponent(message);
 };
 
-/* ----------------- Order form validation ----------------- */
-export const validateOrderForm = (info) => {
+export const generateWhatsAppUrl = (phone, message = '') => {
+  if (!phone) return '';
+  const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+  let whatsappPhone = cleanPhone;
+  
+  if (!cleanPhone.startsWith('233') && cleanPhone.length === 9) {
+    whatsappPhone = '233' + cleanPhone;
+  } else if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+    whatsappPhone = '233' + cleanPhone.slice(1);
+  }
+  
+  const baseUrl = `https://wa.me/${whatsappPhone}`;
+  return message ? `${baseUrl}?text=${encodeURIComponent(message)}` : baseUrl;
+};
+
+// Order validation
+export const validateOrderForm = (formData) => {
   const errors = {};
-  if (!info.name || info.name.trim().length < 2) errors.name = 'Name is required (minimum 2 characters)';
-  if (!info.phone || info.phone.trim().length < 10) errors.phone = 'Valid phone number is required';
-  else if (!isValidPhoneE164(normalizeToE164(info.phone))) errors.phone = 'Please enter a valid phone number';
+  
+  if (!formData.customerName?.trim()) errors.customerName = 'Customer name is required';
+  if (!formData.customerPhone?.trim()) errors.customerPhone = 'Phone number is required';
+  if (!formData.deliveryAddress?.trim()) errors.deliveryAddress = 'Delivery address is required';
+  
   return { isValid: Object.keys(errors).length === 0, errors };
 };
 
-export const validateCustomerInfo = (info) => {
-  const errors = {};
-  if (!info.name?.trim()) errors.name = 'Customer name is required';
-  if (!info.phone?.trim()) errors.phone = 'Phone number is required';
-  else if (!isValidPhoneE164(normalizeToE164(info.phone))) errors.phone = 'Please enter a valid phone number';
-  if (info.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) errors.email = 'Please enter a valid email address';
-  return { isValid: Object.keys(errors).length === 0, errors };
+// Analytics and tracking
+export const trackInteraction = (type, data = {}) => {
+  const event = { type, timestamp: new Date().toISOString(), ...data };
+  console.log('Tracked interaction:', event);
+  return event;
 };
 
-export default {
-  MIN_IMG_W, MIN_IMG_H,
-  isMobileDevice, buildStoreDetailChips,
-  normalizeToE164, isValidPhoneE164, formatPhoneForDisplay, validatePhoneNumber, phoneNeedsUpdate, getPhoneHint,
-  generateWhatsAppURL, generateWhatsAppUrl,
-  formatPrice,
-  getProductImageUrl, getProductImages, getProductDescription,
-  createEnhancedProduct, formatProductForDisplay, validateProductData, isLowStock,
-  standardizeSellerData, trackInteraction, updateProductAnalytics,
-  createWhatsAppMessage, validateOrderForm, validateCustomerInfo,
+// Seller data standardization
+export const standardizeSellerData = (sellerData) => {
+  if (!sellerData) return {};
+  
+  return {
+    storeName: sellerData.storeName || '',
+    description: sellerData.description || '',
+    phone: sellerData.phone || '',
+    email: sellerData.email || '',
+    address: sellerData.address || '',
+    categories: Array.isArray(sellerData.categories) ? sellerData.categories : [],
+    businessHours: sellerData.businessHours || {},
+    socialMedia: sellerData.socialMedia || {},
+    isActive: sellerData.isActive !== undefined ? sellerData.isActive : true,
+    createdAt: sellerData.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+};
+
+// Helper function
+const generateSearchKeywords = (productData) => {
+  const keywords = new Set();
+  
+  if (productData.name) {
+    productData.name.toLowerCase().split(/\s+/).forEach(word => {
+      if (word.length > 2) keywords.add(word);
+    });
+  }
+  
+  if (productData.category) keywords.add(productData.category.toLowerCase());
+  if (productData.brand) keywords.add(productData.brand.toLowerCase());
+  if (productData.condition) keywords.add(productData.condition.toLowerCase());
+  
+  if (productData.description) {
+    productData.description.toLowerCase().split(/\s+/).slice(0, 10).forEach(word => {
+      if (word.length > 3) keywords.add(word);
+    });
+  }
+  
+  return Array.from(keywords);
 };
